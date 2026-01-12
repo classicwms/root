@@ -355,7 +355,7 @@ public class MultiTenantController {
         List<ImBasicData1> imBasicData1s = multiTenantService.searchImBasicData1V5(searchImBasicData1);
         return new ResponseEntity<>(imBasicData1s, HttpStatus.OK);
     }
-
+    
     // Find InventoryV2
     @ApiOperation(response = InventoryV5.class, value = "Spark Find Inventory for Mobile ")
     @PostMapping("/inventory/new/v2")
@@ -363,4 +363,19 @@ public class MultiTenantController {
         List<InventoryV5> inventoryList = multiTenantService.findInventoryV5(findInventoryV2);
         return new ResponseEntity<>(inventoryList, HttpStatus.OK);
     }
+
+    // Find InventoryV2 BF
+    @ApiOperation(response = InventoryV9.class, value = "Spark Find Inventory")
+    @PostMapping("/inventory/new/v9")
+    public ResponseEntity<?> searchInventoryV9(@RequestBody FindInventoryV2 findInventoryV2) throws Exception {
+        List<InventoryV9> inventoryList = multiTenantService.findInventoryV9(findInventoryV2);
+        return new ResponseEntity<>(inventoryList, HttpStatus.OK);
+    }
+//    //Get StagingLine
+//    @ApiOperation(response = StagingLineV4.class, value = "Spark FindStagingLine")
+//    @PostMapping("/stagingLine/new")
+//    public ResponseEntity<?> findStagingLineV6(@RequestBody FindStagingLineV2 findStagingLineV2) throws Exception {
+//        List<StagingLineV5> stagingLineV2 = multiTenantService.findStagingLineV6(findStagingLineV2);
+//        return new ResponseEntity<>(stagingLineV2, HttpStatus.OK);
+//    }
 }

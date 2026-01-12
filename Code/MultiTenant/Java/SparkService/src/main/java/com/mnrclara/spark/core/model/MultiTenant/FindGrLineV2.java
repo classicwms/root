@@ -2,6 +2,7 @@ package com.mnrclara.spark.core.model.MultiTenant;
 
 import lombok.Data;
 
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -26,4 +27,9 @@ public class FindGrLineV2 {
     private List<String> rejectType;
     private List<String> rejectReason;
     private List<String> packBarcodes;
+    private Date startCreatedOn;
+    private Date endCreatedOn;
+
+    /*--------------Namratha------------------*/
+    private List<String> putAwayNumber;
 }

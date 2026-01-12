@@ -108,4 +108,5 @@ public class OrderManagementLineV4 {
     private Timestamp manufacturerDate;
     private Timestamp expiryDate;
 
+    private String palletId;
 }

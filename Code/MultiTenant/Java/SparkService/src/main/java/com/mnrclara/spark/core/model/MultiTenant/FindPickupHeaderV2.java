@@ -24,4 +24,5 @@ public class FindPickupHeaderV2 {
     private List<String> languageId;
     private List<String> companyCodeId;
     private List<String> plantId;
+    private List<String> referenceField2;
 }

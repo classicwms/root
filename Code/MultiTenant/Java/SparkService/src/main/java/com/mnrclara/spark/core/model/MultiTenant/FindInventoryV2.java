@@ -30,4 +30,5 @@ public class FindInventoryV2 {
     private List<String> levelId;
     private List<String> altUom;
     private List<String> customerId;
+    private List<String> referenceField7;
 }

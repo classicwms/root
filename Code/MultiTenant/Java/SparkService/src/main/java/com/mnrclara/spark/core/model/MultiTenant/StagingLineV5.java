@@ -102,4 +102,8 @@ public class StagingLineV5 {
     private String vehicleNo;
     private Timestamp vehicleReportingDate;
     private Timestamp vehicleUnloadingDate;
+    private String barcodeId;
+    private Boolean crossDock;
+    private String goodsReceiptNo;
+    private String parentProductionOrderNo;
 }

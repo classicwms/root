@@ -4,9 +4,8 @@ import lombok.Data;
 
 import java.sql.Timestamp;
 
-
 @Data
-public class InventoryV4 {
+public class InventoryV9 {
 
     private Long inv_id;
     private String lang_id;
@@ -48,11 +47,11 @@ public class InventoryV4 {
     private Timestamp utd_on;
     private String mfr_code;
     private String barcode_id;
-    private String cbm;
-    private String cbm_unit;
+//    private String cbm;
+//    private String cbm_unit;
     private String level_id;
-    private String origin;
-    private String brand;
+//    private String origin;
+//    private String brand;
     private String ref_doc_no;
     private String c_text;
     private String plant_text;
@@ -62,28 +61,25 @@ public class InventoryV4 {
     private String status_text;
     private String partner_code;
     private Long itm_typ_id;
-    private String itm_typ_txt;
-    private Timestamp batch_date;
-    private String alt_uom;
-    private Double no_bags;
-    private Double bag_size;
-    private Double case_qty;
-    private Boolean loose_pack;
-    private Double piece_qty;
-    private Double crate_qty;
+//    private String itm_typ_txt;
+//    private Timestamp batch_date;
+//    private String alt_uom;
+//    private Double no_bags;
+//    private Double bag_size;
+//    private Double case_qty;
+//    private Boolean loose_pack;
+//    private Double piece_qty;
+//    private Double crate_qty;
     private Double qty_in_case;
     private Double qty_in_create;
-    private Double qty_in_piece;
-    private String vehicle_no;
-    private Timestamp vehicle_reporting_date;
-    private Timestamp vehicle_unloading_date;
+//    private Double qty_in_piece;
+//    private String vehicle_no;
+//    private Timestamp vehicle_reporting_date;
+//    private Timestamp vehicle_unloading_date;
     private String self_life;
     private String remaining_days;
     private Long remaining_self_life_percentage;
     private String receivingVariance;
     private String mfr_name;
-    private Double mrp;
-    private String price_segment;
-    private String tpl_partner_id;
-    private String color;
+//    private Double mrp;
 }

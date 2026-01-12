@@ -28,4 +28,6 @@ public class FindContainerReceiptV2 {
     private List<String> companyCodeId;
     private List<String> plantId;
     private List<String> refDocNumber;
+    private List<String> origin;
+    private List<String> invoiceNo;
 }

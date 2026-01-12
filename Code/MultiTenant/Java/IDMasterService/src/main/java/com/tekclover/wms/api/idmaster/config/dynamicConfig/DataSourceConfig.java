@@ -36,6 +36,7 @@ public class DataSourceConfig {
         DataSource db6 = createDataSource("KNOWELL");
         DataSource db7 = createDataSource("FAHAHEEL");
         DataSource db8 = createDataSource("AUTO_LAP");
+        DataSource db12 = createDataSource("BF");
 
         targetDataSources.put("MT",db);
         targetDataSources.put("IMPEX", db1);
@@ -46,6 +47,7 @@ public class DataSourceConfig {
         targetDataSources.put("KNOWELL", db6);
         targetDataSources.put("FAHAHEEL", db7);
         targetDataSources.put("AUTO_LAP", db8);
+        targetDataSources.put("BF", db12);
 
         DynamicDataSource dataSource = new DynamicDataSource();
         dataSource.setTargetDataSources(targetDataSources);
@@ -108,6 +110,12 @@ public class DataSourceConfig {
             case "AUTO_LAP":
                 dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
                 dataSource.setUrl("jdbc:sqlserver://10.10.22.45;databaseName=WMS_AUTO_LAP");
+                dataSource.setUsername("sa");
+                dataSource.setPassword("D3pyGJd4uK8sSqM7YbfJp5nYt");
+                break;
+            case "BF":
+                dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+                dataSource.setUrl("jdbc:sqlserver://10.10.22.45;databaseName=WMS_BF");
                 dataSource.setUsername("sa");
                 dataSource.setPassword("D3pyGJd4uK8sSqM7YbfJp5nYt");
                 break;

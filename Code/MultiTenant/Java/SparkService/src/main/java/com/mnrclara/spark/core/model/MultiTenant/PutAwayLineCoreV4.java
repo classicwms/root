@@ -24,10 +24,14 @@ public class PutAwayLineCoreV4 {
     private Timestamp pa_ctd_on;
     private Timestamp pa_cnf_on;
     private String ref_field_1;
+    private String ref_field_10;
     private String alt_uom;
     private Double no_bags;
     private Double bag_size;
     private Double mrp;
     private String itm_typ;
     private String itm_grp;
+    private Double qty_in_case;
+    private Double qty_in_create;
+    private Double qty_in_piece;
 }

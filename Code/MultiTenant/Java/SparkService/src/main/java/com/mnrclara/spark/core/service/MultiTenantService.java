@@ -26,7 +26,7 @@ public class MultiTenantService {
 
     Properties connProp = DatabaseConnectionUtil.getImpexDevDatabaseConnectionProperties();
 
-    Properties connProp1 = DatabaseConnectionUtil.getCoreDatabaseConnectionProperties();
+    Properties connProp1 = DatabaseConnectionUtil.getNamrathaDatabaseConnectionProperties();
 
     Properties connRef = DatabaseConnectionUtil.getReeferonDatabaseConnectionProperties();
 
@@ -35,6 +35,8 @@ public class MultiTenantService {
     Properties connFahae = DatabaseConnectionUtil.getFahaeelDatabaseConnectionProperties();
 
     Properties connAutoLap = DatabaseConnectionUtil.getAutoLapDatabaseConnectionProperties();
+
+    Properties connBF = DatabaseConnectionUtil.getBFDatabaseConnectionProperties();
 
     String jdbcUrl = DatabaseConnectionUtil.getImpexDevJdbcUrl();
 
@@ -53,6 +55,8 @@ public class MultiTenantService {
     String jdbcUrl7 = DatabaseConnectionUtil.getFahaeelJdbcUrl();
 
     String jdbcUrl8 = DatabaseConnectionUtil.getAutoLapJdbcUrl();
+
+    String jdbcUrl9 = DatabaseConnectionUtil.getBFJdbcUrl();
 
     @Autowired
     private DbConfigRepository dbConfigRepository;
@@ -159,6 +163,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
                 log.info("JDBC URL check -->{}", jdbcUrl8);
+            } else if (routingDb.equals("BF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl9);
             }
 
 //            data.show();
@@ -229,6 +239,26 @@ public class MultiTenantService {
                     " REF_FIELD_8 as referenceField8, " +
                     " REF_FIELD_9 as referenceField9, " +
                     " REF_FIELD_10 as referenceField10, " +
+                    " REF_FIELD_11 as referenceField11, " +
+                    " REF_FIELD_12 as referenceField12, " +
+                    " REF_FIELD_13 as referenceField13, " +
+                    " REF_FIELD_14 as referenceField14, " +
+                    " REF_FIELD_15 as referenceField15, " +
+                    " REF_FIELD_16 as referenceField16, " +
+                    " REF_FIELD_17 as referenceField17, " +
+                    " REF_FIELD_18 as referenceField18, " +
+                    " REF_FIELD_19 as referenceField19, " +
+                    " REF_FIELD_20 as referenceField20, " +
+                    " REF_FIELD_21 as referenceField21, " +
+                    " REF_FIELD_22 as referenceField22, " +
+                    " REF_FIELD_23 as referenceField23, " +
+                    " REF_FIELD_24 as referenceField24, " +
+                    " REF_FIELD_25 as referenceField25, " +
+                    " REF_FIELD_26 as referenceField26, " +
+                    " REF_FIELD_27 as referenceField27, " +
+                    " REF_FIELD_28 as referenceField28, " +
+                    " REF_FIELD_29 as referenceField29, " +
+                    " REF_FIELD_30 as referenceField30, " +
                     " CTD_BY as createdBy, " +
                     " CTD_ON as createdOn, " +
                     " UTD_BY as updatedBy, " +
@@ -251,7 +281,8 @@ public class MultiTenantService {
             ConditionUtils.addCondition(conditions, "CONT_NO", findContainerReceipt.getContainerNo());
             ConditionUtils.addCondition(conditions, "PARTNER_CODE", findContainerReceipt.getPartnerCode());
             ConditionUtils.addCondition(conditions, "REF_FIELD_1", findContainerReceipt.getUnloadedBy());
-
+            ConditionUtils.addCondition(conditions, "ORIGIN", findContainerReceipt.getOrigin());
+            ConditionUtils.addCondition(conditions, "INV_NO", findContainerReceipt.getInvoiceNo());
             ConditionUtils.numericConditions(conditions, "STATUS_ID", findContainerReceipt.getStatusId());
 
             ConditionUtils.addDateCondition(conditions, "CONT_REC_DATE", findContainerReceipt.getStartContainerReceivedDate(), findContainerReceipt.getEndContainerReceivedDate());
@@ -318,6 +349,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
                 log.info("JDBC URL check -->{}", jdbcUrl8);
+            } else if (routingDb.equals("BF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl9);
             }
 //            data.show();
             Encoder<ContainerReceiptV2> containerReceiptEncoder = Encoders.bean(ContainerReceiptV2.class);
@@ -493,6 +530,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
                 log.info("JDBC URL check -->{}", jdbcUrl8);
+            } else if (routingDb.equals("BF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl9);
             }
 
 //            data.show();
@@ -659,6 +702,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
                 log.info("JDBC URL check -->{}", jdbcUrl8);
+            } else if (routingDb.equals("BF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl9);
             }
 
             //            data.show();
@@ -797,6 +846,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
                 log.info("JDBC URL check -->{}", jdbcUrl8);
+            } else if (routingDb.equals("BF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl9);
             }
 
 //            data.show();
@@ -969,6 +1024,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
                 log.info("JDBC URL check -->{}", jdbcUrl8);
+            } else if (routingDb.equals("BF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl9);
             }
 
             Encoder<GrHeaderV2> grHeaderV2Encoder = Encoders.bean(GrHeaderV2.class);
@@ -1053,6 +1114,7 @@ public class MultiTenantService {
                     + "SOURCE_BRANCH_CODE as sourceBranchCode, "
                     + "SOURCE_COMPANY_CODE as sourceCompanyCode, "
                     + "CUSTOMER_ID as customerId, "
+                    + "TRANSFER_ORDER_DATE as transferOrderDate, "
                     + "CUSTOMER_NAME as customerName "
                     + "FROM tblpreinboundheader";
 
@@ -1131,6 +1193,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
                 log.info("JDBC URL check -->{}", jdbcUrl8);
+            } else if (routingDb.equals("BF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl9);
             }
 
             //            data.show();
@@ -1336,6 +1404,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
                 log.info("JDBC URL check -->{}", jdbcUrl8);
+            } else if (routingDb.equals("BF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl9);
             }
 
             Encoder<PreInBoundLineV2> preInboundLineEncoder = Encoders.bean(PreInBoundLineV2.class);
@@ -1479,6 +1553,7 @@ public class MultiTenantService {
             ConditionUtils.addCondition(conditions, "PROP_HE_NO", searchPutAwayHeader.getProposedHandlingEquipment());
             ConditionUtils.addCondition(conditions, "BARCODE_ID", searchPutAwayHeader.getBarcodeId());
             ConditionUtils.addCondition(conditions, "PA_CTD_BY", searchPutAwayHeader.getCreatedBy());
+            ConditionUtils.addCondition(conditions, "PAL_CODE", searchPutAwayHeader.getPalletCode());
 
             ConditionUtils.numericConditions(conditions, "STATUS_ID", searchPutAwayHeader.getStatusId());
             ConditionUtils.addCondition(conditions, "CUSTOMER_ID", searchPutAwayHeader.getCustomerId());
@@ -1546,6 +1621,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
                 log.info("JDBC URL check -->{}", jdbcUrl8);
+            } else if (routingDb.equals("BF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl9);
             }
             //            data.show();
             Encoder<PutAwayHeaderV4> putAwayHeaderEncoder = Encoders.bean(PutAwayHeaderV4.class);
@@ -1711,6 +1792,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
                 log.info("JDBC URL check -->{}", jdbcUrl8);
+            } else if (routingDb.equals("BF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl9);
             }
             //            data.show();
             Encoder<StagingHeaderV2> stagingHeaderEncoder = Encoders.bean(StagingHeaderV2.class);
@@ -1871,6 +1958,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
                 log.info("JDBC URL check -->{}", jdbcUrl8);
+            } else if (routingDb.equals("BF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl9);
             }
             //            data.show();
             Encoder<InboundHeaderV2> inboundHeaderEncoder = Encoders.bean(InboundHeaderV2.class);
@@ -1918,6 +2011,7 @@ public class MultiTenantService {
                     + " REF_DOC_NO as refDocNumber, "
                     + "STG_NO as stagingNo, "
                     + "PAL_CODE as palletCode,"
+                    + "GR_NO as goodsReceiptNo, "
                     + "CASE_CODE as caseCode, "
                     + "IB_LINE_NO as [lineNo], "
                     + "ITM_CODE as itemCode, "
@@ -1999,10 +2093,13 @@ public class MultiTenantService {
                     + "QTY_IN_CASE as qtyInCase, "
                     + "QTY_IN_PIECE as qtyInPiece, "
                     + "QTY_IN_CREATE as qtyInCreate, "
+                    + "BARCODE_ID as barcodeId, "
                     + "VEHICLE_NO as vehicleNo, "
                     + "VEHICLE_REPORTING_DATE as vehicleReportingDate, "
                     + "VEHICLE_UNLOADING_DATE as vehicleUnloadingDate, "
-                    + "PRINT_LABEL as printLabel "
+                    + "PRINT_LABEL as printLabel, "
+                    + "CROSS_DOCK as crossDock, "
+                    + "PARENT_PRODUCTION_ORDER_NO as parentProductionOrderNo "
                     + "FROM tblstagingline ";
 
             List<String> conditions = new ArrayList<>();
@@ -2085,6 +2182,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
                 log.info("JDBC URL check -->{}", jdbcUrl8);
+            } else if (routingDb.equals("BF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl9);
             }
 
             Encoder<StagingLineV5> stagingLineEncoder = Encoders.bean(StagingLineV5.class);
@@ -2257,6 +2360,8 @@ public class MultiTenantService {
             ConditionUtils.numericConditions(conditions, "STATUS_ID", findGrLine.getStatusId());
             ConditionUtils.numericConditions(conditions, "IB_LINE_NO", findGrLine.getLineNo());
 
+            ConditionUtils.addDateCondition(conditions, "GR_CTD_ON", findGrLine.getStartCreatedOn(), findGrLine.getEndCreatedOn());
+
             if (!conditions.isEmpty()) {
                 sqlQuery += " WHERE IS_DELETED = 0  AND " + String.join(" AND ", conditions);
             } else {
@@ -2318,6 +2423,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
                 log.info("JDBC URL check -->{}", jdbcUrl8);
+            } else if (routingDb.equals("BF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl9);
             }
             //            data.show();
             Encoder<GrLineV4> grLineEncoder = Encoders.bean(GrLineV4.class);
@@ -2358,7 +2469,7 @@ public class MultiTenantService {
 
             String sqlQuery = "SELECT C_TEXT, PLANT_TEXT, WH_TEXT, STATUS_TEXT, MFR_NAME, ITM_CODE, REF_DOC_NO, REF_DOC_TYPE, " +
                     "PROP_ST_BIN, CNF_ST_BIN, BARCODE_ID, PA_QTY, PA_CNF_QTY, PA_CNF_BY, PA_CTD_ON, PA_UTD_ON as PA_CNF_ON, " +
-                    "REF_FIELD_1, ALT_UOM, NO_BAGS, BAG_SIZE, MRP, itm_typ, itm_grp FROM tblputawayline";
+                    "REF_FIELD_1, REF_FIELD_10, ALT_UOM, NO_BAGS, BAG_SIZE, MRP, itm_typ, itm_grp, QTY_IN_PIECE, QTY_IN_CREATE, QTY_IN_CASE FROM tblputawayline";
 
             List<String> conditions = new ArrayList<>();
             ConditionUtils.addCondition(conditions, "PA_NO", findPutAwayLineV2.getPutAwayNumber());
@@ -2448,6 +2559,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
                 log.info("JDBC URL check -->{}", jdbcUrl8);
+            } else if (routingDb.equals("BF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl9);
             }
 //            data.show();
             Encoder<PutAwayLineCoreV4> putAwayLineEncoder = Encoders.bean(PutAwayLineCoreV4.class);
@@ -2642,6 +2759,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
                 log.info("JDBC URL check -->{}", jdbcUrl8);
+            } else if (routingDb.equals("BF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl9);
             }
             //            data.show();
             Encoder<InboundLineNewV4> inboundLineEncoder = Encoders.bean(InboundLineNewV4.class);
@@ -2865,6 +2988,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
                 log.info("JDBC URL check -->{}", jdbcUrl8);
+            } else if (routingDb.equals("BF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl9);
             }
 //            data.show();
             Encoder<PutAwayLineV4> putAwayLineV2Encoder = Encoders.bean(PutAwayLineV4.class);
@@ -3034,6 +3163,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
                 log.info("JDBC URL check -->{}", jdbcUrl8);
+            } else if (routingDb.equals("BF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl9);
             }
             //            data.show();
             Encoder<PreOutboundHeaderV2> preOutboundHeaderEncoder = Encoders.bean(PreOutboundHeaderV2.class);
@@ -3170,6 +3305,7 @@ public class MultiTenantService {
                     + "QTY_IN_CRATE as qtyInCrate,"
                     + "MFR_DATE as manufacturerDate,"
                     + "EXP_DATE as expiryDate,"
+                    + "PALLET_ID as palletId,"
                     + "IMS_SALE_TYP_CODE as imsSaleTypeCode "
                     + "FROM tblordermangementline";
 
@@ -3184,6 +3320,7 @@ public class MultiTenantService {
             ConditionUtils.addCondition(conditions, "PARTNER_CODE", findOrderManagementLine.getPartnerCode());
             ConditionUtils.addCondition(conditions, "ITM_CODE", findOrderManagementLine.getItemCode());
             ConditionUtils.addCondition(conditions, "ITEM_TEXT", findOrderManagementLine.getDescription());
+            ConditionUtils.addCondition(conditions, "PALLET_ID", findOrderManagementLine.getPalletId());
 
             ConditionUtils.numericConditions(conditions, "STATUS_ID", findOrderManagementLine.getStatusId());
             ConditionUtils.numericConditions(conditions, "OB_ORD_TYP_ID", findOrderManagementLine.getOutboundOrderTypeId());
@@ -3251,6 +3388,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
                 log.info("JDBC URL check -->{}", jdbcUrl8);
+            } else if (routingDb.equals("BF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl9);
             }
 //            data.show();
             Encoder<OrderManagementLineV4> orderManagementLineEncoder = Encoders.bean(OrderManagementLineV4.class);
@@ -3391,6 +3534,7 @@ public class MultiTenantService {
             ConditionUtils.addCondition(conditions, "PROP_PACK_BARCODE", findPickupHeader.getProposedPackCode());
             ConditionUtils.addCondition(conditions, "ASS_PICKER_ID", findPickupHeader.getAssignedPickerId());
             ConditionUtils.addCondition(conditions, "LEVEL_ID", findPickupHeader.getLevelId());
+            ConditionUtils.addCondition(conditions, "REF_FIELD_2", findPickupHeader.getReferenceField2());
 
             ConditionUtils.numericConditions(conditions, "STATUS_ID", findPickupHeader.getStatusId());
             ConditionUtils.numericConditions(conditions, "OB_ORD_TYP_ID", findPickupHeader.getOutboundOrderTypeId());
@@ -3456,6 +3600,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
                 log.info("JDBC URL check -->{}", jdbcUrl8);
+            } else if (routingDb.equals("BF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl9);
             }
             //            data.show();
             Encoder<PickupHeaderV4> pickupHeaderEncoder = Encoders.bean(PickupHeaderV4.class);
@@ -3666,6 +3816,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
                 log.info("JDBC URL check -->{}", jdbcUrl8);
+            } else if (routingDb.equals("BF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl9);
             }
             //            data.show();
             Encoder<PickupLineNewV4> pickupLineEncoder = Encoders.bean(PickupLineNewV4.class);
@@ -3847,6 +4003,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
                 log.info("JDBC URL check -->{}", jdbcUrl8);
+            } else if (routingDb.equals("BF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl9);
             }
             //            data.show();
             Encoder<QualityHeaderV4> qualityHeaderEncoder = Encoders.bean(QualityHeaderV4.class);
@@ -4025,6 +4187,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
                 log.info("JDBC URL check -->{}", jdbcUrl8);
+            } else if (routingDb.equals("BF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl9);
             }
             //            data.show();
             Encoder<OutBoundHeaderV2> outBoundHeaderEncoder = Encoders.bean(OutBoundHeaderV2.class);
@@ -4207,6 +4375,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
                 log.info("JDBC URL check -->{}", jdbcUrl8);
+            } else if (routingDb.equals("BF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl9);
             }
             //            data.show();
             Encoder<QualityLineV4> qualityLineEncoder = Encoders.bean(QualityLineV4.class);
@@ -4392,6 +4566,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
                 log.info("JDBC URL check -->{}", jdbcUrl8);
+            } else if (routingDb.equals("BF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl9);
             }
             //            data.show();
             Encoder<PreOutBoundLineV4> preOutBoundLineEncoder = Encoders.bean(PreOutBoundLineV4.class);
@@ -4636,6 +4816,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
                 log.info("JDBC URL check -->{}", jdbcUrl8);
+            } else if (routingDb.equals("BF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl9);
             }
             //            data.show();
             Encoder<InhouseTransferHeaderV4> inhouseTransferHeaderEncoder = Encoders.bean(InhouseTransferHeaderV4.class);
@@ -4807,6 +4993,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
                 log.info("JDBC URL check -->{}", jdbcUrl8);
+            } else if (routingDb.equals("BF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl9);
             }
             //            data.show();
             Encoder<InhouseTransferLine> inhouseTransferLineEncoder = Encoders.bean(InhouseTransferLine.class);
@@ -4968,6 +5160,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
                 log.info("JDBC URL check -->{}", jdbcUrl8);
+            } else if (routingDb.equals("BF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl9);
             }
 //            data.show();
             Encoder<OutBoundReversalV2> outBoundReversalEncoder = Encoders.bean(OutBoundReversalV2.class);
@@ -5088,10 +5286,10 @@ public class MultiTenantService {
                     "BIN_CL_ID, TEXT, INV_QTY, ALLOC_QTY, INV_UOM, MFR_DATE, EXP_DATE, IS_DELETED, REF_FIELD_1, REF_FIELD_2, " +
                     "REF_FIELD_3, REF_FIELD_4, REF_FIELD_5, REF_FIELD_6, REF_FIELD_7, REF_FIELD_8, REF_FIELD_9, REF_FIELD_10, " +
                     "IU_CTD_BY, IU_CTD_ON, UTD_BY, UTD_ON, MFR_CODE, BARCODE_ID, CBM, level_id, CBM_UNIT, CBM_PER_QTY, MFR_NAME, " +
-                    "ORIGIN, BRAND, REF_DOC_NO, C_TEXT, PLANT_TEXT, WH_TEXT, STCK_TYP_TEXT, STATUS_TEXT, PARTNER_CODE, " +
+                    "ORIGIN, BRAND, REF_DOC_NO, C_TEXT, PLANT_TEXT, WH_TEXT, STCK_TYP_TEXT, COLOR, STATUS_TEXT, PARTNER_CODE, " +
                     "ITM_TYP_ID, ITM_TYP_TXT, BATCH_DATE, ALT_UOM, NO_BAGS, BAG_SIZE, CASE_QTY, PIECE_QTY, CRATE_QTY, QTY_IN_CASE, " +
                     "QTY_IN_PIECE, QTY_IN_CREATE, VEHICLE_NO, VEHICLE_REPORTING_DATE, VEHICLE_UNLOADING_DATE, " +
-                    "SELF_LIFE, REMAINING_DAYS, REMAINING_SELF_LIFE_PERCENTAGE, RECEIVINGVARIANCE, LOOSE_PACK, MRP " +
+                    "SELF_LIFE, REMAINING_DAYS, REMAINING_SELF_LIFE_PERCENTAGE, RECEIVINGVARIANCE, LOOSE_PACK, MRP, TPL_PARTNER_ID, PRICE_SEGMENT " +
                     "FROM tblinventory";
 
             List<String> conditions = new ArrayList<>();
@@ -5109,6 +5307,7 @@ public class MultiTenantService {
             ConditionUtils.addCondition(conditions, "TEXT", findInventory.getDescription());
             ConditionUtils.addCondition(conditions, "PARTNER_CODE", findInventory.getPartnerCode());
             ConditionUtils.addCondition(conditions, "REF_FIELD_10", findInventory.getStorageSectionId());
+            ConditionUtils.addCondition(conditions, "REF_FIELD_7", findInventory.getReferenceField7());
             ConditionUtils.addCondition(conditions, "level_id", findInventory.getLevelId());
             ConditionUtils.addCondition(conditions, "alt_uom", findInventory.getAltUom());
             if (findInventory.getStockTypeId() != null) {
@@ -5162,7 +5361,7 @@ public class MultiTenantService {
                 log.info("JDBC URL check -->{}", jdbcUrl3);
             } else if (routingDb.equals("NAMRATHA")) {
                 if (!conditions.isEmpty()) {
-                    sqlQuery += " WHERE IS_DELETED = 0 AND REF_FIELD_4 > 0 AND inv_id in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,barcode_id,mfr_name,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
+                    sqlQuery += " WHERE IS_DELETED = 0 AND REF_FIELD_4 > 0 AND inv_id in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,barcode_id,mfr_name,pack_barcode,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
                 }
                 data = spark.read()
                         .option("fetchSize", "10000")
@@ -5171,7 +5370,7 @@ public class MultiTenantService {
                 log.info("JDBC URL check -->{}", jdbcUrl4);
             } else if (routingDb.equals("REEFERON")) {
                 if (!conditions.isEmpty()) {
-                    sqlQuery += " WHERE IS_DELETED = 0 AND REF_FIELD_4 > 0 AND inv_id in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,barcode_id,mfr_name,pack_barcode,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
+                    sqlQuery += " WHERE IS_DELETED = 0 AND REF_FIELD_4 > 0 AND inv_id in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,barcode_id,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
                 }
                 data = spark.read()
                         .option("fetchSize", "10000")
@@ -5202,6 +5401,14 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
                 log.info("JDBC URL check -->{}", jdbcUrl8);
+            } else if (routingDb.equals("BF")) {
+                if (!conditions.isEmpty()) {
+                    sqlQuery += " WHERE IS_DELETED = 0 AND REF_FIELD_4 > 0 AND inv_id in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,pal_code,barcode_id,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
+                } data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl9);
             }
 
             Encoder<InventoryV4> inventoryV2CoreEncoder = Encoders.bean(InventoryV4.class);
@@ -5354,6 +5561,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
                 log.info("JDBC URL check -->{}", jdbcUrl8);
+            } else if (routingDb.equals("BF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl9);
             }
 
             //            data.show();
@@ -5456,7 +5669,7 @@ public class MultiTenantService {
                     + "MANUFACTURER_FULL_NAME as manufacturerFullName, "
                     + "MFR_CODE as manufacturerCode, "
                     + "REF_DOC_TYPE as referenceDocumentType, "
-                    + "FROZEN_QTY as frozenQty, "
+                    + "FROZENQTY as frozenQty, "
                     + "IB_QTY as inboundQuantity, "
                     + "OB_QTY as outboundQuantity, "
 
@@ -5554,6 +5767,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
                 log.info("JDBC URL check -->{}", jdbcUrl8);
+            } else if (routingDb.equals("BF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl9);
             }
             //            data.show();
             Encoder<PeriodicLineV2> periodicLineEncoder = Encoders.bean(PeriodicLineV2.class);
@@ -5705,6 +5924,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
                 log.info("JDBC URL check -->{}", jdbcUrl8);
+            } else if (routingDb.equals("BF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl9);
             }
             //            data.show();
             Encoder<PerpetualHeader> perpetualHeaderEncoder = Encoders.bean(PerpetualHeader.class);
@@ -5886,6 +6111,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
                 log.info("JDBC URL check -->{}", jdbcUrl8);
+            } else if (routingDb.equals("BF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl9);
             }
             //            data.show();
             Encoder<PerpetualLineV2> perpetualLineEncoder = Encoders.bean(PerpetualLineV2.class);
@@ -6492,6 +6723,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
                 log.info("JDBC URL check -->{}", jdbcUrl8);
+            } else if (routingDb.equals("BF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl9);
             }
             //            data.show();
             Encoder<ImBasicData1> imBasicData1Encoder = Encoders.bean(ImBasicData1.class);
@@ -6622,6 +6859,14 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
                 log.info("JDBC URL check -->{}", jdbcUrl8);
+            } else if (routingDb.equals("BF")) {
+                if (!conditions.isEmpty()) {
+                    sqlQuery += " WHERE IS_DELETED = 0 AND REF_FIELD_4 > 0 AND inv_id in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,pal_code,barcode_id,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
+                } data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl9);
             }
             Encoder<InventoryV5> inventoryV2CoreEncoder = Encoders.bean(InventoryV5.class);
             Dataset<InventoryV5> inventoryV2CoreDataset = data.as(inventoryV2CoreEncoder);
@@ -6645,5 +6890,174 @@ public class MultiTenantService {
         }
     }
 
+    /**
+     * New Find Inventory -- BF
+     *
+     * @param findInventory
+     * @return
+     */
+    public List<InventoryV9> findInventoryV9(FindInventoryV2 findInventory) throws ExecutionException, InterruptedException {
+        try {
+
+            DataBaseContextHolder.setCurrentDb("MT");
+            String routingDb = dbConfigRepository.getDbName(findInventory.getCompanyCodeId(), findInventory.getPlantId(), findInventory.getWarehouseId());
+            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(routingDb);
+
+            String sqlQuery = "SELECT INV_ID, LANG_ID, C_ID, PLANT_ID, WH_ID, " +
+                    "PAL_CODE, CASE_CODE, PACK_BARCODE, ITM_CODE, VAR_ID, VAR_SUB_ID, " +
+                    "STR_NO, ST_BIN, STCK_TYP_ID, SP_ST_IND_ID, REF_ORD_NO, STR_MTD, " +
+                    "BIN_CL_ID, TEXT, INV_QTY, ALLOC_QTY, INV_UOM, MFR_DATE, EXP_DATE, IS_DELETED, REF_FIELD_1, REF_FIELD_2, " +
+                    "REF_FIELD_3, REF_FIELD_4, REF_FIELD_5, REF_FIELD_6, REF_FIELD_7, REF_FIELD_8, REF_FIELD_9, REF_FIELD_10, " +
+                    "IU_CTD_BY, IU_CTD_ON, UTD_BY, UTD_ON, MFR_CODE, BARCODE_ID, level_id, MFR_NAME, " +
+                    "REF_DOC_NO, C_TEXT, PLANT_TEXT, WH_TEXT, STCK_TYP_TEXT, STATUS_TEXT, PARTNER_CODE, " +
+                    "ITM_TYP_ID, QTY_IN_CASE, QTY_IN_CREATE, " +
+                    "SELF_LIFE, REMAINING_DAYS, REMAINING_SELF_LIFE_PERCENTAGE, RECEIVINGVARIANCE " +
+                    "FROM tblinventory";
+
+            List<String> conditions = new ArrayList<>();
+            ConditionUtils.addCondition(conditions, "LANG_ID", findInventory.getLanguageId());
+            ConditionUtils.addCondition(conditions, "C_ID", findInventory.getCompanyCodeId());
+            ConditionUtils.addCondition(conditions, "PLANT_ID", findInventory.getPlantId());
+            ConditionUtils.addCondition(conditions, "WH_ID", findInventory.getWarehouseId());
+            ConditionUtils.addCondition(conditions, "REF_DOC_NO", findInventory.getReferenceDocumentNo());
+            ConditionUtils.addCondition(conditions, "BARCODE_ID", findInventory.getBarcodeId());
+            ConditionUtils.addCondition(conditions, "MFR_CODE", findInventory.getManufacturerCode());
+            ConditionUtils.addCondition(conditions, "MFR_NAME", findInventory.getManufacturerName());
+            ConditionUtils.addCondition(conditions, "PACK_BARCODE", findInventory.getPackBarcodes());
+            ConditionUtils.addCondition(conditions, "ITM_CODE", findInventory.getItemCode());
+            ConditionUtils.addCondition(conditions, "ST_BIN", findInventory.getStorageBin());
+            ConditionUtils.addCondition(conditions, "TEXT", findInventory.getDescription());
+            ConditionUtils.addCondition(conditions, "PARTNER_CODE", findInventory.getPartnerCode());
+            ConditionUtils.addCondition(conditions, "REF_FIELD_10", findInventory.getStorageSectionId());
+            ConditionUtils.addCondition(conditions, "level_id", findInventory.getLevelId());
+            ConditionUtils.addCondition(conditions, "alt_uom", findInventory.getAltUom());
+
+            if (findInventory.getStockTypeId() != null) {
+                ConditionUtils.numericConditions(conditions, "STCK_TYP_ID", findInventory.getStockTypeId());
+            }
+            if (findInventory.getSpecialStockIndicatorId() != null) {
+                ConditionUtils.numericConditions(conditions, "SP_ST_IND_ID", findInventory.getSpecialStockIndicatorId());
+            }
+            if (findInventory.getBinClassId() != null) {
+                ConditionUtils.numericConditions(conditions, "BIN_CL_ID", findInventory.getBinClassId());
+            }
+            if (findInventory.getItemTypeId() != null) {
+                ConditionUtils.numericConditions(conditions, "ITM_TYP_ID", findInventory.getItemTypeId());
+            }
+//            if (!conditions.isEmpty()) {
+//                sqlQuery += " WHERE IS_DELETED = 0 AND REF_FIELD_4 > 0 AND inv_id in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,barcode_id,mfr_name,pack_barcode,alt_uom,bag_size,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
+//            } else {
+//                sqlQuery += " WHERE IS_DELETED = 0 AND REF_FIELD_4 > 0 AND inv_id in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,barcode_id,mfr_name,pack_barcode,alt_uom,bag_size,st_bin,plant_id,wh_id,c_id,lang_id)";
+//            }
+
+            Dataset<Row> data = null;
+            if (routingDb.equals("IMPEX")) {
+                if (!conditions.isEmpty()) {
+                    sqlQuery += " WHERE IS_DELETED = 0 AND inv_id in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,barcode_id,mfr_name,pack_barcode,alt_uom,bag_size,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
+                }
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl, "(" + sqlQuery + ") as tmp", connProp);
+                log.info("JDBC URL -->{}", jdbcUrl);
+            } else if (routingDb.equals("WK")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connProp);
+                log.info("JDBC URL check -->{}", jdbcUrl1);
+            } else if (routingDb.equals("MT")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connProp);
+                log.info("JDBC URL check -->{}", jdbcUrl2);
+            } else if (routingDb.equals("ALM")) {
+                if (!conditions.isEmpty()) {
+                    sqlQuery += " WHERE IS_DELETED = 0 AND inv_id in (select max(inv_id) from tblinventory WITH (NOLOCK) where is_deleted = 0 group by itm_code,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
+                }
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connProp);
+                log.info("JDBC URL check -->{}", jdbcUrl3);
+            } else if (routingDb.equals("NAMRATHA")) {
+                if (!conditions.isEmpty()) {
+                    sqlQuery += " WHERE IS_DELETED = 0 AND REF_FIELD_4 > 0 AND inv_id in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,barcode_id,mfr_name,pack_barcode,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
+                }
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connProp1);
+                log.info("JDBC URL check -->{}", jdbcUrl4);
+            } else if (routingDb.equals("REEFERON")) {
+                if (!conditions.isEmpty()) {
+                    sqlQuery += " WHERE IS_DELETED = 0 AND REF_FIELD_4 > 0 AND inv_id in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,barcode_id,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
+                }
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connRef);
+                log.info("JDBC URL check -->{}", jdbcUrl5);
+            } else if (routingDb.equals("KNOWELL")) {
+                if (!conditions.isEmpty()) {
+                    sqlQuery += " WHERE IS_DELETED = 0 AND REF_FIELD_4 > 0 AND inv_id in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,barcode_id,mfr_name,pack_barcode,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
+                }
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKnow);
+                log.info("JDBC URL check -->{}", jdbcUrl6);
+            } else if (routingDb.equals("FAHAHEEL")) {
+                if (!conditions.isEmpty()) {
+                    sqlQuery += " WHERE IS_DELETED = 0 AND REF_FIELD_4 > 0 AND inv_id in (select max(inv_id) from tblinventory WITH (NOLOCK) where is_deleted = 0 group by itm_code,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
+                }
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl7, "(" + sqlQuery + ") as tmp", connFahae);
+                log.info("JDBC URL check -->{}", jdbcUrl7);
+            } else if (routingDb.equals("AUTO_LAP")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
+                log.info("JDBC URL check -->{}", jdbcUrl8);
+            } else if (routingDb.equals("BF")) {
+                if (!conditions.isEmpty()) {
+                    sqlQuery += " WHERE IS_DELETED = 0 AND REF_FIELD_4 > 0 AND inv_id in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,pal_code,barcode_id,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
+                } data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl9);
+            }
+
+            Encoder<InventoryV9> inventoryV2CoreEncoder = Encoders.bean(InventoryV9.class);
+            Dataset<InventoryV9> inventoryV2CoreDataset = data.as(inventoryV2CoreEncoder);
+//            List<InventoryV4> result = inventoryV2CoreDataset.collectAsList();
+//
+//            return result;
+
+            // Run collect asynchronously
+            ExecutorService executor = Executors.newSingleThreadExecutor();
+            Future<List<InventoryV9>> future = executor.submit(inventoryV2CoreDataset::collectAsList);
+
+            try {
+                return future.get(120, TimeUnit.SECONDS);  // Optional timeout
+            } catch (TimeoutException ex) {
+                log.error("Spark job timeout!");
+                future.cancel(true);
+                throw new RuntimeException("Spark job took too long to complete");
+            } finally {
+                executor.shutdownNow();
+            }
+        } catch (Exception e) {
+            log.error("Find Inventory Spark Exception : " + e.toString());
+            throw e;
+        }
+    }
 
 }
