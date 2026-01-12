@@ -2522,7 +2522,7 @@ public class PreInboundHeaderService extends BaseService {
             }
 
             purchaseOrder.setPoKey("test-PO-API-1");
-            purchaseOrder.setStorerKey("IWE");
+            purchaseOrder.setStorerKey("TAAGER");
             purchaseOrder.setSkus(skus);
 
             try {

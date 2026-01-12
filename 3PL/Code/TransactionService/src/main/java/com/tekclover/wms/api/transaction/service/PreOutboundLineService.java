@@ -377,7 +377,7 @@ public class PreOutboundLineService extends BaseService {
                 skus.add(sku);
 
                 updateShipmentOrder.setOrderReference(dbPreOutboundLine.getRefDocNumber());
-                updateShipmentOrder.setStorerKey("IWE");
+                updateShipmentOrder.setStorerKey("TAAGER");
                 updateShipmentOrder.setSku(skus);
 
                 try {

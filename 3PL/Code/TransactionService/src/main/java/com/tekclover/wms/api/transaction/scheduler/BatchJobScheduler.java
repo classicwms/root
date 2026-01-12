@@ -61,7 +61,7 @@ public class BatchJobScheduler {
 
         if (sqlInventory != null && !sqlInventory.isEmpty()){
             Fetch fetch = new Fetch();
-            fetch.setStorerKey("IWE");
+            fetch.setStorerKey("TAAGER");
             fetch.setSkus(sqlInventory);
 
             List<FetchStock> response = idMasterService.fetchStock(fetch);

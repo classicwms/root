@@ -2838,7 +2838,7 @@ public class OutboundLineService extends BaseService {
             skus.add(sku);
 
             updateShipmentOrder.setOrderReference(outboundLine.getRefDocNumber());
-            updateShipmentOrder.setStorerKey("IWE");
+            updateShipmentOrder.setStorerKey("TAAGER");
             updateShipmentOrder.setSku(skus);
 
             try {

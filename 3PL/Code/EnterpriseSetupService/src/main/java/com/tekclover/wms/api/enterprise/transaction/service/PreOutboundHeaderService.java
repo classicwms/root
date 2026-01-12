@@ -6205,7 +6205,7 @@ public class PreOutboundHeaderService extends BaseService {
 
 
                 shipmentOrder.setOrderReference(preOutboundLine.getRefDocNumber());
-                shipmentOrder.setStorerKey("IWE");
+                shipmentOrder.setStorerKey("TAAGER");
                 shipmentOrder.setWarehouseKey("INFOR_SCPRD_wmwhse1");
                 shipmentOrder.setConsigneeName("Abed test");
                 shipmentOrder.setSkus(skus);
