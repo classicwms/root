@@ -1,15 +1,22 @@
 package com.tekclover.wms.api.masters.service;
 
+import com.tekclover.wms.api.masters.config.PropertiesConfig;
 import com.tekclover.wms.api.masters.exception.BadRequestException;
 import com.tekclover.wms.api.masters.model.masters.Customer;
 import com.tekclover.wms.api.masters.model.masters.Item;
+import com.tekclover.wms.api.masters.model.tng.ItemSku;
+import com.tekclover.wms.api.masters.model.tng.SKUResponse;
 import com.tekclover.wms.api.masters.repository.CustomerMasterRepository;
 import com.tekclover.wms.api.masters.repository.ItemMasterRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 
 @Slf4j
 @Service
@@ -22,6 +29,21 @@ public class MasterService {
 
     @Autowired
     MasterOrderService masterOrderService;
+
+    @Autowired
+    PropertiesConfig propertiesConfig;
+    //-------------------------------------------------------------------------------------------
+
+
+    private RestTemplate getRestTemplate() {
+        RestTemplate restTemplate = new RestTemplate();
+        return restTemplate;
+    }
+
+    private String getTNGUrl () {
+        return propertiesConfig.getTngUrl();
+    }
+
 
     //-------------------------------------------------------------------------------------------
 
@@ -161,4 +183,35 @@ public class MasterService {
 //        }
 //        return null;
 //    }
+
+    //=============================================TNG================================================================//
+
+    //Update Shipment Order
+    public SKUResponse createItemSku(ItemSku itemSku){
+        try {
+//			String credentials = propertiesConfig.getTngSecretKey() + ":" + propertiesConfig.getTngSecretValue();
+//			String encodedCredentials = new String(Base64.encodeBase64(credentials.getBytes()));
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+//			headers.add("Authorization", "Basic " + encodedCredentials);
+            headers.set(propertiesConfig.getTngSecretKey(), propertiesConfig.getTngSecretValue());
+            headers.set("User-Agent", "MySpringApp/1.0");
+
+            UriComponentsBuilder builder =
+                    UriComponentsBuilder.fromHttpUrl(getTNGUrl() +"CreateSKU");
+
+            HttpEntity<?> entity = new HttpEntity<>(itemSku,headers);
+            ResponseEntity<SKUResponse> result =
+                    getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, SKUResponse.class);
+
+            log.info("---post updateShipmentOrder -----StatusCode----->: " + result.getStatusCodeValue());
+            log.info("---post updateShipmentOrder -----ResponseBody--->: " + result.getBody());
+
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BadRequestException(e.getLocalizedMessage());
+        }
+    }
 }

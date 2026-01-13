@@ -11,6 +11,10 @@ import com.tekclover.wms.api.masters.model.imbasicdata1.UpdateImBasicData1;
 import com.tekclover.wms.api.masters.model.imbasicdata1.v2.ImBasicData;
 import com.tekclover.wms.api.masters.model.imbasicdata1.v2.ImBasicData1V2;
 import com.tekclover.wms.api.masters.model.impl.ItemListImpl;
+import com.tekclover.wms.api.masters.model.tng.ItemSku;
+import com.tekclover.wms.api.masters.model.tng.Items;
+import com.tekclover.wms.api.masters.model.tng.SKUResponse;
+import com.tekclover.wms.api.masters.repository.BusinessPartnerV2Repository;
 import com.tekclover.wms.api.masters.repository.ExceptionLogRepository;
 import com.tekclover.wms.api.masters.repository.ImBasicData1Repository;
 import com.tekclover.wms.api.masters.repository.ImBasicData1V2Repository;
@@ -51,6 +55,12 @@ public class ImBasicData1Service {
 
     @Autowired
     private ExceptionLogRepository exceptionLogRepo;
+
+    @Autowired
+    BusinessPartnerV2Repository businessPartnerV2Repository;
+
+    @Autowired
+    MasterService masterService;
 
     /**
      * getImBasicData1s
@@ -323,7 +333,6 @@ public class ImBasicData1Service {
     }
 
     /**
-     *
      * @param newImBasicData1
      * @param loginUserID
      * @return
@@ -344,22 +353,22 @@ public class ImBasicData1Service {
             throw new EntityNotFoundException("Record is Getting Duplicated");
         } else {
             BeanUtils.copyProperties(newImBasicData1, dbImBasicData1, CommonUtils.getNullPropertyNames(newImBasicData1));
-            if(newImBasicData1.getCapacityCheck() != null) {
+            if (newImBasicData1.getCapacityCheck() != null) {
                 dbImBasicData1.setCapacityCheck(newImBasicData1.getCapacityCheck());
             }
-            if(newImBasicData1.getCapacityCheck() == null) {
+            if (newImBasicData1.getCapacityCheck() == null) {
                 dbImBasicData1.setCapacityCheck(false);
             }
-            if(newImBasicData1.getItemType() == null) {
+            if (newImBasicData1.getItemType() == null) {
                 dbImBasicData1.setItemType(1L);
             }
-            if(newImBasicData1.getManufacturerName() == null) {
+            if (newImBasicData1.getManufacturerName() == null) {
                 dbImBasicData1.setManufacturerName(newImBasicData1.getManufacturerPartNo());
             }
-            if(newImBasicData1.getManufacturerCode() == null) {
+            if (newImBasicData1.getManufacturerCode() == null) {
                 dbImBasicData1.setManufacturerCode(newImBasicData1.getManufacturerPartNo());
             }
-            if(newImBasicData1.getManufacturerFullName() == null) {
+            if (newImBasicData1.getManufacturerFullName() == null) {
                 dbImBasicData1.setManufacturerFullName(newImBasicData1.getManufacturerPartNo());
             }
 
@@ -369,7 +378,7 @@ public class ImBasicData1Service {
                     newImBasicData1.getPlantId(),
                     newImBasicData1.getWarehouseId());
             log.info("Description: " + description);
-            if(description != null) {
+            if (description != null) {
                 log.info("Description: " + description.getCompanyDesc() + ", " + description.getPlantDesc() + ", " + description.getWarehouseDesc());
                 dbImBasicData1.setCompanyDescription(description.getCompanyDesc());
                 dbImBasicData1.setPlantDescription(description.getPlantDesc());
@@ -381,8 +390,53 @@ public class ImBasicData1Service {
             dbImBasicData1.setUpdatedBy(loginUserID);
             dbImBasicData1.setCreatedOn(new Date());
             dbImBasicData1.setUpdatedOn(new Date());
-            return imBasicData1V2Repository.save(dbImBasicData1);
+
+            Long webhookStatus = 0L;
+
+            String partnerCode = businessPartnerV2Repository.getPartnerCode(dbImBasicData1.getCompanyCodeId(),dbImBasicData1.getPlantId(),
+                    dbImBasicData1.getLanguageId(),dbImBasicData1.getWarehouseId(),dbImBasicData1.getSupplierPartNumber());
+
+            if (partnerCode != null && partnerCode.equalsIgnoreCase("True")) {
+                //-----------------------TNG --------------------------------//
+
+                ItemSku itemSku = new ItemSku();
+                Items items = new Items();
+
+                itemSku.setStorerKey("TAAGER");
+                itemSku.setWarehouseKey("INFOR_SCPRD_wmwhse6");
+
+                items.setSku(dbImBasicData1.getItemCode());
+                items.setDescription(dbImBasicData1.getDescription());
+                items.setGrossWeight(1D);
+                items.setNetWeight(1D);
+                items.setHeight(1D);
+                items.setLength(1D);
+                items.setWidth(1D);
+                items.setShelfLife(0L);
+//                items.setSerial(dbImBasicData1.getSupplierPartNumber());
+//                items.setSerialBarcode(dbImBasicData1.getHsnCode());
+                items.setNote(dbImBasicData1.getRemarks());
+                itemSku.setItems(Collections.singletonList(items));
+
+                try {
+                    SKUResponse response = masterService.createItemSku(itemSku);
+                    log.info("TNG Response-------->" +response);
+                    if (response.getSuccess()) {
+                        webhookStatus = 200L;
+                    } else {
+                        webhookStatus = 500L;
+                    }
+                } catch (RestClientException e) {
+                    log.error("WebHook Error while pushing purchaseOrder ----> " + e);
+                }
+            }
+            dbImBasicData1.setWebHookStatus(webhookStatus);
+            imBasicData1V2Repository.save(dbImBasicData1);
+
+
+            return dbImBasicData1;
         }
+
     }
 
     /**

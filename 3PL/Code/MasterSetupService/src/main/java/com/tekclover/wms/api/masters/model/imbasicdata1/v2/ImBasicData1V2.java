@@ -36,4 +36,7 @@ public class ImBasicData1V2 extends ImBasicData1 {
     //MiddleWare Fields
     private Long middlewareId;
     private String middlewareTable;
+
+    @Column(name = "WEBHOOK_STATUS")
+    private Long webHookStatus;
 }

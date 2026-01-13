@@ -31,4 +31,13 @@ public interface BusinessPartnerV2Repository extends JpaRepository<BusinessPartn
     public void updateBusinessPartner (
             @Param(value = "pickListNo") String pickListNo,
             @Param(value = "date") Date date);
+
+    @Query(value = "select ref_field_8 from tblbusinesspartner where " +
+            "c_id = :companyCodeId and plant_id = :plantId and lang_id = :languageId and wh_id = :warehouseId " +
+            "and partner_code = :partnerCode and is_deleted=0",nativeQuery = true)
+    public String getPartnerCode(@Param("companyCodeId") String companyCodeId,
+                                 @Param("plantId") String plantId,
+                                 @Param("languageId") String languageId,
+                                 @Param("warehouseId") String warehouseId,
+                                 @Param("partnerCode") String partnerCode);
 }

@@ -40,4 +40,15 @@ public class PropertiesConfig {
 
 	@Value("${email.from.address}")
 	private String emailFromAddress;
+
+	//-----------------------------TNG ----------------------------------------------------
+
+	@Value("${tng.secret.key}")
+	private String tngSecretKey;
+
+	@Value("${tng.secret.value}")
+	private String tngSecretValue;
+
+	@Value("${api.tng.url}")
+	private String tngUrl;
 }
