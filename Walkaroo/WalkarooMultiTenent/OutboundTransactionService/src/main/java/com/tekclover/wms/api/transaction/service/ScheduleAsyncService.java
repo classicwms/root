@@ -41,18 +41,28 @@ public class ScheduleAsyncService {
     }
 
     //-------------------------------------------------------------------DeliveryConfirmation---------------------------------------------------------------
-    @Async("asyncExecutor")
-    public CompletableFuture<WarehouseApiResponse> processDeliveryConfirmationV1() throws Exception {
+//    @Async("asyncExecutor")
+//    public CompletableFuture<WarehouseApiResponse> processDeliveryConfirmationV1() throws Exception {
+//
+//        WarehouseApiResponse deliveryConfirm = warehouseService.postSAPDeliveryConfirmationScheduleProcess("MDU");
+//        return CompletableFuture.completedFuture(deliveryConfirm);
+//    }
 
-        WarehouseApiResponse deliveryConfirm = warehouseService.postSAPDeliveryConfirmationScheduleProcess("MDU");
-        return CompletableFuture.completedFuture(deliveryConfirm);
+    @Async("asyncExecutor")
+    public void processDeliveryConfirmationV1() {
+        warehouseService.postSAPDeliveryConfirmationScheduleProcess("MDU");
+    }
+
+    @Async("asyncExecutor")
+    public void processDeliveryConfirmationV2() {
+        warehouseService.postSAPDeliveryConfirmationScheduleProcess("CMP");
     }
 
 
-    @Async("asyncExecutor")
-    public CompletableFuture<WarehouseApiResponse> processDeliveryConfirmationV2() throws Exception {
-        WarehouseApiResponse deliveryConfirm = warehouseService.postSAPDeliveryConfirmationScheduleProcess("CMP");
-        return CompletableFuture.completedFuture(deliveryConfirm);
-    }
+//    @Async("asyncExecutor")
+//    public CompletableFuture<WarehouseApiResponse> processDeliveryConfirmationV2() throws Exception {
+//        WarehouseApiResponse deliveryConfirm = warehouseService.postSAPDeliveryConfirmationScheduleProcess("CMP");
+//        return CompletableFuture.completedFuture(deliveryConfirm);
+//    }
 
 }
