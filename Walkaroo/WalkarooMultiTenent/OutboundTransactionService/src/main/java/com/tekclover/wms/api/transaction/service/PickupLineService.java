@@ -5412,7 +5412,7 @@ public class PickupLineService extends BaseService {
      * @param pickConfirmQty
      * @param loginUserID
      */
-    @Transactional
+//    @Transactional
     private void updateInventoryV3(String companyCodeId, String plantId, String languageId, String warehouseId,
                                    String itemCode, String manufacturerName, String barcodeId, String storageBin,
 			Double allocatedQty, Double pickConfirmQty, String loginUserID) {

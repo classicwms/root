@@ -34,8 +34,9 @@ public class BatchJobScheduler {
     }
 
 
-    @Scheduled(cron = "*/10 * * * * *")
+    @Scheduled(fixedDelay = 20000)
     public void deliveryConfirmationScheduleJob() throws Exception {
+
 
         // MDU
         CompletableFuture<WarehouseApiResponse> outboundOrder = scheduleAsyncService.processDeliveryConfirmationV1();
