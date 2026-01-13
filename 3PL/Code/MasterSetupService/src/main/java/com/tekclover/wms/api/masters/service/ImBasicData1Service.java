@@ -421,6 +421,7 @@ public class ImBasicData1Service {
                 itemSku.setItems(Collections.singletonList(items));
 
                 try {
+                    log.info("TNG ItemCreation Input's -------->" +itemSku);
                     SKUResponse response = masterService.createItemSku(itemSku);
                     log.info("TNG Response-------->" +response);
                     if (response.getSuccess()) {

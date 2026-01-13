@@ -2527,6 +2527,7 @@ public class PreInboundHeaderService extends BaseService {
             purchaseOrder.setSkus(skus);
 
             try {
+                log.info("TNG --> Purchase Order Creation Input's ----> " + purchaseOrder);
                 OrderResponse response = idmasterService.purchaseOrder(purchaseOrder);
                 log.info("TNG --> Purchase Order Creation Response----------->" + purchaseOrder);
                 log.info("TNG --> Purchase Response----------->" + response);
