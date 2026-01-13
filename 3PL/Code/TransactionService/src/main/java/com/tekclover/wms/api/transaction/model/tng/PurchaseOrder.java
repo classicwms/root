@@ -9,6 +9,7 @@ public class PurchaseOrder {
 
     private String poKey;
     private String storerKey;
+    private String warehouseKey;
     private List<Sku> skus;
 
 }
