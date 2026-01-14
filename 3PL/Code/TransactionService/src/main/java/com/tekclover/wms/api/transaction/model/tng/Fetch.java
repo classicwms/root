@@ -7,7 +7,7 @@ import java.util.List;
 @Data
 public class Fetch {
 
-    private List<String> skus;
+    private List<String> sku;
     private String storerKey;
 
 }
