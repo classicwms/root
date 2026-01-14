@@ -65,7 +65,7 @@ public class DataSourceConfig {
         config.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
         config.setJdbcUrl(jdbcUrl);
         config.setUsername("sa");
-        config.setPassword("VcDBpRrebn2N8LgBPSYitDcsbV");
+        config.setPassword("Sd2se5y3mPD9BLr3QzZMyNU1V");
 
         // SAFE POOL SIZE (PER DB)
         config.setMaximumPoolSize(6);
