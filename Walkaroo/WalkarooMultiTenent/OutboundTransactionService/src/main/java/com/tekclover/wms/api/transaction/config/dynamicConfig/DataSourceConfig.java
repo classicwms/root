@@ -23,28 +23,6 @@ import java.util.Properties;
 @EnableJpaRepositories(basePackages = "com.tekclover.wms.api.transaction",entityManagerFactoryRef = "entityManager", transactionManagerRef = "multiTransactionManager")
 public class DataSourceConfig {
 
-//    @Bean
-//    public DynamicDataSource dataSource() {
-//        // Setup the target data sources (you can dynamically load these from a DB or config)
-//        Map<Object, Object> targetDataSources = new HashMap<>();
-//
-//        // Example data source configurations (replace with actual configuration)
-//        DataSource db = createDataSource("WK");
-//        DataSource db1 = createDataSource("MDU");
-//        DataSource db2 = createDataSource("CMP");
-//
-//
-//        targetDataSources.put("WK",db);
-//        targetDataSources.put("MDU",db1);
-//        targetDataSources.put("CMP",db2);
-//
-//        DynamicDataSource dataSource = new DynamicDataSource();
-//        dataSource.setTargetDataSources(targetDataSources);
-//        dataSource.setDefaultTargetDataSource(db); // Default database (e.g., db1)
-//        return dataSource;
-//    }
-
-    // ================= DYNAMIC DATASOURCE =================
     @Bean
     public DataSource dataSource() {
 
@@ -60,7 +38,6 @@ public class DataSourceConfig {
         return ds;
     }
 
-    // ================= HIKARI PER DB =================
     private DataSource wkDataSource() {
         return buildDataSource(
                 "WK",
@@ -91,8 +68,8 @@ public class DataSourceConfig {
         config.setPassword("Sd2se5y3mPD9BLr3QzZMyNU1V");
 
         // 🔥 SAFE POOL SIZE (PER DB)
-        config.setMaximumPoolSize(5);
-        config.setMinimumIdle(2);
+        config.setMaximumPoolSize(6);
+        config.setMinimumIdle(3);
         config.setConnectionTimeout(30000);
         config.setIdleTimeout(300000);
         config.setMaxLifetime(1800000);
@@ -104,35 +81,6 @@ public class DataSourceConfig {
 
         return new HikariDataSource(config);
     }
-
-
-//    private DataSource createDataSource(String dbName) {
-//        DriverManagerDataSource dataSource = new DriverManagerDataSource();
-//        // Configure database connection here
-//        switch (dbName) {
-//            case "WK":
-//                dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-//                dataSource.setUrl("jdbc:sqlserver://10.10.14.24;databaseName=WMS_WK");
-//                dataSource.setUsername("sa");
-//                dataSource.setPassword("Sd2se5y3mPD9BLr3QzZMyNU1V");
-//                break;
-//            case "MDU":
-//                dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-//                dataSource.setUrl("jdbc:sqlserver://10.10.14.24;databaseName=WMS_WK_PRD");
-//                dataSource.setUsername("sa");
-//                dataSource.setPassword("Sd2se5y3mPD9BLr3QzZMyNU1V");
-//                break;
-//            case "CMP":
-//                dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-//                dataSource.setUrl("jdbc:sqlserver://10.10.14.24;databaseName=WMS_CMP");
-//                dataSource.setUsername("sa");
-//                dataSource.setPassword("Sd2se5y3mPD9BLr3QzZMyNU1V");
-//                break;
-//            default:
-//                throw new IllegalArgumentException("Unknown database: " + dbName);
-//        }
-//        return dataSource;
-//    }
 
     // ================= ENTITY MANAGER =================
     @Bean(name = "entityManager")
@@ -149,7 +97,7 @@ public class DataSourceConfig {
         return emf;
     }
 
-    @Bean
+    @Bean(name = "multiTransactionManager")
     public PlatformTransactionManager transactionManager() {
         JpaTransactionManager tm = new JpaTransactionManager();
         tm.setEntityManagerFactory(entityManager().getObject());
@@ -162,42 +110,11 @@ public class DataSourceConfig {
         props.put("hibernate.dialect", "org.hibernate.dialect.SQLServer2012Dialect");
         props.put("hibernate.show_sql", "false");
         props.put("hibernate.format_sql", "false");
-        props.put("hibernate.jdbc.batch_size", "30");
+        props.put("hibernate.jdbc.batch_size", "20");
         props.put("hibernate.order_inserts", "true");
         props.put("hibernate.order_updates", "true");
         return props;
     }
 
-//    @Bean(name = "entityManager")
-//    public LocalContainerEntityManagerFactoryBean entityManager() throws PropertyVetoException {
-//
-//        LocalContainerEntityManagerFactoryBean entityManagerFactory = new LocalContainerEntityManagerFactoryBean();
-//        entityManagerFactory.setDataSource(dataSource());
-//        entityManagerFactory.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
-//        entityManagerFactory.setPackagesToScan("com.tekclover.wms.api.transaction.model");
-//        entityManagerFactory.setJpaProperties(hibernateProperties());
-//        return entityManagerFactory;
-//    }
-
-
-    @Bean(name = "multiTransactionManager")
-    public PlatformTransactionManager multiTransactionManager() throws PropertyVetoException {
-        JpaTransactionManager transactionManager = new JpaTransactionManager();
-        transactionManager.setEntityManagerFactory(entityManager().getObject());
-        return transactionManager;
-    }
-
-
-//    // ================= HIBERNATE PROPS =================
-//    private Properties hibernateProperties() {
-//        Properties props = new Properties();
-//        props.put("hibernate.dialect", "org.hibernate.dialect.SQLServer2012Dialect");
-//        props.put("hibernate.show_sql", "false");
-//        props.put("hibernate.format_sql", "false");
-//        props.put("hibernate.jdbc.batch_size", "30");
-//        props.put("hibernate.order_inserts", "true");
-//        props.put("hibernate.order_updates", "true");
-//        return props;
-//    }
 
 }
