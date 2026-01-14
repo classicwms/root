@@ -93,11 +93,11 @@ public class DataSourceConfig {
         properties.put("hibernate.show_sql", "false");  // Logs the generated SQL
         properties.put("hibernate.format_sql", "false");  // Pretty formats the SQL
         properties.put("hibernate.use_sql_comments", "false");  // Adds comments to SQL for better debugging
-        properties.put("spring.datasource.hikari.maximumPoolSize", "20");
-        properties.put("spring.datasource.hikari.minimum-idle", "5");
-        properties.put("spring.datasource.hikari.idleTimeout", "180000");
-        properties.put("spring.datasource.hikari.maxLifetime", "1800000");
-        properties.put("spring.datasource.hikari.connection-timeout", "30000");
+//        properties.put("spring.datasource.hikari.maximumPoolSize", "20");
+//        properties.put("spring.datasource.hikari.minimum-idle", "5");
+//        properties.put("spring.datasource.hikari.idleTimeout", "180000");
+//        properties.put("spring.datasource.hikari.maxLifetime", "1800000");
+//        properties.put("spring.datasource.hikari.connection-timeout", "30000");
         return properties;
     }
 
