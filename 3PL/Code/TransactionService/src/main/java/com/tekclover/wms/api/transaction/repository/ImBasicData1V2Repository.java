@@ -90,7 +90,8 @@ public interface ImBasicData1V2Repository extends PagingAndSortingRepository<ImB
 								 @Param("partnerCode") String partnerCode);
 
 
-	@Query(value = "select supplier_part_number partNo, MFR_PART partName, C_TEXT companyText, PLANT_TEXT plantText, WH_TEXT warehouseText from tblimbasicdata1 where is_deleted = 0 and itm_code = :itemCode", nativeQuery = true)
+	@Query(value = "select supplier_part_number partNo, MFR_PART partName, C_TEXT companyText, PLANT_TEXT plantText, WH_TEXT warehouseText from tblimbasicdata1 \n" +
+			" where is_deleted = 0 and itm_code = :itemCode and MFR_PART = 'Tagger - UAE'", nativeQuery = true)
 	PartnerInfoProjection getPartnerId(@Param("itemCode") String itemCode);
 
 	@Query(value = "SELECT top 1 partner_nm from tblbusinesspartner WHERE IS_DELETED = 0 \n " +
