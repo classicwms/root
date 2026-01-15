@@ -34,7 +34,7 @@ public class BatchJobScheduler {
     }
 
 
-    @Scheduled(fixedDelay = 20000)
+    @Scheduled(fixedDelay = 60000)
     public void deliveryConfirmationScheduleJob() throws Exception {
 
         scheduleAsyncService.processDeliveryConfirmationV1();
