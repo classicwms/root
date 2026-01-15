@@ -161,13 +161,13 @@ public class DatabaseConnectionUtil {
     //=======================BF=====================================================
 
     public static String getBFJdbcUrl() {
-        return "jdbc:sqlserver://10.10.22.24;databaseName=WMS_BF";
+        return "jdbc:sqlserver://10.10.22.45;databaseName=WMS_BF";
     }
 
     public static Properties getBFDatabaseConnectionProperties() {
         Properties connProp = new Properties();
         connProp.put("user", "sa");
-        connProp.put("password", "9SOwjgFjm0sM7qMOFz16mICJUx");
+        connProp.put("password", "D3pyGJd4uK8sSqM7YbfJp5nYt");
         connProp.put("driver", "com.microsoft.sqlserver.jdbc.SQLServerDriver");
         return connProp;
     }
