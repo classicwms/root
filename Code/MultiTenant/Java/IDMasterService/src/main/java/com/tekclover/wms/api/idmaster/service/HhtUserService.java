@@ -626,4 +626,109 @@ public class HhtUserService {
         }
         return newHhtUser;
     }
+
+    /**
+     * @param findHhtUser
+     * @return
+     * @throws ParseException
+     */
+    //Find HhtUser
+    public List<HhtUserOutput> findHhtUserV9(FindHhtUser findHhtUser) throws ParseException {
+
+//        HhtUserSpecification spec = new HhtUserSpecification(findHhtUser);
+//		List<HhtUser> results = hhtUserRepository.findAll(spec);
+
+        if (findHhtUser.getCompanyCodeId() == null || findHhtUser.getCompanyCodeId().isEmpty()) {
+            findHhtUser.setCompanyCodeId(null);
+        }
+        if (findHhtUser.getPlantId() == null || findHhtUser.getPlantId().isEmpty()) {
+            findHhtUser.setPlantId(null);
+        }
+        if (findHhtUser.getLanguageId() == null || findHhtUser.getLanguageId().isEmpty()) {
+            findHhtUser.setLanguageId(null);
+        }
+        if (findHhtUser.getWarehouseId() == null || findHhtUser.getWarehouseId().isEmpty()) {
+            findHhtUser.setWarehouseId(null);
+        }
+        if (findHhtUser.getUserPresent() == null || findHhtUser.getUserPresent().isEmpty()) {
+            findHhtUser.setUserPresent(null);
+        }
+        if (findHhtUser.getUserId() == null || findHhtUser.getUserId().isEmpty()) {
+            findHhtUser.setUserId(null);
+        }
+        if (findHhtUser.getLevelId() == null || findHhtUser.getLevelId().isEmpty()) {
+            findHhtUser.setLevelId(null);
+        }
+        if (findHhtUser.getNoOfDaysLeave() == null || findHhtUser.getNoOfDaysLeave().isEmpty()) {
+            findHhtUser.setNoOfDaysLeave(null);
+        }
+
+        List<HhtUser> results = hhtUserRepository.getHhtUser(
+                findHhtUser.getCompanyCodeId(),
+                findHhtUser.getLanguageId(),
+                findHhtUser.getPlantId(),
+                findHhtUser.getWarehouseId(),
+                findHhtUser.getUserId(),
+                findHhtUser.getLevelId(),
+                findHhtUser.getUserPresent(),
+                findHhtUser.getNoOfDaysLeave());
+
+        List<HhtUserOutput> newHhtUser = new ArrayList<>();
+
+        for (HhtUser dbHhtUser : results) {
+
+            HhtUserOutput dbHhtUserOutput = new HhtUserOutput();
+
+            //V2 Code
+            IKeyValuePair description = companyIdRepository.getDescription(dbHhtUser.getCompanyCodeId(),
+                    dbHhtUser.getPlantId(), dbHhtUser.getLanguageId(), dbHhtUser.getWarehouseId());
+
+            IKeyValuePair iKeyValuePair3 =
+                    levelIdRepository.getLevelIdAndDescription(dbHhtUser.getLevelId(),
+                            dbHhtUser.getLanguageId(), dbHhtUser.getCompanyCodeId(), dbHhtUser.getPlantId(),
+                            dbHhtUser.getWarehouseId());
+
+            if (iKeyValuePair3 != null) {
+                dbHhtUser.setLevelIdAndDescription(iKeyValuePair3.getLevelId() + "-" + iKeyValuePair3.getDescription());
+            }
+
+            if (description != null) {
+                dbHhtUser.setCompanyIdAndDescription(description.getCompanyDesc());
+                dbHhtUser.setPlantIdAndDescription(description.getPlantDesc());
+                dbHhtUser.setWarehouseIdAndDescription(description.getWarehouseDesc());
+            }
+
+            BeanUtils.copyProperties(dbHhtUser, dbHhtUserOutput, CommonUtils.getNullPropertyNames(dbHhtUser));
+            if (dbHhtUser.getOrderTypeIds() != null) {
+                List<String> orderTypeId = new ArrayList<>();
+                for (OrderTypeId dbOrderTypeId : dbHhtUser.getOrderTypeIds()) {
+                    orderTypeId.add(dbOrderTypeId.getOrderTypeId());
+                }
+                dbHhtUserOutput.setOrderType(orderTypeId);
+            }
+            if(dbHhtUser != null) {
+                if (dbHhtUser.getStartDate() != null && dbHhtUser.getEndDate() != null) {
+                    List<HhtUser> userPresent = hhtUserRepository.getHhtUserAttendance(
+                            dbHhtUser.getCompanyCodeId(),
+                            dbHhtUser.getLanguageId(),
+                            dbHhtUser.getPlantId(),
+                            dbHhtUser.getWarehouseId(),
+                            dbHhtUser.getUserId(),
+                            dbHhtUser.getStartDate(),
+                            dbHhtUser.getEndDate());
+                    log.info("HHt User Absent: " + userPresent);
+                    if (userPresent != null && !userPresent.isEmpty()) {
+                        dbHhtUserOutput.setUserPresent("0");
+                    } else {
+                        dbHhtUserOutput.setUserPresent("1");
+                    }
+                } else {
+                    dbHhtUserOutput.setUserPresent("1");
+                }
+            }
+
+            newHhtUser.add(dbHhtUserOutput);
+        }
+        return newHhtUser;
+    }
 }

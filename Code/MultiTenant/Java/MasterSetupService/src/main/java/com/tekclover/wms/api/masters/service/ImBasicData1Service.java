@@ -271,6 +271,10 @@ public class ImBasicData1Service {
 
         if (likeSearchInput.getLikeSearchByDesc() != null && !likeSearchInput.getLikeSearchByDesc().trim().isEmpty()) {
 
+            log.info("searchText1 -----> {}", likeSearchInput.getLikeSearchByDesc().trim());
+            log.info("searchText2 -----> {}", likeSearchInput.getLikeSearchByDesc().trim());
+            log.info("searchText3 -----> {}", likeSearchInput.getLikeSearchByDesc().trim());
+            log.info("LikeSearchInput -----> {}", likeSearchInput);
             List<ItemListImpl> data = imbasicdata1Repository.getItemListBySearchV2(
                     likeSearchInput.getLikeSearchByDesc().trim(),
                     likeSearchInput.getLikeSearchByDesc().trim(),
@@ -279,6 +283,36 @@ public class ImBasicData1Service {
                     likeSearchInput.getPlantId(),
                     likeSearchInput.getLanguageId(),
                     likeSearchInput.getWarehouseId());
+            log.info("Like Search ImBasicDate size ----> {}", data.size());
+            return data;
+        } else {
+            throw new BadRequestException("Search string must not be empty");
+        }
+    }
+
+    //Like Search filter ItemCode, Description, Company Code, Plant, Language and warehouse
+
+    /**
+     * Modified for Fahaheel Filter only based on WarehouseId
+     * Aakash vinayak - 29/07/2025
+     *
+     * @param likeSearchInput
+     * @return
+     */
+    public List<ItemListImpl> findImBasicData1LikeSearchV3(LikeSearchInput likeSearchInput) {
+
+        if (likeSearchInput.getLikeSearchByDesc() != null && !likeSearchInput.getLikeSearchByDesc().trim().isEmpty()) {
+
+            log.info("searchText1 -----> {}", likeSearchInput.getLikeSearchByDesc().trim());
+            log.info("searchText2 -----> {}", likeSearchInput.getLikeSearchByDesc().trim());
+            log.info("searchText3 -----> {}", likeSearchInput.getLikeSearchByDesc().trim());
+            log.info("LikeSearchInput -----> {}", likeSearchInput);
+            List<ItemListImpl> data = imbasicdata1Repository.getItemListBySearchV3(
+                    likeSearchInput.getLikeSearchByDesc().trim(),
+                    likeSearchInput.getLikeSearchByDesc().trim(),
+                    likeSearchInput.getLikeSearchByDesc().trim(),
+                    likeSearchInput.getWarehouseId());
+            log.info("Like Search ImBasicDate size ----> {}", data.size());
             return data;
         } else {
             throw new BadRequestException("Search string must not be empty");
@@ -768,6 +802,29 @@ public class ImBasicData1Service {
         exceptionLog.setCreatedBy("MSD_API");
         exceptionLog.setCreatedOn(new Date());
         exceptionLogRepo.save(exceptionLog);
+    }
+
+    public List<ImBasicData1V2> imBasicData1Upload(List<ImBasicData1V2> imBasicDataList) {
+
+        List<ImBasicData1V2> saveImBasicData1 = new ArrayList<>();
+        for (ImBasicData1V2 imData1 : imBasicDataList) {
+            ImBasicData1V2 dbImBasicData1 = new ImBasicData1V2();
+            Optional<ImBasicData1V2> duplicateImBasicData1 = imBasicData1V2Repository.findByCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndUomIdAndManufacturerPartNoAndLanguageIdAndDeletionIndicator(imData1.getCompanyCodeId(),
+                    imData1.getPlantId(), imData1.getWarehouseId(), imData1.getItemCode(),
+                    imData1.getUomId(), imData1.getManufacturerPartNo(), imData1.getLanguageId(), 0L);
+
+            if (duplicateImBasicData1.isPresent()) {
+                throw new BadRequestException("Record is Getting Duplicate");
+            } else {
+                BeanUtils.copyProperties(imData1, dbImBasicData1, CommonUtils.getNullPropertyNames(imData1));
+                dbImBasicData1.setDeletionIndicator(0L);
+                dbImBasicData1.setCreatedOn(new Date());
+                dbImBasicData1.setUpdatedOn(new Date());
+                saveImBasicData1.add(dbImBasicData1);
+            }
+        }
+        imBasicData1V2Repository.saveAll(saveImBasicData1);
+        return saveImBasicData1;
     }
 
 }

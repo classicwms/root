@@ -53,5 +53,4 @@ public class ImBasicData1V2 extends ImBasicData1 {
     private Long selfLife = 0L;
 
 
-
 }

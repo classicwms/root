@@ -160,6 +160,7 @@ public class HhtUserController {
             log.info("FindHhtUser ------> {}", findHhtUser);
             if (findHhtUser.getWarehouseId() != null) {
                 DataBaseContextHolder.setCurrentDb("MT");
+                log.info("WarehouseId-->" +findHhtUser.getWarehouseId().get(0));
                 Warehouse warehouseName = warehouseRepository.findTop1ByWarehouseIdAndDeletionIndicator(findHhtUser.getWarehouseId().get(0), 0L);
                 routingDb = dbConfigRepository.getDbName(warehouseName.getCompanyCodeId(), warehouseName.getPlantId(), warehouseName.getWarehouseId());
                 log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
@@ -201,6 +202,12 @@ public class HhtUserController {
                         break;
                     case "KNOWELL":
                         createdHhtUser = hhtuserService.findHhtUser(findHhtUser);
+                        break;
+                    case "BP":
+                        createdHhtUser   = hhtuserService.findHhtUser(findHhtUser);
+                        break;
+                    case "BF":
+                        createdHhtUser = hhtuserService.findHhtUserV9(findHhtUser);
                         break;
                 }
             }

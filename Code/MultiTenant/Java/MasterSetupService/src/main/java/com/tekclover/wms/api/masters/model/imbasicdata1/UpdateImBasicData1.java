@@ -52,4 +52,5 @@ public class UpdateImBasicData1 {
 	private Double height;
 	private String dimensionUom;
 	private Double volume;
+
 }

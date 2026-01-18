@@ -55,5 +55,5 @@ public interface ModuleIdRepository extends JpaRepository<ModuleId,Long>, JpaSpe
 
 	List<ModuleId> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndDeletionIndicator(String languageId, String companyCodeId, String plantId, String warehouseId, Long deletionIndicator);
 
-    Optional<ModuleId> findByMenuIdAndSubMenuIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndLanguageIdAndDeletionIndicator(Long menuId, Long subMenuId, String companyCodeId, String plantId, String warehouseId, String languageId, Long deletionIndicator);
+    Optional<ModuleId> findByMenuIdAndSubMenuIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndLanguageIdAndModuleIdAndDeletionIndicator(Long menuId, Long subMenuId, String companyCodeId, String plantId, String warehouseId, String languageId, String moduleId, Long deletionIndicator);
 }

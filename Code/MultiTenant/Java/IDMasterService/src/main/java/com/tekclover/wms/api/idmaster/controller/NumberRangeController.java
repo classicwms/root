@@ -83,6 +83,7 @@ public class NumberRangeController {
 		   log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 		   DataBaseContextHolder.clear();
 		   DataBaseContextHolder.setCurrentDb(routingDb);
+		   log.info("Routing DB:" +routingDb);
 		   String nextRangeValue = numberRangeService.getNextNumberRange(numberRangeCode, warehouseId,
 				   companyCodeId, plantId, languageId);
 		   return new ResponseEntity<>(nextRangeValue, HttpStatus.OK);

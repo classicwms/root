@@ -33,6 +33,6 @@ public interface NotificationMessageRepository extends JpaRepository<Notificatio
     void updateStorageBin();
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query(value = "update tblnotificationmessage set status = 1 where status = 0", nativeQuery = true)
+    @Query(value = "update tblnotificationmessage set status = 1", nativeQuery = true)
     void updateStatusV3();
 }

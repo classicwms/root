@@ -34,4 +34,7 @@ public interface ImAlternateUomRepository extends JpaRepository<ImAlternateUom,L
     List<ImAlternateUom> findByAlternateUomAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndLanguageIdAndDeletionIndicator(
             String alternateUom, String companyCodeId, String plantId,
             String warehouseId, String itemCode, String languageId, Long deletionIndicator);
+
+    Optional<ImAlternateUom> findByAlternateUomAndPlantIdAndCompanyCodeIdAndWarehouseIdAndItemCodeAndUomIdAndLanguageIdAndDeletionIndicator(String alternateUom, String plantId, String companyCodeId,
+                                                                                                                                            String warehouseId, String itemCode, String uomId, String languageId, Long deletionIndicator);
 }

@@ -92,7 +92,8 @@ public class WarehouseController {
 			@RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException, ParseException {
 		try {
 			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(newWarehouse.getCompanyCodeId(), newWarehouse.getPlantId(), newWarehouse.getWarehouseId());
+//			String routingDb = dbConfigRepository.getDbName(newWarehouse.getCompanyCodeId(), newWarehouse.getPlantId(), newWarehouse.getWarehouseId());
+			String routingDb = dbConfigRepository.getDbNameByCompany(newWarehouse.getCompanyCodeId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
 			DataBaseContextHolder.setCurrentDb(routingDb);

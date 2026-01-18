@@ -181,6 +181,7 @@ public class NotificationMessageService {
             throws IllegalAccessException, InvocationTargetException {
         NotificationMessage notificationMessage = new NotificationMessage();
         BeanUtils.copyProperties(addNotification,notificationMessage,CommonUtils.getNullPropertyNames(addNotification));
+        notificationMessage.setStatus(false);
         return notificationMessageRepository.save(notificationMessage);
 
     }

@@ -87,4 +87,5 @@ public class UpdateStorageBin {
 	private Long deletionIndicator;
 	
 	private String updatedBy;
+
 }

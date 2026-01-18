@@ -199,4 +199,19 @@ public class BusinessPartnerController {
 			DataBaseContextHolder.clear();
 		}
 		}
+	@ApiOperation(response = BusinessPartnerV2.class, value = "Upload BusinessPartner") // label for swagger
+	@PostMapping("/upload/businesspartner")
+	public ResponseEntity<?> uploadBusinessPartner(@Valid @RequestBody List<BusinessPartnerV2> businessPartnerV2){
+		try {
+			DataBaseContextHolder.setCurrentDb("MT");
+			String routingDb = dbConfigRepository.getDbName(businessPartnerV2.get(0).getCompanyCodeId(), businessPartnerV2.get(0).getPlantId(), businessPartnerV2.get(0).getWarehouseId());
+			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+			DataBaseContextHolder.clear();
+			DataBaseContextHolder.setCurrentDb(routingDb);
+			List<BusinessPartnerV2> businessPartner = businesspartnerService.businessPartnerUpload(businessPartnerV2);
+			return new ResponseEntity<>(businessPartner, HttpStatus.OK);
+		} finally {
+			DataBaseContextHolder.clear();
+		}
+	}
 }

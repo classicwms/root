@@ -86,6 +86,17 @@ public interface ImBasicData1Repository extends PagingAndSortingRepository<ImBas
 												@Param("languageId") String languageId,
 												@Param("warehouseId") String warehouseId  );
 
+	@Query(value = 	"select TOP 50 itm_code as itemCode, mfr_part manufacturerName, \n" +
+			"text as description from tblimbasicdata1 \n" +
+			"where ( itm_code like :searchText1% or itm_code like %:searchText2 \n" +
+			"or text like %:searchText3% ) and \n" +
+			"(COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) \n" +
+			"group by itm_code,mfr_part,text ", nativeQuery = true )
+	List<ItemListImpl> getItemListBySearchV3(@Param("searchText1") String searchText1,
+											 @Param("searchText2") String searchText2,
+											 @Param("searchText3") String searchText3,
+											 @Param("warehouseId") String warehouseId);
+
     Optional<ImBasicData1> findByCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndManufacturerPartNoAndLanguageIdAndDeletionIndicator(
 			String companyCodeId, String plantId, String warehouseId, String itemCode, String manufacturerPartNo, String languageId, Long deletionIndicator);
 }

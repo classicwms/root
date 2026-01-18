@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -128,12 +129,21 @@ public class ImBasicData1Controller {
     @PostMapping("/findImBasicData1")
     public List<ImBasicData1> findImBasicData1(@RequestBody SearchImBasicData1 searchImBasicData1)
             throws Exception {
+        log.info("SearchImBasicData1 ----> {}", searchImBasicData1);
         try {
-            DataBaseContextHolder.setCurrentDb("MT");
-            String routingDb = dbConfigRepository.getDbNameList(searchImBasicData1.getCompanyCodeId(), searchImBasicData1.getPlantId(), searchImBasicData1.getWarehouseId());
-            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-            DataBaseContextHolder.clear();
-            DataBaseContextHolder.setCurrentDb(routingDb);
+            if (searchImBasicData1.getCompanyCodeId() != null && searchImBasicData1.getPlantId() != null && searchImBasicData1.getWarehouseId() != null) {
+                DataBaseContextHolder.setCurrentDb("MT");
+                String routingDb = dbConfigRepository.getDbList(searchImBasicData1.getCompanyCodeId(), searchImBasicData1.getPlantId(), searchImBasicData1.getWarehouseId());
+                log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+                DataBaseContextHolder.clear();
+                DataBaseContextHolder.setCurrentDb(routingDb);
+            } else {
+                DataBaseContextHolder.setCurrentDb("MT");
+                String routingDb = dbConfigRepository.getDbByWarehouseIn(searchImBasicData1.getWarehouseId());
+                log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+                DataBaseContextHolder.clear();
+                DataBaseContextHolder.setCurrentDb(routingDb);
+            }
             return imbasicdata1Service.findImBasicData1(searchImBasicData1);
         } finally {
             DataBaseContextHolder.clear();
@@ -217,7 +227,21 @@ public class ImBasicData1Controller {
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
             DataBaseContextHolder.setCurrentDb(routingDb);
-            return imbasicdata1Service.findImBasicData1LikeSearchV2(likeSearchInput);
+//            return imbasicdata1Service.findImBasicData1LikeSearchV2(likeSearchInput);
+
+            List<ItemListImpl> itemLists = new ArrayList<>();
+
+            if (routingDb != null) {
+                switch (routingDb) {
+                    case "FAHAHEEL":
+                    case "AUTO_LAP":
+                        itemLists = imbasicdata1Service.findImBasicData1LikeSearchV3(likeSearchInput);
+                        break;
+                    default:
+                        itemLists = imbasicdata1Service.findImBasicData1LikeSearchV2(likeSearchInput);
+                }
+            }
+            return itemLists;
         } finally {
             DataBaseContextHolder.clear();
         }
@@ -251,15 +275,19 @@ public class ImBasicData1Controller {
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
             DataBaseContextHolder.setCurrentDb(routingDb);
-            if(routingDb != null){
-                if (routingDb.equals("REEFERON")) {
-                    createdImBasicData1 = imbasicdata1Service.createImBasicData1V5(newImBasicData1, loginUserID);
+            if (routingDb != null) {
+                switch (routingDb) {
+                    case "REEFERON":
+                        createdImBasicData1 = imbasicdata1Service.createImBasicData1V5(newImBasicData1, loginUserID);
+                        break;
+                    case "KNOWELL":
+                        createdImBasicData1 = imbasicdata1Service.createImBasicData1V7(newImBasicData1, loginUserID);
+                        break;
+                    default:
+                        createdImBasicData1 = imbasicdata1Service.createImBasicData1V2(newImBasicData1, loginUserID);
+                        break;
                 }
-                if (routingDb.equals("KNOWELL")) {
-                    createdImBasicData1 = imbasicdata1Service.createImBasicData1V7(newImBasicData1, loginUserID);
-                } else {
-                    createdImBasicData1 = imbasicdata1Service.createImBasicData1V2(newImBasicData1, loginUserID);
-                }
+
             }
             return new ResponseEntity<>(createdImBasicData1, HttpStatus.OK);
         } finally {
@@ -340,6 +368,23 @@ public class ImBasicData1Controller {
             imbasicdata1Service.deleteImBasicData1V2(itemCode, companyCodeId, plantId, languageId, uomId,
                     manufacturerPartNo, warehouseId, loginUserID);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } finally {
+            DataBaseContextHolder.clear();
+        }
+    }
+
+    @ApiOperation(response = ImBasicData1V2.class, value = "Upload ImBasicData") // label for swagger
+    @PostMapping("/upload/imbasicdata/")
+    public ResponseEntity<?> uploadStorageBin(@Valid @RequestBody List<ImBasicData1V2> imBasicDataList){
+        try {
+            DataBaseContextHolder.setCurrentDb("MT");
+            String routingDb = dbConfigRepository.getDbName(imBasicDataList.get(0).getCompanyCodeId(), imBasicDataList.get(0).getPlantId(), imBasicDataList.get(0).getWarehouseId());
+            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(routingDb);
+            log.info("imBasicData" + imBasicDataList);
+            List<ImBasicData1V2> imBasicData = imbasicdata1Service.imBasicData1Upload(imBasicDataList);
+            return new ResponseEntity<>(imBasicData, HttpStatus.OK);
         } finally {
             DataBaseContextHolder.clear();
         }

@@ -70,7 +70,7 @@ public class ImBasicData1Specification implements Specification<ImBasicData1> {
         }
 
         if (searchImBasicData1.getPlantId() != null && !searchImBasicData1.getPlantId().isEmpty()) {
-            final Path<Group> group = root.<Group> get("plantId");
+            final Path<Group> group = root.<Group>get("plantId");
             predicates.add(group.in(searchImBasicData1.getPlantId()));
         }
 

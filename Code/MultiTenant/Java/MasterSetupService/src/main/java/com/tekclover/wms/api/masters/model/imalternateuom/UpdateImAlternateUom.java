@@ -60,4 +60,6 @@ public class UpdateImAlternateUom {
 	private Long deletionIndicator;
 
 	private String updatedBy;
+
+	private Double uomIdQty;
 }

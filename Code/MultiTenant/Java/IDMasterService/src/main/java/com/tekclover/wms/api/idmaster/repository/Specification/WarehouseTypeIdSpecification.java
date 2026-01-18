@@ -21,31 +21,33 @@ public class WarehouseTypeIdSpecification implements Specification<WarehouseType
     public Predicate toPredicate(Root<WarehouseTypeId> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
 
         List<Predicate> predicates = new ArrayList<Predicate>();
-
-        if (findWarehouseTypeId.getWarehouseId() != null && !findWarehouseTypeId.getWarehouseId().isEmpty()) {
-            final Path<DeferredImportSelector.Group> group = root.<DeferredImportSelector.Group>get("warehouseId");
-            predicates.add(group.in(findWarehouseTypeId.getWarehouseId()));
-        }
-
         if (findWarehouseTypeId.getWarehouseTypeId() != null && !findWarehouseTypeId.getWarehouseTypeId().isEmpty()) {
-            final Path<DeferredImportSelector.Group> group = root.<DeferredImportSelector.Group>get("warehouseTypeId");
-            predicates.add(group.in(findWarehouseTypeId.getWarehouseTypeId()));
+            predicates.add(root.get("warehouseTypeId").in(findWarehouseTypeId.getWarehouseTypeId()));
         }
 
-        if (findWarehouseTypeId.getPlantId() != null && !findWarehouseTypeId.getPlantId().isEmpty()) {
-            final Path<DeferredImportSelector.Group> group = root.<DeferredImportSelector.Group>get("plantId");
-            predicates.add(group.in(findWarehouseTypeId.getPlantId()));
-        }
-
+        // companyCodeId (Single value)
         if (findWarehouseTypeId.getCompanyCodeId() != null && !findWarehouseTypeId.getCompanyCodeId().isEmpty()) {
-            final Path<DeferredImportSelector.Group> group = root.<DeferredImportSelector.Group>get("companyCodeId");
-            predicates.add(group.in(findWarehouseTypeId.getCompanyCodeId()));
-        }
-        if (findWarehouseTypeId.getLanguageId() != null && !findWarehouseTypeId.getLanguageId().isEmpty()) {
-            final Path<DeferredImportSelector.Group> group = root.<DeferredImportSelector.Group>get("languageId");
-            predicates.add(group.in(findWarehouseTypeId.getLanguageId()));
+            predicates.add(cb.equal(root.get("companyCodeId"), findWarehouseTypeId.getCompanyCodeId()));
         }
 
-        return cb.and(predicates.toArray(new Predicate[] {}));
+        // warehouseId (List)
+        if (findWarehouseTypeId.getWarehouseId() != null && !findWarehouseTypeId.getWarehouseId().isEmpty()) {
+            predicates.add(root.get("warehouseId").in(findWarehouseTypeId.getWarehouseId()));
+        }
+
+        // plantId (Single value)
+        if (findWarehouseTypeId.getPlantId() != null && !findWarehouseTypeId.getPlantId().isEmpty()) {
+            predicates.add(cb.equal(root.get("plantId"), findWarehouseTypeId.getPlantId()));
+        }
+
+        // languageId (List)
+        if (findWarehouseTypeId.getLanguageId() != null && !findWarehouseTypeId.getLanguageId().isEmpty()) {
+            predicates.add(root.get("languageId").in(findWarehouseTypeId.getLanguageId()));
+        }
+
+        // deletionIndicator = 0
+        predicates.add(cb.equal(root.get("deletionIndicator"), 0L));
+
+        return cb.and(predicates.toArray(new Predicate[0]));
     }
 }

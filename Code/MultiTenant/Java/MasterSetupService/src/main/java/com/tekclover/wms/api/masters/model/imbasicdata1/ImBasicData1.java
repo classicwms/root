@@ -195,4 +195,5 @@ public class ImBasicData1 {
 
 	@Column(name = "MOQ")
 	private Double moq;
+
 }

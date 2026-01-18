@@ -38,4 +38,5 @@ public class SearchImBasicData1 {
 	
 	private Date startUpdatedOn;
 	private Date endUpdatedOn;
+
 }

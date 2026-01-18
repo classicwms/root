@@ -192,8 +192,8 @@ public class RoleAccessService {
 			dbRoleAccess.setCreatedOn(new Date());
 			dbRoleAccess.setUpdatedOn(new Date());
 
-			List<MenuId> menuId = menuIdService.getMenuId(newRoleAccess.getMenuId());			//Check Menu Exist or not
-			List<MenuId> subMenuId = menuIdService.getSubMenuId(newRoleAccess.getSubMenuId());	//Check Sub Menu Exist or Not
+//			List<MenuId> menuId = menuIdService.getMenuId(newRoleAccess.getMenuId());			//Check Menu Exist or not
+//			List<MenuId> subMenuId = menuIdService.getSubMenuId(newRoleAccess.getSubMenuId());	//Check Sub Menu Exist or Not
 
 			// Insert Record
 			RoleAccess createdRoleAccess = roleAccessRepository.save(dbRoleAccess);

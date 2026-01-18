@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -264,5 +265,25 @@ public class BusinessPartnerService {
         } else {
             throw new EntityNotFoundException("Error in deleting Id:" + partnerCode);
         }
+    }
+    public List<BusinessPartnerV2> businessPartnerUpload(List<BusinessPartnerV2> businessPartnerV2) {
+
+        List<BusinessPartnerV2> saveBusinessPartner = new ArrayList<>();
+        for (BusinessPartnerV2 businessPartner : businessPartnerV2) {
+            BusinessPartnerV2 dbBusinessPartner = new BusinessPartnerV2();
+            Optional<BusinessPartnerV2> duplicateStorageBin = businesspartnerRepository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndPartnerCodeAndDeletionIndicator(businessPartner.getCompanyCodeId(), businessPartner.getPlantId(),
+                    businessPartner.getWarehouseId(), businessPartner.getLanguageId(), businessPartner.getPartnerCode(),0L);
+            if (!duplicateStorageBin.isEmpty()) {
+                throw new BadRequestException("Record is Getting Duplicate");
+            } else {
+                BeanUtils.copyProperties(businessPartner, dbBusinessPartner, CommonUtils.getNullPropertyNames(businessPartner));
+                dbBusinessPartner.setDeletionIndicator(0L);
+                dbBusinessPartner.setCreatedOn(new Date());
+                dbBusinessPartner.setUpdatedOn(new Date());
+                businessPartnerV2Repository.save(dbBusinessPartner);
+                saveBusinessPartner.add(dbBusinessPartner);
+            }
+        }
+        return saveBusinessPartner;
     }
 }

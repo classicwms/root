@@ -69,4 +69,22 @@ public interface UserManagementRepository extends JpaRepository<UserManagement, 
 			"(COALESCE(:userId, null) IS NULL OR (USR_ID IN (:userId))) and \n" +
 			"is_deleted=0 ", nativeQuery = true)
 	UserManagement getUserDetails(@Param(value = "userId") String userId);
+
+	@Query(value = "SELECT COUNT(*) FROM tblusermanagement " +
+			"WHERE C_ID = :companyCode AND PLANT_ID = :plantId " +
+			"AND WH_ID = :warehouseId AND LANG_ID = :languageId " +
+			"AND IS_DELETED = 0", nativeQuery = true)
+	Long getUserCountForWarehouse(@Param("companyCode") String companyCode,
+								  @Param("plantId") String plantId,
+								  @Param("warehouseId") String warehouseId,
+								  @Param("languageId") String languageId);
+
+
+	@Query(value = "select * \n" +
+			" from tblusermanagement \n" +
+			"WHERE \n" +
+			"(COALESCE(:userId, null) IS NULL OR (USR_ID IN (:userId))) and \n" +
+			"is_deleted=0 ", nativeQuery = true)
+	public List<UserManagement> getUserIdV6(@Param(value = "userId") String userId);
+
 }

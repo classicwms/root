@@ -153,4 +153,23 @@ public class ImAlternateUomController {
 			DataBaseContextHolder.clear();
 		}
 		}
+
+
+
+    @ApiOperation(response = ImAlternateUom.class, value = "Upload ImAlternateUom") // label for swagger
+    @PostMapping("/upload/alternateuom/")
+    public ResponseEntity<?> uploadAlternateUom(@Valid @RequestBody List<ImAlternateUom> imAlternateUoms) {
+        try {
+            DataBaseContextHolder.setCurrentDb("MT");
+            String routingDb = dbConfigRepository.getDbName(imAlternateUoms.get(0).getCompanyCodeId(), imAlternateUoms.get(0).getPlantId(), imAlternateUoms.get(0).getWarehouseId());
+            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(routingDb);
+            log.info("alternateUom" + imAlternateUoms);
+            List<ImAlternateUom> alternated = imalternateuomService.alternateUomUpload(imAlternateUoms);
+            return new ResponseEntity<>(alternated, HttpStatus.OK);
+        } finally {
+            DataBaseContextHolder.clear();
+        }
+    }
 }

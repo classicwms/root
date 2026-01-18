@@ -96,5 +96,5 @@ public class AddStorageBin {
 	private Long deletionIndicator;
 	
 	private String createdBy;
-    
+
 }

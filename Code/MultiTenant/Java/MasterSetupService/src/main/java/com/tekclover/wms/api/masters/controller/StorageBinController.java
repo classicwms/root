@@ -316,6 +316,9 @@ public class StorageBinController {
                     case "NAMRATHA":
                         storageBin = storagebinService.getStorageBinByBinClassIdV2(warehouseId, binClassId, companyCode, plantId, languageId);
                         break;
+                    case "BF":
+                        storageBin = storagebinService.getStorageBinByBinClassIdV9(warehouseId, binClassId, companyCode, plantId, languageId);
+                        break;
                 }
             }
             log.info("StorageBin : " + storageBin);
@@ -620,6 +623,22 @@ public class StorageBinController {
             DataBaseContextHolder.setCurrentDb(routingDb);
             storagebinService.deleteStoreBinV2(storageBin, companyCodeId, plantId, warehouseId, languageId, loginUserID);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } finally {
+            DataBaseContextHolder.clear();
+        }
+    }
+
+    @ApiOperation(response = StorageBinV2.class, value = "Upload StorageBin") // label for swagger
+    @PostMapping("/upload/storagebin")
+    public ResponseEntity<?> uploadStorageBin(@Valid @RequestBody List<StorageBinV2> storageBinV2){
+        try {
+            DataBaseContextHolder.setCurrentDb("MT");
+            String routingDb = dbConfigRepository.getDbName(storageBinV2.get(0).getCompanyCodeId(), storageBinV2.get(0).getPlantId(), storageBinV2.get(0).getWarehouseId());
+            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(routingDb);
+            List<StorageBinV2> storageBin = storagebinService.storageBinUpload(storageBinV2);
+            return new ResponseEntity<>(storageBin, HttpStatus.OK);
         } finally {
             DataBaseContextHolder.clear();
         }

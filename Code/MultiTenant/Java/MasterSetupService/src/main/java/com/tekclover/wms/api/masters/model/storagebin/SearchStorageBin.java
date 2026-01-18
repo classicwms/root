@@ -42,5 +42,5 @@ public class SearchStorageBin {
 	private Date endCreatedOn;	
 
 	private Date startUpdatedOn;
-	private Date endUpdatedOn;	
+	private Date endUpdatedOn;
 }

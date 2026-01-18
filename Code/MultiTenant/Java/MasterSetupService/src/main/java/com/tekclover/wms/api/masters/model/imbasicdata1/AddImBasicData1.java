@@ -55,5 +55,5 @@ public class AddImBasicData1 {
 	private Double height;
 	private String dimensionUom;
 	private Double volume;
-	
+
 }

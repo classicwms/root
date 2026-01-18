@@ -212,6 +212,15 @@ public interface StorageBinV2Repository extends JpaRepository<StorageBinV2, Long
                           @Param("plantId") String plantId,
                           @Param("languageId") String languageId,
                           @Param("warehouseId") String warehouseId);
+
+    @Modifying
+    @Query(value = "UPDATE tblstoragebin set is_deleted = 1 WHERE st_bin = :storageBin and c_id = :companyCode and plant_id = :plantId and \n" +
+            "wh_id = :warehouseId and lang_id = :languageId and is_deleted = 0 ", nativeQuery = true)
+    void softDeleteStorageBin(@Param("companyCode") String companyCode,
+                              @Param("plantId") String plantId,
+                              @Param("languageId") String languageId,
+                              @Param("warehouseId") String warehouseId,
+                              @Param("storageBin") String storageBin);
 }
 
 

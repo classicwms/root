@@ -108,6 +108,11 @@ public class PlantIdController {
 	@ApiOperation(response = PlantId.class, value = "Find PlantId") // label for swagger
 	@PostMapping("/find")
 	public ResponseEntity<?> findPlantId(@Valid @RequestBody FindPlantId findPlantId) throws Exception {
+		DataBaseContextHolder.setCurrentDb("MT");
+		String routingDb = dbConfigRepository.getDbNameByCompanyList(findPlantId.getCompanyCodeId());
+		log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+		DataBaseContextHolder.clear();
+		DataBaseContextHolder.setCurrentDb(routingDb);
 		List<PlantId> createdPlant = plantidService.findPlant(findPlantId);
 		return new ResponseEntity<>(createdPlant, HttpStatus.OK);
 	}

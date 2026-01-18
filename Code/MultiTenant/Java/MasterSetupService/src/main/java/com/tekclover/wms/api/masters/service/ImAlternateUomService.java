@@ -266,4 +266,41 @@ public class ImAlternateUomService {
 			throw new EntityNotFoundException("Error in deleting Id:" + uomId);
 		}
 	}
+
+    public List<ImAlternateUom> alternateUomUpload(List<ImAlternateUom> alternateUomList) {
+
+        List<ImAlternateUom> saveUom = new ArrayList<>();
+        for (ImAlternateUom alternateUom : alternateUomList) {
+            ImAlternateUom dbAlternateUom = new ImAlternateUom();
+            Long id = imalternateuomRepository.getId();
+            Optional<ImAlternateUom> duplicateAlternateUom =
+                    imalternateuomRepository.findByAlternateUomAndPlantIdAndCompanyCodeIdAndWarehouseIdAndItemCodeAndUomIdAndLanguageIdAndDeletionIndicator(alternateUom.getAlternateUom(), alternateUom.getPlantId(), alternateUom.getCompanyCodeId(), alternateUom.getWarehouseId(),
+                            alternateUom.getItemCode(), alternateUom.getUomId(), alternateUom.getLanguageId(), 0L);
+
+            if (duplicateAlternateUom.isPresent()) {
+                log.info("duplicateAlternateUom ----> ", duplicateAlternateUom.get());
+                throw new BadRequestException("Record is Getting Duplicate");
+            } else {
+                BeanUtils.copyProperties(alternateUom, dbAlternateUom, CommonUtils.getNullPropertyNames(alternateUom));
+                dbAlternateUom.setId(id);
+
+                if(id != null) {
+
+                    dbAlternateUom.setId(id);
+
+                }else {
+
+                    dbAlternateUom.setId(1L);
+                }
+                dbAlternateUom.setAlternateUom(alternateUom.getAlternateUom());
+                dbAlternateUom.setDeletionIndicator(0L);
+                dbAlternateUom.setCreatedOn(new Date());
+                dbAlternateUom.setUpdatedOn(new Date());
+                imalternateuomRepository.save(dbAlternateUom);
+                saveUom.add(dbAlternateUom);
+            }
+        }
+        return saveUom;
+    }
+
 }

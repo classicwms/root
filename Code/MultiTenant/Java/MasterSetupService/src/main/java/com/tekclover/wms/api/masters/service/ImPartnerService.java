@@ -535,4 +535,24 @@ public List<ImPartner> updateImPartner (String companyCodeId, String plantId, St
 		auditLogService.createAuditLog(auditLog, loginUserID);
 	}
 
+	/**
+	 *
+	 * @param inventoryList
+	 * @return
+	 */
+	public List<ImPartner> imPartnerUpload(List<ImPartner> inventoryList) {
+
+		List<ImPartner> saveInventory = new ArrayList<>();
+		for (ImPartner inventory : inventoryList) {
+			ImPartner dbInventory = new ImPartner();
+			BeanUtils.copyProperties(inventory, dbInventory, CommonUtils.getNullPropertyNames(inventory));
+			dbInventory.setDeletionIndicator(0L);
+			dbInventory.setCreatedOn(new Date());
+			dbInventory.setUpdatedOn(new Date());
+			impartnerRepository.save(dbInventory);
+			saveInventory.add(dbInventory);
+		}
+		return saveInventory;
+	}
+
 }

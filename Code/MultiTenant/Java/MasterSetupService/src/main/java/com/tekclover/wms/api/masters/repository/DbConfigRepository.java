@@ -28,6 +28,9 @@ public interface DbConfigRepository extends JpaRepository<DbConfig, Long> {
     @Query("SELECT dbName from DbConfig where companyCode =?1 and plantId=?2")
     String getDbNameWithoutWhId(String companyCode, String branchCode);
 
+    @Query(value = "SELECT top 1 db_name from db_config where warehouse_id in (:warehouseId)", nativeQuery = true)
+    String getDbByWarehouseIn(@Param("warehouseId") List<String> warehouseId);
+
 //    @Query("SELECT dbName from User where dbId =?1")
 //    String getDbName(Long id);
 }

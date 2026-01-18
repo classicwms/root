@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import javax.persistence.EntityNotFoundException;
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -781,6 +782,7 @@ public class StorageBinService {
         BeanUtils.copyProperties(updateStorageBin, dbStorageBin, CommonUtils.getNullPropertyNames(updateStorageBin));
         dbStorageBin.setUpdatedBy(loginUserID);
         dbStorageBin.setUpdatedOn(new Date());
+        storagebinRepository.delete(dbStorageBin);
         return storagebinRepository.save(dbStorageBin);
     }
 
@@ -817,6 +819,7 @@ public class StorageBinService {
             }
 
             dbStorageBin.setDeletionIndicator(0L);
+            dbStorageBin.setCapacityCheck(false);
             dbStorageBin.setCreatedBy(loginUserID);
             dbStorageBin.setUpdatedBy(loginUserID);
             dbStorageBin.setCreatedOn(new Date());
@@ -854,6 +857,9 @@ public class StorageBinService {
     }
 
     /**
+     * Modified for MT - 15/07/2025
+     * Aakash Vinayak
+     *
      * deleteStorageBin
      *
      * @param storageBin
@@ -861,10 +867,11 @@ public class StorageBinService {
     public void deleteStorageBin(String storageBin, String companyCodeId, String plantId, String warehouseId, String languageId, String loginUserID) throws ParseException {
         StorageBin storagebin = getStorageBin(storageBin, companyCodeId, plantId, warehouseId, languageId);
         if (storagebin != null) {
-            storagebin.setDeletionIndicator(1L);
-            storagebin.setUpdatedBy(loginUserID);
-            storagebin.setUpdatedOn(new Date());
-            storagebinRepository.save(storagebin);
+//            storagebin.setDeletionIndicator(1L);
+//            storagebin.setUpdatedBy(loginUserID);
+//            storagebin.setUpdatedOn(new Date());
+//            storagebinRepository.save(storagebin);
+            storageBinV2Repository.softDeleteStorageBin(companyCodeId, plantId, languageId, warehouseId, storageBin);
         } else {
             throw new EntityNotFoundException("Error in deleting Id:" + storageBin);
         }
@@ -1010,5 +1017,54 @@ public class StorageBinService {
         exceptionLog.setCreatedOn(new Date());
         exceptionLogRepo.save(exceptionLog);
     }
+
+    public List<StorageBinV2> storageBinUpload(List<StorageBinV2> storageBinList) {
+
+        List<StorageBinV2> saveStorageBin = new ArrayList<>();
+        for (StorageBinV2 storageBin : storageBinList) {
+            StorageBinV2 dbStorageBin = new StorageBinV2();
+            Optional<StorageBin> duplicateStorageBin = storagebinRepository.findByStorageBinAndCompanyCodeIdAndPlantIdAndWarehouseIdAndLanguageIdAndDeletionIndicator(storageBin.getStorageBin(), storageBin.getCompanyCodeId(), storageBin.getPlantId(), storageBin.getWarehouseId(), storageBin.getLanguageId(), 0L);
+            if (!duplicateStorageBin.isEmpty()) {
+                throw new BadRequestException("Record is Getting Duplicate");
+            } else {
+                BeanUtils.copyProperties(storageBin, dbStorageBin, CommonUtils.getNullPropertyNames(storageBin));
+                dbStorageBin.setDeletionIndicator(0L);
+                dbStorageBin.setCreatedOn(new Date());
+                dbStorageBin.setUpdatedOn(new Date());
+                storageBinV2Repository.save(dbStorageBin);
+                saveStorageBin.add(dbStorageBin);
+            }
+        }
+        return saveStorageBin;
+    }
+
+    /**
+     * @param warehouseId
+     * @param binClassId
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @return
+     */
+    public StorageBinV2 getStorageBinByBinClassIdV9(String warehouseId, Long binClassId, String companyCodeId, String plantId, String languageId) {
+        Optional<StorageBinV2> storagebin = storageBinV2Repository.findByBinClassIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndLanguageIdAndDeletionIndicator(
+                binClassId,
+                companyCodeId,
+                plantId,
+                warehouseId,
+                languageId, 0L);
+        if (storagebin.isEmpty()) {
+            // Exception Log
+//            createStorageBinLog(binClassId, languageId, companyCodeId, plantId, warehouseId,
+//                    "Storage Bin with given values and binClassId-" + binClassId + " doesn't exists.");
+            throw new BadRequestException("The Given Values: " +
+                    "binClassId" + binClassId +
+                    "companyCodeId " + companyCodeId +
+                    "plantId " + plantId +
+                    "warehouseId " + warehouseId + " doesn't exist:");
+        }
+        return storagebin.get();
+    }
+
 
 }

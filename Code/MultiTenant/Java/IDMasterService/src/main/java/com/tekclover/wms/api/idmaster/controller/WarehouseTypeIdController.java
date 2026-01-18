@@ -143,7 +143,17 @@ public class WarehouseTypeIdController {
 	@PostMapping("/find")
 	public ResponseEntity<?> findWarehouseTypeId(@Valid @RequestBody FindWarehouseTypeId findWarehouseTypeId) throws Exception {
 
+		try {
+			DataBaseContextHolder.setCurrentDb("MT");
+			String routingDb = dbConfigRepository.getDbName(findWarehouseTypeId.getCompanyCodeId(), findWarehouseTypeId.getPlantId(), findWarehouseTypeId.getWarehouseId().get(0));
+			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+			DataBaseContextHolder.clear();
+			DataBaseContextHolder.setCurrentDb(routingDb);
 		List<WarehouseTypeId> createdWarehouseTypeId = warehousetypeidService.findWarehouseTypeId(findWarehouseTypeId);
 		return new ResponseEntity<>(createdWarehouseTypeId, HttpStatus.OK);
+		}
+		finally {
+			DataBaseContextHolder.clear();
+		}
 	}
 }

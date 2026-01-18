@@ -5,6 +5,7 @@ import com.tekclover.wms.api.idmaster.model.common.DbConfig;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.security.core.parameters.P;
 
 import java.util.List;
 
@@ -16,8 +17,11 @@ public interface DbConfigRepository extends JpaRepository<DbConfig, Long> {
                      @Param("plantId") String plantId,
                      @Param("warehouseId") String warehouseId);
 
-    @Query(value = "SELECT db_name from db_config where c_id = :companyCodeId", nativeQuery = true)
+    @Query(value = "SELECT top 1 db_name from db_config where c_id = :companyCodeId", nativeQuery = true)
     String getDbNameByCompany(@Param("companyCodeId") String companyCodeId);
+
+    @Query(value = "SELECT top 1 db_name from db_config where c_id in (:companyCodeId)", nativeQuery = true)
+    String getDbNameByCompanyList(@Param("companyCodeId") List<String> companyCodeId);
 
 
     @Query("SELECT dbName from DbConfig where companyCode IN ?1 and plantId IN ?2 and warehouseId IN ?3")
