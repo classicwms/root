@@ -83,6 +83,7 @@ public class MultiTenantService {
                     " PARTNER_CODE as partnerCode, " +
                     " PARTNER_NM as partnerName, " +
                     " STATUS_ID as statusId, " +
+                    " REF_FIELD_5 as referenceField5, " +
                     " CTD_BY as createdBy, " +
                     " CTD_ON as createdOn " +
                     " FROM tblbusinesspartner";
@@ -95,6 +96,8 @@ public class MultiTenantService {
             ConditionUtils.addCondition(conditions, "PARTNER_CODE", findBusinessPartner.getPartnerCode());
             ConditionUtils.addCondition(conditions, "PARTNER_NM", findBusinessPartner.getPartnerName());
             ConditionUtils.addCondition(conditions, "CTD_BY", findBusinessPartner.getCreatedBy());
+
+            ConditionUtils.addCondition(conditions, "REF_FIELD_5", findBusinessPartner.getReferenceField5());
 
             ConditionUtils.numericConditions(conditions, "PARTNER_TYP", findBusinessPartner.getBusinessPartnerType());
             ConditionUtils.numericConditions(conditions, "STATUS_ID", findBusinessPartner.getStatusId());
@@ -5289,7 +5292,7 @@ public class MultiTenantService {
                     "ORIGIN, BRAND, REF_DOC_NO, C_TEXT, PLANT_TEXT, WH_TEXT, STCK_TYP_TEXT, COLOR, STATUS_TEXT, PARTNER_CODE, " +
                     "ITM_TYP_ID, ITM_TYP_TXT, BATCH_DATE, ALT_UOM, NO_BAGS, BAG_SIZE, CASE_QTY, PIECE_QTY, CRATE_QTY, QTY_IN_CASE, " +
                     "QTY_IN_PIECE, QTY_IN_CREATE, VEHICLE_NO, VEHICLE_REPORTING_DATE, VEHICLE_UNLOADING_DATE, " +
-                    "SELF_LIFE, REMAINING_DAYS, REMAINING_SELF_LIFE_PERCENTAGE, RECEIVINGVARIANCE, LOOSE_PACK, MRP, TPL_PARTNER_ID, PRICE_SEGMENT " +
+                    "SELF_LIFE, REMAINING_DAYS, REMAINING_SELF_LIFE_PERCENTAGE, RECEIVINGVARIANCE, LOOSE_PACK, MRP, TPL_PARTNER_ID, PRICE_SEGMENT, MATERIAL_NO " +
                     "FROM tblinventory";
 
             List<String> conditions = new ArrayList<>();

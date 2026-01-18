@@ -63,5 +63,4 @@ public class StorageBin {
     private String capacityUom;
     private String quantity;
     private Double weight;
-
 }

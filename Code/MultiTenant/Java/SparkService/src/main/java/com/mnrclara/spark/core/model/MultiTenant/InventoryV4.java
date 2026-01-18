@@ -86,4 +86,5 @@ public class InventoryV4 {
     private String price_segment;
     private String tpl_partner_id;
     private String color;
+    private String material_no;
 }

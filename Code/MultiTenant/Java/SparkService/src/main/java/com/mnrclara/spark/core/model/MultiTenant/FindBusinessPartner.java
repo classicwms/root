@@ -26,4 +26,6 @@ public class FindBusinessPartner {
 
     private Date startUpdatedOn;
     private Date endUpdatedOn;
+
+    private List<String> referenceField5;
 }
