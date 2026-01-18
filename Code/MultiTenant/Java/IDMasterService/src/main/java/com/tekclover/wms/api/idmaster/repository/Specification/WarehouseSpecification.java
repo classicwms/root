@@ -42,6 +42,11 @@ public class WarehouseSpecification implements Specification<Warehouse> {
             final Path<DeferredImportSelector.Group> group = root.<DeferredImportSelector.Group>get("languageId");
             predicates.add(group.in(findWarehouse.getLanguageId()));
         }
+        if (findWarehouse.getNoOfUsers() != null) {
+            final Path<DeferredImportSelector.Group> group = root.<DeferredImportSelector.Group>get("noOfUsers");
+            predicates.add(group.in(findWarehouse.getNoOfUsers()));
+        }
+
         predicates.add(cb.equal(root.get("deletionIndicator"), 0L));
         return cb.and(predicates.toArray(new Predicate[] {}));
     }

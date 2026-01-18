@@ -61,8 +61,13 @@ public class InterimBarcodeController {
     public ResponseEntity<?> addInterimBarcode(@Valid @RequestBody AddInterimBarcode newInterimBarcode, @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
+            log.info("AddInterimBarcode ----> {}", newInterimBarcode);
             DataBaseContextHolder.clear();
-            DataBaseContextHolder.setCurrentDb("FAHAHEEL");
+            if (newInterimBarcode.getCreatedBy().equalsIgnoreCase("JAHRAASP") || newInterimBarcode.getCreatedBy().equalsIgnoreCase("JAHRAJSP")) {
+                DataBaseContextHolder.setCurrentDb("JAHRA");
+            } else {
+                DataBaseContextHolder.setCurrentDb("FAHAHEEL");
+            }
             InterimBarcode createdInterimBarcode = interimBarcodeService.createInterimBarcode(newInterimBarcode, loginUserID);
             return new ResponseEntity<>(createdInterimBarcode, HttpStatus.OK);
         } finally {
@@ -76,6 +81,7 @@ public class InterimBarcodeController {
     public ResponseEntity<?> findInterimBarcode(@Valid @RequestBody FindInterimBarcode findInterimBarcode) throws
             Exception {
         try {
+            log.info("FindInterimBarcode ----> {}", findInterimBarcode);
             DataBaseContextHolder.clear();
             DataBaseContextHolder.setCurrentDb("FAHAHEEL");
             List<InterimBarcode> dbInterimBarcode = interimBarcodeService.findInterimBarcode(findInterimBarcode);

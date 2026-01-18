@@ -4,8 +4,10 @@ import com.tekclover.wms.api.idmaster.config.dynamicConfig.DataBaseContextHolder
 import com.tekclover.wms.api.idmaster.model.notificationmessage.FindNotificationMessage;
 import com.tekclover.wms.api.idmaster.model.notificationmessage.NotificationMessage;
 import com.tekclover.wms.api.idmaster.model.notificationmessage.NotificationMsgDeleteInput;
+import com.tekclover.wms.api.idmaster.model.user.UserManagement;
 import com.tekclover.wms.api.idmaster.model.websocketnotification.WSNotification;
 import com.tekclover.wms.api.idmaster.repository.DbConfigRepository;
+import com.tekclover.wms.api.idmaster.repository.UserManagementRepository;
 import com.tekclover.wms.api.idmaster.service.NotificationMessageService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -34,6 +36,9 @@ public class NotificationMessageController {
 
     @Autowired
     DbConfigRepository dbConfigRepository;
+
+    @Autowired
+    UserManagementRepository userManagementRepository;
 
     // Get All Notification Messages
     @ApiOperation(response = NotificationMessage.class, value = "Get All Notification Messages")
@@ -66,6 +71,12 @@ public class NotificationMessageController {
     @PatchMapping("/update")
     public ResponseEntity<?> patchNotification(@Valid @RequestBody List<NotificationMessage> updateNotification,
                                                @RequestParam String loginUserID) {
+        DataBaseContextHolder.setCurrentDb("MT");
+        String routingDb = dbConfigRepository.getDbName(updateNotification.get(0).getCompanyCodeId()
+                ,updateNotification.get(0).getPlantId(), updateNotification.get(0).getWarehouseId());
+        log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+        DataBaseContextHolder.clear();
+        DataBaseContextHolder.setCurrentDb(routingDb);
         List<NotificationMessage> dbNotification = notificationMessageService.updateNotification(updateNotification, loginUserID);
         return new ResponseEntity<>(dbNotification, HttpStatus.OK);
     }
@@ -109,6 +120,12 @@ public class NotificationMessageController {
     @ApiOperation(response = WSNotification.class, value = "Update notification read all") // label for swagger
     @GetMapping("/mark-read-all")
     public ResponseEntity<?> markNotificationAsRead(@RequestParam String loginUserID) {
+        UserManagement getUser = userManagementRepository.getUserDetails(loginUserID);
+        DataBaseContextHolder.setCurrentDb("MT");
+        String routingDb = dbConfigRepository.getDbName(getUser.getCompanyCode(),getUser.getPlantId(),getUser.getWarehouseId());
+        log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+        DataBaseContextHolder.clear();
+        DataBaseContextHolder.setCurrentDb(routingDb);
         Boolean result = notificationMessageService.updateNotificationAsRead(loginUserID);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }

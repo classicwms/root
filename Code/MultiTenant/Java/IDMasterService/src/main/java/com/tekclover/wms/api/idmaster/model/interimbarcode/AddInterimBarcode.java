@@ -29,4 +29,9 @@ public class AddInterimBarcode {
 	private Date createdOn;
 	private String updatedBy;
 	private Date updatedOn;
+
+	//---------------------Columns added for Routing DB -----------------------------------//
+	private String companyCodeId;
+	private String plantId;
+	private String warehouseId;
 }

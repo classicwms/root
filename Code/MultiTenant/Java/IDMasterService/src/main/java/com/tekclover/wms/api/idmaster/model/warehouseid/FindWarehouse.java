@@ -9,4 +9,5 @@ public class FindWarehouse {
     private List<String> warehouseId;
     private String plantId;
     private List<String> languageId;
+    private Long noOfUsers;
 }

@@ -100,4 +100,8 @@ public class Warehouse {
 
 	@Column(name = "UTD_ON")
 	private Date updatedOn = new Date();
+
+	@Column(name = "NO_OF_USERS")
+	private Long noOfUsers;
+
 }
