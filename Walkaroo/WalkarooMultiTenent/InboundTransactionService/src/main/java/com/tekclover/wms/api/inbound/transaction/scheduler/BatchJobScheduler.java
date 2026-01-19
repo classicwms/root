@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
 @Component
@@ -20,7 +21,7 @@ public class BatchJobScheduler {
 
     //-------------------------------------------------------------------------------------------
 
-    @Scheduled(fixedDelay = 20000)
+    @Scheduled(fixedDelay = 30000)
     public void scheduleJob() throws Exception {
 
         // MDU
@@ -31,5 +32,31 @@ public class BatchJobScheduler {
 //        CompletableFuture<WarehouseApiResponse> inboundFailedOrder = scheduleAsyncService.processInboundFailedOrder();
 
     }
+
+//    private final AtomicBoolean running = new AtomicBoolean(false);
+//
+//    @Scheduled(fixedDelay = 20000)
+//    public void scheduleJob() {
+//
+//        if (!running.compareAndSet(false, true)) {
+//            log.info("Previous inbound job still running, skipping...");
+//            return;
+//        }
+//
+//        try {
+//            CompletableFuture<WarehouseApiResponse> mdu =
+//                    scheduleAsyncService.processInboundOrder();
+//
+//            CompletableFuture<WarehouseApiResponse> cmp =
+//                    scheduleAsyncService.processInboundOrderV2();
+//
+//            CompletableFuture.allOf(mdu, cmp).join(); //  wait for completion
+//
+//        } catch (Exception e) {
+//            log.error("Scheduler exception", e);
+//        } finally {
+//            running.set(false); //  only after async completes
+//        }
+//    }
 
 }

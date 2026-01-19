@@ -24,6 +24,9 @@ public interface InboundOrderV2Repository extends JpaRepository<InboundOrderV2, 
 
     List<InboundOrderV2> findByProcessedStatusIdOrderByOrderReceivedOn(long l);
 
+    @Query(value = "select top 2 * from tbliborder2 where processed_status_id = 0 order by order_received_on desc ", nativeQuery = true)
+    List<InboundOrderV2> findTopInboundOrder();
+
     InboundOrderV2 findByRefDocumentNoAndProcessedStatusIdOrderByOrderReceivedOn(String orderId, long l);
 
     public InboundOrderV2 findTopByRefDocumentNoOrderByOrderReceivedOnDesc(String orderId);
