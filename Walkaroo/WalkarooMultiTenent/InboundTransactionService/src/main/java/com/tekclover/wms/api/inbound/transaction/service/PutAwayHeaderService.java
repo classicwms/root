@@ -4075,6 +4075,7 @@ public class PutAwayHeaderService extends BaseService {
         log.info("Inbound Process PutAwayHeader Initiated ------> {}", new Date());
 
         Set<String> groupByRefDocNo = newGrLineList.stream().map(GrLineV2::getRefDocNumber)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
 
         List<PutAwayHeaderV2> savedPutAwayHeaders = new ArrayList<>();
@@ -4166,11 +4167,9 @@ public class PutAwayHeaderService extends BaseService {
             }
         });
 
-        for(String refDocNo : groupByRefDocNo) {
             String orderText = "PutAwayHeader Created";
-            int updateCount =  inboundOrderV2Repository.updatePutawayHeader(refDocNo, orderText);
-            log.info("Update PutAwayHeader Update Successfully ---> RefDocNo is {} And Affected Row {}", refDocNo, updateCount);
-        }
+            int updateCount =  inboundOrderV2Repository.updatePutawayHeader(groupByRefDocNo, orderText);
+            log.info("Update PutAwayHeader Update Successfully ---> RefDocNo is {} And Affected Row {}", groupByRefDocNo, updateCount);
 
         return savedPutAwayHeaders;
     }

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
 
 @Repository
 @Transactional
@@ -98,8 +99,8 @@ public interface InboundOrderV2Repository extends JpaRepository<InboundOrderV2, 
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value = "update tbliborder2 set putaway_header = 1, order_text = :text where " +
-            "ref_document_no = :refDocNo", nativeQuery = true)
-    int updatePutawayHeader(@Param("refDocNo") String refDocNo,
+            "ref_document_no in (:refDocNos)", nativeQuery = true)
+    int updatePutawayHeader(@Param("refDocNos") Set<String> refDocNo,
                              @Param("text") String text);
 
 }
