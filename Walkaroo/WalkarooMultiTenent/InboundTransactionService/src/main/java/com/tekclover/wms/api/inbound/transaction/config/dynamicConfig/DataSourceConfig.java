@@ -41,31 +41,39 @@ public class DataSourceConfig {
     private DataSource wkDataSource() {
         return buildDataSource(
                 "WK",
-                "jdbc:sqlserver://10.10.14.24;databaseName=WMS_WK"
+                "jdbc:sqlserver://10.10.14.24;databaseName=WMS_WK",
+                "sa",
+                "Sd2se5y3mPD9BLr3QzZMyNU1V"
         );
     }
     private DataSource mduDataSource() {
         return buildDataSource(
                 "MDU",
-                "jdbc:sqlserver://10.10.14.24;databaseName=WMS_WK_PRD"
+                "jdbc:sqlserver://10.10.14.24;databaseName=WMS_WK_PRD",
+                "sa",
+                "Sd2se5y3mPD9BLr3QzZMyNU1V"
         );
     }
 
     private DataSource cmpDataSource() {
         return buildDataSource(
                 "CMP",
-                "jdbc:sqlserver://10.10.14.24;databaseName=WMS_CMP"
+                "jdbc:sqlserver://10.10.10.61;databaseName=WMS_CBE",
+                "sa",
+                "4V7lOXaxgAi3i6mgJL7qBUSPM"
         );
     }
 
-    private DataSource buildDataSource(String poolName, String jdbcUrl) {
+    private DataSource buildDataSource(String poolName, String jdbcUrl, String username, String password) {
 
         HikariConfig config = new HikariConfig();
         config.setPoolName("HIKARI-" + poolName);
         config.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
         config.setJdbcUrl(jdbcUrl);
-        config.setUsername("sa");
-        config.setPassword("Sd2se5y3mPD9BLr3QzZMyNU1V");
+        config.setUsername(username);
+        config.setPassword(password);
+//        config.setUsername("sa");
+//        config.setPassword("Sd2se5y3mPD9BLr3QzZMyNU1V");
 
         // SAFE POOL SIZE (PER DB)
         config.setMaximumPoolSize(6);

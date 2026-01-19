@@ -59,9 +59,9 @@ public class DataSourceConfig {
                 break;
             case "CMP":
                 dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-                dataSource.setUrl("jdbc:sqlserver://10.10.14.24;databaseName=WMS_CMP");
+                dataSource.setUrl("jdbc:sqlserver://10.10.10.61;databaseName=WMS_CBE");
                 dataSource.setUsername("sa");
-                dataSource.setPassword("Sd2se5y3mPD9BLr3QzZMyNU1V");
+                dataSource.setPassword("4V7lOXaxgAi3i6mgJL7qBUSPM");
                 break;
             default:
                 throw new IllegalArgumentException("Unknown database: " + dbName);
