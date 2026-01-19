@@ -2,12 +2,7 @@ package com.tekclover.wms.api.inbound.transaction.service;
 
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -3580,7 +3575,7 @@ public class PutAwayHeaderService extends BaseService {
             }
         });
 
-        putAwayHeaderIntRepository.saveAll(putawayHeaders);
+//        putAwayHeaderIntRepository.saveAll(putawayHeaders);
         return putAwayHeaderV2List;
     }
 
@@ -4079,6 +4074,9 @@ public class PutAwayHeaderService extends BaseService {
     private List<PutAwayHeaderV2> createPutAwayHeaderv3(String paNo, List<GrLineV2> newGrLineList) throws Exception {
         log.info("Inbound Process PutAwayHeader Initiated ------> {}", new Date());
 
+        Set<String> groupByRefDocNo = newGrLineList.stream().map(GrLineV2::getRefDocNumber)
+                .collect(Collectors.toSet());
+
         List<PutAwayHeaderV2> savedPutAwayHeaders = new ArrayList<>();
         newGrLineList.forEach(createdGRLine -> {
             try {
@@ -4167,6 +4165,13 @@ public class PutAwayHeaderService extends BaseService {
                 throw new BadRequestException(e.getLocalizedMessage());
             }
         });
+
+        for(String refDocNo : groupByRefDocNo) {
+            String orderText = "PutAwayHeader Created";
+            int updateCount =  inboundOrderV2Repository.updatePutawayHeader(refDocNo, orderText);
+            log.info("Update PutAwayHeader Update Successfully ---> RefDocNo is {} And Affected Row {}", refDocNo, updateCount);
+        }
+
         return savedPutAwayHeaders;
     }
 
