@@ -438,12 +438,16 @@ public class StagingLineController {
     @ApiOperation(response = StagingLineEntityV2.class, value = "Update vehicle No") // label for swagger
     @PatchMapping("/update/vehicleNo/v2")
     public ResponseEntity<?> stagingLineUpdate(@Valid @RequestBody List<GrHeaderV2> grHeaderV2s, @RequestParam String loginUserID) throws Exception {
-        String currentDB = baseService.getDataBase(grHeaderV2s.get(0).getPlantId());
-        DataBaseContextHolder.clear();
-        DataBaseContextHolder.setCurrentDb(currentDB);
-        log.info("StagingLine update/vehicleNo/v2------> Current DB " + currentDB);
-        List<GrHeaderV2> updateStaagingLine = staginglineService.updateVehicleNo(grHeaderV2s, loginUserID);
-        return new ResponseEntity<>(updateStaagingLine, HttpStatus.OK);
+        try {
+            String currentDB = baseService.getDataBase(grHeaderV2s.get(0).getPlantId());
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(currentDB);
+            log.info("StagingLine update/vehicleNo/v2------> Current DB " + currentDB);
+            List<GrHeaderV2> updateStaagingLine = staginglineService.updateVehicleNo(grHeaderV2s, loginUserID);
+            return new ResponseEntity<>(updateStaagingLine, HttpStatus.OK);
+        } finally {
+            DataBaseContextHolder.clear();
+        }
     }
 
 
