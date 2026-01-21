@@ -4433,6 +4433,7 @@ public class MultiTenantService {
                     + "PARTNER_CODE as partnerCode, "
                     + "OB_LINE_NO as lineNumber, "
                     + "ITM_CODE as itemCode, "
+                    + "PARTNER_ITEM_BARCODE as barcodeId, "
                     + "OB_ORD_TYP_ID as outboundOrderTypeId, "
                     + "VAR_ID as variantCode, "
                     + "VAR_SUB_ID as variantSubCode, "
