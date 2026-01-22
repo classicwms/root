@@ -4839,12 +4839,13 @@ public class OrderManagementLineService extends BaseService {
             if (!existingLines.isEmpty() && i < existingLines.size()) {
                 OrderManagementLineV2 newLine = new OrderManagementLineV2();
                 OrderManagementLineV2 existing = existingLines.get(i);
-                BeanUtils.copyProperties(existing, newLine, CommonUtils.getNullPropertyNames(existing));
+                BeanUtils.copyProperties(orderManagementLine, newLine, CommonUtils.getNullPropertyNames(orderManagementLine));
                 newLine.setPreOutboundNo(orderManagementLine.getPreOutboundNo());
                 newLine.setLineNumber(orderManagementLine.getLineNumber());
                 newLine.setRefDocNumber(orderManagementLine.getRefDocNumber());
                 newLine.setPartnerCode(orderManagementLine.getPartnerCode());
                 newLine.setOrderQty(orderManagementLine.getOrderQty());
+                newLine.setBarcodeId(existing.getBarcodeId());
                 orderManagementLine = orderManagementLineV2Repository.save(newLine);
                 log.info("Saved Order ManagementLine in Allocate Process {} ", newLine);
                 requestQty = requestQty -1 ;

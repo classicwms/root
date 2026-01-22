@@ -5875,7 +5875,6 @@ public class OutboundLineService extends BaseService {
             if (deliveryLines != null && !deliveryLines.isEmpty()) {
 
                 for (DeliveryConfirmationLineV3 deliveryLine : deliveryLines) {
-//                    OutboundHeaderV2 outHeader = outboundHeaderService.getOutboundHeaderV3(deliveryLine.getOutbound());
                     OutboundHeaderV2 outHeader = outboundHeaderV2Repository.findTopByRefDocNumberAndDeletionIndicatorOrderByCreatedOnDesc(deliveryLine.getOutbound(), 0L);
                     String customerId = outHeader.getCustomerId();
                     String barcodeId = deliveryLine.getHuSerialNo();
@@ -5886,7 +5885,6 @@ public class OutboundLineService extends BaseService {
                     String languageId = outHeader.getLanguageId();
                     String loginUserId = deliveryConfirmationV3.getLoginUserId() != null ? deliveryConfirmationV3.getLoginUserId() : WK;
                     double pickedQty = deliveryLine.getPickedQty() != null ? deliveryLine.getPickedQty() : 0;
-
 
                     log.info("Get PickupHeader Values -----> Company {}, PlantId {}, WarehouseId {}, LanguageId {}, PreOutboundNo {}, RefDocNo {}, CustomerId {}, BarcodeId {}, ItemCode {}  ",
                             outHeader.getCompanyCodeId(), outHeader.getPlantId(), outHeader.getWarehouseId(), outHeader.getLanguageId(), outHeader.getPreOutboundNo(), outHeader.getRefDocNumber(), customerId, barcodeId, itemCode );
@@ -5905,13 +5903,6 @@ public class OutboundLineService extends BaseService {
                                 outHeader.getRefDocNumber(), outHeader.getPreOutboundNo(), itemCode);
 
                         log.info("PickupHeader Size is {} DeliveryConfirmation --------------------------------->STEP 2", pickupHeaders.size());
-//                        for (PickupHeaderV2 pickup : pickupHeaders) {
-//                            if (pickup.getStatusId() != 59) {
-//                                log.info("PickupHeader StatusId is  ----------------------------- > {}", pickup.getStatusId());
-//                                pickupLineService.createPickupLineNewV4(outHeader.getCompanyCodeId(), outHeader.getPlantId(), outHeader.getLanguageId(), outHeader.getWarehouseId(),
-//                                        outHeader.getRefDocNumber(), outHeader.getPreOutboundNo(), pickup, 0D, loginUserId, idMasterAuthToken);
-//                            }
-//                        }
                         if(!pickupHeaders.isEmpty()) {
                             log.info("PickupLine Creation Logic Started ---------------->");
                             pickupLineService.createPickupLineNewV4(outHeader.getCompanyCodeId(), outHeader.getPlantId(), outHeader.getLanguageId(), outHeader.getWarehouseId(),

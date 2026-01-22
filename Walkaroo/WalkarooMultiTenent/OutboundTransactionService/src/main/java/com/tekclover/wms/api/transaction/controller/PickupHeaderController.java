@@ -344,14 +344,13 @@ public class PickupHeaderController extends BaseService {
             String db = getDataBase(updatePickupHeaderList.get(0).getPlantId());
             DataBaseContextHolder.clear();
             DataBaseContextHolder.setCurrentDb(db);
-            log.info("Current DB -------------> "  + db);
+            log.info("Current DB -------------> " + db);
 
-        List<PickupHeaderV2> createdPickupHeader =
-                pickupheaderService.updatePickupHeaderForPrinted(updatePickupHeaderList, loginUserID);
-        return new ResponseEntity<>(createdPickupHeader, HttpStatus.OK);
-    }
-        finally {
+            List<PickupHeaderV2> createdPickupHeader =
+                    pickupheaderService.updatePickupHeaderForPrinted(updatePickupHeaderList, loginUserID);
+            return new ResponseEntity<>(createdPickupHeader, HttpStatus.OK);
+        } finally {
             DataBaseContextHolder.clear();
         }
-        }
+    }
 }
