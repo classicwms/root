@@ -4784,11 +4784,11 @@ public class OrderManagementLineService extends BaseService {
                         createdOrderManagementLine = orderManagementLineV2Repository.saveAndFlush(newOrderManagementLine);
                         log.info("OrderManagementLine Saved Values is  ---> {} ", createdOrderManagementLine);
 
-                        if(stBinInventory.getBinClassId() == 3L) {
-                            putAwayHeaderService.updatePutAwayHeaderV3(companyCodeId, plantId, languageId, warehouseId,
-                                    newOrderManagementLine.getItemCode(), newOrderManagementLine.getBarcodeId());
-                            newOrderManagementLine.setStagingArea("SA");
-                        }
+//                        if(stBinInventory.getBinClassId() == 3L) {
+//                            putAwayHeaderService.updatePutAwayHeaderV3(companyCodeId, plantId, languageId, warehouseId,
+//                                    newOrderManagementLine.getItemCode(), newOrderManagementLine.getBarcodeId());
+//                            newOrderManagementLine.setStagingArea("SA");
+//                        }
 
                         log.info("--else---createdOrderManagementLine newly created------: " + createdOrderManagementLine);
 
