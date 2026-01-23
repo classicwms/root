@@ -5863,8 +5863,8 @@ public class OutboundLineService extends BaseService {
 
 
     /**
-     * Modified for SAP orders - 30/06/2025
-     * Aakash vinayak
+     *
+     *
      *
      * @param deliveryConfirmationV3
      * @throws Exception
@@ -5917,6 +5917,11 @@ public class OutboundLineService extends BaseService {
                             outboundLineV2Repository.updateOutboundLineForDeliveryConfirm(companyCodeId, plantId, languageId, warehouseId, outHeader.getPreOutboundNo(),
                                     outHeader.getRefDocNumber(), outHeader.getPartnerCode(), itemCode, "WK", pickedQty, STATUS_ID, statusDescription, loginUserId, new Date());
                             log.info("OutboundLine Status Updated Successfully -----------> RefDocNo Is ---> " + outHeader.getRefDocNumber());
+
+                            outboundLineV2Repository.deliveryConfirmationProc(companyCodeId, plantId, languageId, warehouseId,
+                                    outHeader.getRefDocNumber(), outHeader.getPreOutboundNo(), STATUS_ID, statusDescription, loginUserId, new Date());
+
+                            log.info("Outbound Order Status Updated Successfully --------------------> RefDocNo Is ---> " + outHeader.getRefDocNumber());
                         }
 
                     }
