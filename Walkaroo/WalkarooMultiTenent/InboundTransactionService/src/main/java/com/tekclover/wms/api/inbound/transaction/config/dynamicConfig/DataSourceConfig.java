@@ -26,16 +26,31 @@ public class DataSourceConfig {
     @Bean
     public DataSource dataSource() {
 
+        DataSource wk = wkDataSource();
+        DataSource mdu = mduDataSource();
+        DataSource cmp = cmpDataSource();
+
         Map<Object, Object> targetDataSources = new HashMap<>();
-        targetDataSources.put("WK", wkDataSource());
-        targetDataSources.put("MDU", mduDataSource());
-        targetDataSources.put("CMP", cmpDataSource());
+        targetDataSources.put("WK", wk);
+        targetDataSources.put("MDU", mdu);
+        targetDataSources.put("CMP", cmp);
 
         DynamicDataSource ds = new DynamicDataSource();
         ds.setTargetDataSources(targetDataSources);
-        ds.setDefaultTargetDataSource(wkDataSource());
+        ds.setDefaultTargetDataSource(wk); // reuse same pool
 
         return ds;
+
+//        Map<Object, Object> targetDataSources = new HashMap<>();
+//        targetDataSources.put("WK", wkDataSource());
+//        targetDataSources.put("MDU", mduDataSource());
+//        targetDataSources.put("CMP", cmpDataSource());
+//
+//        DynamicDataSource ds = new DynamicDataSource();
+//        ds.setTargetDataSources(targetDataSources);
+//        ds.setDefaultTargetDataSource("WK");
+//
+//        return ds;
     }
 
     private DataSource wkDataSource() {
@@ -72,16 +87,15 @@ public class DataSourceConfig {
         config.setJdbcUrl(jdbcUrl);
         config.setUsername(username);
         config.setPassword(password);
-//        config.setUsername("sa");
-//        config.setPassword("Sd2se5y3mPD9BLr3QzZMyNU1V");
 
         // SAFE POOL SIZE (PER DB)
-        config.setMaximumPoolSize(6);
-        config.setMinimumIdle(3);
+        config.setMaximumPoolSize(25); //
+        config.setMinimumIdle(8); //
         config.setConnectionTimeout(30000);
         config.setIdleTimeout(300000);
         config.setMaxLifetime(1800000);
         config.setAutoCommit(false);
+        config.setLeakDetectionThreshold(20000); //
 
         // SQL Server recommended
         config.addDataSourceProperty("encrypt", "false");
@@ -118,7 +132,7 @@ public class DataSourceConfig {
         props.put("hibernate.dialect", "org.hibernate.dialect.SQLServer2012Dialect");
         props.put("hibernate.show_sql", "false");
         props.put("hibernate.format_sql", "false");
-        props.put("hibernate.jdbc.batch_size", "20");
+        props.put("hibernate.jdbc.batch_size", "30");
         props.put("hibernate.order_inserts", "true");
         props.put("hibernate.order_updates", "true");
         return props;
