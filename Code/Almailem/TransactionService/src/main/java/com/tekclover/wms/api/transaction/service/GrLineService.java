@@ -1839,7 +1839,7 @@ public class GrLineService extends BaseService {
                     log.info("PROCESSING GRLine To PutAwayHeader RefDoc: {}, PreInboundNo: {}, LineNo: {}, ItemCode: {}",
                             refDocNumber, lineV2.getPreInboundNo(), lineV2.getLineNo(), lineV2.getItemCode());
 
-					try {
+                    try {
 						createPutAwayHeaderNonCBMV2(lineV2, lineV2.getCreatedBy());
 
 						// putaway header successfully created - changing flag to 10

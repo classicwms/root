@@ -121,10 +121,18 @@ public class TransactionService extends BaseService {
         for (InboundIntegrationHeader inbound : inboundAutoLabList) {
                 try {
                     log.info("InboundOrder ID : " + inbound.getRefDocumentNo());
-                    InboundHeaderV2 inboundHeader = preinboundheaderService.processInboundReceivedV2(inbound.getRefDocumentNo(), inbound);
+                    if(inbound.getInboundOrderTypeId() == 5L) {
+                        InboundHeaderV2 inboundHeader = preinboundheaderService.processOrderDirectReceipt(inbound.getRefDocumentNo(), inbound);
+                        if (inboundHeader != null) {
+                            // Updating the Processed Status
+                            orderService.updateProcessedInboundOrderV2(inbound.getRefDocumentNo(), inbound.getInboundOrderTypeId(), 10L);
+                        }
+                    } else {
+                        InboundHeaderV2 inboundHeader = preinboundheaderService.processInboundReceivedV2(inbound.getRefDocumentNo(), inbound);
                     if (inboundHeader != null) {
                         // Updating the Processed Status
                         orderService.updateProcessedInboundOrderV2(inbound.getRefDocumentNo(), inbound.getInboundOrderTypeId(), 10L);
+                    }
                     inboundAutoLabList.remove(inbound);
                         warehouseApiResponse.setStatusCode("200");
                         warehouseApiResponse.setMessage("Success");

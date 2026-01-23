@@ -10,17 +10,21 @@ import com.tekclover.wms.api.transaction.model.dto.*;
 import com.tekclover.wms.api.transaction.model.inbound.InboundHeader;
 import com.tekclover.wms.api.transaction.model.inbound.InboundLine;
 import com.tekclover.wms.api.transaction.model.inbound.UpdateInboundHeader;
+import com.tekclover.wms.api.transaction.model.inbound.gr.StorageBinPutAway;
 import com.tekclover.wms.api.transaction.model.inbound.gr.v2.GrHeaderV2;
+import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.InventoryV2;
 import com.tekclover.wms.api.transaction.model.inbound.preinbound.*;
 import com.tekclover.wms.api.transaction.model.inbound.preinbound.v2.PreInboundHeaderEntityV2;
 import com.tekclover.wms.api.transaction.model.inbound.preinbound.v2.PreInboundHeaderV2;
 import com.tekclover.wms.api.transaction.model.inbound.preinbound.v2.PreInboundLineEntityV2;
 import com.tekclover.wms.api.transaction.model.inbound.preinbound.v2.SearchPreInboundHeaderV2;
+import com.tekclover.wms.api.transaction.model.inbound.putaway.v2.PutAwayLineV2;
 import com.tekclover.wms.api.transaction.model.inbound.staging.StagingHeader;
 import com.tekclover.wms.api.transaction.model.inbound.staging.v2.StagingHeaderV2;
 import com.tekclover.wms.api.transaction.model.inbound.staging.v2.StagingLineEntityV2;
 import com.tekclover.wms.api.transaction.model.inbound.v2.InboundHeaderV2;
 import com.tekclover.wms.api.transaction.model.inbound.v2.InboundLineV2;
+import com.tekclover.wms.api.transaction.model.trans.InventoryTrans;
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.v2.InboundOrderV2;
 import com.tekclover.wms.api.transaction.repository.*;
 import com.tekclover.wms.api.transaction.repository.specification.PreInboundHeaderSpecification;
@@ -138,6 +142,15 @@ public class PreInboundHeaderService extends BaseService {
     private GrHeaderV2Repository grHeaderV2Repository;
 
     String statusDescription = null;
+
+    @Autowired
+    PutAwayLineV2Repository putAwayLineV2Repository;
+
+    @Autowired
+    InventoryService inventoryService;
+
+    @Autowired
+    InventoryV2Repository inventoryV2Repository;
     //--------------------------------------------------------------------------------------------------------------
 
     /**
@@ -1548,9 +1561,9 @@ public class PreInboundHeaderService extends BaseService {
             log.info("Staging Line Inventory Qty Update Started ------------------------------->");
             stagingLineService.updateStagingLineInOrderProcess(grHeader.getCompanyCode(), grHeader.getPlantId(), grHeader.getLanguageId(), warehouseId, refDocNumber, preInboundNo);
 
-            if (grHeader.getInboundOrderTypeId() == 5) {  //Direct Stock Receipt Condition
-                stagingLineService.createGrLine(grHeader);
-            }
+//            if (grHeader.getInboundOrderTypeId() == 5) {  //Direct Stock Receipt Condition
+//                stagingLineService.createGrLine(grHeader);
+//            }
             return inboundHeader;
         } catch (Exception e) {
             e.printStackTrace();
@@ -2304,4 +2317,382 @@ public class PreInboundHeaderService extends BaseService {
         exceptionLogRepo.save(dbErrorLog);
     }
 
+
+    /**
+     *
+     * @param refDocNumber
+     * @param inboundIntegrationHeader
+     * @return
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     * @throws BadRequestException
+     * @throws SQLException
+     * @throws SQLServerException
+     * @throws CannotAcquireLockException
+     * @throws LockAcquisitionException
+     * @throws Exception
+     */
+    public InboundHeaderV2 processOrderDirectReceipt(String refDocNumber, InboundIntegrationHeader inboundIntegrationHeader)
+            throws IllegalAccessException, InvocationTargetException, BadRequestException,
+            SQLException, SQLServerException, CannotAcquireLockException, LockAcquisitionException, Exception {
+        try {
+            log.info("Inbound Process Initiated ------> " + refDocNumber + ", " + inboundIntegrationHeader.getInboundOrderTypeId());
+            Optional<PreInboundHeaderEntityV2> orderProcessedStatus = preInboundHeaderV2Repository.
+                    findByRefDocNumberAndInboundOrderTypeIdAndDeletionIndicator(refDocNumber, inboundIntegrationHeader.getInboundOrderTypeId(), 0L);
+            if (!orderProcessedStatus.isEmpty()) {
+                throw new BadRequestException("Order :" + refDocNumber + " already processed. Reprocessing can't be allowed.");
+            }
+
+            String warehouseId = inboundIntegrationHeader.getWarehouseID();
+            log.info("warehouseId : " + warehouseId);
+
+            // validate the ITM_CODE result is Not Null
+            AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
+            log.info("authTokenForMastersService : " + authTokenForMastersService);
+            InboundOrderV2 inboundOrder = inboundOrderV2Repository.findByRefDocumentNoAndInboundOrderTypeId(refDocNumber, inboundIntegrationHeader.getInboundOrderTypeId());
+            log.info("inboundOrder : " + inboundOrder);
+
+            com.tekclover.wms.api.transaction.model.warehouse.Warehouse warehouse = null;
+            try {
+                Optional<com.tekclover.wms.api.transaction.model.warehouse.Warehouse> optWarehouse =
+                        warehouseRepository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndDeletionIndicator(
+                                inboundOrder.getCompanyCode(),
+                                inboundOrder.getBranchCode(),
+                                "EN",
+                                0L
+                        );
+                log.info("dbWarehouse : " + optWarehouse);
+
+                if (optWarehouse != null && optWarehouse.isEmpty()) {
+                    log.info("warehouse not found.");
+                    throw new BadRequestException("Warehouse cannot be null.");
+                }
+                warehouse = optWarehouse.get();
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw e;
+            }
+
+            // Getting PreInboundNo from NumberRangeTable
+            String preInboundNo = getPreInboundNo(warehouseId, inboundOrder.getCompanyCode(), inboundOrder.getBranchCode(), warehouse.getLanguageId());
+            for (InboundIntegrationLine inboundIntegrationLine : inboundIntegrationHeader.getInboundIntegrationLine()) {
+                log.info("inboundIntegrationLine : " + inboundIntegrationLine);
+                ImBasicData1V2 imBasicData1 =
+                        imBasicData1V2Repository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndManufacturerPartNoAndDeletionIndicator(
+                                warehouse.getLanguageId(),
+                                warehouse.getCompanyCodeId(),
+                                warehouse.getPlantId(),
+                                warehouse.getWarehouseId(),
+                                inboundIntegrationLine.getItemCode(),
+                                inboundIntegrationLine.getManufacturerName(),
+                                0L);
+                log.info("imBasicData1 exists: " + imBasicData1);
+
+                // If ITM_CODE value is Null, then insert a record in IMBASICDATA1 table as below
+                if (imBasicData1 == null) {
+                    imBasicData1 = new ImBasicData1V2();
+                    imBasicData1.setLanguageId("EN");                                            // LANG_ID
+                    imBasicData1.setWarehouseId(warehouseId);                                    // WH_ID
+                    imBasicData1.setCompanyCodeId(warehouse.getCompanyCodeId());                    // C_ID
+                    imBasicData1.setPlantId(warehouse.getPlantId());                            // PLANT_ID
+                    imBasicData1.setItemCode(inboundIntegrationLine.getItemCode());                // ITM_CODE
+                    imBasicData1.setUomId(inboundIntegrationLine.getUom());                    // UOM_ID
+                    imBasicData1.setDescription(inboundIntegrationLine.getItemText());            // ITEM_TEXT
+                    imBasicData1.setManufacturerPartNo(inboundIntegrationLine.getManufacturerName());
+                    imBasicData1.setManufacturerName(inboundIntegrationLine.getManufacturerName());
+                    imBasicData1.setCapacityCheck(false);
+                    imBasicData1.setDeletionIndicator(0L);
+                    imBasicData1.setStatusId(1L);                                                // STATUS_ID
+                    ImBasicData1 createdImBasicData1 =
+                            mastersService.createImBasicData1V2(imBasicData1, "MW_AMS", authTokenForMastersService.getAccess_token());
+                    log.info("ImBasicData1 created: " + createdImBasicData1);
+                }
+            }
+
+            /* -------------------------------PreInboundLine Creation Process-------------------------------------------------*/
+            List<PreInboundLineEntityV2> preInboundLineListV2 = new ArrayList<>();
+            for (InboundIntegrationLine inboundIntegrationLine : inboundIntegrationHeader.getInboundIntegrationLine()) {
+                preInboundLineListV2.add(createPreInboundLineV2(warehouse, preInboundNo, inboundIntegrationHeader, inboundIntegrationLine));
+            }
+            log.info("PreInboundLine List Size is {} ", preInboundLineListV2.size());
+
+            /*------------------PreInboundHeader Creation Process-----------------------------*/
+            PreInboundHeaderEntityV2 preInboundHeaderV2 = createPreInboundHeaderV2(warehouse, preInboundNo, inboundIntegrationHeader);
+            log.info("PreInboundHeader Process Completed RefDocNo is -----> " + preInboundHeaderV2.getRefDocNumber());
+
+            /*------------------InboundHeader Creation Process----------------------------*/
+            InboundHeaderV2 inboundHeader = createInboundHeaderProcess(preInboundHeaderV2, preInboundLineListV2);
+            log.info("InboundHeader Process Completed RefDocNo is -----> " + preInboundHeaderV2.getRefDocNumber());
+
+            /*------------------InboundLine Creation Process----------------------------*/
+            List<InboundLineV2> createdInboundLineList = createInboundLineProcessDirectReceipt(preInboundLineListV2, preInboundHeaderV2);
+            log.info("InboundLine Process Completed RefDocNo is -----> {}, Size is {} ", preInboundHeaderV2.getRefDocNumber(), createdInboundLineList.size());
+
+
+            preInboundHeaderV2Repository.save(preInboundHeaderV2);
+            preInboundLineV2Repository.saveAll(preInboundLineListV2);
+            inboundHeaderV2Repository.save(inboundHeader);
+            inboundLineV2Repository.saveAll(createdInboundLineList);
+            log.info("PutAwayLine Creation Process -------->Started ");
+            createPutAwayLine(createdInboundLineList);
+
+            return inboundHeader;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BadRequestException("Inbound Order Processing Bad Request Exception : " + e);
+        }
+    }
+
+
+    /**
+     *
+     * @param inboundLineList inboundLineList
+     */
+    public void createPutAwayLine(List<InboundLineV2> inboundLineList) {
+
+        List<PutAwayLineV2> putAwayLineV2List = new ArrayList<>();
+        long NUM_RAN_CODE = 5;
+        String nextGRHeaderNumber = getNextRangeNumber(NUM_RAN_CODE, inboundLineList.get(0).getCompanyCode(), inboundLineList.get(0).getPlantId(),
+                inboundLineList.get(0).getLanguageId(), inboundLineList.get(0).getWarehouseId());
+        String nextPuNo = getNextRangeNumber(7L,  inboundLineList.get(0).getCompanyCode(), inboundLineList.get(0).getPlantId(),
+                inboundLineList.get(0).getLanguageId(), inboundLineList.get(0).getWarehouseId());
+        for(InboundLineV2 inboundLineV2 : inboundLineList) {
+            PutAwayLineV2 newPutAway = new PutAwayLineV2();
+            newPutAway.setGoodsReceiptNo(nextGRHeaderNumber);
+            newPutAway.setPutAwayNumber(nextPuNo);
+            BeanUtils.copyProperties(inboundLineV2, newPutAway, CommonUtils.getNullPropertyNames(inboundLineList));
+            newPutAway.setConfirmedStorageBin("REC-AL-B2");
+            newPutAway.setProposedStorageBin("REC-AL-B2");
+            newPutAway.setPutAwayQuantity(inboundLineV2.getOrderQty());
+            newPutAway.setPutawayConfirmedQty(inboundLineV2.getOrderQty());
+            newPutAway.setCreatedOn(new Date());
+
+            long NUM_RAN_ID = 6;
+            String nextRangeNumber = getNextRangeNumber(NUM_RAN_ID, inboundLineV2.getCompanyCode(),
+                    inboundLineV2.getPlantId(), inboundLineV2.getLanguageId(), inboundLineV2.getWarehouseId());
+            log.info("Barcode Generated ------> " + nextRangeNumber);
+            newPutAway.setBarcodeId(nextRangeNumber);
+
+            statusDescription = stagingLineV2Repository.getStatusDescription(24L, inboundLineV2.getLanguageId());
+
+//            inboundLineV2Repository.updateInboundLineStatus(inboundLineV2.getStatusId(), inboundLineV2.getStatusDescription(), inboundLineV2.getCompanyCode(),
+//                    inboundLineV2.getPlantId(), inboundLineV2.getLanguageId(), inboundLineV2.getWarehouseId(), inboundLineV2.getRefDocNumber(),
+//                    inboundLineV2.getPreInboundNo(), inboundLineV2.getItemCode());
+//            log.info("InboundLine Status Updated Successfully ----------------> RefDocNo ---> " + inboundLineV2.getRefDocNumber());
+
+            inboundHeaderV2Repository.updateInboundHeaderStatus(inboundLineV2.getWarehouseId(), inboundLineV2.getCompanyCode(), inboundLineV2.getPlantId(), inboundLineV2.getLanguageId(),
+                    inboundLineV2.getRefDocNumber(), 24L, statusDescription, inboundLineV2.getCreatedBy(), new Date());
+            log.info("InboundHeader Updated Successfully");
+
+            preInboundHeaderV2Repository.updatePreInboundHeaderEntityStatus(inboundLineV2.getWarehouseId(), inboundLineV2.getCompanyCode(),
+                    inboundLineV2.getPlantId(), inboundLineV2.getLanguageId(), inboundLineV2.getRefDocNumber(), 24L, statusDescription);
+            log.info("PreInboundHeader Updated Successfully --------------> RefDocNo ---> " + inboundLineV2.getRefDocNumber());
+            putAwayLineV2List.add(newPutAway);
+        }
+        putAwayLineV2Repository.saveAll(putAwayLineV2List);
+        log.info("PutAwayLine Saved Values --------->" + putAwayLineV2List);
+
+        log.info("Inventory Creation Process Started ------>");
+        updateInventory(putAwayLineV2List);
+        log.info("Inventory Creation Process Completed ------>");
+
+    }
+
+
+    /**
+     *
+     * @param putAwayLineV2List putAwayLine List
+     */
+    public void updateInventory(List<PutAwayLineV2> putAwayLineV2List) {
+
+        for (PutAwayLineV2 putAwayLine : putAwayLineV2List) {
+            try {
+                log.info("-------Create Inventory bin Class Id 1 Initiated-----");
+                InventoryV2 inventory = new InventoryV2();
+                BeanUtils.copyProperties(putAwayLine, inventory, CommonUtils.getNullPropertyNames(putAwayLine));
+
+                inventory.setCompanyCodeId(putAwayLine.getCompanyCode());
+                inventory.setVariantCode(1L); // VAR_ID
+                inventory.setVariantSubCode("1"); // VAR_SUB_ID
+                inventory.setStorageMethod("1"); // STR_MTD
+                inventory.setBatchSerialNumber("1"); // STR_NO
+                inventory.setBatchSerialNumber(putAwayLine.getBatchSerialNumber());
+                inventory.setStorageBin(putAwayLine.getConfirmedStorageBin());
+                inventory.setBarcodeId(putAwayLine.getBarcodeId());
+                inventory.setManufacturerName(putAwayLine.getManufacturerName());
+                inventory.setManufacturerCode(putAwayLine.getManufacturerName());
+                inventory.setReferenceField9(putAwayLine.getManufacturerName());
+                inventory.setDescription(putAwayLine.getDescription());
+                inventory.setReferenceField8(putAwayLine.getDescription());
+
+                // ST_BIN ---Pass WH_ID/BIN_CL_ID=3 in STORAGEBIN table and fetch ST_BIN value
+                // and update
+                AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
+                StorageBinPutAway storageBinPutAway = new StorageBinPutAway();
+                storageBinPutAway.setCompanyCodeId(putAwayLine.getCompanyCode());
+                storageBinPutAway.setPlantId(putAwayLine.getPlantId());
+                storageBinPutAway.setLanguageId(putAwayLine.getLanguageId());
+                storageBinPutAway.setWarehouseId(putAwayLine.getWarehouseId());
+                storageBinPutAway.setBin(putAwayLine.getConfirmedStorageBin());
+
+                StorageBinV2 storageBin = null;
+                try {
+                    storageBin = mastersService.getaStorageBinV2(storageBinPutAway,
+                            authTokenForMastersService.getAccess_token());
+                    log.info("storageBin: " + storageBin);
+                } catch (Exception e) {
+                    throw new BadRequestException("Invalid StorageBin");
+                }
+
+                if (storageBin != null) {
+                    inventory.setReferenceField10(storageBin.getStorageSectionId());
+                    inventory.setReferenceField5(storageBin.getAisleNumber());
+                    inventory.setReferenceField6(storageBin.getShelfId());
+                    inventory.setReferenceField7(storageBin.getRowId());
+                    inventory.setLevelId(String.valueOf(storageBin.getFloorId()));
+                    inventory.setBinClassId(storageBin.getBinClassId());
+                }
+
+                inventory.setCompanyDescription(putAwayLine.getCompanyDescription());
+                inventory.setPlantDescription(putAwayLine.getPlantDescription());
+                inventory.setWarehouseDescription(putAwayLine.getWarehouseDescription());
+
+                inventory.setPalletCode("99999");
+                inventory.setCaseCode("99999");
+
+                // STCK_TYP_ID
+                inventory.setStockTypeId(1L);
+                String stockTypeDesc = getStockTypeDesc(putAwayLine.getCompanyCode(), putAwayLine.getPlantId(),
+                        putAwayLine.getLanguageId(), putAwayLine.getWarehouseId(), 1L);
+                inventory.setStockTypeDescription(stockTypeDesc);
+                log.info("StockTypeDescription: " + stockTypeDesc);
+
+                // SP_ST_IND_ID
+                inventory.setSpecialStockIndicatorId(1L);
+
+                InventoryV2 existingInventory = inventoryService.getInventoryForInhouseTransferV2(
+                        putAwayLine.getCompanyCode(), putAwayLine.getPlantId(), putAwayLine.getLanguageId(),
+                        putAwayLine.getWarehouseId(), "99999", putAwayLine.getItemCode(), putAwayLine.getManufacturerName(),
+                        putAwayLine.getConfirmedStorageBin());
+
+                Double ALLOC_QTY = 0D;
+                if (existingInventory != null) {
+                    if (existingInventory.getAllocatedQuantity() != null) {
+                        ALLOC_QTY = existingInventory.getAllocatedQuantity();
+                        inventory.setAllocatedQuantity(ALLOC_QTY);
+                    }
+                    if (existingInventory.getAllocatedQuantity() == null) {
+                        inventory.setAllocatedQuantity(ALLOC_QTY);
+                    }
+                    log.info("Inventory Allocated Qty: " + ALLOC_QTY);
+                }
+                // INV_QTY
+                if (existingInventory != null) {
+                    inventory.setInventoryQuantity(
+                            existingInventory.getInventoryQuantity() + putAwayLine.getPutawayConfirmedQty());
+                    log.info("Inventory Qty = inv_qty + pa_cnf_qty: " + existingInventory.getInventoryQuantity() + ", "
+                            + putAwayLine.getPutawayConfirmedQty());
+                    Double totalQty = inventory.getInventoryQuantity() + inventory.getAllocatedQuantity();
+                    inventory.setReferenceField4(totalQty);
+                    log.info("Inventory Total Qty: " + totalQty);
+                }
+                if (existingInventory == null) {
+                    inventory.setInventoryQuantity(putAwayLine.getPutawayConfirmedQty());
+                    log.info("Inventory Qty = pa_cnf_qty: " + putAwayLine.getPutawayConfirmedQty());
+                    Double totalQty = putAwayLine.getPutawayConfirmedQty() + ALLOC_QTY;
+                    inventory.setReferenceField4(totalQty);
+                    log.info("Inventory Total Qty: " + totalQty);
+                }
+
+                /*
+                 * Hardcoding Packbarcode as 99999
+                 */
+                inventory.setPackBarcodes("99999");
+
+                // INV_UOM
+                if (putAwayLine.getPutAwayUom() != null) {
+                    inventory.setInventoryUom(putAwayLine.getPutAwayUom());
+                    log.info("PA UOM: " + putAwayLine.getPutAwayUom());
+                }
+                inventory.setCreatedBy(putAwayLine.getCreatedBy());
+
+                inventory.setReferenceDocumentNo(putAwayLine.getRefDocNumber());
+                inventory.setReferenceOrderNo(putAwayLine.getRefDocNumber());
+                inventory.setDeletionIndicator(0L);
+
+                if (existingInventory != null) {
+                    inventory.setCreatedOn(existingInventory.getCreatedOn());
+                }
+
+                if (existingInventory == null) {
+                    inventory.setCreatedOn(new Date());
+                }
+                inventory.setUpdatedOn(new Date());
+                InventoryV2 createdinventory = null;
+                inventory.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 1));
+                    createdinventory = inventoryV2Repository.save(inventory);
+                    log.error("----createdinventory--------- :" + createdinventory);
+
+                log.info("created inventory : executed" + createdinventory + " -----> ");
+            } catch (Exception e) {
+                log.error("Error While Creating Inventory ---> " + e.toString());
+                e.printStackTrace();
+                throw e;
+            }
+        }
+    }
+
+    /**
+     *
+     * @param preInboundLineList
+     * @param preInboundHeader
+     * @return
+     */
+    public List<InboundLineV2> createInboundLineProcessDirectReceipt(List<PreInboundLineEntityV2> preInboundLineList, PreInboundHeaderEntityV2 preInboundHeader) {
+        List<InboundLineV2> toBeCreatedInboundLineList = new ArrayList<>();
+        for (PreInboundLineEntityV2 createdPreInboundLine : preInboundLineList) {
+            InboundLineV2 inboundLine = new InboundLineV2();
+            BeanUtils.copyProperties(createdPreInboundLine, inboundLine, CommonUtils.getNullPropertyNames(createdPreInboundLine));
+
+            inboundLine.setOrderQty(createdPreInboundLine.getOrderQty());
+            inboundLine.setAcceptedQty(createdPreInboundLine.getOrderQty());
+            inboundLine.setOrderUom(createdPreInboundLine.getOrderUom());
+            inboundLine.setDescription(createdPreInboundLine.getItemDescription());
+            inboundLine.setVendorCode(createdPreInboundLine.getBusinessPartnerCode());
+            inboundLine.setReferenceField4(createdPreInboundLine.getReferenceField4());
+            inboundLine.setContainerNo(createdPreInboundLine.getContainerNo());
+            inboundLine.setSupplierName(createdPreInboundLine.getSupplierName());
+            inboundLine.setMiddlewareId(createdPreInboundLine.getMiddlewareId());
+            inboundLine.setMiddlewareHeaderId(createdPreInboundLine.getMiddlewareHeaderId());
+            inboundLine.setMiddlewareTable(createdPreInboundLine.getMiddlewareTable());
+            inboundLine.setReferenceDocumentType(preInboundHeader.getReferenceDocumentType());
+            inboundLine.setManufacturerFullName(createdPreInboundLine.getManufacturerFullName());
+            inboundLine.setPurchaseOrderNumber(createdPreInboundLine.getPurchaseOrderNumber());
+
+            inboundLine.setManufacturerCode(createdPreInboundLine.getManufacturerName());
+            inboundLine.setManufacturerName(createdPreInboundLine.getManufacturerName());
+            inboundLine.setExpectedArrivalDate(createdPreInboundLine.getExpectedArrivalDate());
+            inboundLine.setOrderQty(createdPreInboundLine.getOrderQty());
+            inboundLine.setOrderUom(createdPreInboundLine.getOrderUom());
+
+            inboundLine.setVendorCode(createdPreInboundLine.getBusinessPartnerCode());
+            inboundLine.setManufacturerPartNo(createdPreInboundLine.getManufacturerPartNo());
+
+            inboundLine.setBranchCode(createdPreInboundLine.getBranchCode());
+            inboundLine.setTransferOrderNo(createdPreInboundLine.getTransferOrderNo());
+            inboundLine.setIsCompleted(createdPreInboundLine.getIsCompleted());
+
+            inboundLine.setSourceCompanyCode(preInboundHeader.getSourceCompanyCode());
+            inboundLine.setSourceBranchCode(preInboundHeader.getSourceBranchCode());
+
+            statusDescription = stagingLineV2Repository.getStatusDescription(24L, preInboundHeader.getLanguageId());
+            inboundLine.setStatusId(24L);
+            inboundLine.setStatusDescription(statusDescription);
+            inboundLine.setDeletionIndicator(0L);
+            inboundLine.setCreatedBy(preInboundHeader.getCreatedBy());
+            inboundLine.setCreatedOn(preInboundHeader.getCreatedOn());
+            toBeCreatedInboundLineList.add(inboundLine);
+        }
+        return toBeCreatedInboundLineList;
+    }
 }

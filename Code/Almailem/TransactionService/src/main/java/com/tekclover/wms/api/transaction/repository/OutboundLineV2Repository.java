@@ -494,23 +494,25 @@ public interface OutboundLineV2Repository extends JpaRepository<OutboundLineV2, 
                                                      @Param("orderType") List<String> orderType,
                                                      @Param("partnerCode") List<String> partnerCode);
 
+
+    @Modifying
     @Transactional
-    @Procedure(procedureName = "obline_update_qlcreate_proc")
-    public void updateOBlineByQLCreateProcedure(
-            @Param("companyCodeId") String companyCodeId,
-            @Param("plantId") String plantId,
-            @Param("languageId") String languageId,
-            @Param("warehouseId") String warehouseId,
-            @Param("preOutboundNo") String preOutboundNo,
-            @Param("refDocNumber") String refDocNumber,
-            @Param("partnerCode") String partnerCode,
-            @Param("lineNumber") Long lineNumber,
-            @Param("itmCode") String itmCode,
-            @Param("deliveryQty") Double deliveryQty,
-            @Param("deliveryOrderNo") String deliveryOrderNo,
-            @Param("statusDescription") String statusDescription,
-            @Param("statusId") Long statusId
-    );
+    @Query(value = "update tbloutboundline set DLV_QTY = :deliveryQty, DLV_ORD_NO = :deliveryOrderNo, STATUS_TEXT = :statusDescription, STATUS_ID = :statusId " +
+            "Where C_ID = :companyCodeId AND PLANT_ID = :plantId AND LANG_ID = :languageId AND WH_ID = :warehouseId AND PRE_OB_NO = :preOutboundNo and REF_DOC_NO = :refDocNumber AND " +
+            "PARTNER_CODE = :partnerCode AND OB_LINE_NO = :lineNumber AND ITM_CODE = :itemCode ", nativeQuery = true)
+    int updateOutboundLineDeliveryQty(@Param("companyCodeId") String companyCodeId,
+                                      @Param("plantId") String plantId,
+                                      @Param("languageId") String languageId,
+                                      @Param("warehouseId") String warehouseId,
+                                      @Param("preOutboundNo") String preOutboundNo,
+                                      @Param("refDocNumber") String refDocNumber,
+                                      @Param("partnerCode") String partnerCode,
+                                      @Param("lineNumber") Long lineNumber,
+                                      @Param("itemCode") String itmCode,
+                                      @Param("deliveryQty") Double deliveryQty,
+                                      @Param("deliveryOrderNo") String deliveryOrderNo,
+                                      @Param("statusDescription") String statusDescription,
+                                      @Param("statusId") Long statusId);
 
     @Query(value = "select ol.wh_id as warehouseId,ol.c_id as companyCodeId,ol.plant_id as plantId,ol.lang_id as languageId, ol.itm_code as itemCode , \n" +
             " ol.wh_text as warehouseDescription,ol.c_text as companyDescription,ol.plant_text as plantDescription,ol.status_text as statusDescription,\n" +
