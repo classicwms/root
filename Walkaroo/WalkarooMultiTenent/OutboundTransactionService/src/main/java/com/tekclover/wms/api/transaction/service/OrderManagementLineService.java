@@ -4848,6 +4848,11 @@ public class OrderManagementLineService extends BaseService {
                 newLine.setProposedStorageBin(existing.getProposedStorageBin());
                 newLine.setProposedPackBarCode("99999");
                 newLine.setBarcodeId(existing.getBarcodeId());
+                newLine.setArticleNo(existing.getArticleNo());
+                newLine.setGender(existing.getGender());
+                newLine.setColor(existing.getColor());
+                newLine.setSize(existing.getSize());
+                newLine.setNoPairs(existing.getNoPairs());
                 orderManagementLine = orderManagementLineV2Repository.save(newLine);
                 log.info("Saved Order ManagementLine in Allocate Process {} ", newLine);
                 requestQty = requestQty -1 ;
