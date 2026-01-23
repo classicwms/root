@@ -2688,9 +2688,9 @@ public class StagingLineService extends BaseService {
         try{
             List<StagingLineEntityV2> stagingLineEntityList = new ArrayList<>();
 
-            stagingLineEntityV2List.stream().forEach(sl -> {
-
+            for(StagingLineEntityV2 sl : stagingLineEntityV2List) {
                 log.info("Staging Line Update Input Values <-------> " + sl);
+
 
                 StagingLineEntityV2 dbStaging = null;
                 if (sl.getCompanyCode() == null || sl.getLanguageId() == null || sl.getPlantId() == null || sl.getLineNo() == null) {
@@ -2705,38 +2705,26 @@ public class StagingLineService extends BaseService {
                     log.info(RED + "Given Input Records Doesn't Exists " + sl.getStagingNo() + RESET);
                     throw new BadRequestException("Given Input Records Doesn't Exists StagingLine No - " + sl.getStagingNo());
                 }
-
-                InventoryV2 dbInventory = inventoryV2Repository.checkForBarcodeId(sl.getCompanyCode(), sl.getPlantId(), sl.getLanguageId(), sl.getWarehouseId(), sl.getItemCode(), sl.getManufacturerName(), sl.getBarcodeId(),sl.getRefDocNumber());
-
-                if(dbInventory != null){
-                    dbInventory.setBinClassId(0L);
-                    inventoryV2Repository.save(dbInventory);
-                }
-
+//                InventoryV2 dbInventory = inventoryV2Repository.checkForBarcodeId(sl.getCompanyCode(), sl.getPlantId(), sl.getLanguageId(), sl.getWarehouseId(), sl.getItemCode(), sl.getManufacturerName(), sl.getBarcodeId(),sl.getRefDocNumber());
+//
+//                if(dbInventory != null){
+//                    dbInventory.setBinClassId(0L);
+//                    inventoryV2Repository.save(dbInventory);
+//                }
                 BeanUtils.copyProperties(sl, dbStaging, CommonUtils.getNullPropertyNames(sl));
                 dbStaging.setStatusId(101L);
                 statusDescription = getStatusDescription(101L, dbStaging.getLanguageId());
                 dbStaging.setStatusDescription(statusDescription);
                 dbStaging.setUpdatedBy(loginUserID);
                 dbStaging.setUpdatedOn(new Date());
-                StagingLineEntityV2 staging = stagingLineV2Repository.save(dbStaging);
-                log.info(GREEN + " Staging Line Update <-------> " + staging + RESET);
-                // Inventory_Create
-//            inventoryService.createInventory(staging);
-//            inventoryService.createInventoryNonCBMV2(staging);
-//                try {
-//                    inventoryService.createInventoryNonCBMStagingLineV2(staging, loginUserID);
-//                } catch (Exception e) {
-//                    throw new BadRequestException(e.getLocalizedMessage());
-//                }
+//                StagingLineEntityV2 staging = stagingLineV2Repository.save(dbStaging);
+//                log.info(GREEN + " Staging Line Updated Status ID 101 & Values <-------> " + staging + RESET);
+                stagingLineEntityList.add(dbStaging);
+            }
 
-//                StagingLineEntityV2 stagingUpdate = stagingLineV2Repository.save(staging);
-                log.info("AFTER STAGING UPDATED AS 101 --> {}",staging);
-                stagingLineEntityList.add(staging);
-
-            });
-
+            stagingLineV2Repository.saveAll(stagingLineEntityV2List);
             log.info("AFTER STAGING UPDATED AS 101 list --> {}",stagingLineEntityList.size());
+            log.info("AFTER STAGING UPDATED Values --> {}",stagingLineEntityList);
 
             // 2. Group by refDocNumber after all updates
             Map<String, List<StagingLineEntityV2>> groupedByRefDoc = stagingLineEntityList.stream()
@@ -2768,10 +2756,10 @@ public class StagingLineService extends BaseService {
                                     entity.setSapFlag("0");
                                     StagingLineEntityV2 updated = stagingLineV2Repository.save(entity);
 
-                                    GrHeaderV2 grHeaderV2 = grHeaderV2Repository.findByCompanyCodeAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
-                                            updated.getCompanyCode(), updated.getPlantId(), updated.getLanguageId(), updated.getWarehouseId(), updated.getRefDocNumber(), updated.getPreInboundNo(), 0L);
-                                    grHeaderV2.setSapFlag("0");
-                                    grHeaderV2Repository.save(grHeaderV2);
+//                                    GrHeaderV2 grHeaderV2 = grHeaderV2Repository.findByCompanyCodeAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
+//                                            updated.getCompanyCode(), updated.getPlantId(), updated.getLanguageId(), updated.getWarehouseId(), updated.getRefDocNumber(), updated.getPreInboundNo(), 0L);
+//                                    grHeaderV2.setSapFlag("0");
+//                                    grHeaderV2Repository.save(grHeaderV2);
 
                                     // Update list again only if necessary
                                 } else {
@@ -2782,10 +2770,10 @@ public class StagingLineService extends BaseService {
                                     entity.setSapFlag("1");
                                     StagingLineEntityV2 updated = stagingLineV2Repository.save(entity);
 
-                                    GrHeaderV2 grHeaderV2 = grHeaderV2Repository.findByCompanyCodeAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
-                                            updated.getCompanyCode(), updated.getPlantId(), updated.getLanguageId(), updated.getWarehouseId(), updated.getRefDocNumber(), updated.getPreInboundNo(), 0L);
-                                    grHeaderV2.setSapFlag("1");
-                                    grHeaderV2Repository.save(grHeaderV2);
+//                                    GrHeaderV2 grHeaderV2 = grHeaderV2Repository.findByCompanyCodeAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
+//                                            updated.getCompanyCode(), updated.getPlantId(), updated.getLanguageId(), updated.getWarehouseId(), updated.getRefDocNumber(), updated.getPreInboundNo(), 0L);
+//                                    grHeaderV2.setSapFlag("1");
+//                                    grHeaderV2Repository.save(grHeaderV2);
                                 }
                             }
                         } catch (JsonProcessingException e) {
