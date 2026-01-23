@@ -625,4 +625,23 @@ public interface OutboundLineV2Repository extends JpaRepository<OutboundLineV2, 
                               @Param("manufacturerName") String manufacturerName,
                               @Param("loginUserId") String loginUserId,
                               @Param("updatedOn") Date updatedOn);
+
+
+    @Transactional
+    @Procedure(procedureName = "obline_update_qlcreate_proc")
+    public void updateOBlineByQLCreateProcedure(
+            @Param("companyCodeId") String companyCodeId,
+            @Param("plantId") String plantId,
+            @Param("languageId") String languageId,
+            @Param("warehouseId") String warehouseId,
+            @Param("preOutboundNo") String preOutboundNo,
+            @Param("refDocNumber") String refDocNumber,
+            @Param("partnerCode") String partnerCode,
+            @Param("lineNumber") Long lineNumber,
+            @Param("itmCode") String itmCode,
+            @Param("deliveryQty") Double deliveryQty,
+            @Param("deliveryOrderNo") String deliveryOrderNo,
+            @Param("statusDescription") String statusDescription,
+            @Param("statusId") Long statusId
+    );
 }
