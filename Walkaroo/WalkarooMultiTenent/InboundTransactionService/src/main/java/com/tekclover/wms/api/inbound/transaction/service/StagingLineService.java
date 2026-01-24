@@ -2717,14 +2717,14 @@ public class StagingLineService extends BaseService {
                 dbStaging.setStatusDescription(statusDescription);
                 dbStaging.setUpdatedBy(loginUserID);
                 dbStaging.setUpdatedOn(new Date());
-//                StagingLineEntityV2 staging = stagingLineV2Repository.save(dbStaging);
-//                log.info(GREEN + " Staging Line Updated Status ID 101 & Values <-------> " + staging + RESET);
+                StagingLineEntityV2 staging = stagingLineV2Repository.save(dbStaging);
+                log.info(GREEN + " Staging Line Updated Status ID 101 & Values <-------> " + staging + RESET);
                 stagingLineEntityList.add(dbStaging);
             }
 
-            stagingLineV2Repository.saveAll(stagingLineEntityV2List);
-            log.info("AFTER STAGING UPDATED AS 101 list --> {}",stagingLineEntityList.size());
-            log.info("AFTER STAGING UPDATED Values --> {}",stagingLineEntityList);
+//            stagingLineV2Repository.saveAll(stagingLineEntityV2List);
+//            log.info("AFTER STAGING UPDATED AS 101 list --> {}",stagingLineEntityList.size());
+//            log.info("AFTER STAGING UPDATED Values --> {}",stagingLineEntityList);
 
             // 2. Group by refDocNumber after all updates
             Map<String, List<StagingLineEntityV2>> groupedByRefDoc = stagingLineEntityList.stream()
@@ -2756,10 +2756,10 @@ public class StagingLineService extends BaseService {
                                     entity.setSapFlag("0");
                                     StagingLineEntityV2 updated = stagingLineV2Repository.save(entity);
 
-//                                    GrHeaderV2 grHeaderV2 = grHeaderV2Repository.findByCompanyCodeAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
-//                                            updated.getCompanyCode(), updated.getPlantId(), updated.getLanguageId(), updated.getWarehouseId(), updated.getRefDocNumber(), updated.getPreInboundNo(), 0L);
-//                                    grHeaderV2.setSapFlag("0");
-//                                    grHeaderV2Repository.save(grHeaderV2);
+                                    GrHeaderV2 grHeaderV2 = grHeaderV2Repository.findByCompanyCodeAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
+                                            updated.getCompanyCode(), updated.getPlantId(), updated.getLanguageId(), updated.getWarehouseId(), updated.getRefDocNumber(), updated.getPreInboundNo(), 0L);
+                                    grHeaderV2.setSapFlag("0");
+                                    grHeaderV2Repository.save(grHeaderV2);
 
                                     // Update list again only if necessary
                                 } else {
@@ -2770,10 +2770,10 @@ public class StagingLineService extends BaseService {
                                     entity.setSapFlag("1");
                                     StagingLineEntityV2 updated = stagingLineV2Repository.save(entity);
 
-//                                    GrHeaderV2 grHeaderV2 = grHeaderV2Repository.findByCompanyCodeAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
-//                                            updated.getCompanyCode(), updated.getPlantId(), updated.getLanguageId(), updated.getWarehouseId(), updated.getRefDocNumber(), updated.getPreInboundNo(), 0L);
-//                                    grHeaderV2.setSapFlag("1");
-//                                    grHeaderV2Repository.save(grHeaderV2);
+                                    GrHeaderV2 grHeaderV2 = grHeaderV2Repository.findByCompanyCodeAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
+                                            updated.getCompanyCode(), updated.getPlantId(), updated.getLanguageId(), updated.getWarehouseId(), updated.getRefDocNumber(), updated.getPreInboundNo(), 0L);
+                                    grHeaderV2.setSapFlag("1");
+                                    grHeaderV2Repository.save(grHeaderV2);
                                 }
                             }
                         } catch (JsonProcessingException e) {
