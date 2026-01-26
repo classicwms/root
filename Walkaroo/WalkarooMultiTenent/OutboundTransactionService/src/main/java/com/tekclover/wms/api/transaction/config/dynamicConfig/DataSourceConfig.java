@@ -91,13 +91,13 @@ public class DataSourceConfig {
 //        config.setPassword("Sd2se5y3mPD9BLr3QzZMyNU1V");
 
         // SAFE POOL SIZE (PER DB)
-        config.setMaximumPoolSize(12);
-        config.setMinimumIdle(4);
-        config.setConnectionTimeout(30000);
+        config.setMaximumPoolSize(25); //
+        config.setMinimumIdle(10); //
+        config.setConnectionTimeout(60000);
         config.setIdleTimeout(300000);
         config.setMaxLifetime(1800000);
         config.setAutoCommit(false);
-//        config.setLeakDetectionThreshold(20000); //
+        config.setLeakDetectionThreshold(30000); //
 
         // SQL Server recommended
         config.addDataSourceProperty("encrypt", "false");
@@ -134,7 +134,7 @@ public class DataSourceConfig {
         props.put("hibernate.dialect", "org.hibernate.dialect.SQLServer2012Dialect");
         props.put("hibernate.show_sql", "false");
         props.put("hibernate.format_sql", "false");
-        props.put("hibernate.jdbc.batch_size", "30");
+        props.put("hibernate.jdbc.batch_size", "50");
         props.put("hibernate.order_inserts", "true");
         props.put("hibernate.order_updates", "true");
         return props;
