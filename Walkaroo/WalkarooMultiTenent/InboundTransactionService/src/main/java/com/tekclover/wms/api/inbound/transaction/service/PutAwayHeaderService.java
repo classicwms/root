@@ -4112,18 +4112,26 @@ public class PutAwayHeaderService extends BaseService {
 
                 // Step 1: Check MTO
                 if (createdGRLine.getMtoNumber() != null) {
-                    proposedBin = storageBinV2Repository.getPutAwayStrategyStorageBinV3(companyCode, plantId,
-                            languageId, warehouseId, createdGRLine.getReferenceField5(), createdGRLine.getGender(),
-                            createdGRLine.getArticleNo());
+                    log.info("MTO Order -----------------> In PuAwayCreation Process");
+                    Long binClassId = 10L;
+                     proposedBin = storageBinV2Repository.getStorageBin(companyCode, plantId, languageId, warehouseId, binClassId);
+                    log.info("MTO Order Proposed Bin is --- > " + proposedBin);
+                    if (proposedBin != null) {
+                        putAwayHeader.setProposedStorageBin(proposedBin);
+                    }else {
+                        proposedBin = storageBinV2Repository.getPutAwayStrategyStorageBinV3(companyCode, plantId,
+                                languageId, warehouseId, createdGRLine.getReferenceField5(), createdGRLine.getGender(),
+                                createdGRLine.getArticleNo());
 //					log.info(companyCode+","+ plantId+","+
 //							languageId+","+ warehouseId+","+ createdGRLine.getReferenceField5()+","+ createdGRLine.getGender()+","+
 //							createdGRLine.getArticleNo());
-                    log.info("MasterPutAwayHeaderStrategyBin: {}", proposedBin);
+                        log.info("MasterPutAwayHeaderStrategyBin: {}", proposedBin);
 
-                    if (proposedBin != null) {
-                        putAwayHeader.setProposedStorageBin(proposedBin);
-                    } else {
-                        putAwayHeader.setProposedStorageBin("B09_00");
+                        if (proposedBin != null) {
+                            putAwayHeader.setProposedStorageBin(proposedBin);
+                        } else {
+                            putAwayHeader.setProposedStorageBin("B09_00");
+                        }
                     }
                 } else {
                     String storageBin = getStorageBin(companyCode, plantId, languageId, warehouseId,

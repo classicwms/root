@@ -368,5 +368,13 @@ public interface StorageBinV2Repository extends JpaRepository<StorageBinV2, Long
                            @Param("storageBin") String storageBin,
                            @Param("statusId") Long statusId);
 
+    @Query(value = "SELECT top 1 st_bin FROM tblstoragebin WHERE bin_cl_id = :binclassId and c_id = :companyCode and plant_id = :plantId and \n" +
+            "wh_id = :warehouseId and lang_id = :languageId and \n" +
+            "is_deleted = 0 and st_bin <> 'REC-AL-B2' order by st_bin", nativeQuery = true)
+    public String getStorageBin(@Param("companyCode") String companyCode,
+                                  @Param("plantId") String plantId,
+                                  @Param("languageId") String languageId,
+                                  @Param("warehouseId") String warehouseId,
+                                  @Param("binclassId") Long binclassId);
 
 }

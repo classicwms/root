@@ -3544,13 +3544,67 @@ public class WarehouseService extends BaseService {
 
 
 		//	@Scheduled(cron = "*/2 * * * * *")
-	public WarehouseApiResponse postSAPDeliveryConfirmationScheduleProcess(String profile) throws Exception {
+//	public WarehouseApiResponse postSAPDeliveryConfirmationScheduleProcess(String profile) throws Exception {
+//		DataBaseContextHolder.clear();
+//		DataBaseContextHolder.setCurrentDb(profile);
+//		try {
+//
+//			log.info("-------postSAPDeliveryConfirmation----------CurrentDB ----------> " + profile);
+//			List<DeliveryConfirmation> deliveryConfirmations = deliveryConfirmationRepository.findTop1DeliveryConfirmationList(9L);
+//			log.info("DeliveryConfirmation Values size ---------------------> " + deliveryConfirmations.size());
+//			if (deliveryConfirmations.isEmpty()) {
+//				log.info("DeliveryConfirmation Values is Empty");
+//			} else {
+//				deliveryConfirmationRepository.updateProcessStatusIdForDLC(deliveryConfirmations.get(0).getOutbound(), 1L, new Date());
+//				log.info("DeliveryConfirmation ProcessStatus Id 1 Updated -------> RefDocNo is {} ", deliveryConfirmations.get(0).getOutbound());
+//
+//				List<DeliveryConfirmationLineV3> deliveryConfirmationLines = new ArrayList<>();
+//				DeliveryConfirmationV3 deliveryConfirmation = new DeliveryConfirmationV3();
+//				log.info("Delivery Confirmation Process Initiated For Order From SAP..! ");
+//
+//				for (DeliveryConfirmation deliveryCnf : deliveryConfirmations) {
+//					DeliveryConfirmationLineV3 deliveryConfirmationLine = new DeliveryConfirmationLineV3();
+//					BeanUtils.copyProperties(deliveryCnf, deliveryConfirmation, CommonUtils.getNullPropertyNames(deliveryCnf));
+//					BeanUtils.copyProperties(deliveryCnf, deliveryConfirmationLine, CommonUtils.getNullPropertyNames(deliveryCnf));
+//					deliveryConfirmationLines.add(deliveryConfirmationLine);
+//				}
+//				deliveryConfirmation.setLines(deliveryConfirmationLines);
+//
+//				try {
+//					outboundLineService.createPickupHeaderProcess(deliveryConfirmation);
+//					deliveryConfirmationRepository.updateProcessStatusIdForDLC(deliveryConfirmations.get(0).getOutbound(), 90L, new Date());
+//				} catch (Exception e) {
+//					log.error("Error on deliveryTemplate processing for Order From SAP : " + e.toString());
+//					e.printStackTrace();
+//					boolean deadlock = deadLockException(e.toString());
+//					if (deadlock) {
+//						deliveryConfirmationRepository.updateProcessStatusIdForDLC(deliveryConfirmations.get(0).getOutbound(), 900L, new Date());
+////					deliveryConfirmationRepository.updateBatchExecuted(headerList, 900L);
+//					} else {
+//						deliveryConfirmationRepository.updateProcessStatusIdForDLC(deliveryConfirmations.get(0).getOutbound(), 100L, new Date());
+////					deliveryConfirmationRepository.updateBatchExecuted(headerList, 100L);
+//					}
+//					sendMail(deliveryConfirmation.getCompanyCodeId(), deliveryConfirmation.getPlantId(),
+//							deliveryConfirmation.getLanguageId(), deliveryConfirmation.getWarehouseId(),
+//							"DeliveryConfirmation", "DeliveryConfirmation", e.toString());
+//					throw e;
+//				}
+//			}
+//			WarehouseApiResponse response = new WarehouseApiResponse();
+//			response.setMessage("Completed");
+//			return response;
+//		} finally {
+//			DataBaseContextHolder.clear();
+//		}
+//	}
+
+	public void postSAPDeliveryConfirmationScheduleProcess(String profile) throws Exception {
 		DataBaseContextHolder.clear();
 		DataBaseContextHolder.setCurrentDb(profile);
 		try {
 
 			log.info("-------postSAPDeliveryConfirmation----------CurrentDB ----------> " + profile);
-			List<DeliveryConfirmation> deliveryConfirmations = deliveryConfirmationRepository.findTop1DeliveryConfirmationList(9L);
+			List<DeliveryConfirmation> deliveryConfirmations = deliveryConfirmationRepository.findTop1DeliveryConfirmationList(19L);
 			log.info("DeliveryConfirmation Values size ---------------------> " + deliveryConfirmations.size());
 			if (deliveryConfirmations.isEmpty()) {
 				log.info("DeliveryConfirmation Values is Empty");
@@ -3558,41 +3612,23 @@ public class WarehouseService extends BaseService {
 				deliveryConfirmationRepository.updateProcessStatusIdForDLC(deliveryConfirmations.get(0).getOutbound(), 1L, new Date());
 				log.info("DeliveryConfirmation ProcessStatus Id 1 Updated -------> RefDocNo is {} ", deliveryConfirmations.get(0).getOutbound());
 
-				List<DeliveryConfirmationLineV3> deliveryConfirmationLines = new ArrayList<>();
-				DeliveryConfirmationV3 deliveryConfirmation = new DeliveryConfirmationV3();
-				log.info("Delivery Confirmation Process Initiated For Order From SAP..! ");
-
-				for (DeliveryConfirmation deliveryCnf : deliveryConfirmations) {
-					DeliveryConfirmationLineV3 deliveryConfirmationLine = new DeliveryConfirmationLineV3();
-					BeanUtils.copyProperties(deliveryCnf, deliveryConfirmation, CommonUtils.getNullPropertyNames(deliveryCnf));
-					BeanUtils.copyProperties(deliveryCnf, deliveryConfirmationLine, CommonUtils.getNullPropertyNames(deliveryCnf));
-					deliveryConfirmationLines.add(deliveryConfirmationLine);
-				}
-				deliveryConfirmation.setLines(deliveryConfirmationLines);
-
 				try {
-					outboundLineService.createPickupHeaderProcess(deliveryConfirmation);
-					deliveryConfirmationRepository.updateProcessStatusIdForDLC(deliveryConfirmations.get(0).getOutbound(), 90L, new Date());
+					outboundLineService.updateInventory(deliveryConfirmations);
 				} catch (Exception e) {
 					log.error("Error on deliveryTemplate processing for Order From SAP : " + e.toString());
 					e.printStackTrace();
-					boolean deadlock = deadLockException(e.toString());
-					if (deadlock) {
-						deliveryConfirmationRepository.updateProcessStatusIdForDLC(deliveryConfirmations.get(0).getOutbound(), 900L, new Date());
-//					deliveryConfirmationRepository.updateBatchExecuted(headerList, 900L);
-					} else {
-						deliveryConfirmationRepository.updateProcessStatusIdForDLC(deliveryConfirmations.get(0).getOutbound(), 100L, new Date());
-//					deliveryConfirmationRepository.updateBatchExecuted(headerList, 100L);
-					}
-					sendMail(deliveryConfirmation.getCompanyCodeId(), deliveryConfirmation.getPlantId(),
-							deliveryConfirmation.getLanguageId(), deliveryConfirmation.getWarehouseId(),
+//					boolean deadlock = deadLockException(e.toString());
+//					if (deadlock) {
+//						deliveryConfirmationRepository.updateProcessStatusIdForDLC(deliveryConfirmations.get(0).getOutbound(), 900L, new Date());
+//					} else {
+//						deliveryConfirmationRepository.updateProcessStatusIdForDLC(deliveryConfirmations.get(0).getOutbound(), 100L, new Date());
+//					}
+					sendMail(deliveryConfirmations.get(0).getCompanyCodeId(), deliveryConfirmations.get(0).getPlantId(),
+							deliveryConfirmations.get(0).getLanguageId(), deliveryConfirmations.get(0).getWarehouseId(),
 							"DeliveryConfirmation", "DeliveryConfirmation", e.toString());
 					throw e;
 				}
 			}
-			WarehouseApiResponse response = new WarehouseApiResponse();
-			response.setMessage("Completed");
-			return response;
 		} finally {
 			DataBaseContextHolder.clear();
 		}

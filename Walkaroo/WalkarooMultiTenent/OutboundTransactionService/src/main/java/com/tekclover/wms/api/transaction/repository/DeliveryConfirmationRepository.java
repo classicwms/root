@@ -67,11 +67,17 @@ public interface DeliveryConfirmationRepository extends JpaRepository<DeliveryCo
                                      @Param("orderProcessedOn") Date orderProcessedOn);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query(value = "update tbldeliveryconfirmation set process_status_id = :processStatusId, order_processed_on = :orderProcessedOn  where DELIVERY_ID = :deliveryId and process_status_id <> 100 ", nativeQuery = true)
+    @Query(value = "update tbldeliveryconfirmation set cust_code = :storageBin, process_status_id = :processStatusId, order_processed_on = :orderProcessedOn  where DELIVERY_ID = :deliveryId ", nativeQuery = true)
     void updateProcessStatusId(@Param("deliveryId") Long deliveryId,
                                @Param("processStatusId") Long processStatusId,
-                               @Param("orderProcessedOn") Date orderProcessedOn);
+                               @Param("orderProcessedOn") Date orderProcessedOn,
+                               @Param("storageBin") String storageBin);
 
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query(value = "update tbldeliveryconfirmation set process_status_id = :processStatusId, order_processed_on = :orderProcessedOn  where DELIVERY_ID = :deliveryId and process_status_id <> 100 ", nativeQuery = true)
+    void updateProcessStatusIdDLV(@Param("deliveryId") Long deliveryId,
+                               @Param("processStatusId") Long processStatusId,
+                               @Param("orderProcessedOn") Date orderProcessedOn);
     DeliveryConfirmation findTopByProcessedStatusIdOrderByOrderReceivedOn(Long processStatusId);
 
     @Query(value = "select * from tbldeliveryconfirmation where outbound = (select top 1 outbound from tbldeliveryconfirmation \n" +

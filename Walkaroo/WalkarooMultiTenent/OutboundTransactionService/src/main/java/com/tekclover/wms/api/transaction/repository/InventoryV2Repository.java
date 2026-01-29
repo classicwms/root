@@ -5742,4 +5742,15 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
                                              @Param("binClassId") List<Long> binClassId,
                                              @Param("stockTypeId") Long stockTypeId);
 
+
+    @Query(value = "select * from tblinventory where ref_field_4 > 0 and " +
+            "inv_id in (select max(inv_id) from tblinventory where is_deleted = 0 group by barcode_id, itm_code) and " +
+            "barcode_id = :barcodeId and itm_code = :itemCode and c_id = :companyCodeId and lang_id = :languageId and plant_id = :plantId and wh_id = :warehouseId ", nativeQuery = true)
+    InventoryV2 getInventoryForDLV(@Param("companyCodeId") String companyCodeId,
+                                   @Param("plantId") String plantId,
+                                   @Param("languageId") String languageId,
+                                   @Param("warehouseId") String warehouseId,
+                                   @Param("barcodeId") String barcodeId,
+                                   @Param("itemCode") String itemCode);
+
 }

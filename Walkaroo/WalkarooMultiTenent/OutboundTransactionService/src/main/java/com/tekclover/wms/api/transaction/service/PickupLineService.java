@@ -5887,4 +5887,61 @@ public class PickupLineService extends BaseService {
             throw e;
         }
     }
+
+    // Delivery Confirm
+    public InventoryV2 updateInventoryInDeliveryConfirmation(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                               String itemCode, String manufacturerName, String barcodeId, Double pickCnfQty, String loginUserID) {
+        InventoryV2 inventory = inventoryV2Repository.getInventoryForDLV(companyCodeId, plantId, languageId, warehouseId, barcodeId, itemCode);
+        log.info("inventory record queried: " + inventory);
+        if (inventory != null) {
+            try {
+//                double[] inventoryQty = calculateInventory(pickCnfQty, inventory.getInventoryQuantity(),
+//                        inventory.getAllocatedQuantity());
+//                if (inventoryQty != null && inventoryQty.length > 2) {
+//                    inventory.setInventoryQuantity(inventoryQty[0]);
+//                    inventory.setAllocatedQuantity(inventoryQty[1]);
+//                    inventory.setReferenceField4(inventoryQty[2]);
+//                }
+
+                InventoryV2 inventoryV2 = new InventoryV2();
+                BeanUtils.copyProperties(inventory, inventoryV2, CommonUtils.getNullPropertyNames(inventory));
+                inventoryV2.setUpdatedOn(new Date());
+                try {
+                    inventoryV2.setInventoryQuantity(0D);
+                    inventoryV2.setAllocatedQuantity(0D);
+                    inventoryV2.setReferenceField4(0D);
+                    inventoryV2.setInventoryId(null);
+                    inventoryV2 = inventoryV2Repository.save(inventoryV2);
+                    log.info("-----PickedBarcodeInventory2 updated-------: " + inventoryV2);
+                } catch (Exception e1) {
+                    log.error("--ERROR--schedulePostPickupLineProcessV2 ----level1--inventory--error----> :" + e1.toString());
+                    e1.printStackTrace();
+                }
+                // --------------------------------------------------------------------------------------------------------------
+
+                if (inventory.getReferenceField4() == 0) {
+                    // Setting up statusId = 0
+                    try {
+                        // Check whether Inventory has record or not for that storageBin
+                        Double inventoryByStBin = inventoryService.getInventoryByStorageBinV3(companyCodeId, plantId,
+                                languageId, warehouseId, inventory.getStorageBin());
+                        if (inventoryByStBin == null) {
+                            // Setting up statusId = 0
+                            updateStorageBinEmptyStatus(companyCodeId, plantId, languageId, warehouseId,
+                                    inventory.getStorageBin(), loginUserID);
+                        }
+                    } catch (Exception e) {
+                        log.error("updateStorageBin Error :" + e.toString());
+                        e.printStackTrace();
+                    }
+                }
+                return inventory;
+            } catch (Exception e) {
+                e.printStackTrace();
+                log.error("Inventory Update :" + e.toString());
+                throw new BadRequestException("Inventory Update Exception ");
+            }
+        }
+        return null;
+    }
 }

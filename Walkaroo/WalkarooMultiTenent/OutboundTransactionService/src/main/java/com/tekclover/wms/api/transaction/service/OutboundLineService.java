@@ -14,7 +14,9 @@ import java.util.stream.Stream;
 import javax.persistence.EntityNotFoundException;
 
 import com.microsoft.sqlserver.jdbc.SQLServerException;
+import com.tekclover.wms.api.transaction.model.deliveryconfirmation.DeliveryConfirmation;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.IInventoryImpl;
+import com.tekclover.wms.api.transaction.repository.*;
 import org.hibernate.exception.LockAcquisitionException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,33 +86,6 @@ import com.tekclover.wms.api.transaction.model.warehouse.outbound.v3.DeliveryCon
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.v3.DeliveryConfirmationV3;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.v3.ReversalLineV3;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.v3.ReversalV3;
-import com.tekclover.wms.api.transaction.repository.ImBasicData1Repository;
-import com.tekclover.wms.api.transaction.repository.InboundLineRepository;
-import com.tekclover.wms.api.transaction.repository.InboundLineV2Repository;
-import com.tekclover.wms.api.transaction.repository.InventoryMovementRepository;
-import com.tekclover.wms.api.transaction.repository.InventoryRepository;
-import com.tekclover.wms.api.transaction.repository.InventoryTransRepository;
-import com.tekclover.wms.api.transaction.repository.InventoryV2Repository;
-import com.tekclover.wms.api.transaction.repository.OrderManagementHeaderV2Repository;
-import com.tekclover.wms.api.transaction.repository.OrderManagementLineRepository;
-import com.tekclover.wms.api.transaction.repository.OrderManagementLineV2Repository;
-import com.tekclover.wms.api.transaction.repository.OutboundHeaderRepository;
-import com.tekclover.wms.api.transaction.repository.OutboundHeaderV2Repository;
-import com.tekclover.wms.api.transaction.repository.OutboundLineInterimRepository;
-import com.tekclover.wms.api.transaction.repository.OutboundLineRepository;
-import com.tekclover.wms.api.transaction.repository.OutboundLineV2Repository;
-import com.tekclover.wms.api.transaction.repository.PickupHeaderV2Repository;
-import com.tekclover.wms.api.transaction.repository.PickupLineRepository;
-import com.tekclover.wms.api.transaction.repository.PickupLineV2Repository;
-import com.tekclover.wms.api.transaction.repository.PreOutboundHeaderRepository;
-import com.tekclover.wms.api.transaction.repository.PreOutboundHeaderV2Repository;
-import com.tekclover.wms.api.transaction.repository.PreOutboundLineRepository;
-import com.tekclover.wms.api.transaction.repository.PreOutboundLineV2Repository;
-import com.tekclover.wms.api.transaction.repository.QualityHeaderV2Repository;
-import com.tekclover.wms.api.transaction.repository.QualityLineRepository;
-import com.tekclover.wms.api.transaction.repository.QualityLineV2Repository;
-import com.tekclover.wms.api.transaction.repository.StagingLineV2Repository;
-import com.tekclover.wms.api.transaction.repository.StockMovementReport1Repository;
 import com.tekclover.wms.api.transaction.repository.specification.ImBasicData1Specification;
 import com.tekclover.wms.api.transaction.repository.specification.OutboundLineReportSpecification;
 import com.tekclover.wms.api.transaction.repository.specification.OutboundLineReportV2Specification;
@@ -243,6 +218,9 @@ public class OutboundLineService extends BaseService {
     private StagingLineV2Repository stagingLineV2Repository;
 
     String statusDescription = null;
+
+    @Autowired
+    DeliveryConfirmationRepository deliveryConfirmationRepository;
     //------------------------------------------------------------------------------------------------------
 
     /**
@@ -5930,6 +5908,58 @@ public class OutboundLineService extends BaseService {
         } catch (Exception e) {
             log.error("Exception validation deliveryConfirmation! " + e.getMessage());
             throw e;
+        }
+    }
+
+    /**
+     *
+     * @param deliveryConfirmationList deliveryConfirmationList
+     */
+    public void updateInventory(List<DeliveryConfirmation> deliveryConfirmationList) {
+        try {
+            for (DeliveryConfirmation outboundHeader : deliveryConfirmationList) {
+                try {
+                    OutboundHeaderV2 outHeader = outboundHeaderV2Repository.findTopByRefDocNumberAndDeletionIndicatorOrderByCreatedOnDesc(outboundHeader.getOutbound(), 0L);
+                    String companyCodeId = outboundHeader.getCompanyCodeId();
+                    String plantId = outboundHeader.getPlantId();
+                    String warehouseId = outboundHeader.getWarehouseId();
+                    String languageId = outboundHeader.getLanguageId();
+                    String barcodeId = outboundHeader.getHuSerialNo();
+                    String itemCode = outboundHeader.getSkuCode();
+                    Double pickedQty = outboundHeader.getPickedQty();
+                    String loginUserId = "WK";
+
+                    log.info("PickupHeader Values is Empty --------> Inventory Allocation Started this Order No " + outboundHeader.getOutbound());
+                    InventoryV2 inventoryV2 =  pickupLineService.updateInventoryInDeliveryConfirmation(companyCodeId, plantId, languageId, warehouseId,
+                            itemCode, "WK", barcodeId,  pickedQty, loginUserId);
+
+                    Long STATUS_ID = 59L;
+                    statusDescription = stagingLineV2Repository.getStatusDescription(STATUS_ID, languageId);
+                    outboundLineV2Repository.updateOutboundLineForDeliveryConfirm(companyCodeId, plantId, languageId, warehouseId, outHeader.getPreOutboundNo(),
+                            outHeader.getRefDocNumber(), outHeader.getPartnerCode(), itemCode, "WK", pickedQty, STATUS_ID, statusDescription, loginUserId, new Date());
+                    log.info("OutboundLine Status Updated Successfully -----------> RefDocNo Is ---> " + outHeader.getRefDocNumber());
+
+                    outboundLineV2Repository.deliveryConfirmationProc(companyCodeId, plantId, languageId, warehouseId,
+                            outHeader.getRefDocNumber(), outHeader.getPreOutboundNo(), STATUS_ID, statusDescription, loginUserId, new Date());
+                    log.info("Outbound Order Status Updated Successfully --------------------> RefDocNo Is ---> " + outHeader.getRefDocNumber());
+
+                    String storageBin = "0";
+                    if(inventoryV2 != null && inventoryV2.getStorageBin() != null) {
+                        storageBin = inventoryV2.getStorageBin();
+                    }
+                    log.info("StorageBin --> " + storageBin);
+                    deliveryConfirmationRepository.updateProcessStatusId(outboundHeader.getDeliveryId(), 90L, new Date(), storageBin);
+                    log.info("Delivery Confirmation Updated Successfully this Delivery Id --- > " + outboundHeader.getDeliveryId());
+
+                } catch (Exception e) {
+                    log.info("Exception Throw & Called Process Inventory Update ");
+                    pickupLineService.updateInventoryInDeliveryConfirmation(outboundHeader.getCompanyCodeId(), outboundHeader.getPlantId(), outboundHeader.getLanguageId(), outboundHeader.getWarehouseId(),
+                            outboundHeader.getSkuCode(), "WK", outboundHeader.getHuSerialNo(), outboundHeader.getPickedQty(), outboundHeader.getLoginUserId());
+                    deliveryConfirmationRepository.updateProcessStatusIdDLV(outboundHeader.getDeliveryId(), 100L, new Date());
+                }
+            }
+        } catch (Exception e) {
+            throw new BadRequestException("Delivery Confirmation Error For RefDocNo --> " + deliveryConfirmationList.get(0).getOutbound());
         }
     }
 }
