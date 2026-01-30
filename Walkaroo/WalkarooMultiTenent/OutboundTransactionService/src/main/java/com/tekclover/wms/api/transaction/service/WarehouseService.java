@@ -3604,7 +3604,7 @@ public class WarehouseService extends BaseService {
 		try {
 
 			log.info("-------postSAPDeliveryConfirmation----------CurrentDB ----------> " + profile);
-			List<DeliveryConfirmation> deliveryConfirmations = deliveryConfirmationRepository.findTop1DeliveryConfirmationList(19L);
+			List<DeliveryConfirmation> deliveryConfirmations = deliveryConfirmationRepository.findTop1DeliveryConfirmationList(9L);
 			log.info("DeliveryConfirmation Values size ---------------------> " + deliveryConfirmations.size());
 			if (deliveryConfirmations.isEmpty()) {
 				log.info("DeliveryConfirmation Values is Empty");
