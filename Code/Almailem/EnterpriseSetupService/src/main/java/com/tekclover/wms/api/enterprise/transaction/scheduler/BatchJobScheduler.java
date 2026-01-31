@@ -22,17 +22,17 @@ public class BatchJobScheduler {
 
     //-------------------------------------------------------------------------------------------
 
-    @Scheduled(fixedDelay = 15000)
-    public void nonPickListSchedule() throws InterruptedException, InvocationTargetException, IllegalAccessException, ParseException {
-
-        CompletableFuture<WarehouseApiResponse> outboundOrder = scheduleAsyncService.processNonPickListOutboundOrder();
-//        CompletableFuture<WarehouseApiResponse> outboundFailedOrder = scheduleAsyncService.processOutboundFailedOrder();
-    }
+//    @Scheduled(fixedDelay = 15000)
+//    public void nonPickListSchedule() throws InterruptedException, InvocationTargetException, IllegalAccessException, ParseException {
+//
+//        CompletableFuture<WarehouseApiResponse> outboundOrder = scheduleAsyncService.processNonPickListOutboundOrder();
+//    }
 
     @Scheduled(fixedDelay = 10000)
     public void pickListSchedule() throws InterruptedException, InvocationTargetException, IllegalAccessException, ParseException {
 
-        CompletableFuture<WarehouseApiResponse> outboundOrder = scheduleAsyncService.processPickListOutboundOrder();
+        CompletableFuture<WarehouseApiResponse> picklist = scheduleAsyncService.processPickListOutboundOrder();
+        CompletableFuture<WarehouseApiResponse> nonPickList = scheduleAsyncService.processNonPickListOutboundOrder();
         CompletableFuture<WarehouseApiResponse> outboundFailedOrder = scheduleAsyncService.processOutboundFailedOrder();
     }
 

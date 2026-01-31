@@ -1757,310 +1757,10 @@ public class OrderManagementLineService extends BaseService {
         return !orderManagementLineList.isEmpty() ? orderManagementLineList.get(0) : null;
     }
 
-    /**
-     * @param orderManagementLineV2s
-     * @param loginUserID
-     * @return
-     */
-    public List<OrderManagementLineV2> doAllocationV2(List<OrderManagementLineV2> orderManagementLineV2s, String loginUserID) throws java.text.ParseException {
-
-        List<OrderManagementLineV2> orderManagementLineV2List = new ArrayList<>();
-
-        OrderManagementLineV2 dbOrderManagementLine = null;
-
-        for (OrderManagementLineV2 lineV2 : orderManagementLineV2s) {
-
-            List<OrderManagementLineV2> orderManagementLineV2 =
-                    getOrderManagementLineV2(lineV2.getCompanyCodeId(), lineV2.getPlantId(),
-                            lineV2.getLanguageId(), lineV2.getWarehouseId(), lineV2.getPreOutboundNo(),
-                            lineV2.getRefDocNumber(), lineV2.getPartnerCode(), lineV2.getLineNumber(), lineV2.getItemCode());
-            log.info("Processing Order management Line : " + orderManagementLineV2);
 
 
-            // If results is multiple reords then keeping one record and deleting rest of them
-            if (orderManagementLineV2 != null && !orderManagementLineV2.isEmpty()) {
-                dbOrderManagementLine = orderManagementLineV2.get(0); // Keeping the first record
-
-                // Deleting the rest
-                for (int i = 1; i < orderManagementLineV2.size(); i++) {
-                    // warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, itemCode,
-                    // proposedStorageBin, proposedPackCode
-                    OrderManagementLineV2 orderManagementLineToDelete = orderManagementLineV2.get(i);
-                    deleteOrderManagementLineV2(orderManagementLineToDelete.getCompanyCodeId(),
-                            orderManagementLineToDelete.getPlantId(), orderManagementLineToDelete.getLanguageId(),
-                            orderManagementLineToDelete.getWarehouseId(),
-                            orderManagementLineToDelete.getPreOutboundNo(), orderManagementLineToDelete.getRefDocNumber(),
-                            orderManagementLineToDelete.getPartnerCode(), orderManagementLineToDelete.getLineNumber(),
-                            orderManagementLineToDelete.getItemCode(), orderManagementLineToDelete.getProposedStorageBin(),
-                            orderManagementLineToDelete.getProposedPackBarCode(), loginUserID);
-                    log.info("Deleted the other orderManagementLine : " + orderManagementLineToDelete);
-                }
-            }
-
-            assert dbOrderManagementLine != null;
-            Long OB_ORD_TYP_ID = dbOrderManagementLine.getOutboundOrderTypeId();
-            Double ORD_QTY = dbOrderManagementLine.getOrderQty();
-
-            Long BIN_CLASS_ID;
-            if (OB_ORD_TYP_ID == 0L || OB_ORD_TYP_ID == 1L || OB_ORD_TYP_ID == 3L) {
-//            List<String> storageSectionIds = Arrays.asList("ZB", "ZC", "ZG", "ZT"); // ZB,ZC,ZG,ZT
-                BIN_CLASS_ID = 1L;
-                dbOrderManagementLine = updateAllocationV2(dbOrderManagementLine, BIN_CLASS_ID, ORD_QTY, dbOrderManagementLine.getWarehouseId(),
-                        dbOrderManagementLine.getItemCode(), loginUserID);
-            }
-
-            if (OB_ORD_TYP_ID == 2L) {
-//            List<String> storageSectionIds = Arrays.asList("ZD"); // ZD
-                BIN_CLASS_ID = 7L;
-                dbOrderManagementLine = updateAllocationV2(dbOrderManagementLine, BIN_CLASS_ID, ORD_QTY, dbOrderManagementLine.getWarehouseId(),
-                        dbOrderManagementLine.getItemCode(), loginUserID);
-
-                dbOrderManagementLine.setPickupUpdatedBy(loginUserID);
-                dbOrderManagementLine.setPickupUpdatedOn(new Date());
-
-            }
-            OrderManagementLineV2 updatedOrderManagementLine = orderManagementLineV2Repository.save(dbOrderManagementLine);
-            log.info("OrderManagementLine updated: " + updatedOrderManagementLine);
-
-            orderManagementLineV2List.add(updatedOrderManagementLine);
-        }
-
-        return orderManagementLineV2List;
-    }
 
 
-    /**
-     * @param companyCodeId
-     * @param plantId
-     * @param languageId
-     * @param warehouseId
-     * @param preOutboundNo
-     * @param refDocNumber
-     * @param partnerCode
-     * @param lineNumber
-     * @param itemCode
-     * @param loginUserID
-     * @return
-     */
-    public OrderManagementLineV2 doAllocationV2(String companyCodeId, String plantId, String languageId, String warehouseId,
-                                                String preOutboundNo, String refDocNumber, String partnerCode, Long lineNumber,
-                                                String itemCode, String loginUserID) throws java.text.ParseException {
-        List<OrderManagementLineV2> dbOrderManagementLines =
-                getOrderManagementLineV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo,
-                        refDocNumber, partnerCode, lineNumber, itemCode);
-        log.info("Processing Order management Line : " + dbOrderManagementLines);
-
-        OrderManagementLineV2 dbOrderManagementLine = null;
-
-        // If results is multiple reords then keeping one record and deleting rest of them
-        if (dbOrderManagementLines != null && !dbOrderManagementLines.isEmpty()) {
-            dbOrderManagementLine = dbOrderManagementLines.get(0); // Keeping the first record
-
-            // Deleting the rest
-            for (int i = 1; i < dbOrderManagementLines.size(); i++) {
-                // warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, itemCode,
-                // proposedStorageBin, proposedPackCode
-                OrderManagementLineV2 orderManagementLineToDelete = dbOrderManagementLines.get(i);
-                deleteOrderManagementLineV2(orderManagementLineToDelete.getCompanyCodeId(),
-                        orderManagementLineToDelete.getPlantId(), orderManagementLineToDelete.getLanguageId(),
-                        orderManagementLineToDelete.getWarehouseId(),
-                        orderManagementLineToDelete.getPreOutboundNo(), orderManagementLineToDelete.getRefDocNumber(),
-                        orderManagementLineToDelete.getPartnerCode(), orderManagementLineToDelete.getLineNumber(),
-                        orderManagementLineToDelete.getItemCode(), orderManagementLineToDelete.getProposedStorageBin(),
-                        orderManagementLineToDelete.getProposedPackBarCode(), loginUserID);
-                log.info("Deleted the other orderManagementLine : " + orderManagementLineToDelete);
-            }
-        }
-
-        Long OB_ORD_TYP_ID = dbOrderManagementLine.getOutboundOrderTypeId();
-        Double ORD_QTY = dbOrderManagementLine.getOrderQty();
-        Long BIN_CLASS_ID;
-        if (OB_ORD_TYP_ID == 0L || OB_ORD_TYP_ID == 1L || OB_ORD_TYP_ID == 3L) {
-//            List<String> storageSectionIds = Arrays.asList("ZB", "ZC", "ZG", "ZT"); // ZB,ZC,ZG,ZT
-            BIN_CLASS_ID = 1L;
-            dbOrderManagementLine = updateAllocationV2(dbOrderManagementLine, BIN_CLASS_ID, ORD_QTY, warehouseId,
-                    itemCode, loginUserID);
-        }
-
-        if (OB_ORD_TYP_ID == 2L) {
-//            List<String> storageSectionIds = Arrays.asList("ZD"); // ZD
-            BIN_CLASS_ID = 7L;
-            dbOrderManagementLine = updateAllocationV2(dbOrderManagementLine, BIN_CLASS_ID, ORD_QTY, warehouseId,
-                    itemCode, loginUserID);
-
-        }
-        dbOrderManagementLine.setPickupUpdatedBy(loginUserID);
-        dbOrderManagementLine.setPickupUpdatedOn(new Date());
-        OrderManagementLineV2 updatedOrderManagementLine = orderManagementLineV2Repository.save(dbOrderManagementLine);
-        log.info("OrderManagementLine updated: " + updatedOrderManagementLine);
-        return updatedOrderManagementLine;
-    }
-
-
-    /**
-     * @param assignPickers
-     * @param assignedPickerId
-     * @param loginUserID
-     * @return
-     */
-    public List<OrderManagementLineV2> doAssignPickerV2(List<AssignPickerV2> assignPickers, String assignedPickerId,
-                                                        String loginUserID) throws java.text.ParseException, FirebaseMessagingException {
-        String companyCodeId = null;
-        String plantId = null;
-        String languageId = null;
-        String warehouseId = null;
-        String preOutboundNo = null;
-        String refDocNumber = null;
-        String partnerCode = null;
-        Long lineNumber = null;
-        String itemCode = null;
-        String proposedStorageBin = null;
-        String proposedPackCode = null;
-
-        //push Notification
-        Set<String> preOutboundNoList = new HashSet<>();
-        Set<String> warehouseIdList = new HashSet<>();
-        List<OrderManagementLineV2> orderManagementLineList = new ArrayList<>();
-
-        // Iterating over AssignPicker
-        for (AssignPickerV2 assignPicker : assignPickers) {
-            companyCodeId = assignPicker.getCompanyCodeId();
-            plantId = assignPicker.getPlantId();
-            languageId = assignPicker.getLanguageId();
-            warehouseId = assignPicker.getWarehouseId();
-            preOutboundNo = assignPicker.getPreOutboundNo();
-            refDocNumber = assignPicker.getRefDocNumber();
-            partnerCode = assignPicker.getPartnerCode();
-            lineNumber = assignPicker.getLineNumber();
-            itemCode = assignPicker.getItemCode();
-            proposedStorageBin = assignPicker.getProposedStorageBin();
-            proposedPackCode = assignPicker.getProposedPackCode();
-
-            //push notification
-            preOutboundNoList.add(assignPicker.getPreOutboundNo());
-            warehouseIdList.add(assignPicker.getWarehouseId());
-
-            /**
-             * Check for duplicates
-             */
-            PickupHeaderV2 dupPickupHeader = pickupHeaderV2Repository
-                    .findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndItemCodeAndProposedStorageBinAndProposedPackBarCodeAndDeletionIndicator(
-                            companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode,
-                            lineNumber, itemCode, proposedStorageBin, proposedPackCode, 0L);
-            log.info("duplicatePickUpHeader: " + dupPickupHeader);
-
-            if (dupPickupHeader == null) {
-                OrderManagementLineV2 dbOrderManagementLine = getOrderManagementLineV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber,
-                        partnerCode, lineNumber, itemCode, proposedStorageBin, proposedPackCode);
-
-                log.info("orderManagementLine: " + dbOrderManagementLine);
-
-//                AuthToken idmasterAuthToken = authTokenService.getIDMasterServiceAuthToken();
-//                StatusId idStatus = idmasterService.getStatus(48L, warehouseId, idmasterAuthToken.getAccess_token());
-                statusDescription = stagingLineV2Repository.getStatusDescription(48L, languageId);
-
-                dbOrderManagementLine.setAssignedPickerId(assignedPickerId);
-                dbOrderManagementLine.setStatusId(48L);                        // 2. Update STATUS_ID = 48
-//                dbOrderManagementLine.setReferenceField7(statusDescription);
-                dbOrderManagementLine.setStatusDescription(statusDescription);
-                dbOrderManagementLine.setPickupUpdatedBy(loginUserID);            // Ref_field_7
-                dbOrderManagementLine.setPickupUpdatedOn(new Date());
-                dbOrderManagementLine = orderManagementLineV2Repository.save(dbOrderManagementLine);
-                log.info("dbOrderManagementLine updated : " + dbOrderManagementLine);
-
-                /*
-                 * Update ORDERMANAGEMENTHEADER --------------------------------- Pass the
-                 * Selected WH_ID/PRE_OB_NO/REF_DOC_NO/PARTNER_CODE/OB_LINE_NO/ITM_CODE in
-                 * OUTBOUNDLINE table and update SATATU_ID as 48
-                 */
-                OutboundLineV2 outboundLine = outboundLineService.getOutboundLineV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber,
-                        partnerCode, lineNumber, itemCode);
-                outboundLine.setStatusId(48L);
-                outboundLine.setStatusDescription(statusDescription);
-                outboundLine.setAssignedPickerId(assignedPickerId);
-                outboundLine = outboundLineV2Repository.save(outboundLine);
-                log.info("outboundLine updated : " + outboundLine);
-
-                // OutboundHeader Update
-                OutboundHeaderV2 outboundHeader = outboundHeaderService.getOutboundHeaderV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo,
-                        refDocNumber, partnerCode);
-                outboundHeader.setStatusId(48L);
-                outboundHeader.setStatusDescription(statusDescription);
-                outboundHeaderV2Repository.save(outboundHeader);
-                log.info("outboundHeader updated : " + outboundHeader);
-
-                // ORDERMANAGEMENTHEADER Update
-                OrderManagementHeaderV2 orderManagementHeader = orderManagementHeaderService
-                        .getOrderManagementHeaderV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode);
-                orderManagementHeader.setStatusId(48L);
-                orderManagementHeader.setStatusDescription(statusDescription);
-                orderManagementHeaderV2Repository.save(orderManagementHeader);
-                log.info("orderManagementHeader updated : " + orderManagementHeader);
-
-                // Create Pickup TO Number
-                /*
-                 * Pass the Selected WH_ID/PRE_OB_NO/REF_DOC_NO/PARTNER_CODE/ITM_CODE/OBLINE_NO
-                 * and validate PU_NO is Null in ORDERMANAGEMENTLINE table , If yes
-                 *
-                 * Create New PU_NO by Pass WH_ID - Userlogged in WH_ID and NUM_RAN_CODE = 10 in
-                 * NUMBERRANGE table and fetch NUM_RAN_CURRENT value of FISCALYEAR=CURRENT YEAR
-                 * and add +1 and then update in ORDERMANAGEMENTLINE table by passing
-                 * WH_ID/PRE_OB_NO/OB_LINE_NO/REF_DOC_NO/ITM_CODE
-                 */
-                log.info("dbOrderManagementLine.getPickupNumber() -----> : " + dbOrderManagementLine.getPickupNumber());
-                if (dbOrderManagementLine.getPickupNumber() == null) {
-
-                    AuthToken authTokenForIdmasterService = authTokenService.getIDMasterServiceAuthToken();
-
-                    long NUM_RAN_CODE = 10;
-                    String PU_NO = getNextRangeNumber(NUM_RAN_CODE, dbOrderManagementLine.getCompanyCodeId(), dbOrderManagementLine.getPlantId(),
-                            dbOrderManagementLine.getLanguageId(), dbOrderManagementLine.getWarehouseId(), authTokenForIdmasterService.getAccess_token());
-                    log.info("PU_NO : " + PU_NO);
-
-                    // Insertion of Record in PICKUPHEADER tables
-                    PickupHeaderV2 pickupHeader = new PickupHeaderV2();
-                    BeanUtils.copyProperties(dbOrderManagementLine, pickupHeader, CommonUtils.getNullPropertyNames(dbOrderManagementLine));
-
-                    // PU_NO
-                    pickupHeader.setPickupNumber(PU_NO);
-
-                    // PICK_TO_QTY
-                    pickupHeader.setPickToQty(dbOrderManagementLine.getAllocatedQty());
-
-                    // PICK_UOM
-                    pickupHeader.setPickUom(dbOrderManagementLine.getOrderUom());
-
-                    // STATUS_ID
-                    pickupHeader.setStatusId(48L);
-//                    pickupHeader.setReferenceField7(idStatus.getStatus());
-                    pickupHeader.setStatusDescription(statusDescription);
-
-                    // ProposedPackbarcode
-                    pickupHeader.setProposedPackBarCode(dbOrderManagementLine.getProposedPackBarCode());
-
-                    pickupHeader.setPickupCreatedBy(loginUserID);
-                    pickupHeader.setPickupCreatedOn(new Date());
-
-                    // REF_FIELD_1
-                    pickupHeader.setReferenceField1(dbOrderManagementLine.getReferenceField1());
-                    PickupHeaderV2 pickup = pickupHeaderV2Repository.save(pickupHeader);
-                    log.info("pickupHeader created : " + pickup);
-
-                    dbOrderManagementLine.setPickupNumber(PU_NO);
-                    dbOrderManagementLine = orderManagementLineV2Repository.save(dbOrderManagementLine);
-                    log.info("OrderManagementLine updated : " + dbOrderManagementLine);
-                }
-                orderManagementLineList.add(dbOrderManagementLine);
-            }
-        }
-        //push notification separated from pickup header and consolidated notification sent
-        if(preOutboundNoList != null && !preOutboundNoList.isEmpty() && warehouseIdList != null && !warehouseIdList.isEmpty()) {
-            sendPushNotification(preOutboundNoList, warehouseIdList);
-        } else {
-            sendPushNotification();
-        }
-        return orderManagementLineList;
-    }
 
     /**
      * send Push Notification
@@ -2461,18 +2161,18 @@ public class OrderManagementLineService extends BaseService {
         // Getting Inventory GroupBy ST_BIN wise
 
         List<IInventoryImpl> finalInventoryList = null;
-        if (INV_STRATEGY.equalsIgnoreCase("SB_CTD_ON")) { // SB_CTD_ON
-            log.info("SB_CTD_ON");
-            finalInventoryList = inventoryService.getInventoryForOrderManagementOrderByCtdOnV2(orderManagementLine.getCompanyCodeId(),
-                    orderManagementLine.getPlantId(), orderManagementLine.getLanguageId(),
-                    warehouseId, itemCode, 1L, binClassId, orderManagementLine.getManufacturerName());
-        }
-        if (INV_STRATEGY.equalsIgnoreCase("SB_LEVEL_ID")) { // SB_LEVEL_ID
-            log.info("SB_LEVEL_ID");
-            finalInventoryList = inventoryService.getInventoryForOrderManagementOrderByLevelIdV2(orderManagementLine.getCompanyCodeId(),
-                    orderManagementLine.getPlantId(), orderManagementLine.getLanguageId(),
-                    warehouseId, itemCode, 1L, binClassId, orderManagementLine.getManufacturerName());
-        }
+//        if (INV_STRATEGY.equalsIgnoreCase("SB_CTD_ON")) { // SB_CTD_ON
+//            log.info("SB_CTD_ON");
+//            finalInventoryList = inventoryService.getInventoryForOrderManagementOrderByCtdOnV2(orderManagementLine.getCompanyCodeId(),
+//                    orderManagementLine.getPlantId(), orderManagementLine.getLanguageId(),
+//                    warehouseId, itemCode, 1L, binClassId, orderManagementLine.getManufacturerName());
+//        }
+//        if (INV_STRATEGY.equalsIgnoreCase("SB_LEVEL_ID")) { // SB_LEVEL_ID
+//            log.info("SB_LEVEL_ID");
+//            finalInventoryList = inventoryService.getInventoryForOrderManagementOrderByLevelIdV2(orderManagementLine.getCompanyCodeId(),
+//                    orderManagementLine.getPlantId(), orderManagementLine.getLanguageId(),
+//                    warehouseId, itemCode, 1L, binClassId, orderManagementLine.getManufacturerName());
+//        }
         if (INV_STRATEGY.equalsIgnoreCase("SB_BEST_FIT")) { // SB_BEST_FIT
             log.info("SB_BEST_FIT");
             List<IInventory> levelIdList = inventoryService.getInventoryForOrderManagementGroupByLevelIdV2(orderManagementLine.getCompanyCodeId(),
@@ -2669,44 +2369,44 @@ public class OrderManagementLineService extends BaseService {
         }
         log.info("finalInventoryList Inventory ---->: " + finalInventoryList.size() + "\n");
 
-        ImBasicData1 dbImBasicData1 = null;
-        boolean shelfLifeIndicator = false;
-        if (finalInventoryList != null && !finalInventoryList.isEmpty()) {
+//        ImBasicData1 dbImBasicData1 = null;
+//        boolean shelfLifeIndicator = false;
+//        if (finalInventoryList != null && !finalInventoryList.isEmpty()) {
+//
+//            ImBasicData imBasicData = new ImBasicData();
+//            imBasicData.setCompanyCodeId(orderManagementLine.getCompanyCodeId());
+//            imBasicData.setPlantId(orderManagementLine.getPlantId());
+//            imBasicData.setLanguageId(orderManagementLine.getLanguageId());
+//            imBasicData.setWarehouseId(orderManagementLine.getWarehouseId());
+//            imBasicData.setItemCode(itemCode);
+//            imBasicData.setManufacturerName(orderManagementLine.getManufacturerName());
+//            dbImBasicData1 = mastersService.getImBasicData1ByItemCodeV2(imBasicData, authTokenForMastersService.getAccess_token());
+//
+//            log.info("ImBasicData1: " + dbImBasicData1);
+//            if(dbImBasicData1 != null) {
+//                if (dbImBasicData1.getShelfLifeIndicator() != null) {
+//                    shelfLifeIndicator = dbImBasicData1.getShelfLifeIndicator();
+//                }
+//            }
+//        }
 
-            ImBasicData imBasicData = new ImBasicData();
-            imBasicData.setCompanyCodeId(orderManagementLine.getCompanyCodeId());
-            imBasicData.setPlantId(orderManagementLine.getPlantId());
-            imBasicData.setLanguageId(orderManagementLine.getLanguageId());
-            imBasicData.setWarehouseId(orderManagementLine.getWarehouseId());
-            imBasicData.setItemCode(itemCode);
-            imBasicData.setManufacturerName(orderManagementLine.getManufacturerName());
-            dbImBasicData1 = mastersService.getImBasicData1ByItemCodeV2(imBasicData, authTokenForMastersService.getAccess_token());
-
-            log.info("ImBasicData1: " + dbImBasicData1);
-            if(dbImBasicData1 != null) {
-                if (dbImBasicData1.getShelfLifeIndicator() != null) {
-                    shelfLifeIndicator = dbImBasicData1.getShelfLifeIndicator();
-                }
-            }
-        }
-
-        // If the finalInventoryList is EMPTY then we set STATUS_ID as 47 and return from the processing
-        if (finalInventoryList != null && finalInventoryList.isEmpty()) {
-            return updateOrderManagementLineV2(orderManagementLine);
-        }
+//        // If the finalInventoryList is EMPTY then we set STATUS_ID as 47 and return from the processing
+//        if (finalInventoryList != null && finalInventoryList.isEmpty()) {
+//            return updateOrderManagementLineV2(orderManagementLine);
+//        }
         
-		if (INV_STRATEGY.equalsIgnoreCase("SB_CTD_ON")) {
-			// SB_CTD_ON ascending sort - expiryDate
-        if (shelfLifeIndicator) {
-				finalInventoryList = finalInventoryList.stream().filter(n -> n.getExpiryDate() != null)
-						.sorted(Comparator.comparing(IInventoryImpl::getExpiryDate)).collect(Collectors.toList());
-        }
-			// ascending sort - created on
-        if (!shelfLifeIndicator) {
-				finalInventoryList = finalInventoryList.stream().filter(n -> n.getCreatedOn() != null)
-						.sorted(Comparator.comparing(IInventoryImpl::getCreatedOn)).collect(Collectors.toList());
-        }
-        }
+//		if (INV_STRATEGY.equalsIgnoreCase("SB_CTD_ON")) {
+//			// SB_CTD_ON ascending sort - expiryDate
+//        if (shelfLifeIndicator) {
+//				finalInventoryList = finalInventoryList.stream().filter(n -> n.getExpiryDate() != null)
+//						.sorted(Comparator.comparing(IInventoryImpl::getExpiryDate)).collect(Collectors.toList());
+//        }
+//			// ascending sort - created on
+//        if (!shelfLifeIndicator) {
+//				finalInventoryList = finalInventoryList.stream().filter(n -> n.getCreatedOn() != null)
+//						.sorted(Comparator.comparing(IInventoryImpl::getCreatedOn)).collect(Collectors.toList());
+//        }
+//        }
 
         outerloop:
         for (IInventoryImpl stBinInventory : finalInventoryList) {
