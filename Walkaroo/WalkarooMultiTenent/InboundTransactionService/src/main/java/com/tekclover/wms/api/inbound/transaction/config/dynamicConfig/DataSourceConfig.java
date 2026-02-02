@@ -29,11 +29,13 @@ public class DataSourceConfig {
         DataSource wk = wkDataSource();
         DataSource mdu = mduDataSource();
         DataSource cmp = cmpDataSource();
+        DataSource chn = chnDataSource();
 
         Map<Object, Object> targetDataSources = new HashMap<>();
         targetDataSources.put("WK", wk);
         targetDataSources.put("MDU", mdu);
         targetDataSources.put("CMP", cmp);
+        targetDataSources.put("CHN", chn);
 
         DynamicDataSource ds = new DynamicDataSource();
         ds.setTargetDataSources(targetDataSources);
@@ -41,16 +43,6 @@ public class DataSourceConfig {
 
         return ds;
 
-//        Map<Object, Object> targetDataSources = new HashMap<>();
-//        targetDataSources.put("WK", wkDataSource());
-//        targetDataSources.put("MDU", mduDataSource());
-//        targetDataSources.put("CMP", cmpDataSource());
-//
-//        DynamicDataSource ds = new DynamicDataSource();
-//        ds.setTargetDataSources(targetDataSources);
-//        ds.setDefaultTargetDataSource("WK");
-//
-//        return ds;
     }
 
     private DataSource wkDataSource() {
@@ -74,6 +66,15 @@ public class DataSourceConfig {
         return buildDataSource(
                 "CMP",
                 "jdbc:sqlserver://10.10.10.61;databaseName=WMS_CBE",
+                "sa",
+                "4V7lOXaxgAi3i6mgJL7qBUSPM"
+        );
+    }
+
+    private DataSource chnDataSource() {
+        return buildDataSource(
+                "CHN",
+                "jdbc:sqlserver://10.10.10.61;databaseName=WMS_CHN",
                 "sa",
                 "4V7lOXaxgAi3i6mgJL7qBUSPM"
         );
