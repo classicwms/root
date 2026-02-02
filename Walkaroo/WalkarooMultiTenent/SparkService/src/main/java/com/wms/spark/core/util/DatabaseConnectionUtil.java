@@ -29,4 +29,16 @@ public class DatabaseConnectionUtil {
         connProp.put("driver", "com.microsoft.sqlserver.jdbc.SQLServerDriver");
         return connProp;
     }
+
+    public static String getWakCHNJdbcUrl() {
+        return "jdbc:sqlserver://10.10.10.61;databaseName=WMS_CHN";
+    }
+
+    public static Properties getWakCHNDatabaseConnectionProperties() {
+        Properties connProp = new Properties();
+        connProp.put("user", "sa");
+        connProp.put("password", "4V7lOXaxgAi3i6mgJL7qBUSPM");
+        connProp.put("driver", "com.microsoft.sqlserver.jdbc.SQLServerDriver");
+        return connProp;
+    }
 }

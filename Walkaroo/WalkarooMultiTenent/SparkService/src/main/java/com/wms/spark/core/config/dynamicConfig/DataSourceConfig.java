@@ -30,10 +30,12 @@ public class DataSourceConfig {
         DataSource db = createDataSource("WK");
         DataSource db1 = createDataSource("MDU");
         DataSource db2 = createDataSource("CMP");
+        DataSource db3 = createDataSource("CHN");
 
         targetDataSources.put("WK",db);
         targetDataSources.put("MDU",db1);
         targetDataSources.put("CMP",db2);
+        targetDataSources.put("CHN",db3);
 
         DynamicDataSource dataSource = new DynamicDataSource();
         dataSource.setTargetDataSources(targetDataSources);
@@ -60,6 +62,12 @@ public class DataSourceConfig {
             case "CMP":
                 dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
                 dataSource.setUrl("jdbc:sqlserver://10.10.10.61;databaseName=WMS_CBE");
+                dataSource.setUsername("sa");
+                dataSource.setPassword("4V7lOXaxgAi3i6mgJL7qBUSPM");
+                break;
+            case "CHN":
+                dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+                dataSource.setUrl("jdbc:sqlserver://10.10.10.61;databaseName=WMS_CHN");
                 dataSource.setUsername("sa");
                 dataSource.setPassword("4V7lOXaxgAi3i6mgJL7qBUSPM");
                 break;

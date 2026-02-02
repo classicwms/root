@@ -31,6 +31,8 @@ public class WalkarooService {
     Properties connPropCMP = DatabaseConnectionUtil.getWakCMPDatabaseConnectionProperties();
     String jdbcUrlCMP = DatabaseConnectionUtil.getWakCMPJdbcUrl();
 
+    Properties connPropCHN = DatabaseConnectionUtil.getWakCMPDatabaseConnectionProperties();
+    String jdbcUrlCHN = DatabaseConnectionUtil.getWakCMPJdbcUrl();
 
     /**
      * @param findBusinessPartner
@@ -90,6 +92,12 @@ public class WalkarooService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrlCMP, "(" + sqlQuery + ") as tmp", connPropCMP);
                 log.info("JDBC URL -->{}", jdbcUrlCMP);
+            }  else if (routingDb.equals("CHN")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrlCHN, "(" + sqlQuery + ") as tmp", connPropCHN);
+                log.info("JDBC URL -->{}", jdbcUrlCHN);
             }
 
 //            data.show();
@@ -206,7 +214,14 @@ public class WalkarooService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrlCMP, "(" + sqlQuery + ") as tmp", connPropCMP);
                 log.info("JDBC URL -->{}", jdbcUrlCMP);
+            } else if (routingDb.equals("CHN")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrlCHN, "(" + sqlQuery + ") as tmp", connPropCHN);
+                log.info("JDBC URL -->{}", jdbcUrlCHN);
             }
+
 //            data.show();
             Encoder<ContainerReceiptV2> containerReceiptEncoder = Encoders.bean(ContainerReceiptV2.class);
             Dataset<ContainerReceiptV2> dataset = data.as(containerReceiptEncoder);
@@ -324,7 +339,14 @@ public class WalkarooService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrlCMP, "(" + sqlQuery + ") as tmp", connPropCMP);
                 log.info("JDBC URL -->{}", jdbcUrlCMP);
+            } else if (routingDb.equals("CHN")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrlCHN, "(" + sqlQuery + ") as tmp", connPropCHN);
+                log.info("JDBC URL -->{}", jdbcUrlCHN);
             }
+
 //            data.show();
             Encoder<StorageBin> storageBinEncoder = Encoders.bean(StorageBin.class);
             Dataset<StorageBin> dataset = data.as(storageBinEncoder);
@@ -430,7 +452,14 @@ public class WalkarooService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrlCMP, "(" + sqlQuery + ") as tmp", connPropCMP);
                 log.info("JDBC URL -->{}", jdbcUrlCMP);
+            } else if (routingDb.equals("CHN")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrlCHN, "(" + sqlQuery + ") as tmp", connPropCHN);
+                log.info("JDBC URL -->{}", jdbcUrlCHN);
             }
+
 //            data.show();
             Encoder<ImBasicData1> imBasicData1Encoder = Encoders.bean(ImBasicData1.class);
             Dataset<ImBasicData1> dataset = data.as(imBasicData1Encoder);
@@ -503,6 +532,12 @@ public class WalkarooService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrlCMP, "(" + sqlQuery + ") as tmp", connPropCMP);
                 log.info("JDBC URL -->{}", jdbcUrlCMP);
+            } else if (routingDb.equals("CHN")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrlCHN, "(" + sqlQuery + ") as tmp", connPropCHN);
+                log.info("JDBC URL -->{}", jdbcUrlCHN);
             }
 
 //            data.show();
@@ -618,6 +653,12 @@ public class WalkarooService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrlCMP, "(" + sqlQuery + ") as tmp", connPropCMP);
                 log.info("JDBC URL -->{}", jdbcUrlCMP);
+            } else if (routingDb.equals("CHN")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrlCHN, "(" + sqlQuery + ") as tmp", connPropCHN);
+                log.info("JDBC URL -->{}", jdbcUrlCHN);
             }
 
             // Step 6: Map results and set reference fields
@@ -658,12 +699,18 @@ public class WalkarooService {
                         scannedHuData = spark.read()
                                 .jdbc(jdbcUrlMDU, "(" + scannedHuQuery + ") as tmp", connPropMDU);
 //                    } else if (routingDb.equals("CMP")) {
-                    } else {
+                    } else if (routingDb.equals("CMP")){
                         totalHuData = spark.read()
                                 .jdbc(jdbcUrlCMP, "(" + totalHuQuery + ") as tmp", connPropCMP);
 
                         scannedHuData = spark.read()
                                 .jdbc(jdbcUrlCMP, "(" + scannedHuQuery + ") as tmp", connPropCMP);
+                    } else if (routingDb.equals("CHN")) {
+                        totalHuData = spark.read()
+                                .jdbc(jdbcUrlCHN, "(" + totalHuQuery + ") as tmp", connPropCHN);
+
+                        scannedHuData = spark.read()
+                                .jdbc(jdbcUrlCHN, "(" + scannedHuQuery + ") as tmp", connPropCHN);
                     }
                     // 7. Convert to maps
                     Map<String, Long> totalHuMap = totalHuData.collectAsList().stream()
@@ -780,6 +827,12 @@ public class WalkarooService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrlCMP, "(" + sqlQuery + ") as tmp", connPropCMP);
                 log.info("JDBC URL -->{}", jdbcUrlCMP);
+            } else if (routingDb.equals("CHN")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrlCHN, "(" + sqlQuery + ") as tmp", connPropCHN);
+                log.info("JDBC URL -->{}", jdbcUrlCHN);
             }
 
 //            data.show();
@@ -920,6 +973,12 @@ public class WalkarooService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrlCMP, "(" + sqlQuery + ") as tmp", connPropCMP);
                 log.info("JDBC URL -->{}", jdbcUrlCMP);
+            } else if (routingDb.equals("CHN")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrlCHN, "(" + sqlQuery + ") as tmp", connPropCHN);
+                log.info("JDBC URL -->{}", jdbcUrlCHN);
             }
 
 //            data.show();
@@ -1022,6 +1081,12 @@ public class WalkarooService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrlCMP, "(" + sqlQuery + ") as tmp", connPropCMP);
                 log.info("JDBC URL -->{}", jdbcUrlCMP);
+            } else if (routingDb.equals("CHN")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrlCHN, "(" + sqlQuery + ") as tmp", connPropCHN);
+                log.info("JDBC URL -->{}", jdbcUrlCHN);
             }
 
 //            data.show();
@@ -1119,6 +1184,12 @@ public class WalkarooService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrlCMP, "(" + sqlQuery + ") as tmp", connPropCMP);
                 log.info("JDBC URL -->{}", jdbcUrlCMP);
+            } else if (routingDb.equals("CHN")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrlCHN, "(" + sqlQuery + ") as tmp", connPropCHN);
+                log.info("JDBC URL -->{}", jdbcUrlCHN);
             }
 
 //            data.show();
@@ -1272,6 +1343,12 @@ public class WalkarooService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrlCMP, "(" + sqlQuery + ") as tmp", connPropCMP);
                 log.info("JDBC URL -->{}", jdbcUrlCMP);
+            } else if (routingDb.equals("CHN")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrlCHN, "(" + sqlQuery + ") as tmp", connPropCHN);
+                log.info("JDBC URL -->{}", jdbcUrlCHN);
             }
 
             Encoder<StagingLineV3> stagingLineEncoder = Encoders.bean(StagingLineV3.class);
@@ -1433,6 +1510,12 @@ public class WalkarooService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrlCMP, "(" + sqlQuery + ") as tmp", connPropCMP);
                 log.info("JDBC URL -->{}", jdbcUrlCMP);
+            } else if (routingDb.equals("CHN")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrlCHN, "(" + sqlQuery + ") as tmp", connPropCHN);
+                log.info("JDBC URL -->{}", jdbcUrlCHN);
             }
 
 //            data.show();
@@ -1505,7 +1588,14 @@ public class WalkarooService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrlCMP, "(" + sqlQuery + ") as tmp", connPropCMP);
                 log.info("JDBC URL -->{}", jdbcUrlCMP);
+            } else if (routingDb.equals("CHN")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrlCHN, "(" + sqlQuery + ") as tmp", connPropCHN);
+                log.info("JDBC URL -->{}", jdbcUrlCHN);
             }
+
 //            data.show();
             Encoder<PutAwayLineCoreV3> putAwayLineEncoder = Encoders.bean(PutAwayLineCoreV3.class);
             Dataset<PutAwayLineCoreV3> dataset = data.as(putAwayLineEncoder);
@@ -1635,6 +1725,12 @@ public class WalkarooService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrlCMP, "(" + sqlQuery + ") as tmp", connPropCMP);
                 log.info("JDBC URL -->{}", jdbcUrlCMP);
+            } else if (routingDb.equals("CHN")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrlCHN, "(" + sqlQuery + ") as tmp", connPropCHN);
+                log.info("JDBC URL -->{}", jdbcUrlCHN);
             }
 
 //            data.show();
@@ -1795,7 +1891,14 @@ public class WalkarooService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrlCMP, "(" + sqlQuery + ") as tmp", connPropCMP);
                 log.info("JDBC URL -->{}", jdbcUrlCMP);
+            } else if (routingDb.equals("CHN")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrlCHN, "(" + sqlQuery + ") as tmp", connPropCHN);
+                log.info("JDBC URL -->{}", jdbcUrlCHN);
             }
+
 
 //            data.show();
             Encoder<PutAwayLineV3> putAwayLineV2Encoder = Encoders.bean(PutAwayLineV3.class);
@@ -1915,7 +2018,14 @@ public class WalkarooService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrlCMP, "(" + sqlQuery + ") as tmp", connPropCMP);
                 log.info("JDBC URL -->{}", jdbcUrlCMP);
+            } else if (routingDb.equals("CHN")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrlCHN, "(" + sqlQuery + ") as tmp", connPropCHN);
+                log.info("JDBC URL -->{}", jdbcUrlCHN);
             }
+
 
             Encoder<PreOutboundHeaderV2> preOutboundHeaderEncoder = Encoders.bean(PreOutboundHeaderV2.class);
             Dataset<PreOutboundHeaderV2> dataset = data.as(preOutboundHeaderEncoder);
@@ -2075,7 +2185,15 @@ public class WalkarooService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrlCMP, "(" + sqlQuery + ") as tmp", connPropCMP);
                 log.info("JDBC URL -->{}", jdbcUrlCMP);
+            } else if (routingDb.equals("CHN")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrlCHN, "(" + sqlQuery + ") as tmp", connPropCHN);
+                log.info("JDBC URL -->{}", jdbcUrlCHN);
             }
+
+
 
 //            data.show();
             Encoder<OrderManagementLineV3> orderManagementLineEncoder = Encoders.bean(OrderManagementLineV3.class);
@@ -2219,7 +2337,15 @@ public class WalkarooService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrlCMP, "(" + sqlQuery + ") as tmp", connPropCMP);
                 log.info("JDBC URL -->{}", jdbcUrlCMP);
+            } else if (routingDb.equals("CHN")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrlCHN, "(" + sqlQuery + ") as tmp", connPropCHN);
+                log.info("JDBC URL -->{}", jdbcUrlCHN);
             }
+
+
 //            data.show();
             Encoder<PickupHeaderV3> pickupHeaderEncoder = Encoders.bean(PickupHeaderV3.class);
             Dataset<PickupHeaderV3> dataset = data.as(pickupHeaderEncoder);
@@ -2371,7 +2497,15 @@ public class WalkarooService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrlCMP, "(" + sqlQuery + ") as tmp", connPropCMP);
                 log.info("JDBC URL -->{}", jdbcUrlCMP);
+            } else if (routingDb.equals("CHN")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrlCHN, "(" + sqlQuery + ") as tmp", connPropCHN);
+                log.info("JDBC URL -->{}", jdbcUrlCHN);
             }
+
+
 
 //            data.show();
             Encoder<PickupLineV3> pickupLineEncoder = Encoders.bean(PickupLineV3.class);
@@ -2498,6 +2632,12 @@ public class WalkarooService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrlCMP, "(" + sqlQuery + ") as tmp", connPropCMP);
                 log.info("JDBC URL -->{}", jdbcUrlCMP);
+             } else if (routingDb.equals("CHN")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrlCHN, "(" + sqlQuery + ") as tmp", connPropCHN);
+                log.info("JDBC URL -->{}", jdbcUrlCHN);
             }
 
 //            data.show();
@@ -2620,6 +2760,12 @@ public class WalkarooService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrlCMP, "(" + sqlQuery + ") as tmp", connPropCMP);
                 log.info("JDBC URL -->{}", jdbcUrlCMP);
+            } else if (routingDb.equals("CHN")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrlCHN, "(" + sqlQuery + ") as tmp", connPropCHN);
+                log.info("JDBC URL -->{}", jdbcUrlCHN);
             }
 
 //            data.show();
@@ -2754,7 +2900,14 @@ public class WalkarooService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrlCMP, "(" + sqlQuery + ") as tmp", connPropCMP);
                 log.info("JDBC URL -->{}", jdbcUrlCMP);
+            } else if (routingDb.equals("CHN")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrlCHN, "(" + sqlQuery + ") as tmp", connPropCHN);
+                log.info("JDBC URL -->{}", jdbcUrlCHN);
             }
+
 //            data.show();
             Encoder<QualityLineV3> qualityLineEncoder = Encoders.bean(QualityLineV3.class);
             Dataset<QualityLineV3> dataset = data.as(qualityLineEncoder);
@@ -2887,7 +3040,14 @@ public class WalkarooService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrlCMP, "(" + sqlQuery + ") as tmp", connPropCMP);
                 log.info("JDBC URL -->{}", jdbcUrlCMP);
+            } else if (routingDb.equals("CHN")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrlCHN, "(" + sqlQuery + ") as tmp", connPropCHN);
+                log.info("JDBC URL -->{}", jdbcUrlCHN);
             }
+
 
 //            data.show();
             Encoder<PreOutBoundLineV3> preOutBoundLineEncoder = Encoders.bean(PreOutBoundLineV3.class);
@@ -2990,7 +3150,14 @@ public class WalkarooService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrlCMP, "(" + sqlQuery + ") as tmp", connPropCMP);
                 log.info("JDBC URL -->{}", jdbcUrlCMP);
+            } else if (routingDb.equals("CHN")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrlCHN, "(" + sqlQuery + ") as tmp", connPropCHN);
+                log.info("JDBC URL -->{}", jdbcUrlCHN);
             }
+
 
 //            data.show();
             Encoder<InventoryMovementV2> inventoryMovementEncoder = Encoders.bean(InventoryMovementV2.class);
@@ -3076,7 +3243,14 @@ public class WalkarooService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrlCMP, "(" + sqlQuery + ") as tmp", connPropCMP);
                 log.info("JDBC URL -->{}", jdbcUrlCMP);
+            } else if (routingDb.equals("CHN")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrlCHN, "(" + sqlQuery + ") as tmp", connPropCHN);
+                log.info("JDBC URL -->{}", jdbcUrlCHN);
             }
+
 //            data.show();
             Encoder<InhouseTransferHeaderV4> inhouseTransferHeaderEncoder = Encoders.bean(InhouseTransferHeaderV4.class);
             Dataset<InhouseTransferHeaderV4> dataset = data.as(inhouseTransferHeaderEncoder);
@@ -3189,7 +3363,14 @@ public class WalkarooService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrlCMP, "(" + sqlQuery + ") as tmp", connPropCMP);
                 log.info("JDBC URL -->{}", jdbcUrlCMP);
+            } else if (routingDb.equals("CHN")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrlCHN, "(" + sqlQuery + ") as tmp", connPropCHN);
+                log.info("JDBC URL -->{}", jdbcUrlCHN);
             }
+
 
 //            data.show();
             Encoder<InhouseTransferLine> inhouseTransferLineEncoder = Encoders.bean(InhouseTransferLine.class);
@@ -3294,7 +3475,14 @@ public class WalkarooService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrlCMP, "(" + sqlQuery + ") as tmp", connPropCMP);
                 log.info("JDBC URL -->{}", jdbcUrlCMP);
+            } else if (routingDb.equals("CHN")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrlCHN, "(" + sqlQuery + ") as tmp", connPropCHN);
+                log.info("JDBC URL -->{}", jdbcUrlCHN);
             }
+
 
 //            data.show();
             Encoder<OutBoundReversalV2> outBoundReversalEncoder = Encoders.bean(OutBoundReversalV2.class);
@@ -3373,7 +3561,14 @@ public class WalkarooService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrlCMP, "(" + sqlQuery + ") as tmp", connPropCMP);
                 log.info("JDBC URL -->{}", jdbcUrlCMP);
+            } else if (routingDb.equals("CHN")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrlCHN, "(" + sqlQuery + ") as tmp", connPropCHN);
+                log.info("JDBC URL -->{}", jdbcUrlCHN);
             }
+
 
             Encoder<InventoryV3> inventoryV2CoreEncoder = Encoders.bean(InventoryV3.class);
             Dataset<InventoryV3> inventoryV2CoreDataset = data.as(inventoryV2CoreEncoder);
@@ -3587,7 +3782,14 @@ public class WalkarooService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrlCMP, "(" + sqlQuery + ") as tmp", connPropCMP);
                 log.info("JDBC URL -->{}", jdbcUrlCMP);
+            } else if (routingDb.equals("CHN")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrlCHN, "(" + sqlQuery + ") as tmp", connPropCHN);
+                log.info("JDBC URL -->{}", jdbcUrlCHN);
             }
+
 //            data.show();
             Encoder<PeriodicLineV2> periodicLineEncoder = Encoders.bean(PeriodicLineV2.class);
             Dataset<PeriodicLineV2> dataset = data.as(periodicLineEncoder);
@@ -3681,7 +3883,14 @@ public class WalkarooService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrlCMP, "(" + sqlQuery + ") as tmp", connPropCMP);
                 log.info("JDBC URL -->{}", jdbcUrlCMP);
+            } else if (routingDb.equals("CHN")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrlCHN, "(" + sqlQuery + ") as tmp", connPropCHN);
+                log.info("JDBC URL -->{}", jdbcUrlCHN);
             }
+
 
 //            data.show();
             Encoder<PerpetualHeader> perpetualHeaderEncoder = Encoders.bean(PerpetualHeader.class);
@@ -3806,7 +4015,14 @@ public class WalkarooService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrlCMP, "(" + sqlQuery + ") as tmp", connPropCMP);
                 log.info("JDBC URL -->{}", jdbcUrlCMP);
+            } else if (routingDb.equals("CHN")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrlCHN, "(" + sqlQuery + ") as tmp", connPropCHN);
+                log.info("JDBC URL -->{}", jdbcUrlCHN);
             }
+
 
 //            data.show();
             Encoder<PerpetualLineV2> perpetualLineEncoder = Encoders.bean(PerpetualLineV2.class);
@@ -3870,7 +4086,14 @@ public class WalkarooService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrlCMP, "(" + sqlQuery + ") as tmp", connPropCMP);
                 log.info("JDBC URL -->{}", jdbcUrlCMP);
+            } else if (routingDb.equals("CHN")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrlCHN, "(" + sqlQuery + ") as tmp", connPropCHN);
+                log.info("JDBC URL -->{}", jdbcUrlCHN);
             }
+
 //            data.show();
             Encoder<StockReport> stockReportEncoder = Encoders.bean(StockReport.class);
             Dataset<StockReport> dataset = data.as(stockReportEncoder);
@@ -3952,7 +4175,14 @@ public class WalkarooService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrlCMP, "(" + sqlQuery + ") as tmp", connPropCMP);
                 log.info("JDBC URL -->{}", jdbcUrlCMP);
+            } else if (routingDb.equals("CHN")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrlCHN, "(" + sqlQuery + ") as tmp", connPropCHN);
+                log.info("JDBC URL -->{}", jdbcUrlCHN);
             }
+
 
 //            data.show();
             Encoder<OrderStatusReport> orderStatusReportEncoder = Encoders.bean(OrderStatusReport.class);
@@ -4013,7 +4243,14 @@ public class WalkarooService {
                     .option("pushDownloadPredicate", true)
                     .jdbc(jdbcUrlCMP, "(" + sqlQuery + ") as tmp", connPropCMP);
             log.info("JDBC URL -->{}", jdbcUrlCMP);
+        } else if (routingDb.equals("CHN")) {
+            data = spark.read()
+                    .option("fetchSize", "10000")
+                    .option("pushDownloadPredicate", true)
+                    .jdbc(jdbcUrlCHN, "(" + sqlQuery + ") as tmp", connPropCHN);
+            log.info("JDBC URL -->{}", jdbcUrlCHN);
         }
+
 
         Encoder<InboundLineNewV3> inboundLineV3Encoder = Encoders.bean(InboundLineNewV3.class);
         Dataset<InboundLineNewV3> dsJntwebhook = data.as(inboundLineV3Encoder);
@@ -4075,7 +4312,14 @@ public class WalkarooService {
                     .option("pushDownloadPredicate", true)
                     .jdbc(jdbcUrlCMP, "(" + sqlQuery + ") as tmp", connPropCMP);
             log.info("JDBC URL -->{}", jdbcUrlCMP);
+        } else if (routingDb.equals("CHN")) {
+            data = spark.read()
+                    .option("fetchSize", "10000")
+                    .option("pushDownloadPredicate", true)
+                    .jdbc(jdbcUrlCHN, "(" + sqlQuery + ") as tmp", connPropCHN);
+            log.info("JDBC URL -->{}", jdbcUrlCHN);
         }
+
         Encoder<PickupLineV3> pickUpLineV3Encoder = Encoders.bean(PickupLineV3.class);
         Dataset<PickupLineV3> dataSet = data.as(pickUpLineV3Encoder);
 //        dataSet.show();
@@ -4141,7 +4385,14 @@ public class WalkarooService {
                     .option("pushDownloadPredicate", true)
                     .jdbc(jdbcUrlCMP, "(" + sqlQuery + ") as tmp", connPropCMP);
             log.info("JDBC URL -->{}", jdbcUrlCMP);
+        } else if (routingDb.equals("CHN")) {
+            data = spark.read()
+                    .option("fetchSize", "10000")
+                    .option("pushDownloadPredicate", true)
+                    .jdbc(jdbcUrlCHN, "(" + sqlQuery + ") as tmp", connPropCHN);
+            log.info("JDBC URL -->{}", jdbcUrlCHN);
         }
+
 //        outboundLine.show();
         Encoder<OutboundLineV2> outboundLineV2Encoder = Encoders.bean(OutboundLineV2.class);
         Dataset<OutboundLineV2> resultData = data.as(outboundLineV2Encoder);
@@ -4207,7 +4458,14 @@ public class WalkarooService {
                     .option("pushDownloadPredicate", true)
                     .jdbc(jdbcUrlCMP, "(" + sqlQuery + ") as tmp", connPropCMP);
             log.info("JDBC URL -->{}", jdbcUrlCMP);
+        } else if (routingDb.equals("CHN")) {
+            data = spark.read()
+                    .option("fetchSize", "10000")
+                    .option("pushDownloadPredicate", true)
+                    .jdbc(jdbcUrlCHN, "(" + sqlQuery + ") as tmp", connPropCHN);
+            log.info("JDBC URL -->{}", jdbcUrlCHN);
         }
+
 //        grLine.show();
         Encoder<GrLineV3New> grLineV3Encoder = Encoders.bean(GrLineV3New.class);
         Dataset<GrLineV3New> resultData = data.as(grLineV3Encoder);
@@ -4263,7 +4521,14 @@ public class WalkarooService {
                     .option("pushDownloadPredicate", true)
                     .jdbc(jdbcUrlCMP, "(" + sqlQuery + ") as tmp", connPropCMP);
             log.info("JDBC URL -->{}", jdbcUrlCMP);
+        } else if (routingDb.equals("CHN")) {
+            data = spark.read()
+                    .option("fetchSize", "10000")
+                    .option("pushDownloadPredicate", true)
+                    .jdbc(jdbcUrlCHN, "(" + sqlQuery + ") as tmp", connPropCHN);
+            log.info("JDBC URL -->{}", jdbcUrlCHN);
         }
+
 
 //        obHeader.show();
         Encoder<OutboundHeaderV3> obHeaderEncoder = Encoders.bean(OutboundHeaderV3.class);
@@ -4338,7 +4603,14 @@ public class WalkarooService {
                     .option("pushDownloadPredicate", true)
                     .jdbc(jdbcUrlCMP, "(" + sqlQuery + ") as tmp", connPropCMP);
             log.info("JDBC URL -->{}", jdbcUrlCMP);
+        } else if (routingDb.equals("CHN")) {
+            data = spark.read()
+                    .option("fetchSize", "10000")
+                    .option("pushDownloadPredicate", true)
+                    .jdbc(jdbcUrlCHN, "(" + sqlQuery + ") as tmp", connPropCHN);
+            log.info("JDBC URL -->{}", jdbcUrlCHN);
         }
+
 
         Encoder<OutboundHeaderSpark> outboundLineV3Encoder = Encoders.bean(OutboundHeaderSpark.class);
         Dataset<OutboundHeaderSpark> dsJntwebhook = data.as(outboundLineV3Encoder);
