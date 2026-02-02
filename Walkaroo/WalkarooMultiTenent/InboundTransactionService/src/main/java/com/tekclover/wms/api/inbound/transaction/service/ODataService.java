@@ -174,7 +174,7 @@ public class ODataService {
 
         // Encode credentials for Basic Authentication
         String auth = USERNAME + ":" + PASSWORD; // use exact base64 string from Postman if needed
-        System.out.print("USERNAME - " + USERNAME + " PASSWORD - " + PASSWORD);
+        System.out.println("USERNAME - " + USERNAME + " PASSWORD - " + PASSWORD);
 //        String auth = "";
         String encodedAuth = Base64.getEncoder().encodeToString(auth.getBytes());
         String authHeader = "Basic " + encodedAuth;
