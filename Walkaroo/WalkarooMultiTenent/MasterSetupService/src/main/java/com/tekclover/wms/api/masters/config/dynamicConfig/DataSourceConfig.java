@@ -30,6 +30,7 @@ public class DataSourceConfig {
         targetDataSources.put("WK", wkDataSource());
         targetDataSources.put("MDU", mduDataSource());
         targetDataSources.put("CMP", cmpDataSource());
+        targetDataSources.put("CHN", chnDataSource());
 
         DynamicDataSource ds = new DynamicDataSource();
         ds.setTargetDataSources(targetDataSources);
@@ -59,6 +60,15 @@ public class DataSourceConfig {
         return buildDataSource(
                 "CMP",
                 "jdbc:sqlserver://10.10.10.61;databaseName=WMS_CBE",
+                "sa",
+                "4V7lOXaxgAi3i6mgJL7qBUSPM"
+        );
+    }
+
+    private DataSource chnDataSource() {
+        return buildDataSource(
+                "CHN",
+                "jdbc:sqlserver://10.10.10.61;databaseName=WMS_CHN",
                 "sa",
                 "4V7lOXaxgAi3i6mgJL7qBUSPM"
         );

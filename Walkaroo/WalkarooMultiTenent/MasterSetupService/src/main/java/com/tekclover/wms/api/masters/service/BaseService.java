@@ -121,6 +121,8 @@ public class BaseService {
 			return "MDU";
 		} else if (plantId.equalsIgnoreCase("1204")) {
 			return "CMP";
+		} else if (plantId.equalsIgnoreCase("1203")) {
+			return "CHN";
 		} else {
 			return "WK";
 		}
