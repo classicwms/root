@@ -30,6 +30,8 @@ public class BatchJobScheduler {
         CompletableFuture<WarehouseApiResponse> outboundOrder = scheduleAsyncService.processOutboundOrder();
         // CMP
         CompletableFuture<WarehouseApiResponse> outboundOrderV2 = scheduleAsyncService.processOutboundOrderV2();
+        //CHN
+        CompletableFuture<WarehouseApiResponse> outboundOrderV3 = scheduleAsyncService.processOutboundOrderV3();
 
     }
 
@@ -37,8 +39,12 @@ public class BatchJobScheduler {
     @Scheduled(fixedDelay = 60000)
     public void deliveryConfirmationScheduleJob() throws Exception {
 
+        //MDU
         scheduleAsyncService.processDeliveryConfirmationV1();
+        //CMP
         scheduleAsyncService.processDeliveryConfirmationV2();
+        //CHN
+        scheduleAsyncService.processDeliveryConfirmationV3();
 
         // MDU
 //        CompletableFuture<WarehouseApiResponse> outboundOrder = scheduleAsyncService.processDeliveryConfirmationV1();

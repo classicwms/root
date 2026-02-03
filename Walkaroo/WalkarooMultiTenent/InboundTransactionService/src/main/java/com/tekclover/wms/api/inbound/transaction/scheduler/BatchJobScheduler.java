@@ -28,6 +28,8 @@ public class BatchJobScheduler {
         CompletableFuture<WarehouseApiResponse> inboundOrder = scheduleAsyncService.processInboundOrder();
         // CMP
         CompletableFuture<WarehouseApiResponse> inboundOrderV2 = scheduleAsyncService.processInboundOrderV2();
+        // CHN
+        CompletableFuture<WarehouseApiResponse> inboundOrderV3 = scheduleAsyncService.processInboundOrderV3();
 
 //        CompletableFuture<WarehouseApiResponse> inboundFailedOrder = scheduleAsyncService.processInboundFailedOrder();
 
