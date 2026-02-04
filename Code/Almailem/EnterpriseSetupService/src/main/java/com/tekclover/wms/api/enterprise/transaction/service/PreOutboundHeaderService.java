@@ -3804,9 +3804,16 @@ public class PreOutboundHeaderService extends BaseService {
             }
         }
         log.info("Pick List Cancellation Completed");
-        log.info("Stored procedure call to update cnf_by in pickup line, qc header and line : " + oldPickListNumber + ", " + outboundHeaderV2.getPreOutboundNo() + ", " + newPickListNumber + ", " + newPreOutboundNo + ", " + outboundHeaderV2.getSalesOrderNumber());
-        pickListHeaderRepository.updatePickupLineQualityHeaderLineCnfByUpdateProc(companyCodeId, plantId, languageId, warehouseId, oldPickListNumber, outboundHeaderV2.getPreOutboundNo(), newPickListNumber, newPreOutboundNo, outboundHeaderV2.getSalesOrderNumber());
-        log.info("SP update done");
+
+        try {
+            String preOutboundNo = outboundHeaderV2.getPreOutboundNo() != null ? outboundHeaderV2.getPreOutboundNo() : null;
+            String salesOrderNo = outboundHeaderV2.getSalesOrderNumber() != null ? outboundHeaderV2.getSalesOrderNumber() : null;
+            log.info("Stored procedure call to update cnf_by in pickup line, qc header and line : " + oldPickListNumber + ", " + preOutboundNo + ", " + newPickListNumber + ", " + newPreOutboundNo + ", " + salesOrderNo);
+            pickListHeaderRepository.updatePickupLineQualityHeaderLineCnfByUpdateProc(companyCodeId, plantId, languageId, warehouseId, oldPickListNumber, outboundHeaderV2.getPreOutboundNo(), newPickListNumber, newPreOutboundNo, outboundHeaderV2.getSalesOrderNumber());
+            log.info("SP update done");
+        } catch (Exception e) {
+            log.info("PickupLine & QualityLine Update Exception Throwing ----> " + e.getMessage());
+        }
 //        insertNewPickListCancelRecord(outboundHeaderV2, outboundLineV2, pickupLineV2, createNewPickUpLineList, orderManagementLine, companyCodeId, plantId, languageId, warehouseId, oldPickListNumber, newPickListNumber);
     }
 
