@@ -87,4 +87,5 @@ public class InventoryV4 {
     private String tpl_partner_id;
     private String color;
     private String material_no;
+    private String pallet_id;
 }
