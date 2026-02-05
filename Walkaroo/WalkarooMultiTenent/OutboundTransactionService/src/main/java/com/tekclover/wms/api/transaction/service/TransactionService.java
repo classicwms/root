@@ -263,6 +263,8 @@ public class TransactionService extends BaseService {
             return warehouseApiResponse;
         } catch (Exception e) {
             throw e;
+        } finally {
+            DataBaseContextHolder.clear();
         }
     }
 

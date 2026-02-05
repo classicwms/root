@@ -3599,10 +3599,9 @@ public class WarehouseService extends BaseService {
 //	}
 
 	public void postSAPDeliveryConfirmationScheduleProcess(String profile) throws Exception {
-		DataBaseContextHolder.clear();
-		DataBaseContextHolder.setCurrentDb(profile);
 		try {
-
+			DataBaseContextHolder.clear();
+			DataBaseContextHolder.setCurrentDb(profile);
 			log.info("-------postSAPDeliveryConfirmation----------CurrentDB ----------> " + profile);
 			List<DeliveryConfirmation> deliveryConfirmations = deliveryConfirmationRepository.findTop1DeliveryConfirmationList(9L);
 			log.info("DeliveryConfirmation Values size ---------------------> " + deliveryConfirmations.size());
