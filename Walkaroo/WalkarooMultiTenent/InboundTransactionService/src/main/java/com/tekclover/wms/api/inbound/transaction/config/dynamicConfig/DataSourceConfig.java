@@ -95,7 +95,7 @@ public class DataSourceConfig {
         config.setConnectionTimeout(60000);
         config.setIdleTimeout(300000);
         config.setMaxLifetime(1800000);
-        config.setAutoCommit(false);
+//        config.setAutoCommit(false);
         config.setLeakDetectionThreshold(30000); //
 
         // SQL Server recommended
