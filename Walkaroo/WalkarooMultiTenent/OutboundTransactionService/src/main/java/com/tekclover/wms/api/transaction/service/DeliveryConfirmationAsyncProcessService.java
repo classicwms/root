@@ -38,15 +38,19 @@ public class DeliveryConfirmationAsyncProcessService extends BaseService {
 
 	 @Async ("asyncExecutor")
 	 public void postDeliveryConfirmationV4(List<DeliveryConfirmationSAP> deliveryConfirmationSAPList) throws Exception {
-		 log.info("DeliveryConfirmation ----SAP Input's"  + deliveryConfirmationSAPList);
-		 String db = getDataBase(deliveryConfirmationSAPList.get(0).getBranchCode());
-		 DataBaseContextHolder.clear();
-		 DataBaseContextHolder.setCurrentDb(db);
-		DeliveryConfirmationV3 deliveryConfirmationV3 = prepDeliveryConfirmationV3 (deliveryConfirmationSAPList);
-		log.info("DeliveryConfirmationV4 received from SAP External: " + deliveryConfirmationV3);
-		
-		saveDeliveryConfirmationV4(deliveryConfirmationV3);
-		log.info("DeliveryConfirmationV4 SAP : " + deliveryConfirmationV3);
+		 try {
+			 log.info("DeliveryConfirmation ----SAP Input's" + deliveryConfirmationSAPList);
+			 String db = getDataBase(deliveryConfirmationSAPList.get(0).getBranchCode());
+			 DataBaseContextHolder.clear();
+			 DataBaseContextHolder.setCurrentDb(db);
+			 DeliveryConfirmationV3 deliveryConfirmationV3 = prepDeliveryConfirmationV3(deliveryConfirmationSAPList);
+			 log.info("DeliveryConfirmationV4 received from SAP External: " + deliveryConfirmationV3);
+
+			 saveDeliveryConfirmationV4(deliveryConfirmationV3);
+			 log.info("DeliveryConfirmationV4 SAP : " + deliveryConfirmationV3);
+		 } finally {
+			 DataBaseContextHolder.clear();
+		 }
 	 }
 	
 	/**

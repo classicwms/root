@@ -792,6 +792,8 @@ public class WarehouseController extends  BaseService {
 			response.setStatusCode("1400");
 			response.setMessage("Not Success: " + e.getLocalizedMessage());
 			return new ResponseEntity<>(response, HttpStatus.EXPECTATION_FAILED);
+		} finally {
+			DataBaseContextHolder.clear();
 		}
 	}
 
@@ -834,6 +836,8 @@ public class WarehouseController extends  BaseService {
 			response.setStatusCode("1400");
 			response.setMessage("Not Success: " + e.getLocalizedMessage());
 			return new ResponseEntity<>(response, HttpStatus.EXPECTATION_FAILED);
+		} finally {
+			DataBaseContextHolder.clear();
 		}
 	}
 
@@ -843,13 +847,17 @@ public class WarehouseController extends  BaseService {
     @PostMapping("/outbound/order/fullfillment/v3")
     public ResponseEntity<?> postOutboundOrderFullfillmentV3(@RequestBody List<OutboundIntegrationHeaderV2> obIntegrationHeaderV2List) 
     		throws Exception {
-		String currentDB = getDataBase(obIntegrationHeaderV2List.get(0).getBranchCode());
-		DataBaseContextHolder.clear();
-		DataBaseContextHolder.setCurrentDb(currentDB);
-		log.info("order/fullfillment/v3 ----------> CurrentDB --> " + currentDB);
-		 List<OutboundHeaderV2> outboundHeaderV2 = obOrderProcessingFTService.sapOutboundOrderFullfillment (obIntegrationHeaderV2List);
-         return new ResponseEntity<>(outboundHeaderV2, HttpStatus.OK);
-    }
+		try {
+			String currentDB = getDataBase(obIntegrationHeaderV2List.get(0).getBranchCode());
+			DataBaseContextHolder.clear();
+			DataBaseContextHolder.setCurrentDb(currentDB);
+			log.info("order/fullfillment/v3 ----------> CurrentDB --> " + currentDB);
+			List<OutboundHeaderV2> outboundHeaderV2 = obOrderProcessingFTService.sapOutboundOrderFullfillment(obIntegrationHeaderV2List);
+			return new ResponseEntity<>(outboundHeaderV2, HttpStatus.OK);
+		} finally {
+			DataBaseContextHolder.clear();
+		}
+	}
 
 	//-----------------------------WALKAROO CHANGES-----------------------------------------------------
 	// 
@@ -875,6 +883,8 @@ public class WarehouseController extends  BaseService {
 			response.setStatusCode("1400");
 			response.setMessage("Not Success: " + e.getLocalizedMessage());
 			return new ResponseEntity<>(response, HttpStatus.EXPECTATION_FAILED);
+		} finally {
+			DataBaseContextHolder.clear();
 		}
 		return null;
 	}
@@ -919,6 +929,8 @@ public class WarehouseController extends  BaseService {
 			response.setStatusCode("1400");
 			response.setMessage("Not Success: " + e.getLocalizedMessage());
 			return new ResponseEntity<>(response, HttpStatus.EXPECTATION_FAILED);
+		} finally {
+			DataBaseContextHolder.clear();
 		}
 	}
 

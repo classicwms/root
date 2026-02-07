@@ -201,13 +201,12 @@ public class OrderController {
 			DataBaseContextHolder.clear();
 			DataBaseContextHolder.setCurrentDb(currentDB);
 			log.info("Current DB " + currentDB);
-		List<OutboundOrderV2> outboundOrderV2List = orderService.findOutboundOrderV2(findOutboundOrderV2);
-		return new ResponseEntity<>(outboundOrderV2List, HttpStatus.OK);
-	}
-		finally {
+			List<OutboundOrderV2> outboundOrderV2List = orderService.findOutboundOrderV2(findOutboundOrderV2);
+			return new ResponseEntity<>(outboundOrderV2List, HttpStatus.OK);
+		} finally {
 			DataBaseContextHolder.clear();
 		}
-		}
+	}
 
 	@ApiOperation(response = OutboundOrderLineV2.class, value = "Find OutboundOrderLineV2 details")
 	// label for swagger
