@@ -1,5 +1,6 @@
 package com.tekclover.wms.api.idmaster.controller;
 
+import com.tekclover.wms.api.idmaster.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.idmaster.model.user.Login;
 import com.tekclover.wms.api.idmaster.model.user.UserLoginInput;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,18 +41,27 @@ public class LoginController {
     @ApiOperation(response = UserManagement.class, value = "Validate Login User") // label for swagger
 	@GetMapping("")
 	public ResponseEntity<?> validateUserID(@RequestParam String userID, @RequestParam String password, @RequestParam String version) {
-    	log.info("UserID:" + userID + " - " + "Password: " + password + " - " + "Version: " + version);
-    	UserManagement validatedUser = userManagementService.validateUser(userID, password, version);
-    	log.info("Login : " + validatedUser);
-		return new ResponseEntity<>(validatedUser, HttpStatus.OK);
+    	try {
+			log.info("UserID:" + userID + " - " + "Password: " + password + " - " + "Version: " + version);
+			UserManagement validatedUser = userManagementService.validateUser(userID, password, version);
+			log.info("Login : " + validatedUser);
+			return new ResponseEntity<>(validatedUser, HttpStatus.OK);
+		} finally {
+			DataBaseContextHolder.clear();
+		}
 	}
 
 	@ApiOperation(response = Login.class, value = "Validate Login User and return along with UserRole and ModuleId") // label for swagger
 	@PostMapping("/v2")
 	public ResponseEntity<?> validateUserId(@RequestBody UserLoginInput userLoginInput) throws ParseException, ParseException {
-		Login validatedUser = userLoginService.validateUser(userLoginInput);
-		log.info("Login : " + validatedUser.getUsers());
-		return new ResponseEntity<>(validatedUser, HttpStatus.OK);
+		try {
+			DataBaseContextHolder.setCurrentDb("WK");
+			Login validatedUser = userLoginService.validateUser(userLoginInput);
+			log.info("Login : " + validatedUser.getUsers());
+			return new ResponseEntity<>(validatedUser, HttpStatus.OK);
+		}finally {
+			DataBaseContextHolder.clear();
+		}
 	}
     
     //------------------Current-Used-Method-------------------------------------------------------------
