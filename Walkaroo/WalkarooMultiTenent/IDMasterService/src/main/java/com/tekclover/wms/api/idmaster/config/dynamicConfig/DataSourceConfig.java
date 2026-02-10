@@ -42,17 +42,17 @@ public class DataSourceConfig {
     private DataSource wkDataSource() {
         return buildDataSource(
                 "WK",
-                "jdbc:sqlserver://10.10.6.30;databaseName=WMS_WK",
+                "jdbc:sqlserver://10.10.14.24;databaseName=WMS_WK",
                 "sa",
-                "SuHcHQR72nxvyJx6EPpoOsK4V"
+                "Sd2se5y3mPD9BLr3QzZMyNU1V"
         );
     }
     private DataSource mduDataSource() {
         return buildDataSource(
                 "MDU",
-                "jdbc:sqlserver://10.10.6.30;databaseName=WMS_WK_PRD",
+                "jdbc:sqlserver://10.10.14.24;databaseName=WMS_WK_PRD",
                 "sa",
-                "SuHcHQR72nxvyJx6EPpoOsK4V"
+                "Sd2se5y3mPD9BLr3QzZMyNU1V"
         );
     }
 
