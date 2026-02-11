@@ -7,13 +7,13 @@ public class DatabaseConnectionUtil {
 
     //============================================ WMS Walkaroo PROD V3================================
     public static String getWakMDUJdbcUrl() {
-        return "jdbc:sqlserver://10.10.14.24;databaseName=WMS_WK_PRD";
+        return "jdbc:sqlserver://10.10.6.30;databaseName=WMS_WK_PRD";
     }
 
     public static Properties getWakMDUDatabaseConnectionProperties() {
         Properties connProp = new Properties();
         connProp.put("user", "sa");
-        connProp.put("password", "Sd2se5y3mPD9BLr3QzZMyNU1V");
+        connProp.put("password", "SuHcHQR72nxvyJx6EPpoOsK4V");
         connProp.put("driver", "com.microsoft.sqlserver.jdbc.SQLServerDriver");
         return connProp;
     }

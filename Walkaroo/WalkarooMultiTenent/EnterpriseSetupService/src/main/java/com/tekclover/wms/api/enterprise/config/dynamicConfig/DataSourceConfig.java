@@ -47,21 +47,21 @@ public class DataSourceConfig {
         switch (dbName) {
             case "WK":
                 dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-                dataSource.setUrl("jdbc:sqlserver://10.10.14.24;databaseName=WMS_WK");
+                dataSource.setUrl("jdbc:sqlserver://10.10.6.30;databaseName=WMS_WK");
                 dataSource.setUsername("sa");
-                dataSource.setPassword("Sd2se5y3mPD9BLr3QzZMyNU1V");
+                dataSource.setPassword("SuHcHQR72nxvyJx6EPpoOsK4V");
                 break;
             case "WK_MDU":
                 dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-                dataSource.setUrl("jdbc:sqlserver://10.10.14.24;databaseName=WK_MDU");
+                dataSource.setUrl("jdbc:sqlserver://10.10.6.30;databaseName=WK_MDU");
                 dataSource.setUsername("sa");
-                dataSource.setPassword("Sd2se5y3mPD9BLr3QzZMyNU1V");
+                dataSource.setPassword("SuHcHQR72nxvyJx6EPpoOsK4V");
                 break;
             case "WK_CMP":
                 dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-                dataSource.setUrl("jdbc:sqlserver://10.10.14.24;databaseName=WK_CMP");
+                dataSource.setUrl("jdbc:sqlserver://10.10.6.30;databaseName=WK_CMP");
                 dataSource.setUsername("sa");
-                dataSource.setPassword("Sd2se5y3mPD9BLr3QzZMyNU1V");
+                dataSource.setPassword("SuHcHQR72nxvyJx6EPpoOsK4V");
                 break;
             default:
                 throw new IllegalArgumentException("Unknown database: " + dbName);
