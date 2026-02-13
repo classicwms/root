@@ -4590,7 +4590,7 @@ public class PutAwayHeaderService extends BaseService {
     /**
      * 
      */
-	@Scheduled(fixedDelayString = "PT1M", initialDelayString = "PT2M")
+//	@Scheduled(fixedDelayString = "PT1M", initialDelayString = "PT2M")
 	private void updateErroredOutInventory () {
 		List<InventoryTrans> inventoryTransList = inventoryTransRepository.findByReRun(0L);
 		inventoryTransList.stream().forEach( it -> {

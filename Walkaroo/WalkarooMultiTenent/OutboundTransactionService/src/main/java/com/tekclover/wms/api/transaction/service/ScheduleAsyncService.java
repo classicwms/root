@@ -46,6 +46,13 @@ public class ScheduleAsyncService {
         return CompletableFuture.completedFuture(outboundOrder);
     }
 
+    @Async("asyncExecutor")
+    public CompletableFuture<WarehouseApiResponse> processOutboundOrderV4() throws Exception {
+
+        WarehouseApiResponse outboundOrder = transactionService.processOutboundOrder("VGA");
+        return CompletableFuture.completedFuture(outboundOrder);
+    }
+
 //    //-------------------------------------------------------------------DeliveryConfirmation---------------------------------------------------------------
 //    @Async("asyncExecutor")
 //    public CompletableFuture<WarehouseApiResponse> processDeliveryConfirmationV1() throws Exception {
@@ -76,4 +83,8 @@ public class ScheduleAsyncService {
         warehouseService.postSAPDeliveryConfirmationScheduleProcess("CHN");
     }
 
+    @Async("asyncExecutor")
+    public void processDeliveryConfirmationV4() throws Exception {
+        warehouseService.postSAPDeliveryConfirmationScheduleProcess("VGA");
+    }
 }
