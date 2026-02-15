@@ -123,8 +123,11 @@ public class BaseService {
 			return "CMP";
 		} else if (plantId.equalsIgnoreCase("1203")) {
 			return "CHN";
+		} else if (plantId.equalsIgnoreCase("1200")) {
+			return "VGA";
 		} else {
 			return "WK";
 		}
 	}
+
 }

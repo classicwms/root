@@ -30,12 +30,14 @@ public class DataSourceConfig {
         DataSource mdu = mduDataSource();
         DataSource cmp = cmpDataSource();
         DataSource chn = chnDataSource();
+        DataSource vga = vgaDataSource();
 
         Map<Object, Object> targetDataSources = new HashMap<>();
         targetDataSources.put("WK", wk);
         targetDataSources.put("MDU", mdu);
         targetDataSources.put("CMP", cmp);
         targetDataSources.put("CHN", chn);
+        targetDataSources.put("VGA", vga);
 
         DynamicDataSource ds = new DynamicDataSource();
         ds.setTargetDataSources(targetDataSources);
@@ -77,6 +79,15 @@ public class DataSourceConfig {
                 "jdbc:sqlserver://10.10.10.61;databaseName=WMS_CHN",
                 "sa",
                 "4V7lOXaxgAi3i6mgJL7qBUSPM"
+        );
+    }
+
+    private DataSource vgaDataSource() {
+        return buildDataSource(
+                "VGA",
+                "jdbc:sqlserver://10.10.6.30;databaseName=WMS_VGA",
+                "sa",
+                "SuHcHQR72nxvyJx6EPpoOsK4V"
         );
     }
 
