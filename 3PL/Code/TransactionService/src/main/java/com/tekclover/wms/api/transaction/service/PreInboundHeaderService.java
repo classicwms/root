@@ -1564,7 +1564,7 @@ public class PreInboundHeaderService extends BaseService {
             createdPreInboundLine = preInboundLineV2Repository.saveAll(toBeCreatedPreInboundLineList);
             log.info("createdPreInboundLine [API] : " + createdPreInboundLine);
             log.info("TNG Order Push Started ---------------->");
-            pushTNGOrder(createdPreInboundLine);
+            pushTNGOrder(createdPreInboundLine, refDocNumber);
             log.info("TNG Order Push Completed ---------------->");
             overallCreatedPreInboundLineList.addAll(createdPreInboundLine);
         }
@@ -2506,7 +2506,7 @@ public class PreInboundHeaderService extends BaseService {
 
 
     //TNG
-    public void pushTNGOrder(List<PreInboundLineEntityV2> createdPreInboundLine) {
+    public void pushTNGOrder(List<PreInboundLineEntityV2> createdPreInboundLine, String refDocNumber) {
 
         String partnerCode = imBasicData1V2Repository.getPartnerCode(createdPreInboundLine.get(0).getCompanyCode(),createdPreInboundLine.get(0).getPlantId(),
                 createdPreInboundLine.get(0).getLanguageId(),createdPreInboundLine.get(0).getWarehouseId(),createdPreInboundLine.get(0).getBusinessPartnerCode());
@@ -2521,7 +2521,7 @@ public class PreInboundHeaderService extends BaseService {
                 skus.add(sku);
             }
 
-            purchaseOrder.setPoKey("test-PO-API-1");
+            purchaseOrder.setPoKey(refDocNumber);
             purchaseOrder.setStorerKey("TAAGER");
             purchaseOrder.setWarehouseKey("INFOR_SCPRD_wmwhse6");
             purchaseOrder.setSkus(skus);
