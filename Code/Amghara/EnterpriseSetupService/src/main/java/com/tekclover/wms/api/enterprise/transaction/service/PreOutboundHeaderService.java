@@ -1854,7 +1854,7 @@ public class PreOutboundHeaderService extends BaseService {
      * @param outboundIntegrationHeader
      * @param preOutboundLineList
      */
-    @Transactional
+//    @Transactional
     private void createOrderManagementLine(String companyCodeId, String plantId, String languageId, String preOutboundNo,
                                            OutboundIntegrationHeaderV2 outboundIntegrationHeader, List<PreOutboundLineV2> preOutboundLineList) throws Exception{
         OrderManagementLineV2 orderManagementLine = null;
