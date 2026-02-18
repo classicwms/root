@@ -1559,7 +1559,7 @@ public class OrderManagementLineService extends BaseService {
      * @throws Exception
      */
     @Transactional(rollbackFor = {Exception.class, Throwable.class})
-    @Retryable(value = Exception.class, maxAttempts = 3, backoff = @Backoff(delay = 5000, multiplier = 2))
+//    @Retryable(value = Exception.class, maxAttempts = 3, backoff = @Backoff(delay = 5000, multiplier = 2))
     public void initiateRollBack(String companyCodeId, String plantId, String languageId, String warehouseId,
                                  String refDocNo, Long outboundOrderTypeId) throws Exception {
         try {
@@ -2520,18 +2520,18 @@ public class OrderManagementLineService extends BaseService {
         // Getting Inventory GroupBy ST_BIN wise
 
         List<IInventoryImpl> finalInventoryList = null;
-        if (INV_STRATEGY.equalsIgnoreCase("SB_CTD_ON")) { // SB_CTD_ON
-            log.info("SB_CTD_ON");
-            finalInventoryList = inventoryService.getInventoryForOrderManagementOrderByCtdOnV2(orderManagementLine.getCompanyCodeId(),
-                    orderManagementLine.getPlantId(), orderManagementLine.getLanguageId(),
-                    warehouseId, itemCode, 1L, binClassId, orderManagementLine.getManufacturerName());
-        }
-        if (INV_STRATEGY.equalsIgnoreCase("SB_LEVEL_ID")) { // SB_LEVEL_ID
-            log.info("SB_LEVEL_ID");
-            finalInventoryList = inventoryService.getInventoryForOrderManagementOrderByLevelIdV2(orderManagementLine.getCompanyCodeId(),
-                    orderManagementLine.getPlantId(), orderManagementLine.getLanguageId(),
-                    warehouseId, itemCode, 1L, binClassId, orderManagementLine.getManufacturerName());
-        }
+//        if (INV_STRATEGY.equalsIgnoreCase("SB_CTD_ON")) { // SB_CTD_ON
+//            log.info("SB_CTD_ON");
+//            finalInventoryList = inventoryService.getInventoryForOrderManagementOrderByCtdOnV2(orderManagementLine.getCompanyCodeId(),
+//                    orderManagementLine.getPlantId(), orderManagementLine.getLanguageId(),
+//                    warehouseId, itemCode, 1L, binClassId, orderManagementLine.getManufacturerName());
+//        }
+//        if (INV_STRATEGY.equalsIgnoreCase("SB_LEVEL_ID")) { // SB_LEVEL_ID
+//            log.info("SB_LEVEL_ID");
+//            finalInventoryList = inventoryService.getInventoryForOrderManagementOrderByLevelIdV2(orderManagementLine.getCompanyCodeId(),
+//                    orderManagementLine.getPlantId(), orderManagementLine.getLanguageId(),
+//                    warehouseId, itemCode, 1L, binClassId, orderManagementLine.getManufacturerName());
+//        }
         if (INV_STRATEGY.equalsIgnoreCase("SB_BEST_FIT")) { // SB_BEST_FIT
             log.info("SB_BEST_FIT");
             List<IInventory> levelIdList = inventoryService.getInventoryForOrderManagementGroupByLevelIdV2(orderManagementLine.getCompanyCodeId(),
@@ -2552,28 +2552,6 @@ public class OrderManagementLineService extends BaseService {
                         }
                     outerloop1:
                     for (IInventoryImpl stBinInventory : finalInventoryList) {
-//                        Long LEVEL_ID = 1L;                                     //Default level - Hard Code
-//                        if(stBinWiseInventory.getLevelId() != null) {
-//                            LEVEL_ID = Long.valueOf(stBinWiseInventory.getLevelId());
-//                        }
-//                        log.info("LEVEL_ID: " + LEVEL_ID);
-//                        // Getting PackBarCode by passing ST_BIN to Inventory
-//                        List<IInventoryImpl> listInventoryForAlloc = inventoryService.getInventoryForOrderManagementV2GroupByLevelId(orderManagementLine.getCompanyCodeId(),
-//                                    orderManagementLine.getPlantId(), orderManagementLine.getLanguageId(), warehouseId, itemCode,
-//                                    orderManagementLine.getManufacturerName(), binClassId, LEVEL_ID,
-//                                    stBinWiseInventory.getStorageBin(), 1L);
-//
-//                        log.info("\nlistInventoryForAlloc Inventory ---->: " + listInventoryForAlloc.size() + "\n");
-//
-//                        // Prod Fix: If the queried Inventory is empty then EMPTY orderManagementLine is
-//                        // created.
-//                        if (listInventoryForAlloc != null && listInventoryForAlloc.isEmpty()) {
-//                            return updateOrderManagementLineV2(orderManagementLine);
-//                        }
-//
-//                        for (IInventoryImpl stBinInventory : listInventoryForAlloc) {
-//                            log.info("\nBin-wise Inventory : " + stBinInventory + "\n");
-
                             Long STATUS_ID = 0L;
                             Double ALLOC_QTY = 0D;
 
@@ -2710,7 +2688,6 @@ public class OrderManagementLineService extends BaseService {
                                 log.info("ORD_QTY fully allocated: " + ORD_QTY);
                                 break outerloop1; // If the Inventory satisfied the Ord_qty
                             }
-//                        }
                     }
                     log.info("newOrderManagementLine updated ---#--->" + newOrderManagementLine);
                     return newOrderManagementLine;
@@ -2737,83 +2714,48 @@ public class OrderManagementLineService extends BaseService {
         }
         log.info("finalInventoryList Inventory ---->: " + finalInventoryList.size() + "\n");
 
-        ImBasicData1 dbImBasicData1 = null;
-        boolean shelfLifeIndicator = false;
-        if (finalInventoryList != null && !finalInventoryList.isEmpty()) {
+//        ImBasicData1 dbImBasicData1 = null;
+//        boolean shelfLifeIndicator = false;
+//        if (finalInventoryList != null && !finalInventoryList.isEmpty()) {
+//
+//            ImBasicData imBasicData = new ImBasicData();
+//            imBasicData.setCompanyCodeId(orderManagementLine.getCompanyCodeId());
+//            imBasicData.setPlantId(orderManagementLine.getPlantId());
+//            imBasicData.setLanguageId(orderManagementLine.getLanguageId());
+//            imBasicData.setWarehouseId(orderManagementLine.getWarehouseId());
+//            imBasicData.setItemCode(itemCode);
+//            imBasicData.setManufacturerName(orderManagementLine.getManufacturerName());
+//            dbImBasicData1 = mastersService.getImBasicData1ByItemCodeV2(imBasicData, authTokenForMastersService.getAccess_token());
+//
+//            log.info("ImBasicData1: " + dbImBasicData1);
+//            if(dbImBasicData1 != null) {
+//                if (dbImBasicData1.getShelfLifeIndicator() != null) {
+//                    shelfLifeIndicator = dbImBasicData1.getShelfLifeIndicator();
+//                }
+//            }
+//        }
 
-            ImBasicData imBasicData = new ImBasicData();
-            imBasicData.setCompanyCodeId(orderManagementLine.getCompanyCodeId());
-            imBasicData.setPlantId(orderManagementLine.getPlantId());
-            imBasicData.setLanguageId(orderManagementLine.getLanguageId());
-            imBasicData.setWarehouseId(orderManagementLine.getWarehouseId());
-            imBasicData.setItemCode(itemCode);
-            imBasicData.setManufacturerName(orderManagementLine.getManufacturerName());
-            dbImBasicData1 = mastersService.getImBasicData1ByItemCodeV2(imBasicData, authTokenForMastersService.getAccess_token());
-
-//            dbImBasicData1 = mastersService.getImBasicData1ByItemCodeV2(itemCode,
-//                    orderManagementLine.getLanguageId(), orderManagementLine.getCompanyCodeId(),
-//                    orderManagementLine.getPlantId(), orderManagementLine.getWarehouseId(),
-//                    orderManagementLine.getManufacturerName(), authTokenForMastersService.getAccess_token());
-
-            log.info("ImBasicData1: " + dbImBasicData1);
-            if(dbImBasicData1 != null) {
-                if (dbImBasicData1.getShelfLifeIndicator() != null) {
-                    shelfLifeIndicator = dbImBasicData1.getShelfLifeIndicator();
-                }
-            }
-        }
-
-        // If the finalInventoryList is EMPTY then we set STATUS_ID as 47 and return from the processing
-        if (finalInventoryList != null && finalInventoryList.isEmpty()) {
-            return updateOrderManagementLineV2(orderManagementLine);
-        }
-        if (INV_STRATEGY.equalsIgnoreCase("SB_CTD_ON")) { // SB_CTD_ON
-        //ascending sort - expiryDate
-        if (shelfLifeIndicator) {
-            finalInventoryList = finalInventoryList.stream().filter(n -> n.getExpiryDate() != null).sorted(Comparator.comparing(IInventoryImpl::getExpiryDate)).collect(Collectors.toList());
-        }
-        //ascending sort - created on
-        if (!shelfLifeIndicator) {
-            finalInventoryList = finalInventoryList.stream().filter(n -> n.getCreatedOn() != null).sorted(Comparator.comparing(IInventoryImpl::getCreatedOn)).collect(Collectors.toList());
-        }
-        }
+//        // If the finalInventoryList is EMPTY then we set STATUS_ID as 47 and return from the processing
+//        if (finalInventoryList != null && finalInventoryList.isEmpty()) {
+//            return updateOrderManagementLineV2(orderManagementLine);
+//        }
+        
+//		if (INV_STRATEGY.equalsIgnoreCase("SB_CTD_ON")) {
+//			// SB_CTD_ON ascending sort - expiryDate
+//        if (shelfLifeIndicator) {
+//				finalInventoryList = finalInventoryList.stream().filter(n -> n.getExpiryDate() != null)
+//						.sorted(Comparator.comparing(IInventoryImpl::getExpiryDate)).collect(Collectors.toList());
+//        }
+//			// ascending sort - created on
+//        if (!shelfLifeIndicator) {
+//				finalInventoryList = finalInventoryList.stream().filter(n -> n.getCreatedOn() != null)
+//						.sorted(Comparator.comparing(IInventoryImpl::getCreatedOn)).collect(Collectors.toList());
+//        }
+//        }
 
         outerloop:
         for (IInventoryImpl stBinInventory : finalInventoryList) {
             // Getting PackBarCode by passing ST_BIN to Inventory
-//            List<IInventoryImpl> listInventoryForAlloc = null;
-//            if (INV_STRATEGY.equalsIgnoreCase("SB_CTD_ON")) { // SB_CTD_ON
-//                listInventoryForAlloc = inventoryService.getInventoryForOrderManagementV2(orderManagementLine.getCompanyCodeId(),
-//                        orderManagementLine.getPlantId(), orderManagementLine.getLanguageId(), warehouseId, itemCode,
-//                        orderManagementLine.getManufacturerName(), binClassId,
-//                        stBinWiseInventory.getStorageBin(), 1L);
-//            }
-//            if (INV_STRATEGY.equalsIgnoreCase("SB_LEVEL_ID") || INV_STRATEGY.equalsIgnoreCase("SB_BEST_FIT")) { // SB_LEVEL_ID
-//                listInventoryForAlloc = inventoryService.getInventoryForOrderManagementV2OrderByLevelId(orderManagementLine.getCompanyCodeId(),
-//                        orderManagementLine.getPlantId(), orderManagementLine.getLanguageId(), warehouseId, itemCode,
-//                            orderManagementLine.getManufacturerName(), binClassId,
-//                            stBinWiseInventory.getStorageBin(), 1L);
-//            }
-//            log.info("\nlistInventoryForAlloc Inventory ---->: " + listInventoryForAlloc.size() + "\n");
-//
-//            // Prod Fix: If the queried Inventory is empty then EMPTY orderManagementLine is
-//            // created.
-//            if (listInventoryForAlloc != null && listInventoryForAlloc.isEmpty()) {
-//                return updateOrderManagementLineV2(orderManagementLine);
-//            }
-//            if (INV_STRATEGY.equalsIgnoreCase("SB_CTD_ON")) { // SB_CTD_ON
-//            //ascending sort - expiryDate
-//            if (shelfLifeIndicator) {
-//                listInventoryForAlloc.stream().sorted(Comparator.comparing(IInventoryImpl::getExpiryDate)).collect(Collectors.toList());
-//            }
-//            //ascending sort - created on
-//            if (!shelfLifeIndicator) {
-//                listInventoryForAlloc.stream().sorted(Comparator.comparing(IInventoryImpl::getCreatedOn)).collect(Collectors.toList());
-//            }
-//            }
-//            for (IInventoryImpl stBinInventory : listInventoryForAlloc) {
-//                log.info("\nBin-wise Inventory : " + stBinInventory + "\n");
-
                 Long STATUS_ID = 0L;
                 Double ALLOC_QTY = 0D;
 

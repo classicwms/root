@@ -465,10 +465,13 @@ public class TransactionService extends BaseService{
     //-------------------------------------------------------------------Outbound warehouse amghara---------------------------------------------------------------
     public WarehouseApiResponse processAmgharaOutboundOrder() throws IllegalAccessException, InvocationTargetException, ParseException {
         WarehouseApiResponse warehouseApiResponse = new WarehouseApiResponse();
-//        if (outboundList == null || outboundList.isEmpty()) {
-            List<OutboundOrderV2> sqlOutboundList = outboundOrderV2Repository.findTopByProcessedStatusIdAndWarehouseIDOrderByOrderReceivedOn(0L, WAREHOUSE_ID_100);
-            log.info("amghara ob header list: " + sqlOutboundList);
-
+        List<OutboundOrderV2> sqlOutboundList = outboundOrderV2Repository.findTopByProcessedStatusIdAndWarehouseIDOrderByOrderReceivedOn(0L, WAREHOUSE_ID_100);
+        log.info("amghara ob header list: " + sqlOutboundList);
+        if (sqlOutboundList.isEmpty()) {
+            warehouseApiResponse.setStatusCode("200");
+            warehouseApiResponse.setMessage("No Record Found");
+            return warehouseApiResponse;
+        }
         // Set Process_status_id = 1
         sqlOutboundList.stream().forEach(outbound -> {
             try {
@@ -606,16 +609,17 @@ public class TransactionService extends BaseService{
 
                         try {
                             preOutboundHeaderService.createOutboundIntegrationLogV2(outbound, e.toString());
-                            outboundList.remove(outbound);
+                         //   outboundList.remove(outbound);
                         } catch (Exception ex) {
-                            outboundList.remove(outbound);
+                           // outboundList.remove(outbound);
                             throw new RuntimeException(ex);
                         }
                         warehouseApiResponse.setStatusCode("1400");
                         warehouseApiResponse.setMessage("Failure");
                     } else {
+                        orderService.updateProcessedOrderV2(outbound.getRefDocumentNo(), outbound.getOutboundOrderTypeID());
                     // Updating the Processed Status
-                    orderService.updateProcessedOrderV2(outbound.getRefDocumentNo(), outbound.getOutboundOrderTypeID(), 100L);
+                 //   orderService.updateProcessedOrderV2(outbound.getRefDocumentNo(), outbound.getOutboundOrderTypeID(), 100L);
 
                     //============================================================================================
                     //Sending Failed Details through Mail
@@ -650,9 +654,9 @@ public class TransactionService extends BaseService{
 
                     try {
                         preOutboundHeaderService.createOutboundIntegrationLogV2(outbound, e.toString());
-                        outboundList.remove(outbound);
+//                        outboundList.remove(outbound);
                     } catch (Exception ex) {
-                        outboundList.remove(outbound);
+//                        outboundList.remove(outbound);
                         throw new RuntimeException(ex);
                     }
                     warehouseApiResponse.setStatusCode("1400");
@@ -660,7 +664,6 @@ public class TransactionService extends BaseService{
                 }
             }
         }
-//    }
         return warehouseApiResponse;
     }
 

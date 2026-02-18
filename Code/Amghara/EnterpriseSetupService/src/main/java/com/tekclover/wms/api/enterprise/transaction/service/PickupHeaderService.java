@@ -32,7 +32,7 @@ import java.util.stream.Stream;
 
 @Slf4j
 @Service
-public class PickupHeaderService extends BaseService {
+public class PickupHeaderService {
     @Autowired
     private OutboundLineV2Repository outboundLineV2Repository;
 
@@ -1036,13 +1036,6 @@ public class PickupHeaderService extends BaseService {
                             loginUserID,
                             updateOutboundLine);
 
-        String customerName = getCustomerName(dbPickupHeader.getCompanyCodeId(), dbPickupHeader.getPlantId(),
-                                              dbPickupHeader.getLanguageId(), dbPickupHeader.getWarehouseId(),
-                                              dbPickupHeader.getCustomerCode());
-        if(customerName != null) {
-            dbPickupHeader.setCustomerName(customerName);
-        }
-
         dbPickupHeader.setDeletionIndicator(0L);
         dbPickupHeader.setPickupCreatedBy(loginUserID);
         dbPickupHeader.setPickupCreatedOn(new Date());
@@ -1121,7 +1114,19 @@ public class PickupHeaderService extends BaseService {
             dbPickupHeader.setCompanyDescription(description.getCompanyDesc());
             dbPickupHeader.setPlantDescription(description.getPlantDesc());
             dbPickupHeader.setWarehouseDescription(description.getWarehouseDesc());
+            dbPickupHeader.setDeletionIndicator(0L);
+            dbPickupHeader.setPickupCreatedBy(loginUserID);
+            dbPickupHeader.setPickupCreatedOn(new Date());
+            return dbPickupHeader;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
 
+    // UpdateOutboundProcess
+    void updateOutboundLineStatus(PickupHeaderV2 dbPickupHeader, String loginUserID) {
+        try {
             statusDescription = stagingLineV2Repository.getStatusDescription(48L, dbPickupHeader.getLanguageId());
             outboundLineV2Repository.updateOutboundLineV2(dbPickupHeader.getCompanyCodeId(),
                     dbPickupHeader.getPlantId(),
@@ -1132,29 +1137,15 @@ public class PickupHeaderService extends BaseService {
                     dbPickupHeader.getPartnerCode(),
                     dbPickupHeader.getLineNumber(),
                     dbPickupHeader.getItemCode(),
-                                                          48L,
-                                                          statusDescription,
-                                                          dbPickupHeader.getAssignedPickerId(),
-                                                          dbPickupHeader.getManufacturerName(),
+                    48L,
+                    statusDescription,
+                    dbPickupHeader.getAssignedPickerId(),
+                    dbPickupHeader.getManufacturerName(),
                     loginUserID,
-                                                          new Date());
-
-            String customerName = getCustomerName(dbPickupHeader.getCompanyCodeId(), dbPickupHeader.getPlantId(),
-                                                  dbPickupHeader.getLanguageId(), dbPickupHeader.getWarehouseId(),
-                                                  dbPickupHeader.getCustomerCode());
-            if(customerName != null) {
-                dbPickupHeader.setCustomerName(customerName);
-            }
-
-            dbPickupHeader.setDeletionIndicator(0L);
-            dbPickupHeader.setPickupCreatedBy(loginUserID);
-            dbPickupHeader.setPickupCreatedOn(new Date());
-            PickupHeaderV2 pickupHeaderV2 =  pickupHeaderV2Repository.save(dbPickupHeader);
-
-            return pickupHeaderV2;
+                    new Date());
         } catch (Exception e) {
             e.printStackTrace();
-            throw e;
+            log.info("OutboundLine Status Update Failed Exception Throw ---------> " + e.getMessage());
         }
     }
 
