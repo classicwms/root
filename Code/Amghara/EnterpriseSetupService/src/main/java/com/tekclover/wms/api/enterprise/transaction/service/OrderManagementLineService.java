@@ -2514,7 +2514,7 @@ public class OrderManagementLineService extends BaseService {
             return updateOrderManagementLineV2(orderManagementLine);
         }
 
-        AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
+//        AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
 
         // -----------------------------------------------------------------------------------------------------------------------------------------
         // Getting Inventory GroupBy ST_BIN wise

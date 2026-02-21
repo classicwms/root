@@ -1215,7 +1215,7 @@ public class InventoryService extends BaseService {
      * @param manufacturerName
      * @return
      */
-    public List<IInventory> getInventoryForOrderManagementGroupByLevelIdV2(String companyCodeId, String plantId, String languageId, String warehouseId,
+    public synchronized List<IInventory> getInventoryForOrderManagementGroupByLevelIdV2(String companyCodeId, String plantId, String languageId, String warehouseId,
                                                                                String itemCode, Long stockTypeId, Long binClassId, String manufacturerName) {
         if (companyCodeId == null || plantId == null || languageId == null || warehouseId == null ||
                 itemCode == null || stockTypeId == null || binClassId == null || manufacturerName == null) {
@@ -1240,7 +1240,7 @@ public class InventoryService extends BaseService {
      * @param manufacturerName
      * @return
      */
-    public List<IInventoryImpl> getInventoryForOrderManagementGroupByLevelIdV2(String companyCodeId, String plantId, String languageId, String warehouseId,
+    public synchronized List<IInventoryImpl> getInventoryForOrderManagementGroupByLevelIdV2(String companyCodeId, String plantId, String languageId, String warehouseId,
                                                                                String itemCode, Long stockTypeId, Long binClassId, Long levelId, String manufacturerName) {
         if (companyCodeId == null || plantId == null || languageId == null || warehouseId == null ||
                 itemCode == null || stockTypeId == null || binClassId == null || manufacturerName == null) {

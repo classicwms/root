@@ -26,7 +26,7 @@ public class BatchJobScheduler {
     public void scheduleJob() throws InterruptedException, InvocationTargetException, IllegalAccessException, ParseException {
 //        CompletableFuture<WarehouseApiResponse> outboundOrder = scheduleAsyncService.processOutboundOrder();
         CompletableFuture<WarehouseApiResponse> amgharaOutboundOrder = scheduleAsyncService.processAmgharaOutboundOrder();
-//        CompletableFuture<WarehouseApiResponse> outboundFailedOrder = scheduleAsyncService.processOutboundFailedOrder();
+        CompletableFuture<WarehouseApiResponse> outboundFailedOrder = scheduleAsyncService.processOutboundFailedOrder();
 
 //        CompletableFuture.allOf(inboundOrder,outboundOrder,perpetualStockCountOrder,periodicStockCountOrder,stockAdjustmentOrder,inboundFailedOrder,outboundFailedOrder).join();
     }
