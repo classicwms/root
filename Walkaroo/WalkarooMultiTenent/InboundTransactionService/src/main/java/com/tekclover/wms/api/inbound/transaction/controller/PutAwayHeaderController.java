@@ -237,11 +237,15 @@ public class PutAwayHeaderController extends BaseService {
     @PostMapping("/v3")
     public List<PutAwayHeaderV2> createPutawayHeader(@RequestBody List<PutawayHeaderInt> putawayHeaders)
             throws Exception {
+        try {
         String currentDB = baseService.getDataBase(putawayHeaders.get(0).getSapDocumentNo());
         DataBaseContextHolder.clear();
         DataBaseContextHolder.setCurrentDb(currentDB);
         log.info("Current DB " + currentDB);
         return putawayheaderService.createPutawayHeaderv3(putawayHeaders);
+        } finally {
+            DataBaseContextHolder.clear();
+        }
     }
 
     @ApiOperation(response = PutAwayHeaderV2.class, value = "Search PutAwayHeader V2") // label for swagger
