@@ -3609,21 +3609,32 @@ public class PutAwayLineService extends BaseService {
         log.info(" Collected CompanyCode={}, PlantId={}, LangId={}, WarehouseId={}, BarcodeCount={}",
                 companyCode, plantId, languageId, warehouseId, barcodeIds.size());
 
-        putAwayHeaderV2Repository.updatePutAwayHeaderStatusIds(
-                companyCode, plantId, languageId, warehouseId, barcodeIds, 20L);
-        log.info("✅ Successfully updated StatusId=20 for {} records.", barcodeIds);
+//        putAwayHeaderV2Repository.updatePutAwayHeaderStatusIds(
+//                companyCode, plantId, languageId, warehouseId, barcodeIds, 20L);
+//        log.info("✅ Successfully updated StatusId=20 for {} records.", barcodeIds);
 
 //        for(PutAwayLineV2 pu : putAwayLineV2s) {
 //            log.info("PutAwayLine confirm Status Id Updated ItemCode {}, BarcodeIs {} ", pu.getItemCode(), pu.getBarcodeId());
 //            putAwayHeaderV2Repository.updatePutAwayHeaderStatusId( pu.getCompanyCode(), pu.getPlantId(), pu.getLanguageId(), pu.getWarehouseId(),
 //                    pu.getItemCode(), pu.getBarcodeId(), 20L);
 //        }
+        updatePutAwayHeader(companyCode, plantId, languageId, warehouseId, barcodeIds);
         putAwayLineAsyncProcess.createPutAwayLine(putAwayLineV2s, loginUserID);
 
         log.info("Return Response Successfully In PutAwayConfirm --------------------------->");
         return putAwayLineV2s;
     }
 
+
+    // Update PutAwayHeader
+    @Retryable(value = {SQLException.class, SQLServerException.class, CannotAcquireLockException.class,
+            LockAcquisitionException.class, UnexpectedRollbackException.class}, maxAttempts = 2, backoff = @Backoff(delay = 2000))
+    public void updatePutAwayHeader(String companyCode, String plantId, String languageId,
+                                    String warehouseId, List<String> barcodeIds) {
+        putAwayHeaderV2Repository.updatePutAwayHeaderStatusIds(
+                companyCode, plantId, languageId, warehouseId, barcodeIds, 20L);
+        log.info("✅ Successfully updated StatusId=20 for {} records.", barcodeIds);
+    }
 
     /**
      *
