@@ -124,7 +124,7 @@ public interface OrderManagementLineV2Repository extends JpaRepository<OrderMana
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("UPDATE OrderManagementLineV2 ob SET ob.statusId = :statusId, ob.statusDescription = :statusDescription, ob.pickupUpdatedOn = :updatedOn, \r\n"
-            + " ob.assignedPickerId = :assignedPickerId, ob.pickupNumber = :pickupNumber \r\n "
+            + "ob.pickupNumber = :pickupNumber \r\n "
             + " WHERE ob.companyCodeId = :companyCodeId AND ob.plantId = :plantId AND ob.languageId = :languageId AND ob.warehouseId = :warehouseId AND \r\n "
             + " ob.partnerCode = :partnerCode AND ob.itemCode = :itemCode AND \r\n "
             + " ob.refDocNumber = :refDocNumber AND ob.preOutboundNo = :preOutboundNo AND ob.lineNumber = :lineNumber")
@@ -139,7 +139,7 @@ public interface OrderManagementLineV2Repository extends JpaRepository<OrderMana
                                      @Param("itemCode") String itemCode,
                                      @Param("statusId") Long statusId,
                                      @Param("statusDescription") String statusDescription,
-                                     @Param("assignedPickerId") String assignedPickerId,
+//                                     @Param("assignedPickerId") String assignedPickerId,
                                      @Param("pickupNumber") String pickupNumber,
                                      @Param("updatedOn") Date updatedOn);
 
