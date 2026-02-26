@@ -5407,7 +5407,7 @@ public class MultiTenantService {
                 log.info("JDBC URL check -->{}", jdbcUrl8);
             } else if (routingDb.equals("BF")) {
                 if (!conditions.isEmpty()) {
-                    sqlQuery += " WHERE IS_DELETED = 0 AND REF_FIELD_4 > 0 AND inv_id in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,pal_code,barcode_id,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
+                    sqlQuery += " WHERE IS_DELETED = 0 AND REF_FIELD_4 > 0 AND inv_id in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,pal_code,barcode_id,stck_typ_id,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
                 } data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
