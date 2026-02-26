@@ -209,6 +209,9 @@ public class HhtUserController {
                     case "BF":
                         createdHhtUser = hhtuserService.findHhtUserV9(findHhtUser);
                         break;
+                    case "KKF":
+                        createdHhtUser = hhtuserService.findHhtUserV9(findHhtUser);
+                        break;
                 }
             }
             return new ResponseEntity<>(createdHhtUser, HttpStatus.OK);

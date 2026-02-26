@@ -37,6 +37,7 @@ public class MultiTenantService {
     Properties connAutoLap = DatabaseConnectionUtil.getAutoLapDatabaseConnectionProperties();
 
     Properties connBF = DatabaseConnectionUtil.getBFDatabaseConnectionProperties();
+    Properties connKKF = DatabaseConnectionUtil.getKKFDatabaseConnectionProperties();
 
     String jdbcUrl = DatabaseConnectionUtil.getImpexDevJdbcUrl();
 
@@ -57,6 +58,7 @@ public class MultiTenantService {
     String jdbcUrl8 = DatabaseConnectionUtil.getAutoLapJdbcUrl();
 
     String jdbcUrl9 = DatabaseConnectionUtil.getBFJdbcUrl();
+    String jdbcUrl10 = DatabaseConnectionUtil.getKKFJdbcUrl();
 
     @Autowired
     private DbConfigRepository dbConfigRepository;
@@ -172,6 +174,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
                 log.info("JDBC URL check -->{}", jdbcUrl9);
+            } else if (routingDb.equals("KKF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
+                log.info("JDBC URL check -->{}", jdbcUrl10);
             }
 
 //            data.show();
@@ -358,6 +366,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
                 log.info("JDBC URL check -->{}", jdbcUrl9);
+            } else if (routingDb.equals("KKF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
+                log.info("JDBC URL check -->{}", jdbcUrl10);
             }
 //            data.show();
             Encoder<ContainerReceiptV2> containerReceiptEncoder = Encoders.bean(ContainerReceiptV2.class);
@@ -539,6 +553,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
                 log.info("JDBC URL check -->{}", jdbcUrl9);
+            } else if (routingDb.equals("KKF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
+                log.info("JDBC URL check -->{}", jdbcUrl10);
             }
 
 //            data.show();
@@ -711,6 +731,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
                 log.info("JDBC URL check -->{}", jdbcUrl9);
+            } else if (routingDb.equals("KKF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
+                log.info("JDBC URL check -->{}", jdbcUrl10);
             }
 
             //            data.show();
@@ -855,6 +881,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
                 log.info("JDBC URL check -->{}", jdbcUrl9);
+            } else if (routingDb.equals("KKF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
+                log.info("JDBC URL check -->{}", jdbcUrl10);
             }
 
 //            data.show();
@@ -1033,6 +1065,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
                 log.info("JDBC URL check -->{}", jdbcUrl9);
+            } else if (routingDb.equals("KKF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
+                log.info("JDBC URL check -->{}", jdbcUrl10);
             }
 
             Encoder<GrHeaderV2> grHeaderV2Encoder = Encoders.bean(GrHeaderV2.class);
@@ -1202,6 +1240,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
                 log.info("JDBC URL check -->{}", jdbcUrl9);
+            } else if (routingDb.equals("KKF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
+                log.info("JDBC URL check -->{}", jdbcUrl10);
             }
 
             //            data.show();
@@ -1413,6 +1457,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
                 log.info("JDBC URL check -->{}", jdbcUrl9);
+            } else if (routingDb.equals("KKF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
+                log.info("JDBC URL check -->{}", jdbcUrl10);
             }
 
             Encoder<PreInBoundLineV2> preInboundLineEncoder = Encoders.bean(PreInBoundLineV2.class);
@@ -1630,6 +1680,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
                 log.info("JDBC URL check -->{}", jdbcUrl9);
+            } else if (routingDb.equals("KKF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
+                log.info("JDBC URL check -->{}", jdbcUrl10);
             }
             //            data.show();
             Encoder<PutAwayHeaderV4> putAwayHeaderEncoder = Encoders.bean(PutAwayHeaderV4.class);
@@ -1801,6 +1857,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
                 log.info("JDBC URL check -->{}", jdbcUrl9);
+            } else if (routingDb.equals("KKF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
+                log.info("JDBC URL check -->{}", jdbcUrl10);
             }
             //            data.show();
             Encoder<StagingHeaderV2> stagingHeaderEncoder = Encoders.bean(StagingHeaderV2.class);
@@ -1967,7 +2029,14 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
                 log.info("JDBC URL check -->{}", jdbcUrl9);
+            } else if (routingDb.equals("KKF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
+                log.info("JDBC URL check -->{}", jdbcUrl10);
             }
+
             //            data.show();
             Encoder<InboundHeaderV2> inboundHeaderEncoder = Encoders.bean(InboundHeaderV2.class);
             Dataset<InboundHeaderV2> dataset = data.as(inboundHeaderEncoder);
@@ -2191,6 +2260,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
                 log.info("JDBC URL check -->{}", jdbcUrl9);
+            } else if (routingDb.equals("KKF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
+                log.info("JDBC URL check -->{}", jdbcUrl10);
             }
 
             Encoder<StagingLineV5> stagingLineEncoder = Encoders.bean(StagingLineV5.class);
@@ -2432,6 +2507,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
                 log.info("JDBC URL check -->{}", jdbcUrl9);
+            } else if (routingDb.equals("KKF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
+                log.info("JDBC URL check -->{}", jdbcUrl10);
             }
             //            data.show();
             Encoder<GrLineV4> grLineEncoder = Encoders.bean(GrLineV4.class);
@@ -2568,6 +2649,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
                 log.info("JDBC URL check -->{}", jdbcUrl9);
+            } else if (routingDb.equals("KKF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
+                log.info("JDBC URL check -->{}", jdbcUrl10);
             }
 //            data.show();
             Encoder<PutAwayLineCoreV4> putAwayLineEncoder = Encoders.bean(PutAwayLineCoreV4.class);
@@ -2768,6 +2855,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
                 log.info("JDBC URL check -->{}", jdbcUrl9);
+            } else if (routingDb.equals("KKF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
+                log.info("JDBC URL check -->{}", jdbcUrl10);
             }
             //            data.show();
             Encoder<InboundLineNewV4> inboundLineEncoder = Encoders.bean(InboundLineNewV4.class);
@@ -2997,6 +3090,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
                 log.info("JDBC URL check -->{}", jdbcUrl9);
+            } else if (routingDb.equals("KKF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
+                log.info("JDBC URL check -->{}", jdbcUrl10);
             }
 //            data.show();
             Encoder<PutAwayLineV4> putAwayLineV2Encoder = Encoders.bean(PutAwayLineV4.class);
@@ -3172,6 +3271,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
                 log.info("JDBC URL check -->{}", jdbcUrl9);
+            } else if (routingDb.equals("KKF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
+                log.info("JDBC URL check -->{}", jdbcUrl10);
             }
             //            data.show();
             Encoder<PreOutboundHeaderV2> preOutboundHeaderEncoder = Encoders.bean(PreOutboundHeaderV2.class);
@@ -3397,7 +3502,14 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
                 log.info("JDBC URL check -->{}", jdbcUrl9);
+            } else if (routingDb.equals("KKF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
+                log.info("JDBC URL check -->{}", jdbcUrl10);
             }
+
 //            data.show();
             Encoder<OrderManagementLineV4> orderManagementLineEncoder = Encoders.bean(OrderManagementLineV4.class);
             Dataset<OrderManagementLineV4> dataset = data.as(orderManagementLineEncoder);
@@ -3609,6 +3721,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
                 log.info("JDBC URL check -->{}", jdbcUrl9);
+            } else if (routingDb.equals("KKF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
+                log.info("JDBC URL check -->{}", jdbcUrl10);
             }
             //            data.show();
             Encoder<PickupHeaderV4> pickupHeaderEncoder = Encoders.bean(PickupHeaderV4.class);
@@ -3825,7 +3943,14 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
                 log.info("JDBC URL check -->{}", jdbcUrl9);
+            } else if (routingDb.equals("KKF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
+                log.info("JDBC URL check -->{}", jdbcUrl10);
             }
+
             //            data.show();
             Encoder<PickupLineNewV4> pickupLineEncoder = Encoders.bean(PickupLineNewV4.class);
             Dataset<PickupLineNewV4> dataset = data.as(pickupLineEncoder);
@@ -4012,7 +4137,14 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
                 log.info("JDBC URL check -->{}", jdbcUrl9);
+            } else if (routingDb.equals("KKF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
+                log.info("JDBC URL check -->{}", jdbcUrl10);
             }
+
             //            data.show();
             Encoder<QualityHeaderV4> qualityHeaderEncoder = Encoders.bean(QualityHeaderV4.class);
             Dataset<QualityHeaderV4> dataset = data.as(qualityHeaderEncoder);
@@ -4196,7 +4328,14 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
                 log.info("JDBC URL check -->{}", jdbcUrl9);
+            } else if (routingDb.equals("KKF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
+                log.info("JDBC URL check -->{}", jdbcUrl10);
             }
+
             //            data.show();
             Encoder<OutBoundHeaderV2> outBoundHeaderEncoder = Encoders.bean(OutBoundHeaderV2.class);
             Dataset<OutBoundHeaderV2> dataset = data.as(outBoundHeaderEncoder);
@@ -4384,7 +4523,14 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
                 log.info("JDBC URL check -->{}", jdbcUrl9);
+            } else if (routingDb.equals("KKF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
+                log.info("JDBC URL check -->{}", jdbcUrl10);
             }
+
             //            data.show();
             Encoder<QualityLineV4> qualityLineEncoder = Encoders.bean(QualityLineV4.class);
             Dataset<QualityLineV4> dataset = data.as(qualityLineEncoder);
@@ -4576,7 +4722,14 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
                 log.info("JDBC URL check -->{}", jdbcUrl9);
+            } else if (routingDb.equals("KKF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
+                log.info("JDBC URL check -->{}", jdbcUrl10);
             }
+
             //            data.show();
             Encoder<PreOutBoundLineV4> preOutBoundLineEncoder = Encoders.bean(PreOutBoundLineV4.class);
             Dataset<PreOutBoundLineV4> dataset = data.as(preOutBoundLineEncoder);
@@ -4826,7 +4979,14 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
                 log.info("JDBC URL check -->{}", jdbcUrl9);
+            } else if (routingDb.equals("KKF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
+                log.info("JDBC URL check -->{}", jdbcUrl10);
             }
+
             //            data.show();
             Encoder<InhouseTransferHeaderV4> inhouseTransferHeaderEncoder = Encoders.bean(InhouseTransferHeaderV4.class);
             Dataset<InhouseTransferHeaderV4> dataset = data.as(inhouseTransferHeaderEncoder);
@@ -5003,7 +5163,14 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
                 log.info("JDBC URL check -->{}", jdbcUrl9);
+            } else if (routingDb.equals("KKF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
+                log.info("JDBC URL check -->{}", jdbcUrl10);
             }
+
             //            data.show();
             Encoder<InhouseTransferLine> inhouseTransferLineEncoder = Encoders.bean(InhouseTransferLine.class);
             Dataset<InhouseTransferLine> dataset = data.as(inhouseTransferLineEncoder);
@@ -5170,7 +5337,14 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
                 log.info("JDBC URL check -->{}", jdbcUrl9);
+            } else if (routingDb.equals("KKF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
+                log.info("JDBC URL check -->{}", jdbcUrl10);
             }
+
 //            data.show();
             Encoder<OutBoundReversalV2> outBoundReversalEncoder = Encoders.bean(OutBoundReversalV2.class);
             Dataset<OutBoundReversalV2> dataset = data.as(outBoundReversalEncoder);
@@ -5413,6 +5587,14 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
                 log.info("JDBC URL check -->{}", jdbcUrl9);
+            } else if (routingDb.equals("KKF")) {
+                if (!conditions.isEmpty()) {
+                    sqlQuery += " WHERE IS_DELETED = 0 AND REF_FIELD_4 > 0 AND inv_id in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,pal_code,barcode_id,stck_typ_id,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
+                } data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
+                log.info("JDBC URL check -->{}", jdbcUrl10);
             }
 
             Encoder<InventoryV4> inventoryV2CoreEncoder = Encoders.bean(InventoryV4.class);
@@ -5571,6 +5753,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
                 log.info("JDBC URL check -->{}", jdbcUrl9);
+            } else if (routingDb.equals("KKF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
+                log.info("JDBC URL check -->{}", jdbcUrl10);
             }
 
             //            data.show();
@@ -5777,7 +5965,14 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
                 log.info("JDBC URL check -->{}", jdbcUrl9);
+            } else if (routingDb.equals("KKF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
+                log.info("JDBC URL check -->{}", jdbcUrl10);
             }
+
             //            data.show();
             Encoder<PeriodicLineV2> periodicLineEncoder = Encoders.bean(PeriodicLineV2.class);
             Dataset<PeriodicLineV2> dataset = data.as(periodicLineEncoder);
@@ -5934,7 +6129,14 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
                 log.info("JDBC URL check -->{}", jdbcUrl9);
+            } else if (routingDb.equals("KKF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
+                log.info("JDBC URL check -->{}", jdbcUrl10);
             }
+
             //            data.show();
             Encoder<PerpetualHeader> perpetualHeaderEncoder = Encoders.bean(PerpetualHeader.class);
             Dataset<PerpetualHeader> dataset = data.as(perpetualHeaderEncoder);
@@ -6121,7 +6323,14 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
                 log.info("JDBC URL check -->{}", jdbcUrl9);
+            } else if (routingDb.equals("KKF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
+                log.info("JDBC URL check -->{}", jdbcUrl10);
             }
+
             //            data.show();
             Encoder<PerpetualLineV2> perpetualLineEncoder = Encoders.bean(PerpetualLineV2.class);
             Dataset<PerpetualLineV2> dataset = data.as(perpetualLineEncoder);
@@ -6733,7 +6942,14 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
                 log.info("JDBC URL check -->{}", jdbcUrl9);
+            } else if (routingDb.equals("KKF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
+                log.info("JDBC URL check -->{}", jdbcUrl10);
             }
+
             //            data.show();
             Encoder<ImBasicData1> imBasicData1Encoder = Encoders.bean(ImBasicData1.class);
             Dataset<ImBasicData1> dataset = data.as(imBasicData1Encoder);
@@ -6871,7 +7087,14 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
                 log.info("JDBC URL check -->{}", jdbcUrl9);
+            } else if (routingDb.equals("KKF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
+                log.info("JDBC URL check -->{}", jdbcUrl10);
             }
+
             Encoder<InventoryV5> inventoryV2CoreEncoder = Encoders.bean(InventoryV5.class);
             Dataset<InventoryV5> inventoryV2CoreDataset = data.as(inventoryV2CoreEncoder);
 
@@ -7037,7 +7260,14 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
                 log.info("JDBC URL check -->{}", jdbcUrl9);
+            } else if (routingDb.equals("KKF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
+                log.info("JDBC URL check -->{}", jdbcUrl10);
             }
+
 
             Encoder<InventoryV9> inventoryV2CoreEncoder = Encoders.bean(InventoryV9.class);
             Dataset<InventoryV9> inventoryV2CoreDataset = data.as(inventoryV2CoreEncoder);

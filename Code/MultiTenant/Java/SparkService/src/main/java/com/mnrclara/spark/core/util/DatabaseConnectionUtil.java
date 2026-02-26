@@ -171,4 +171,16 @@ public class DatabaseConnectionUtil {
         connProp.put("driver", "com.microsoft.sqlserver.jdbc.SQLServerDriver");
         return connProp;
     }
+
+    public static String getKKFJdbcUrl() {
+        return "jdbc:sqlserver://10.20.0.19;databaseName=WMS_KKF";
+    }
+
+    public static Properties getKKFDatabaseConnectionProperties() {
+        Properties connProp = new Properties();
+        connProp.put("user", "sa");
+        connProp.put("password", "TvHcGBR84nxvyJx6EPpoOsL5V");
+        connProp.put("driver", "com.microsoft.sqlserver.jdbc.SQLServerDriver");
+        return connProp;
+    }
 }
