@@ -57,7 +57,7 @@ public class ContainerReceiptV2 {
 
     private String referenceField5;
 
-    private Date referenceField6;
+    private String referenceField6;
 
     private String referenceField7;
 
