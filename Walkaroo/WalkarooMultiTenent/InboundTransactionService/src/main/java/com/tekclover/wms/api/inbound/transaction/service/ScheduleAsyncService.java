@@ -1,7 +1,12 @@
 package com.tekclover.wms.api.inbound.transaction.service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import com.tekclover.wms.api.inbound.transaction.config.dynamicConfig.DataBaseContextHolder;
+import com.tekclover.wms.api.inbound.transaction.model.inbound.putaway.v2.PutAwayHeaderV2;
+import com.tekclover.wms.api.inbound.transaction.model.inbound.putaway.v2.PutawayHeaderInt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -16,6 +21,12 @@ public class ScheduleAsyncService {
 
     @Autowired
     TransactionService transactionService;
+
+    @Autowired
+    BaseService baseService;
+
+    @Autowired
+    PutAwayHeaderService putAwayHeaderService;
 
     //-------------------------------------------------------------------Inbound---------------------------------------------------------------
     @Async("asyncExecutor")
@@ -51,4 +62,24 @@ public class ScheduleAsyncService {
         return CompletableFuture.completedFuture(inboundFailedOrder);
 
     }
+
+    @Async("asyncExecutorGrLine")
+    public void createPutAwayHeaderAsynProcess(List<PutawayHeaderInt> putawayHeaders) {
+
+        try {
+            String currentDB = baseService.getDataBase(putawayHeaders.get(0).getSapDocumentNo());
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(currentDB);
+            log.info("Current DB " + currentDB);
+            log.info("PutAwayHeader AsynProcess Started ----------------> ");
+            putAwayHeaderService.createPutawayHeaderv3(putawayHeaders);
+            log.info("PutAwayHeader AsynProcess Completed ----------------> ");
+        } catch (Exception e){
+            throw e;
+        } finally {
+            DataBaseContextHolder.clear();
+        }
+    }
+
+
 }

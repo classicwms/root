@@ -14,6 +14,7 @@ import com.tekclover.wms.api.inbound.transaction.model.inbound.putaway.v2.Search
 import com.tekclover.wms.api.inbound.transaction.repository.DbConfigRepository;
 import com.tekclover.wms.api.inbound.transaction.service.BaseService;
 import com.tekclover.wms.api.inbound.transaction.service.PutAwayHeaderService;
+import com.tekclover.wms.api.inbound.transaction.service.ScheduleAsyncService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.SwaggerDefinition;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -48,6 +50,9 @@ public class PutAwayHeaderController extends BaseService {
 
     @Autowired
     BaseService baseService;
+
+    @Autowired
+    ScheduleAsyncService scheduleAsyncService;
 
 
     @ApiOperation(response = PutAwayHeader.class, value = "Get all PutAwayHeader details") // label for swagger
@@ -238,11 +243,14 @@ public class PutAwayHeaderController extends BaseService {
     public List<PutAwayHeaderV2> createPutawayHeader(@RequestBody List<PutawayHeaderInt> putawayHeaders)
             throws Exception {
         try {
-        String currentDB = baseService.getDataBase(putawayHeaders.get(0).getSapDocumentNo());
-        DataBaseContextHolder.clear();
-        DataBaseContextHolder.setCurrentDb(currentDB);
-        log.info("Current DB " + currentDB);
-        return putawayheaderService.createPutawayHeaderv3(putawayHeaders);
+//            String currentDB = baseService.getDataBase(putawayHeaders.get(0).getSapDocumentNo());
+//            DataBaseContextHolder.clear();
+//            DataBaseContextHolder.setCurrentDb(currentDB);
+//            log.info("Current DB " + currentDB);
+            log.info("PutAwayHeader from SAP started....");
+            scheduleAsyncService.createPutAwayHeaderAsynProcess(putawayHeaders);
+            log.info("PutAwayHeader from SAP Completed....");
+            return new ArrayList<>();
         } finally {
             DataBaseContextHolder.clear();
         }

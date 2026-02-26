@@ -20,6 +20,7 @@ import com.tekclover.wms.api.inbound.transaction.model.warehouse.inbound.Reversa
 import com.tekclover.wms.api.inbound.transaction.repository.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -797,7 +798,6 @@ public class PutAwayHeaderService extends BaseService {
      * @param plantId
      * @param languageId
      * @param warehouseId
-     * @param itemCode
      * @param manufacturerName
      * @return
      */
@@ -3438,11 +3438,12 @@ public class PutAwayHeaderService extends BaseService {
      * @return
      */
     public List<PutAwayHeaderV2> createPutawayHeaderv3(List<PutawayHeaderInt> putawayHeaders) {
-        log.info("PutAwayHeader from SAP started....");
-        log.info("PutAwayHeader -------> {}", putawayHeaders);
+
+        log.info("PutAwayHeader InputValues-------> {}", putawayHeaders);
 
         List<PutAwayHeaderV2> putAwayHeaderV2List = new ArrayList<>();
-        putawayHeaders.forEach(putAway -> {
+        for (PutawayHeaderInt putAway : putawayHeaders) {
+//        putawayHeaders.forEach(putAway -> {
             String huSerial = putAway.getHuSerialNo();
             List<StagingLineEntityV2> stagingLineEntityV2List = stagingLineV2Repository
                     .findByRefDocNumberAndBarcodeIdAndDeletionIndicator(putAway.getRefDocNumber(), huSerial, 0L);
@@ -3451,8 +3452,8 @@ public class PutAwayHeaderService extends BaseService {
             List<GrLineV2> createdGRLines = new ArrayList<>();
             String idMasterAuthToken = getIDMasterAuthToken();
             long NUM_RAN_CODE_PA_NO = 7;
-
-            stagingLineEntityV2List.forEach(stagingLine -> {
+//            stagingLineEntityV2List.forEach(stagingLine -> {
+            for (StagingLineEntityV2 stagingLine : stagingLineEntityV2List) {
                 try {
                     log.info("stagingLine ------> {}", stagingLine);
 //					log.info("stagingLine Remarks -------> {}", stagingLine.getRemarks());
@@ -3534,7 +3535,7 @@ public class PutAwayHeaderService extends BaseService {
                             Optional<GrLineV2> duplicateChecking = grLineV2Repository.findByBarcodeIdAndRefDocNumberAndDeletionIndicator(stagingLine.getBarcodeId(),
                                     stagingLine.getRefDocNumber(), 0L);
                             log.info("Duplicate Checking This RefDocNo {}, And BarcodeId {} ", stagingLine.getRefDocNumber(), stagingLine.getBarcodeId());
-                            if(duplicateChecking.isEmpty()) {
+                            if (duplicateChecking.isEmpty()) {
                                 createdGRLines.add(newGrLine);
                             }
                         }
@@ -3549,8 +3550,8 @@ public class PutAwayHeaderService extends BaseService {
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
-            });
-
+//            });
+            }
             /*
              * PutAway Creation
              */
@@ -3573,8 +3574,8 @@ public class PutAwayHeaderService extends BaseService {
                     e.printStackTrace();
                 }
             }
-        });
-
+//        });
+        }
 //        putAwayHeaderIntRepository.saveAll(putawayHeaders);
         return putAwayHeaderV2List;
     }
@@ -4419,7 +4420,7 @@ public class PutAwayHeaderService extends BaseService {
      * @param createdGRLine
      * @param loginUserId
      */
-    @org.springframework.transaction.annotation.Transactional
+    @Transactional
     public void createInventoryNonCBMV3(String companyCode, String plantId, String languageId, String warehouseId, GrLineV2 createdGRLine, String loginUserId) {
         try {
             InventoryV2 createdinventory = null;

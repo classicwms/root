@@ -35,7 +35,7 @@ public class PutAwayLineAsyncProcess {
             DataBaseContextHolder.setCurrentDb(db);
             log.info("Current DB -------------> "  + db);
             List<PutAwayLineV2> putAwayLineV2List = putAwayLineService.putAwayLineConfirmNonCBMV3(putAwayLineV2s, loginUserID);
-            log.info("PutAwayLine Async process Started --------> Size is {} ", putAwayLineV2List.size());
+            log.info("PutAwayLine Async process Completed --------> Size is {} ", putAwayLineV2List.size());
         } catch (Exception e) {
             log.info(e.getMessage());
         } finally {
