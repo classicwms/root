@@ -663,6 +663,7 @@ public class MultiTenantService {
 
             ConditionUtils.addDateCondition(conditions, "UTD_ON", searchImBasicData1.getStartUpdatedOn(), searchImBasicData1.getEndUpdatedOn());
             ConditionUtils.addDateCondition(conditions, "CTD_ON", searchImBasicData1.getStartCreatedOn(), searchImBasicData1.getEndCreatedOn());
+            ConditionUtils.addCondition(conditions, "REF_FIELD_2", searchImBasicData1.getReferenceField2());
 
             if (!conditions.isEmpty()) {
                 sqlQuery += " WHERE IS_DELETED = 0  AND " + String.join(" AND ", conditions);
@@ -813,6 +814,7 @@ public class MultiTenantService {
 
             ConditionUtils.addDateCondition(conditions, "UTD_ON", searchImBasicData1.getStartUpdatedOn(), searchImBasicData1.getEndUpdatedOn());
             ConditionUtils.addDateCondition(conditions, "CTD_ON", searchImBasicData1.getStartCreatedOn(), searchImBasicData1.getEndCreatedOn());
+            ConditionUtils.addCondition(conditions, "REF_FIELD_2", searchImBasicData1.getReferenceField2());
 
             if (!conditions.isEmpty()) {
                 sqlQuery += " WHERE IS_DELETED = 0  AND " + String.join(" AND ", conditions);
@@ -6874,6 +6876,7 @@ public class MultiTenantService {
 
             ConditionUtils.addDateCondition(conditions, "UTD_ON", searchImBasicData1.getStartUpdatedOn(), searchImBasicData1.getEndUpdatedOn());
             ConditionUtils.addDateCondition(conditions, "CTD_ON", searchImBasicData1.getStartCreatedOn(), searchImBasicData1.getEndCreatedOn());
+            ConditionUtils.addCondition(conditions, "REF_FIELD_2", searchImBasicData1.getReferenceField2());
 
             if (!conditions.isEmpty()) {
                 sqlQuery += " WHERE IS_DELETED = 0  AND " + String.join(" AND ", conditions);
