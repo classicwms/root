@@ -370,6 +370,97 @@ public class UserManagementService {
         return null;
     }
 
+    public Login validateUserV9(UserLoginInput userLoginInput) throws ParseException {
+
+        String userId = userLoginInput.getUserId();
+        String loginPassword = userLoginInput.getLoginPassword();
+
+        DataBaseContextHolder.setCurrentDb("MT");
+        UserManagement user = userManagementRepository.getUserDetails(userLoginInput.getUserId(), userLoginInput.getCompanyCodeId(), userLoginInput.getPlantId(), userLoginInput.getWarehouseId());
+
+        log.info("user -----> {}", user);
+
+        String routingDb = dbConfigRepository.getDbName(user.getCompanyCode(), user.getPlantId(), user.getWarehouseId());
+        log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+        DataBaseContextHolder.clear();
+        DataBaseContextHolder.setCurrentDb(routingDb);
+
+        Login login = new Login();
+
+        if (userId == null && loginPassword == null) {
+            throw new BadRequestException("UserId & password is must!");
+        }
+        if (userId == null) {
+            throw new BadRequestException("UserId is must!");
+        }
+        if (loginPassword == null) {
+            throw new BadRequestException("Password is must!");
+        }
+
+        List<UserManagement> userManagementList = null;
+
+        if (userLoginInput.getPlantId() != null) {
+            userManagementList = userManagementRepository.getUserIdWithPlant(userId, userLoginInput.getPlantId(), user.getWarehouseId());
+        } else if (userLoginInput.getWarehouseId() != null) {
+            userManagementList = userManagementRepository.getUserIdV8(userId, userLoginInput.getWarehouseId());
+        } else {
+            userManagementList = userManagementRepository.getUserIdV6(userLoginInput.getUserId());
+        }
+
+        log.info("userManagementList -----> {}", userManagementList);
+        if (userManagementList == null || userManagementList.isEmpty()) {
+            throw new BadRequestException("Invalid Username : " + userId);
+        }
+
+        if (userManagementList.size() > 1) {
+            log.info("UserManagement List Size : " + userManagementList.size());
+            login.setUsers(userManagementList);
+            return login;
+        }
+
+        boolean isSuccess = false;
+        for (UserManagement userManagement : userManagementList) {
+            isSuccess = passwordEncoder.matches(loginPassword, userManagement.getPassword());
+            if (isSuccess) {
+                DataBaseContextHolder.setCurrentDb("MT");
+                routingDb = dbConfigRepository.getDbName(userManagement.getCompanyCode(), userManagement.getPlantId(), userManagement.getWarehouseId());
+                log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+//
+//		log.info("datasource 1 --> {}",DataBaseContextHolder.getCurrentDb());
+                DataBaseContextHolder.clear();
+                DataBaseContextHolder.setCurrentDb(routingDb);
+                //get respective role access
+                List<RoleAccess> roleAccessList = roleAccessService.getRoleAccess(
+                        userManagement.getWarehouseId(), userManagement.getUserRoleId(),
+                        userManagement.getCompanyCode(), userManagement.getLanguageId(), userManagement.getPlantId());
+
+                //get respective module
+                FindModuleId findModuleId = new FindModuleId();
+                findModuleId.setCompanyCodeId(userManagement.getCompanyCode());
+                findModuleId.setPlantId(userManagement.getPlantId());
+                findModuleId.setLanguageId(Collections.singletonList(userManagement.getLanguageId()));
+                findModuleId.setWarehouseId(userManagement.getWarehouseId());
+                List<ModuleId> moduleIdList = moduleIdService.findModuleId(findModuleId);
+
+                login.setUsers(userManagementList);
+
+                if (roleAccessList != null && !roleAccessList.isEmpty()) {
+                    login.setUserRole(roleAccessList);
+                }
+                if (moduleIdList != null && !moduleIdList.isEmpty()) {
+                    login.setUserModule(moduleIdList);
+                }
+                log.info("UserId, RoleAccess Size, User Module Size: " + userManagement + "; " + roleAccessList.size() + "; " + moduleIdList.size());
+                return login;
+            }
+        }
+
+        if (!isSuccess) {
+            throw new BadRequestException("Password is wrong. Please enter correct password.");
+        }
+        return null;
+    }
+
     /**
      * @param userId
      * @param loginPassword

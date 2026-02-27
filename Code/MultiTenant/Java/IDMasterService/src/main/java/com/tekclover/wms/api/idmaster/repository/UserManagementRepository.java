@@ -70,6 +70,17 @@ public interface UserManagementRepository extends JpaRepository<UserManagement, 
 			"is_deleted=0 ", nativeQuery = true)
 	UserManagement getUserDetails(@Param(value = "userId") String userId);
 
+	@Query(value = "select top 1 * \n" +
+			" from tblusermanagement \n" +
+			"WHERE \n" +
+			"(COALESCE(:userId, null) IS NULL OR (USR_ID IN (:userId))) and \n" +
+			"c_id = :companyId and plant_id = :plantId and wh_id = :warehouseId and \n" +
+			"is_deleted=0 ", nativeQuery = true)
+	UserManagement getUserDetails(@Param(value = "userId") String userId,
+								  @Param(value = "companyId") String companyId,
+								  @Param(value = "plantId") String plantId,
+								  @Param(value = "warehouseId") String warehouseId);
+
 	@Query(value = "SELECT COUNT(*) FROM tblusermanagement " +
 			"WHERE C_ID = :companyCode AND PLANT_ID = :plantId " +
 			"AND WH_ID = :warehouseId AND LANG_ID = :languageId " +

@@ -51,7 +51,12 @@ public class LoginController {
 	@ApiOperation(response = Login.class, value = "Validate Login User and return along with UserRole and ModuleId") // label for swagger
 	@PostMapping("/v2")
 	public ResponseEntity<?> validateUserId(@RequestBody UserLoginInput userLoginInput) throws ParseException {
-		Login validatedUser = userManagementService.validateUserV8(userLoginInput);
+		Login validatedUser =null;
+		if(userLoginInput.getCompanyCodeId() == null || userLoginInput.getPlantId() == null || userLoginInput.getWarehouseId() == null ) {
+			validatedUser = userManagementService.validateUserV8(userLoginInput);
+		} else {
+			validatedUser = userManagementService.validateUserV9(userLoginInput);
+		}
 		log.info("Login : " + validatedUser.getUsers());
 		return new ResponseEntity<>(validatedUser, HttpStatus.OK);
 	}
