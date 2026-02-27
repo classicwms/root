@@ -173,7 +173,7 @@ public class DatabaseConnectionUtil {
     }
 
     public static String getKKFJdbcUrl() {
-        return "jdbc:sqlserver://10.20.0.19;databaseName=WMS_KKF";
+        return "jdbc:sqlserver://10.20.0.19;databaseName=BFS_KKF";
     }
 
     public static Properties getKKFDatabaseConnectionProperties() {
