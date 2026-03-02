@@ -62,4 +62,11 @@ public interface ImBasicData1Repository extends PagingAndSortingRepository<ImBas
 											   @Param(value = "languageId") String languageId,
 											   @Param(value = "warehouseId") String warehouseId,
 											   @Param(value = "manufactureName") String manufactureName);
+
+	@Query (value = "SELECT top 1 TEXT AS description FROM tblimbasicdata1 \r\n"
+			+ " WHERE ITM_CODE = :itemCode and C_ID = :companyCodeId and PLANT_ID = :plantId and LANG_ID = :languageId and IS_DELETED = 0", nativeQuery = true)
+	public String findItemDescription (@Param(value = "itemCode") String itemCode,
+											   @Param(value = "companyCodeId") String companyCodeId,
+											   @Param(value = "plantId") String plantId,
+											   @Param(value = "languageId") String languageId);
 }
