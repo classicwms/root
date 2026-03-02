@@ -5088,6 +5088,7 @@ public class MultiTenantService {
             ConditionUtils.addCondition(conditions, "IT_CTD_BY", searchInhouseTransferLine.getCreatedBy());
             ConditionUtils.addCondition(conditions, "IT_CNF_BY", searchInhouseTransferLine.getConfirmedBy());
             ConditionUtils.addCondition(conditions, "REF_FIELD_1", searchInhouseTransferLine.getReferenceField1());
+            ConditionUtils.addCondition(conditions, "REF_FIELD_10", searchInhouseTransferLine.getReferenceField10());
 
             ConditionUtils.numericConditions(conditions, "SRCE_STCK_TYP_ID", searchInhouseTransferLine.getSourceStockTypeId());
             ConditionUtils.numericConditions(conditions, "TGT_STCK_TYP_ID", searchInhouseTransferLine.getTargetStockTypeId());
@@ -5490,6 +5491,7 @@ public class MultiTenantService {
             ConditionUtils.addCondition(conditions, "REF_FIELD_7", findInventory.getReferenceField7());
             ConditionUtils.addCondition(conditions, "level_id", findInventory.getLevelId());
             ConditionUtils.addCondition(conditions, "alt_uom", findInventory.getAltUom());
+            ConditionUtils.addCondition(conditions, "ORIGIN", findInventory.getOrigin());
             if (findInventory.getStockTypeId() != null) {
                 ConditionUtils.numericConditions(conditions, "STCK_TYP_ID", findInventory.getStockTypeId());
             }
