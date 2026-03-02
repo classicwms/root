@@ -4572,6 +4572,9 @@ public class PreOutboundHeaderService extends BaseService {
         if (manufactureName != null && !manufactureName.isEmpty()) {
             orderManagementLine.setManufacturerName(manufactureName.get(0));
             orderManagementLine.setManufacturerCode(manufactureName.get(0));
+        } else {
+            orderManagementLine.setManufacturerName("3PL");
+            orderManagementLine.setManufacturerCode("3PL");
         }
 
         orderManagementLine.setTransferOrderNo(preOutboundLine.getTransferOrderNo());
