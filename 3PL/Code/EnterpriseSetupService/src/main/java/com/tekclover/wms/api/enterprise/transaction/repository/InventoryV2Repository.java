@@ -1204,7 +1204,8 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "bin_cl_id in (:binClassId) and \n" +
             "plant_id in (:plantId) and \n" +
             "lang_id in (:languageId) and \n" +
-            "mfr_name in (:manufacturerName) and \n" +
+            "coalesce(:manufacturerName, null) is null or (mfr_name in (:manufacturerName)) and \n" +
+//            "mfr_name in (:manufacturerName) and \n" +
             "c_id in (:companyCodeId) and is_deleted = 0 \n" +
             "group by itm_code,mfr_name,pack_barcode,st_bin,plant_id,wh_id,c_id,lang_id \n"
 
@@ -1267,7 +1268,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "stck_typ_id in (:stockTypeId) and \n" +
             "plant_id in (:plantId) and \n" +
             "lang_id in (:languageId) and \n" +
-            "mfr_name in (:manufacturerName) and \n" +
+            "coalesce(:manufacturerName, null) is null or (mfr_name in (:manufacturerName)) and \n" +
             "c_id in (:companyCodeId) and is_deleted = 0 \n" +
             "and inv_id in (select inventoryId from #inv) \n" +
             "group by itm_code, mfr_name, st_bin,LANG_ID,C_ID,PLANT_ID,WH_ID,VAR_ID,VAR_SUB_ID,STR_NO,STCK_TYP_ID,\n" +
