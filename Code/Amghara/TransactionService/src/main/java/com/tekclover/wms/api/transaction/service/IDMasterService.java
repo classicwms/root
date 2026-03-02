@@ -4,6 +4,9 @@ import java.time.Year;
 import java.util.Collections;
 import java.util.Date;
 
+import com.tekclover.wms.api.transaction.model.warehouse.inbound.WarehouseApiResponse;
+import com.tekclover.wms.api.transaction.model.warehouse.outbound.ShipmentOrder;
+import com.tekclover.wms.api.transaction.model.warehouse.outbound.v2.ShipmentOrderV2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -42,6 +45,10 @@ public class IDMasterService {
 	
 	private String getIDMasterServiceApiUrl () {
 		return propertiesConfig.getIdmasterServiceUrl();
+	}
+
+	private String getEnterPriseServiceApiUrl () {
+		return propertiesConfig.getEnterpriseServiceUrl();
 	}
 	
 	
@@ -329,5 +336,21 @@ public class IDMasterService {
 			e.printStackTrace();
 			throw new BadRequestException(e.getLocalizedMessage());
 		}
+	}
+
+
+	public WarehouseApiResponse postShipmentOrder(ShipmentOrderV2 shipmentOrder) {
+		HttpHeaders headers = new HttpHeaders();
+		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+		headers.add("User-Agent", "ClassicWMS RestTemplate");
+//        headers.add("Authorization", "Bearer " + authToken.getAccess_token());
+		AuthToken authToken = authTokenService.getEnterPriseServiceAuthToken();
+			headers.add("Authorization", "Bearer " + authToken.getAccess_token());
+		UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getEnterPriseServiceApiUrl() + "/outbound/so/v2");
+		HttpEntity<?> entity = new HttpEntity<>(shipmentOrder, headers);
+		ResponseEntity<WarehouseApiResponse> result =
+				getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, WarehouseApiResponse.class);
+		log.info("result: " + result.getStatusCode());
+		return result.getBody();
 	}
 }

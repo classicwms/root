@@ -14,6 +14,7 @@ import java.util.UUID;
 
 import javax.validation.Valid;
 
+import com.tekclover.wms.api.transaction.model.warehouse.inbound.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -39,20 +40,6 @@ import com.tekclover.wms.api.transaction.model.warehouse.cyclecount.periodic.Per
 import com.tekclover.wms.api.transaction.model.warehouse.cyclecount.perpetual.Perpetual;
 import com.tekclover.wms.api.transaction.model.warehouse.cyclecount.perpetual.PerpetualHeaderV1;
 import com.tekclover.wms.api.transaction.model.warehouse.cyclecount.perpetual.PerpetualLineV1;
-import com.tekclover.wms.api.transaction.model.warehouse.inbound.ASN;
-import com.tekclover.wms.api.transaction.model.warehouse.inbound.ASNHeader;
-import com.tekclover.wms.api.transaction.model.warehouse.inbound.ASNLine;
-import com.tekclover.wms.api.transaction.model.warehouse.inbound.InboundOrder;
-import com.tekclover.wms.api.transaction.model.warehouse.inbound.InboundOrderLines;
-import com.tekclover.wms.api.transaction.model.warehouse.inbound.InterWarehouseTransferIn;
-import com.tekclover.wms.api.transaction.model.warehouse.inbound.InterWarehouseTransferInHeader;
-import com.tekclover.wms.api.transaction.model.warehouse.inbound.InterWarehouseTransferInLine;
-import com.tekclover.wms.api.transaction.model.warehouse.inbound.SOReturnHeader;
-import com.tekclover.wms.api.transaction.model.warehouse.inbound.SOReturnLine;
-import com.tekclover.wms.api.transaction.model.warehouse.inbound.SaleOrderReturn;
-import com.tekclover.wms.api.transaction.model.warehouse.inbound.StoreReturn;
-import com.tekclover.wms.api.transaction.model.warehouse.inbound.StoreReturnHeader;
-import com.tekclover.wms.api.transaction.model.warehouse.inbound.StoreReturnLine;
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.confirmation.AXApiResponse;
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.confirmation.InterWarehouseTransfer;
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.v2.ASNHeaderV2;
@@ -131,6 +118,9 @@ public class WarehouseService extends BaseService {
 
 	@Autowired
 	StockAdjustmentMiddlewareService stockAdjustmentService;
+
+	@Autowired
+	IDMasterService idMasterService;
 
 	/**
 	 * 
@@ -2091,6 +2081,18 @@ public class WarehouseService extends BaseService {
 	}
 
 	/**
+	 * ShipmentOrder
+	 *
+	 * @param shipmenOrder
+	 * @return
+	 */
+	public WarehouseApiResponse postSOV2InEnterPrise(ShipmentOrderV2 shipmenOrder) throws ParseException {
+		log.info("ShipmenOrder received from External: " + shipmenOrder);
+		OutboundOrderV2 savedSoHeader = saveSOV2(shipmenOrder, false);
+		return idMasterService.postShipmentOrder(shipmenOrder);
+	}
+
+	/**
 	 * @param salesOrder
 	 * @return
 	 */
@@ -2258,7 +2260,7 @@ public class WarehouseService extends BaseService {
 			apiHeader.setOrderProcessedOn(new Date());
 
 			if (shipmentOrder.getSoLine() != null && !shipmentOrder.getSoLine().isEmpty()) {
-				apiHeader.setProcessedStatusId(0L);
+				apiHeader.setProcessedStatusId(1L);
 				log.info("apiHeader : " + apiHeader);
 				OutboundOrderV2 createdOrder = orderService.createOutboundOrdersV2(apiHeader);
 				log.info("ShipmentOrder Order Success: " + createdOrder);

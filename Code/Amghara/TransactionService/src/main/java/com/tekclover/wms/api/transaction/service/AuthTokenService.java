@@ -77,6 +77,8 @@ public class AuthTokenService {
 			accessTokenUrl = propertiesConfig.getIdmasterAccessTokenUrl();
 		} else if (apiUrl.equalsIgnoreCase("wms-connector-service")) {
 			accessTokenUrl = propertiesConfig.getConnectorAccessTokenUrl();
+		} else if (apiUrl.equalsIgnoreCase("wms-enterprise-service")) {
+			accessTokenUrl = propertiesConfig.getEnterpriseAccessTokenUrl();
 		} else {
 			log.info("The given URL is not available. Quiting.");
 			throw new BadRequestException("The given URL is not available. Quiting");
@@ -140,6 +142,23 @@ public class AuthTokenService {
 	public AuthToken getConnectorServiceAuthToken() {
 		AuthTokenRequest authTokenRequest = new AuthTokenRequest();
 		authTokenRequest.setApiName("wms-connector-service");
+		authTokenRequest.setClientId(propertiesConfig.getClientId());
+		authTokenRequest.setClientSecretKey(propertiesConfig.getClientSecretKey());
+		authTokenRequest.setGrantType(propertiesConfig.getGrantType());
+		authTokenRequest.setOauthUserName(propertiesConfig.getUsername());
+		authTokenRequest.setOauthPassword(propertiesConfig.getPassword());
+		return getAuthToken(authTokenRequest);
+	}
+
+	/**
+	 * EnterPriseServiceAuthToken
+	 *
+	 * @return
+	 */
+	public AuthToken getEnterPriseServiceAuthToken() {
+		// Generate AuthToken for IDMasterService
+		AuthTokenRequest authTokenRequest = new AuthTokenRequest();
+		authTokenRequest.setApiName("wms-enterprise-service");
 		authTokenRequest.setClientId(propertiesConfig.getClientId());
 		authTokenRequest.setClientSecretKey(propertiesConfig.getClientSecretKey());
 		authTokenRequest.setGrantType(propertiesConfig.getGrantType());

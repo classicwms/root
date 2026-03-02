@@ -513,7 +513,8 @@ public ResponseEntity<?> postAsnUploadV2 (@Valid @RequestBody List<ASNV2> asnv2L
 	public ResponseEntity<?> postShipmenOrderV2(@Valid @RequestBody ShipmentOrderV2 shipmenOrder)
 			throws IllegalAccessException, InvocationTargetException {
 		try {
-			ShipmentOrderV2 createdSO = warehouseService.postSOV2(shipmenOrder, false);
+//			ShipmentOrderV2 createdSO = warehouseService.postSOV2(shipmenOrder, false);
+			WarehouseApiResponse createdSO = warehouseService.postSOV2InEnterPrise(shipmenOrder);
 			if (createdSO != null) {
 				WarehouseApiResponse response = new WarehouseApiResponse();
 				response.setStatusCode("200");
