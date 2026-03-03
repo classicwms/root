@@ -51,5 +51,9 @@ public class InhouseTransferLine {
     private String sourceStockTypeDescription;
     private String targetStockTypeDescription;
     private String manufacturerName;
+    private String alternateUom;
+
+    private String sourceBarcodeId;
+    private String targetBarcodeId;
 
 }

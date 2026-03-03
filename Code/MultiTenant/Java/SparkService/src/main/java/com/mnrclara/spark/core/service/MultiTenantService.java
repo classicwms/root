@@ -5070,7 +5070,10 @@ public class MultiTenantService {
                     + "WH_TEXT as warehouseDescription, "
                     + "SRCE_STCK_TYP_TEXT as sourceStockTypeDescription, "
                     + "TGT_STCK_TYP_TEXT as targetStockTypeDescription, "
-                    + "MFR_NAME as manufacturerName "
+                    + "MFR_NAME as manufacturerName, "
+                    + "BARCODE_ID as sourceBarcodeId, "
+                    + "TGT_BARCODE_ID as targetBarcodeId, "
+                    + "ALT_UOM as alternateUom "
                     + "FROM tblinhousetransferline";
 
             List<String> conditions = new ArrayList<>();
