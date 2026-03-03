@@ -35,4 +35,6 @@ public class SearchStagingLineV2 extends SearchStagingLine {
 	private Date startCreatedOn;
 	private Date endCreatedOn;
 
+	private List<String> palletId;
+
 }

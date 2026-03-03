@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import com.tekclover.wms.api.inbound.transaction.model.report.StagingLineNewReport;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -613,4 +614,122 @@ public interface StagingLineV2Repository extends JpaRepository<StagingLineEntity
                                   @Param("updatedBy") String updatedBy,
                                   @Param("updatedOn") Date updatedOn,
                                    @Param("refDocNo") String refDocNo);
+
+    @Query(value =
+            "SELECT " +
+                    "    st.LANG_ID as languageId,\n" +
+                    "    st.C_ID as companyCodeId,\n" +
+                    "    st.PLANT_ID as plantId,\n" +
+                    "    st.WH_ID as warehouseId,\n" +
+                    "    st.PRE_IB_NO as preInboundNo,\n" +
+                    "    st.REF_DOC_NO as refDocNumber,\n" +
+                    "    st.STG_NO as stagingNo,\n" +
+                    "    st.PAL_CODE as palletCode,\n" +
+                    "    st.CASE_CODE as caseCode,\n" +
+                    "    st.ITM_CODE as itemCode,\n" +
+                    "    st.IB_ORD_TYP_ID as inboundOrderTypeId,\n" +
+                    "    st.VAR_ID as variantCode,\n" +
+                    "    st.VAR_SUB_ID as variantSubCode,\n" +
+                    "    st.STR_NO as batchSerialNumber,\n" +
+                    "    st.STCK_TYP_ID as stockTypeId,\n" +
+                    "    st.SP_ST_IND_ID as specialStockIndicatorId,\n" +
+                    "    st.ST_MTD as storageMethod,\n" +
+                    "    st.STATUS_ID as statusId,\n" +
+                    "    st.PARTNER_CODE as businessPartnerCode,\n" +
+                    "    st.CONT_NO as containerNo,\n" +
+                    "    st.INV_NO as invoiceNo,\n" +
+                    "    st.ORD_QTY as orderQty,\n" +
+                    "    st.ORD_UOM as orderUom,\n" +
+                    "    st.ITM_PAL_QTY as itemQtyPerPallet,\n" +
+                    "    st.ITM_CASE_QTY as itemQtyPerCase,\n" +
+                    "    st.ITEM_TEXT as itemDescription,\n" +
+                    "    st.MFR_PART as manufacturerPartNo,\n" +
+                    "    st.HSN_CODE as hsnCode,\n" +
+                    "    st.VAR_TYP as variantType,\n" +
+                    "    st.SPEC_ACTUAL as specificationActual,\n" +
+                    "    st.PARTNER_ITEM_BARCODE as itemBarcode,\n" +
+                    "     st.REF_DOC_TYPE as referenceDocumentType, " +
+                    "    st.REF_ORD_NO as referenceOrderNo,\n" +
+                    "    st.REF_ORD_QTY as referenceOrderQty,\n" +
+                    "    st.REMARK as remarks,\n" +
+                    "    st.REF_FIELD_1 as referenceField1,\n" +
+                    "    st.REF_FIELD_2 as referenceField2,\n" +
+                    "    st.REF_FIELD_3 as referenceField3,\n" +
+                    "    st.REF_FIELD_4 as referenceField4,\n" +
+                    "    st.REF_FIELD_5 as referenceField5,\n" +
+                    "    st.REF_FIELD_6 as referenceField6,\n" +
+                    "    st.REF_FIELD_7 as referenceField7,\n" +
+                    "    st.REF_FIELD_8 as referenceField8,\n" +
+                    "    st.REF_FIELD_9 as referenceField9,\n" +
+                    "    st.REF_FIELD_10 as referenceField10,\n" +
+                    "    st.IS_DELETED as deletionIndicator,\n" +
+                    "    st.ST_CTD_BY as createdBy,\n" +
+                    "    st.ST_CTD_ON as createdOn,\n" +
+                    "    st.ST_UTD_BY as updatedBy,\n" +
+                    "    st.ST_UTD_ON as updatedOn,\n" +
+                    "    st.ST_CNF_BY as confirmedBy,\n" +
+                    "    st.ST_CNF_ON as confirmedOn, " +
+                    "st.SAP_FALG as sapFlag, \n" +
+                    "st.SAP_TYPE as sapType, \n" +
+                    "st.SAP_MESSAGE as sapMessage, \n" +
+                    "st.SAP_DOCUMENT_NO as sapDocumentNo, " +
+                    "st.VEHICLE_NO as vehicleNumber, \n" +
+                    "st.VEHICLE_TOTAL_HU_NUMBER as vehicleTotalHuNumber, \n" +
+                    "st.VEHICLE_SCAN_HU_NUMBER as vehicleScanHuNumber, " +
+                    "st.MATERIAL_NO as materialNo, \n" +
+                    "st.PRICE_SEGMENT as priceSegment, \n" +
+                    "st.ARTICLE_NO as articleNo, \n" +
+                    "st.GENDER as gender, \n" +
+                    "st.COLOR as color, \n" +
+                    "st.SIZE as size, \n" +
+                    "st.NO_PAIRS as noPairs, \n" +
+                    "st.MFR_CODE as manufacturerCode, \n" +
+                    "st.MFR_NAME as manufacturerName, \n" +
+                    "st.MANUFACTURER_FULL_NAME as manufacturerFullName, " +
+                    "st.PALLET_ID as palletId, " +
+                    "st.INV_QTY as inventoryQuantity, " +
+                    "st.C_TEXT as companyDescription,\n" +
+                    "st.PLANT_TEXT as plantDescription,\n" +
+                    "st.WH_TEXT as warehouseDescription,\n" +
+                    "st.STATUS_TEXT as statusDescription," +
+                    "    ph.REF_DOC_NO as putAwayRefDocNo, " +
+                    "    ph.BARCODE_ID as putAwayBarcodeId, " +
+                    "    ph.REF_FIELD_5 as putAwayItemCode, " +
+                    "    CASE WHEN ph.BARCODE_ID IS NOT NULL " +
+                    "         THEN 'Created' ELSE 'Not Created' END as putAwayHeaderStatus " +
+                    "FROM tblstagingline st " +
+                    "LEFT JOIN tblputawayheader ph  " +
+                    "  ON ph.C_ID = st.C_ID " +
+                    "  AND ph.PLANT_ID = st.PLANT_ID " +
+                    "  AND ph.LANG_ID = st.LANG_ID " +
+                    "  AND ph.WH_ID = st.WH_ID " +
+                    "  AND ph.REF_DOC_NO = st.REF_DOC_NO " +
+                    " AND ph.ref_field_5 = st.ITM_CODE " +
+                    " AND ph.BARCODE_ID = st.PARTNER_ITEM_BARCODE " +
+                    " AND ph.PAL_ID = st.PALLET_ID " +
+                    " WHERE st.C_ID IN (:companyCodeId) " +
+                    " AND st.PLANT_ID IN (:plantId) " +
+                    " AND st.LANG_ID IN (:languageId) " +
+                    " AND st.WH_ID IN (:warehouseId) " +
+                    " AND (COALESCE(:refDocNumber, null) IS NULL OR (st.REF_DOC_NO IN (:refDocNumber)))  \n" +
+                    " AND (COALESCE(:itemCode, null) IS NULL OR (st.ITM_CODE IN (:itemCode)))  \n" +
+                    " AND (COALESCE(:barcodeId, null) IS NULL OR (st.PARTNER_ITEM_BARCODE IN (:barcodeId)))  \n" +
+                    " AND (COALESCE(:palletId, null) IS NULL OR (st.PALLET_ID IN (:palletId)))  \n" +
+                    " AND (COALESCE(:vehicleNumber, null) IS NULL OR (st.VEHICLE_NO IN (:vehicleNumber))) \n" +
+                    " AND (COALESCE(CONVERT(VARCHAR(225), :startCreatedOn), NULL) IS NULL OR " +
+                    " (st_ctd_on BETWEEN COALESCE(CONVERT(VARCHAR(225), :startCreatedOn), NULL) " +
+                    " AND COALESCE(CONVERT(VARCHAR(225), :endCreatedOn), NULL))) \n" +
+                    " AND st.IS_DELETED = 0 ", nativeQuery = true)
+    List<StagingLineNewReport> getPutAwayHeader(
+            @Param("companyCodeId") List<String> companyCodeId,
+            @Param("plantId") List<String> plantId,
+            @Param("languageId") List<String> languageId,
+            @Param("warehouseId") List<String> warehouseId,
+            @Param("refDocNumber") List<String> refDocNumber,
+            @Param("itemCode") List<String> itemCode,
+            @Param("barcodeId") List<String> barcodeId,
+            @Param("palletId") List<String> palletId,
+            @Param("vehicleNumber") List<String> vehicleNumber,
+            @Param("startCreatedOn") Date startCreatedOn,
+            @Param("endCreatedOn") Date endCreatedOn);
 }

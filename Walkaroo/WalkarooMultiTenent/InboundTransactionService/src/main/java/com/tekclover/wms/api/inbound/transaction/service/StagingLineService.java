@@ -9,8 +9,10 @@ import java.util.stream.Stream;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.tekclover.wms.api.inbound.transaction.model.dto.*;
 import com.tekclover.wms.api.inbound.transaction.model.inbound.inventory.v2.InventoryV2;
+import com.tekclover.wms.api.inbound.transaction.model.report.StagingLineNewReport;
 import com.tekclover.wms.api.inbound.transaction.model.warehouse.inbound.v2.ASNLineV2;
 import com.tekclover.wms.api.inbound.transaction.repository.*;
+import com.tekclover.wms.api.inbound.transaction.util.DateUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -2845,4 +2847,26 @@ public class StagingLineService extends BaseService {
 //        }
 //        return stagingLineEntityV2List;
 //    }
+
+
+    public List<StagingLineNewReport> findStagingLineNewV2Report(SearchStagingLineV2 searchStagingLine)
+            throws ParseException, java.text.ParseException {
+
+        log.info("StagingLine report Input Values -------> {} ", searchStagingLine);
+
+        if(searchStagingLine.getStartCreatedOn() != null && searchStagingLine.getEndCreatedOn() != null ) {
+            Date[] dates = DateUtils.addTimeToDatesForSearch(searchStagingLine.getStartCreatedOn(), searchStagingLine.getEndCreatedOn());
+
+            searchStagingLine.setStartCreatedOn(dates[0]);
+            searchStagingLine.setEndCreatedOn(dates[1]);
+        }
+        List<StagingLineNewReport> stagingLines = stagingLineV2Repository.getPutAwayHeader(searchStagingLine.getCompanyCodeId(), searchStagingLine.getPlantId(),
+                searchStagingLine.getLanguageId(), searchStagingLine.getWarehouseId(), searchStagingLine.getRefDocNumber(), searchStagingLine.getItemCode(), searchStagingLine.getBarcodeId(),
+                searchStagingLine.getPalletId(), searchStagingLine.getVehicleNumber(), searchStagingLine.getStartCreatedOn(), searchStagingLine.getEndCreatedOn());
+        log.info("allStatus101 ---------> {}", stagingLines);
+
+
+        return stagingLines;
+    }
+
 }

@@ -4485,4 +4485,12 @@ public class TransactionServiceController {
             return new ResponseEntity<>(inboundOrderV2, HttpStatus.OK);
         }
 
+    //Find
+    @ApiOperation(response = StagingLineNewReport.class, value = "StagingLine to Putaway V2") // label for swagger
+    @PostMapping("/stagingline/New/Report")
+    public StagingLineNewReport[] findStagingLineNewV2Report(@RequestBody SearchStagingLineV2 searchStagingLine,
+                                                             @RequestParam String authToken) throws Exception {
+        return inboundTransactionService.findStagingLineNewV2Report(searchStagingLine, authToken);
+    }
+
 }

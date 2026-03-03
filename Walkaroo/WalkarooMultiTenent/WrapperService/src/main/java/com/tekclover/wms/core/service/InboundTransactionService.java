@@ -11648,5 +11648,28 @@ public class InboundTransactionService {
             throw e;
         }
     }
+
+    // POST - findStagingLine-V2Report
+    public StagingLineNewReport[] findStagingLineNewV2Report(SearchStagingLineV2 searchStagingLine, String authToken) throws ParseException {
+        try {
+            AuthToken oAuth = authTokenService.getInboundTransactionServiceAuthToken();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS RestTemplate");
+            headers.add("Authorization", "Bearer " + oAuth.getAccess_token());
+
+
+            UriComponentsBuilder builder =
+                    UriComponentsBuilder.fromHttpUrl(getInboundTransactionServiceApiUrl() + "stagingline/findStagingLine/New/Report");
+            HttpEntity<?> entity = new HttpEntity<>(searchStagingLine, headers);
+            ResponseEntity<StagingLineNewReport[]> result =
+                    getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, StagingLineNewReport[].class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            throw e;
+        }
     }
+}
+
 

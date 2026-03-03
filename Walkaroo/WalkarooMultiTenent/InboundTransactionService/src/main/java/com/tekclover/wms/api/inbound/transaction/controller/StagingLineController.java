@@ -7,6 +7,7 @@ import com.tekclover.wms.api.inbound.transaction.model.inbound.gr.v2.GrHeaderV2;
 import com.tekclover.wms.api.inbound.transaction.model.inbound.staging.*;
 import com.tekclover.wms.api.inbound.transaction.model.inbound.staging.v2.SearchStagingLineV2;
 import com.tekclover.wms.api.inbound.transaction.model.inbound.staging.v2.StagingLineEntityV2;
+import com.tekclover.wms.api.inbound.transaction.model.report.StagingLineNewReport;
 import com.tekclover.wms.api.inbound.transaction.model.warehouse.inbound.WarehouseApiResponse;
 import com.tekclover.wms.api.inbound.transaction.repository.DbConfigRepository;
 import com.tekclover.wms.api.inbound.transaction.service.BaseService;
@@ -477,5 +478,20 @@ public class StagingLineController {
         }
     }
 
+
+    //===New Find for Staging and Putaway====
+    @ApiOperation(response = StagingLineNewReport.class, value = "Search StagingLine V2") // label for swagger
+    @PostMapping("/findStagingLine/New/Report")
+    public List<StagingLineNewReport> findStagingLineNewV2Report(@RequestBody SearchStagingLineV2 searchStagingLine) throws Exception {
+        try {
+            String currentDB = baseService.getDataBase(searchStagingLine.getPlantId().get(0));
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(currentDB);
+            log.info("Current DB " + currentDB);
+            return staginglineService.findStagingLineNewV2Report(searchStagingLine);
+        } finally {
+            DataBaseContextHolder.clear();
+        }
+    }
 
 }
