@@ -915,12 +915,13 @@ public class TransferOrderService extends BaseService {
                     // REF_FIELD_1
                     newPickupHeader.setReferenceField1(orderManagementLine.getReferenceField1());
 
-                    newPickupHeader.setManufacturerCode(orderManagementLine.getManufacturerCode());
+
+                    newPickupHeader.setManufacturerCode(orderManagementLine.getManufacturerName());
                     newPickupHeader.setManufacturerName(orderManagementLine.getManufacturerName());
                     newPickupHeader.setManufacturerPartNo(orderManagementLine.getManufacturerPartNo());
-                    newPickupHeader.setSalesOrderNumber(outboundIntegrationHeader.getTransferOrderNumber());
+//                    newPickupHeader.setSalesOrderNumber(outboundIntegrationHeader.getTransferOrderNumber());
                     newPickupHeader.setPickListNumber(outboundIntegrationHeader.getTransferOrderNumber());
-                    newPickupHeader.setSalesInvoiceNumber(orderManagementLine.getSalesInvoiceNumber());
+//                    newPickupHeader.setSalesInvoiceNumber(orderManagementLine.getSalesInvoiceNumber());
                     newPickupHeader.setOutboundOrderTypeId(orderManagementLine.getOutboundOrderTypeId());
                     newPickupHeader.setReferenceDocumentType("WMS to Non-WMS");
                     newPickupHeader.setSupplierInvoiceNo(orderManagementLine.getSupplierInvoiceNo());
