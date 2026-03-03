@@ -5492,6 +5492,7 @@ public class MultiTenantService {
             ConditionUtils.addCondition(conditions, "level_id", findInventory.getLevelId());
             ConditionUtils.addCondition(conditions, "alt_uom", findInventory.getAltUom());
             ConditionUtils.addCondition(conditions, "ORIGIN", findInventory.getOrigin());
+            ConditionUtils.addCondition(conditions, "MATERIAL_NO", findInventory.getInventoryOwner());
             if (findInventory.getStockTypeId() != null) {
                 ConditionUtils.numericConditions(conditions, "STCK_TYP_ID", findInventory.getStockTypeId());
             }
