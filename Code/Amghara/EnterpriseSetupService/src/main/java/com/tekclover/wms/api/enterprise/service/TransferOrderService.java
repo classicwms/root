@@ -919,7 +919,7 @@ public class TransferOrderService extends BaseService {
                     newPickupHeader.setManufacturerCode(orderManagementLine.getManufacturerName());
                     newPickupHeader.setManufacturerName(orderManagementLine.getManufacturerName());
                     newPickupHeader.setManufacturerPartNo(orderManagementLine.getManufacturerPartNo());
-//                    newPickupHeader.setSalesOrderNumber(outboundIntegrationHeader.getTransferOrderNumber());
+                    newPickupHeader.setSalesOrderNumber(null);
                     newPickupHeader.setPickListNumber(outboundIntegrationHeader.getTransferOrderNumber());
 //                    newPickupHeader.setSalesInvoiceNumber(orderManagementLine.getSalesInvoiceNumber());
                     newPickupHeader.setOutboundOrderTypeId(orderManagementLine.getOutboundOrderTypeId());
