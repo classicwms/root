@@ -2859,6 +2859,8 @@ public class StagingLineService extends BaseService {
 
             searchStagingLine.setStartCreatedOn(dates[0]);
             searchStagingLine.setEndCreatedOn(dates[1]);
+        } else {
+            throw new BadRequestException("Date is Mandatory");
         }
         List<StagingLineNewReport> stagingLines = stagingLineV2Repository.getPutAwayHeader(searchStagingLine.getCompanyCodeId(), searchStagingLine.getPlantId(),
                 searchStagingLine.getLanguageId(), searchStagingLine.getWarehouseId(), searchStagingLine.getRefDocNumber(), searchStagingLine.getItemCode(), searchStagingLine.getBarcodeId(),
