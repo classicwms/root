@@ -115,14 +115,13 @@ public class InhouseTransferHeaderController {
 			DataBaseContextHolder.clear();
 			DataBaseContextHolder.setCurrentDb(currentDB);
 			log.info("Current DB " + currentDB);
-		InhouseTransferHeaderEntity createdInHouseTransferHeader =
-				inHouseTransferHeaderService.createInHouseTransferHeaderV2(newInHouseTransferHeader, loginUserID);
-		return new ResponseEntity<>(createdInHouseTransferHeader , HttpStatus.OK);
-	}
-		finally {
+			InhouseTransferHeaderEntity createdInHouseTransferHeader =
+					inHouseTransferHeaderService.createInHouseTransferHeaderV2(newInHouseTransferHeader, loginUserID);
+			return new ResponseEntity<>(createdInHouseTransferHeader, HttpStatus.OK);
+		} finally {
 			DataBaseContextHolder.clear();
 		}
-		}
+	}
 
 	@ApiOperation(response = InhouseTransferHeader.class, value = "Create InHouseTransferHeader Upload") // label for swagger
 	@PostMapping("/v2/upload")

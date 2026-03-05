@@ -709,11 +709,11 @@ public class OutboundTransactionService {
         // POST - V2
         public InhouseTransferHeader createInhouseTransferHeaderV2(InhouseTransferHeader newInhouseTransferHeader,
                                                                    String loginUserID, String authToken) {
-               AuthToken oAuth = authTokenService.getOutboundTransactionServiceAuthToken();
-                HttpHeaders headers = new HttpHeaders();
-                headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-                headers.add("User-Agent", "ClassicWMS RestTemplate");
-                headers.add("Authorization", "Bearer " + oAuth.getAccess_token());
+            AuthToken oAuth = authTokenService.getOutboundTransactionServiceAuthToken();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS RestTemplate");
+            headers.add("Authorization", "Bearer " + oAuth.getAccess_token());
 
             UriComponentsBuilder builder = UriComponentsBuilder
                     .fromHttpUrl(getOutboundTransactionServiceApiUrl() + "inhousetransferheader/v2")
@@ -9439,6 +9439,27 @@ public class OutboundTransactionService {
             log.info("result : " + result.getStatusCode());
             return result.getBody();
         } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    // POST - findInventory/v9
+    public StorageBinDesc[] findInventoryLikeBin(SearchInventoryV2 searchInventory, String authToken) throws ParseException {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            UriComponentsBuilder builder =
+                    UriComponentsBuilder.fromHttpUrl(getOutboundTransactionServiceApiUrl() + "inventory/findInventory/Bin/LikeSearch");
+            HttpEntity<?> entity = new HttpEntity<>(searchInventory, headers);
+            ResponseEntity<StorageBinDesc[]> result =
+                    getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, StorageBinDesc[].class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
             throw e;
         }
     }

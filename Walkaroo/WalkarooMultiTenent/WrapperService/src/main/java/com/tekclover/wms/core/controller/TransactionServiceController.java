@@ -3092,7 +3092,7 @@ public class TransactionServiceController {
     @PostMapping("/inhousetransferheader/v2")
     public ResponseEntity<?> postInHouseTransferHeaderV2(@Valid @RequestBody InhouseTransferHeader newInHouseTransferHeader, @RequestParam String loginUserID,
                                                          @RequestParam String authToken) throws IllegalAccessException, InvocationTargetException {
-        InhouseTransferHeader createdInHouseTransferHeader = inboundTransactionService.createInhouseTransferHeaderV2(newInHouseTransferHeader, loginUserID, authToken);
+        InhouseTransferHeader createdInHouseTransferHeader = outboundTransactionService.createInhouseTransferHeaderV2(newInHouseTransferHeader, loginUserID, authToken);
         return new ResponseEntity<>(createdInHouseTransferHeader, HttpStatus.OK);
     }
 
