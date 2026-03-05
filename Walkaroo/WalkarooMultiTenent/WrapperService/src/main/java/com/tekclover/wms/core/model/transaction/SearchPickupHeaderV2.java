@@ -23,4 +23,8 @@ public class SearchPickupHeaderV2 extends SearchPickupHeader {
 	private List<String> color;
 	private List<String> size;
 	private List<String> noPairs;
+	private List<String> docStatus;
+
+	private List<String> shipToParty;
+	private List<String> shipToCode;
 }

@@ -98,6 +98,11 @@ public class PickupHeaderV2Specification implements Specification<PickupHeaderV2
             predicates.add(group.in(searchPickupHeader.getSoType()));
         }
 
+        if (searchPickupHeader.getDocStatus() != null && !searchPickupHeader.getDocStatus().isEmpty()) {
+            final Path<Group> group = root.<Group>get("referenceField2");
+            predicates.add(group.in(searchPickupHeader.getDocStatus()));
+        }
+
         if (searchPickupHeader.getMaterialNo() != null && !searchPickupHeader.getMaterialNo().isEmpty()) {
             final Path<Group> group = root.<Group>get("materialNo");
             predicates.add(group.in(searchPickupHeader.getMaterialNo()));
@@ -133,6 +138,14 @@ public class PickupHeaderV2Specification implements Specification<PickupHeaderV2
         if (searchPickupHeader.getBarcodeId() != null && !searchPickupHeader.getBarcodeId().isEmpty()) {
             final Path<Group> group = root.<Group>get("barcodeId");
             predicates.add(group.in(searchPickupHeader.getBarcodeId()));
+        }
+        if (searchPickupHeader.getShipToCode() != null && !searchPickupHeader.getShipToCode().isEmpty()) {
+            final Path<Group> group = root.<Group>get("shipToCode");
+            predicates.add(group.in(searchPickupHeader.getShipToCode()));
+        }
+        if (searchPickupHeader.getShipToParty() != null && !searchPickupHeader.getShipToParty().isEmpty()) {
+            final Path<Group> group = root.<Group>get("shipToParty");
+            predicates.add(group.in(searchPickupHeader.getShipToParty()));
         }
 
         if (searchPickupHeader.getAssignedPickerId() != null && !searchPickupHeader.getAssignedPickerId().isEmpty()) {

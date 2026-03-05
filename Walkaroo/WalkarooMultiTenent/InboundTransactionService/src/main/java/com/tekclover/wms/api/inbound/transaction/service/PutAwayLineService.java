@@ -3627,13 +3627,44 @@ public class PutAwayLineService extends BaseService {
 
 
     // Update PutAwayHeader
-    @Retryable(value = {SQLException.class, SQLServerException.class, CannotAcquireLockException.class,
-            LockAcquisitionException.class, UnexpectedRollbackException.class}, maxAttempts = 2, backoff = @Backoff(delay = 2000))
+//    @Retryable(value = {SQLException.class, SQLServerException.class, CannotAcquireLockException.class,
+//            LockAcquisitionException.class, UnexpectedRollbackException.class}, maxAttempts = 2, backoff = @Backoff(delay = 2000))
+//    public void updatePutAwayHeader(String companyCode, String plantId, String languageId,
+//                                    String warehouseId, List<String> barcodeIds) {
+//        putAwayHeaderV2Repository.updatePutAwayHeaderStatusIds(
+//                companyCode, plantId, languageId, warehouseId, barcodeIds, 20L);
+//        log.info("✅ Successfully updated StatusId=20 for {} records.", barcodeIds);
+//    }
+
     public void updatePutAwayHeader(String companyCode, String plantId, String languageId,
                                     String warehouseId, List<String> barcodeIds) {
-        putAwayHeaderV2Repository.updatePutAwayHeaderStatusIds(
-                companyCode, plantId, languageId, warehouseId, barcodeIds, 20L);
-        log.info("✅ Successfully updated StatusId=20 for {} records.", barcodeIds);
+
+        int maxAttempts = 2;
+        int attempt = 0;
+
+        while (attempt < maxAttempts) {
+            try {
+
+                putAwayHeaderV2Repository.updatePutAwayHeaderStatusIds(
+                        companyCode, plantId, languageId, warehouseId, barcodeIds, 20L);
+
+                log.info(" Successfully updated StatusId=20 for {} records.", barcodeIds);
+                return; // success na exit
+
+            } catch (CannotAcquireLockException |
+                     LockAcquisitionException | UnexpectedRollbackException ex) {
+
+                attempt++;
+
+                if (attempt >= maxAttempts) {
+                    log.error(" Retry failed after {} attempts", attempt, ex);
+                    throw ex;
+                }
+
+                log.warn(" Retry attempt {} after failure", attempt);
+
+            }
+        }
     }
 
     /**
@@ -3818,6 +3849,13 @@ public class PutAwayLineService extends BaseService {
                     createdPutAwayLine = putAwayLineV2Repository.save(dbPutAwayLine);
                     createdPutAwayLines.add(createdPutAwayLine);
                     log.info("---------->createdPutAwayLine created: " + createdPutAwayLine);
+                    // Create Inventory
+                    try {
+                        inventoryService.createInventoryNonCBMV3(dbPutAwayLine, loginUserID);
+                    } catch (Exception e) {
+                        log.error("Error on Inventory: " + e.toString());
+                        e.printStackTrace();
+                    }
                 } else {
                     log.info("HU Serial Number already exist in PutAwayLine ------ BarcodeId ====  {}", newPutAwayLine.getBarcodeId());
                     continue;
@@ -3954,13 +3992,13 @@ public class PutAwayLineService extends BaseService {
                         e1.printStackTrace();
                     }
 
-                    // Create Inventory
-                    try {
-                        inventoryService.createInventoryNonCBMV3(createdPutAwayLine, loginUserID);
-                    } catch (Exception e) {
-                        log.error("Error on Inventory: " + e.toString());
-                        e.printStackTrace();
-                    }
+//                    // Create Inventory
+//                    try {
+//                        inventoryService.createInventoryNonCBMV3(createdPutAwayLine, loginUserID);
+//                    } catch (Exception e) {
+//                        log.error("Error on Inventory: " + e.toString());
+//                        e.printStackTrace();
+//                    }
                 }
             }
 
