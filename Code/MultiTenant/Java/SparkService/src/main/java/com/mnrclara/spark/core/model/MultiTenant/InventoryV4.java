@@ -88,4 +88,7 @@ public class InventoryV4 {
     private String color;
     private String material_no;
     private String pallet_id;
+    private String article_no;
+    private String gender;
+    private String itm_grp;
 }
