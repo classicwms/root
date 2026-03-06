@@ -4845,6 +4845,8 @@ public class OrderManagementLineService extends BaseService {
                 newLine.setRefDocNumber(orderManagementLine.getRefDocNumber());
                 newLine.setPartnerCode(orderManagementLine.getPartnerCode());
                 newLine.setOrderQty(orderManagementLine.getOrderQty());
+                newLine.setAllocatedQty(1D);
+                newLine.setInventoryQty(1D);
                 newLine.setProposedStorageBin(existing.getProposedStorageBin());
                 newLine.setProposedPackBarCode("99999");
                 newLine.setBarcodeId(existing.getBarcodeId());
