@@ -1726,48 +1726,50 @@ public class InboundHeaderService extends BaseService {
 
 			statusDescription = stagingLineV2Repository.getStatusDescription(24L, languageId);
 			List<InboundLinePartialConfirm> newInboundLinePartialConfirmList = new ArrayList<>();
-			inboundLineList.stream().forEach(inboundLine -> {
-				try {
-//					inboundLineV2Repository.updateInboundLineStatusUpdateInboundConfirmIndividualItemProc(companyCode,
-//							plantId, languageId, warehouseId, refDocNumber, preInboundNo, inboundLine.getItemCode(),
-//							inboundLine.getManufacturerName(), inboundLine.getLineNo(), 24L, statusDescription,
-//							loginUserID, new Date());
-
+//			inboundLineList.stream().forEach(inboundLine -> {
+            for(InboundLineV2 inboundLine : inboundLineList) {
+                try {
                     inboundLineV2Repository.updateInboundLineStatusUpdateInboundConfirmIndividualItem(24L,
                             statusDescription, loginUserID, new Date(), inboundLine.getItemCode(), inboundLine.getManufacturerName(), companyCode, plantId, languageId, warehouseId,
                             refDocNumber, preInboundNo, inboundLine.getLineNo());
 
                     log.info("-----updateInboundHeaderPartialConfirmNewV2----InboundLine-status-updated: "
-							+ inboundLine.getItemCode() + ", " + inboundLine.getManufacturerName() + ", "
-							+ inboundLine.getLineNo());
+                            + inboundLine.getItemCode() + ", " + inboundLine.getManufacturerName() + ", "
+                            + inboundLine.getLineNo());
 
-					InboundLinePartialConfirm inboundLinePartExistingRecord = inboundLinePartialConfirmRepository
-							.findByCompanyCodeAndPlantIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndLineNoAndItemCode(
-									companyCode, plantId, warehouseId, refDocNumber, preInboundNo,
-									inboundLine.getLineNo(), inboundLine.getItemCode());
-					log.info("----inboundLinePartExistingRecord--###---> : " + inboundLinePartExistingRecord);
-					if (inboundLinePartExistingRecord == null) {
-						InboundLinePartialConfirm newInboundLinePartialConfirm = new InboundLinePartialConfirm();
-						BeanUtils.copyProperties(inboundLine, newInboundLinePartialConfirm,
-								CommonUtils.getNullPropertyNames(inboundLine));
-						newInboundLinePartialConfirm.setStatusId(24L);
-						newInboundLinePartialConfirm.setIsExecuted(0L);
-						newInboundLinePartialConfirmList.add(newInboundLinePartialConfirm);
-					}
-				} catch (Exception e) {
-					log.error("Exception while InboundLine status update: " + e.toString());
-					e.printStackTrace();
-				}
-			});
+                    InboundLinePartialConfirm inboundLinePartExistingRecord = inboundLinePartialConfirmRepository
+                            .findByCompanyCodeAndPlantIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndLineNoAndItemCode(
+                                    companyCode, plantId, warehouseId, refDocNumber, preInboundNo,
+                                    inboundLine.getLineNo(), inboundLine.getItemCode());
+                    log.info("----inboundLinePartExistingRecord--###---> : " + inboundLinePartExistingRecord);
+                    if (inboundLinePartExistingRecord == null) {
+                        if (inboundLine.getAcceptedQty() != 0 || inboundLine.getDamageQty() != 0) {
+                            InboundLinePartialConfirm newInboundLinePartialConfirm = new InboundLinePartialConfirm();
+                            BeanUtils.copyProperties(inboundLine, newInboundLinePartialConfirm,
+                                    CommonUtils.getNullPropertyNames(inboundLine));
+                            newInboundLinePartialConfirm.setStatusId(24L);
+                            newInboundLinePartialConfirm.setIsExecuted(0L);
+                            newInboundLinePartialConfirmList.add(newInboundLinePartialConfirm);
+                        }
+                    }
+                } catch (Exception e) {
+                    log.error("Exception while InboundLine status update: " + e.toString());
+                    e.printStackTrace();
+                }
+            }
+//			});
 
-            inboundLinePartialConfirmRepository.saveAll(newInboundLinePartialConfirmList);
-            log.info("----newInboundLinePartialConfirm--created---> : " + newInboundLinePartialConfirmList);
+			inboundLinePartialConfirmRepository.saveAll(newInboundLinePartialConfirmList);
+			log.info("----newInboundLinePartialConfirm--created---> : " + newInboundLinePartialConfirmList);
 
             String statusDescription17 = stagingLineV2Repository.getStatusDescription(17L, languageId);
             log.info("InboundLinePartialConfirm Status Update Process Started ----------------------------------------------> ");
             updateStatusWithRetry(companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, 24L, 17L, statusDescription17,  statusDescription, loginUserID, new Date());
             log.info("InboundLinePartialConfirm Status Update Process Completed ----------------------------------------------> ");
 
+            int rows =  inboundHeaderV2Repository.updateInboundHeader(24L, statusDescription, loginUserID, new Date(), companyCode,
+                    plantId, languageId, warehouseId, refDocNumber, preInboundNo);
+            log.info("InboundHeader rows updated: {} ---------------> RefDocNo is {} ", rows, refDocNumber);
 
 //			// Inbound Header 24 Update
 //			inboundHeaderV2Repository.updateHeaderStatusInboundConfirmProcedure(companyCode, plantId, languageId,
@@ -2864,9 +2866,9 @@ public class InboundHeaderService extends BaseService {
         while (!success && attempts < maxRetries) {
             try {
 
-               int inboundHeader =  inboundHeaderV2Repository.updateInboundHeader(statusId, statusDescription, loginUserID, updatedOn, companyCode,
-                        plantId, languageId, warehouseId, refDocNumber, preInboundNo);
-                log.info("InboundHeader Status Updated Successfully ------------------------>" + inboundHeader);
+//                inboundHeaderV2Repository.updateInboundHeader(statusId, statusDescription, loginUserID, updatedOn, companyCode,
+//                        plantId, languageId, warehouseId, refDocNumber, preInboundNo);
+//                log.info("InboundHeader Status Updated Successfully ------------------------>");
 
                 int preInboundHeader = preInboundHeaderV2Repository.updatePreInboundHeader(statusId, statusDescription, loginUserID, updatedOn, companyCode,
                         plantId, languageId, warehouseId, refDocNumber, preInboundNo);
@@ -2891,6 +2893,7 @@ public class InboundHeaderService extends BaseService {
 
                 int stagingLine = stagingLineV2Repository.updateStagingLine(companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, statusId2, statusDescription2, loginUserID, new Date());
                 log.info("StagingLine Status Updated Successfully ------------------------>" + stagingLine);
+
                 success = true;
 
             } catch (CannotAcquireLockException | DeadlockLoserDataAccessException ex) {
