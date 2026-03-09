@@ -329,4 +329,15 @@ public interface OrderManagementLineV2Repository extends JpaRepository<OrderMana
     List<OrderManagementLineV2> findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndItemCodeAndStatusIdInAndDeletionIndicatorOrderByPickupCreatedOnAsc(
             String companyCodeId, String plantId, String languageId, String warehouseId, String itemCode, List<Long> statusIds, Long deletionIndicator);
 
+
+    @Modifying
+    @Query(value = "DELETE tblordermangementline where c_id = :companyCodeId \n" +
+            "AND plant_id = :plantId AND wh_id = :warehouseId AND ref_doc_no = :refDocNumber and ITM_CODE = :itemCode \n" +
+            "AND is_deleted = 0", nativeQuery = true)
+    int deleteOrderManagementLineV2(@Param("companyCodeId") String companyCodeId,
+                                     @Param("plantId") String plantId,
+                                     @Param("warehouseId") String warehouseId,
+                                     @Param("refDocNumber") String refDocNumber,
+                                     @Param("itemCode") String itemCode);
+
 }

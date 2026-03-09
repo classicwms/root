@@ -78,6 +78,9 @@ public interface PutAwayHeaderV2Repository extends JpaRepository<PutAwayHeaderV2
     PutAwayHeaderV2 findTopByCompanyCodeIdAndPlantIdAndWarehouseIdAndLanguageIdAndReferenceField5AndManufacturerNameAndStatusIdAndDeletionIndicatorOrderByCreatedOn(
             String companyCodeId, String plantId, String warehouseId, String languageId, String itemCode, String manufacturerName, Long statusId, Long deletionIndicator);
 
+    PutAwayHeaderV2 findTopByCompanyCodeIdAndPlantIdAndWarehouseIdAndLanguageIdAndArticleNoAndManufacturerNameAndStatusIdAndDeletionIndicatorOrderByCreatedOn(
+            String companyCodeId, String plantId, String warehouseId, String languageId, String articleNo, String manufacturerName, Long statusId, Long deletionIndicator);
+
     List<PutAwayHeaderV2> findByCompanyCodeIdAndPlantIdAndWarehouseIdAndLanguageIdAndStatusIdAndDeletionIndicatorOrderByCreatedOn(
             String companyCodeId, String plantId, String warehouseId, String languageId, Long statusId, Long deletionIndicator);
 
@@ -203,9 +206,9 @@ public interface PutAwayHeaderV2Repository extends JpaRepository<PutAwayHeaderV2
             + "PA_UTD_ON updatedOn, \n"
             + "PA_CNF_BY confirmedBy, \n"
             + "PA_CNF_ON confirmedOn, \n"
-            + "(select sum(ref_field_4) from #tblinvqty where itm_code=ph.ref_field_5 and mfr_name=ph.mfr_name \n"
-            + "and plant_id=ph.plant_id and c_id=ph.c_id and wh_id=ph.wh_id and lang_id=ph.lang_id \n"
-            + "group by itm_code,mfr_name,plant_id,wh_id,c_id,lang_id) inventoryQuantity, \n"
+//            + "(select sum(ref_field_4) from #tblinvqty where itm_code=ph.ref_field_5 and mfr_name=ph.mfr_name \n"
+//            + "and plant_id=ph.plant_id and c_id=ph.c_id and wh_id=ph.wh_id and lang_id=ph.lang_id \n"
+//            + "group by itm_code,mfr_name,plant_id,wh_id,c_id,lang_id) inventoryQuantity, \n"
             + "BARCODE_ID barcodeId, \n"
             + "MFR_DATE manufacturerDate, \n"
             + "EXP_DATE expiryDate, \n"
@@ -615,4 +618,47 @@ public interface PutAwayHeaderV2Repository extends JpaRepository<PutAwayHeaderV2
                                                              @Param("companyId") List<String> companyId,
                                                              @Param("plantId") List<String> plantId,
                                                              @Param("warehouseId") List<String> warehouseId);
+
+    @Query(value = "select count(*) from tblputawayheader where pal_id = :palletId and is_deleted = 0 and status_id = :statusId", nativeQuery = true)
+    int getStatusCount(@Param("palletId") String palletId,
+                        @Param("statusId") Long statusId);
+
+//    @Modifying
+//    @Query(value = "UPDATE tblstagingline SET ref_field_1 = (SELECT  CASE  WHEN COUNT(*) > 0 THEN '1' ELSE '0' END " +
+//            " FROM tblputawayheader " +
+//            " WHERE C_ID     = tblstagingline.C_ID " +
+//            " AND PLANT_ID = tblstagingline.PLANT_ID " +
+//            " AND LANG_ID  = tblstagingline.LANG_ID " +
+//            " AND WH_ID    = tblstagingline.WH_ID " +
+//            " AND BARCODE_ID = tblstagingline.PARTNER_ITEM_BARCODE) " +
+//            " WHERE C_ID =:companyCodeId " +
+//            " AND PLANT_ID =:plantId " +
+//            " AND LANG_ID =:languageId " +
+//            " AND WH_ID =:warehouseId " +
+//            " AND PARTNER_ITEM_BARCODE =:barcodeId and is_deleted = 0 ",nativeQuery = true)
+//    int getBarcodeId(@Param("companyCodeId") String companyCodeId, @Param("plantId") String plantId,
+//                     @Param("languageId") String languageId, @Param("warehouseId") String warehouseId,
+//                     @Param("barcodeId") String barcodeId);
+@Modifying
+@Query(value =
+        "UPDATE tsl SET ref_field_1 = CASE " +
+                " WHEN EXISTS ( SELECT 1 FROM tblputawayheader tph " +
+                " WHERE tph.C_ID = tsl.C_ID " +
+                " AND tph.PLANT_ID = tsl.PLANT_ID " +
+                " AND tph.LANG_ID = tsl.LANG_ID " +
+                " AND tph.WH_ID = tsl.WH_ID " +
+                " AND tph.BARCODE_ID = tsl.PARTNER_ITEM_BARCODE ) " +
+                " THEN '1' ELSE '0' END " +
+                " FROM tblstagingline tsl " +
+                " WHERE tsl.C_ID = :companyCodeId " +
+                " AND tsl.PLANT_ID = :plantId " +
+                " AND tsl.LANG_ID = :languageId " +
+                " AND tsl.WH_ID = :warehouseId " +
+                " AND tsl.IS_DELETED = 0",
+        nativeQuery = true)
+int getBarcodeId(
+        @Param("companyCodeId") String companyCodeId,
+        @Param("plantId") String plantId,
+        @Param("languageId") String languageId,
+        @Param("warehouseId") String warehouseId);
 }

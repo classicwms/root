@@ -163,13 +163,10 @@ public class OrderProcessingService extends BaseService {
                 if (inboundOrderProcess.getPreInboundHeader() != null) {
                     preInboundHeaderV2Repository.save(inboundOrderProcess.getPreInboundHeader());
                 }
-                if (inboundOrderProcess.getInboundIntegrationLog() != null) {
-                    inboundIntegrationLogRepository.save(inboundOrderProcess.getInboundIntegrationLog());
-                }
 
                 log.info("Inbound Order Save Process Completed ------> " + refDocNumber + ", " + inboundOrderTypeId);
-                stagingLineV2Repository.updateStagingLineInvQtyUpdateProc(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preInboundNo);
-                log.info("StagingLine InvQty Update using Stored Procedure Finished");
+//                stagingLineV2Repository.updateStagingLineInvQtyUpdateProc(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preInboundNo);
+//                log.info("StagingLine InvQty Update using Stored Procedure Finished");
             }
             return createdInboundHeader;
 

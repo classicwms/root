@@ -284,11 +284,14 @@ public class InventoryController {
 			DataBaseContextHolder.clear();
 			DataBaseContextHolder.setCurrentDb(currentDB);
 			log.info("Current DB " + currentDB);
-		List<InventoryV2> createdInventory = inventoryService.createInventoryv3(excessConfirmations, loginUserID);
-		WarehouseApiResponse response = new WarehouseApiResponse();
-		response.setStatusCode("200");
-		response.setMessage("Success");
-		return new ResponseEntity<>(response, HttpStatus.OK);
+			List<InventoryV2> createdInventory = inventoryService.createInventoryv3(excessConfirmations, loginUserID);
+			WarehouseApiResponse response = new WarehouseApiResponse();
+			response.setStatusCode("200");
+			response.setMessage("Success");
+			return new ResponseEntity<>(response, HttpStatus.OK);
+		} finally {
+			DataBaseContextHolder.clear();
+		}
 	}
 		finally {
 			DataBaseContextHolder.clear();

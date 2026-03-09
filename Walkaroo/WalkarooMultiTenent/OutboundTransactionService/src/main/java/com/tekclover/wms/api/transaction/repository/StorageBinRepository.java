@@ -132,7 +132,6 @@ public interface StorageBinRepository extends JpaRepository<StorageBin, Long>,
                                                   @Param(value = "binClassId") Long binClassId,
                                                   @Param(value = "storageBin") String storageBin);
 
-
     @Query(value = "select top 1 * from tblstoragebin sb \n" +
             "WHERE \n" +
             "sb.c_id in (:companyCode) and \n" +

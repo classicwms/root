@@ -76,6 +76,9 @@ public class InhouseTransferHeaderService extends BaseService {
     @Autowired
     PushNotificationService pushNotificationService;
 
+    @Autowired
+    StorageBinV2Repository storageBinV2Repository;
+
     /**
      * getInHouseTransferHeaders
      *

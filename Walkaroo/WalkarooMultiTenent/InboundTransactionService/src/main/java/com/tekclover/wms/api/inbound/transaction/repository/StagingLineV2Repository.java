@@ -615,6 +615,15 @@ public interface StagingLineV2Repository extends JpaRepository<StagingLineEntity
                                   @Param("updatedOn") Date updatedOn,
                                    @Param("refDocNo") String refDocNo);
 
+    @Modifying
+    @Query(value = " select * from tblstagingline where c_id = :companyCode and plant_id = :plantId " +
+            "AND LANG_ID = :languageId AND wh_id = :warehouseId AND PARTNER_ITEM_BARCODE = :referenceField7 and is_deleted = 0 ", nativeQuery = true)
+    StagingLineEntityV2 getBarcode(@Param("companyCode") String companyCode,
+                                   @Param("plantId") String plantId,
+                                   @Param("languageId") String languageId,
+                                   @Param("warehouseId") String warehouseId,
+                                   @Param("referenceField7") String referenceField7);
+
     @Query(value =
             "SELECT " +
                     "    st.LANG_ID as languageId,\n" +

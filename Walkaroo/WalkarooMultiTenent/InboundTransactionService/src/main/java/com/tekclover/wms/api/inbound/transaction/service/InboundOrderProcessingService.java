@@ -162,7 +162,7 @@ public class InboundOrderProcessingService extends BaseService {
             inboundOrderProcess = createBOMPreInboundLines(companyCodeId, plantId, languageId, warehouseId, preInboundNo, description, masterAuthToken, statusId, statusDescription, inboundIntegrationHeader, MW_AMS);
 
             List<InboundIntegrationLine> inboundIntegrationLines = inboundOrderProcess.getInboundIntegrationLines();
-            List<PreInboundLineEntityV2> overallCreatedPreInboundLineList = inboundOrderProcess.getPreInboundLines();
+//            List<PreInboundLineEntityV2> overallCreatedPreInboundLineList = inboundOrderProcess.getPreInboundLines();
 
             //Append PREINBOUNDLINE table through below logic
             List<PreInboundLineEntityV2> finalToBeCreatedPreInboundLineList = new ArrayList<>();
@@ -178,14 +178,14 @@ public class InboundOrderProcessingService extends BaseService {
             log.info("toBeCreatedPreInboundLineList [API] : {}", finalToBeCreatedPreInboundLineList.size());
 
             // Batch Insert - PreInboundLines
-            if (!finalToBeCreatedPreInboundLineList.isEmpty()) {
-                overallCreatedPreInboundLineList.addAll(finalToBeCreatedPreInboundLineList);
-            }
+//            if (!finalToBeCreatedPreInboundLineList.isEmpty()) {
+//                overallCreatedPreInboundLineList.addAll(finalToBeCreatedPreInboundLineList);
+//            }
 
             //Header
             PreInboundHeaderEntityV2 createPreInboundHeader = createPreInboundHeaderV2(companyCodeId, plantId, languageId, warehouseId, preInboundNo, inboundIntegrationHeader, MW_AMS, description, statusId, statusDescription);
 
-            InboundHeaderV2 createInboundHeader = createInboundHeaderV2(createPreInboundHeader, (long) overallCreatedPreInboundLineList.size());
+            InboundHeaderV2 createInboundHeader = createInboundHeaderV2(createPreInboundHeader, (long) finalToBeCreatedPreInboundLineList.size());
 
             StagingHeaderV2 stagingHeader = createStagingHeaderV2(createPreInboundHeader, stagingNo);
 
@@ -194,13 +194,9 @@ public class InboundOrderProcessingService extends BaseService {
             GrHeaderV2 createGrHeader = createGrHeaderV2(stagingHeader, caseCode, grNumber, 16L, grStatusDes);
 
             //Lines
-            List<InboundLineV2> inboundLines = createInboundLines(17L, statusDescription, overallCreatedPreInboundLineList);
+            List<InboundLineV2> inboundLines = createInboundLines(17L, statusDescription, finalToBeCreatedPreInboundLineList);
             String stagingStatusDes = getStatusDescription(14L,languageId);
-            List<StagingLineEntityV2> stagingLines = createStagingLines(stagingNo, caseCode, 14L, stagingStatusDes, overallCreatedPreInboundLineList);
-
-            //Log
-            InboundIntegrationLog inboundIntegrationLog = createInboundIntegrationLogV2(createPreInboundHeader);
-            inboundIntegrationLogRepository.save(inboundIntegrationLog);
+            List<StagingLineEntityV2> stagingLines = createStagingLines(stagingNo, caseCode, 14L, stagingStatusDes, finalToBeCreatedPreInboundLineList);
 
             // db save/create process
             inboundOrderProcess.setInboundIntegrationHeader(inboundIntegrationHeader);
@@ -209,10 +205,9 @@ public class InboundOrderProcessingService extends BaseService {
             inboundOrderProcess.setInboundHeader(createInboundHeader);
             inboundOrderProcess.setStagingHeader(stagingHeader);
             inboundOrderProcess.setGrHeader(createGrHeader);
-            inboundOrderProcess.setPreInboundLines(overallCreatedPreInboundLineList);
+            inboundOrderProcess.setPreInboundLines(finalToBeCreatedPreInboundLineList);
             inboundOrderProcess.setInboundLines(inboundLines);
             inboundOrderProcess.setStagingLines(stagingLines);
-            inboundOrderProcess.setInboundIntegrationLog(inboundIntegrationLog);
             InboundHeaderV2 createdInboundHeader = orderProcessingService.postInboundReceived(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preInboundNo, inboundOrderTypeId, inboundOrderProcess);
 
             // GR Line create and Putawayheader create
@@ -268,7 +263,7 @@ public class InboundOrderProcessingService extends BaseService {
             inboundOrderProcess = createBOMPreInboundLines(companyCodeId, plantId, languageId, warehouseId, preInboundNo, description, masterAuthToken, statusId, statusDescription, inboundIntegrationHeader, MW_AMS);
 
             List<InboundIntegrationLine> inboundIntegrationLines = inboundOrderProcess.getInboundIntegrationLines();
-            List<PreInboundLineEntityV2> overallCreatedPreInboundLineList = inboundOrderProcess.getPreInboundLines();
+//            List<PreInboundLineEntityV2> overallCreatedPreInboundLineList = inboundOrderProcess.getPreInboundLines();
 
             //Append PREINBOUNDLINE table through below logic
             List<PreInboundLineEntityV2> finalToBeCreatedPreInboundLineList = new ArrayList<>();
@@ -284,14 +279,14 @@ public class InboundOrderProcessingService extends BaseService {
             log.info("toBeCreatedPreInboundLineList [API] : {}", finalToBeCreatedPreInboundLineList.size());
 
             // Batch Insert - PreInboundLines
-            if (!finalToBeCreatedPreInboundLineList.isEmpty()) {
-                overallCreatedPreInboundLineList.addAll(finalToBeCreatedPreInboundLineList);
-            }
+//            if (!finalToBeCreatedPreInboundLineList.isEmpty()) {
+//                overallCreatedPreInboundLineList.addAll(finalToBeCreatedPreInboundLineList);
+//            }
 
             //Header
             PreInboundHeaderEntityV2 createPreInboundHeader = createPreInboundHeaderV2(companyCodeId, plantId, languageId, warehouseId, preInboundNo, inboundIntegrationHeader, MW_AMS, description, statusId, statusDescription);
 
-            InboundHeaderV2 createInboundHeader = createInboundHeaderV2(createPreInboundHeader, (long) overallCreatedPreInboundLineList.size());
+            InboundHeaderV2 createInboundHeader = createInboundHeaderV2(createPreInboundHeader, (long) finalToBeCreatedPreInboundLineList.size());
 
             StagingHeaderV2 stagingHeader = createStagingHeaderV2(createPreInboundHeader, stagingNo);
 
@@ -300,13 +295,9 @@ public class InboundOrderProcessingService extends BaseService {
             GrHeaderV2 createGrHeader = createGrHeaderV2(stagingHeader, caseCode, grNumber, 16L, grStatusDes);
 
             //Lines
-            List<InboundLineV2> inboundLines = createInboundLines(17L, statusDescription, overallCreatedPreInboundLineList);
+            List<InboundLineV2> inboundLines = createInboundLines(17L, statusDescription, finalToBeCreatedPreInboundLineList);
             String stagingStatusDes = getStatusDescription(14L,languageId);
-            List<StagingLineEntityV2> stagingLines = createStagingLines(stagingNo, caseCode, 14L, stagingStatusDes, overallCreatedPreInboundLineList);
-
-            //Log
-            InboundIntegrationLog inboundIntegrationLog = createInboundIntegrationLogV2(createPreInboundHeader);
-            inboundIntegrationLogRepository.save(inboundIntegrationLog);
+            List<StagingLineEntityV2> stagingLines = createStagingLines(stagingNo, caseCode, 14L, stagingStatusDes, finalToBeCreatedPreInboundLineList);
 
             // db save/create process
             inboundOrderProcess.setInboundIntegrationHeader(inboundIntegrationHeader);
@@ -315,15 +306,13 @@ public class InboundOrderProcessingService extends BaseService {
             inboundOrderProcess.setInboundHeader(createInboundHeader);
             inboundOrderProcess.setStagingHeader(stagingHeader);
             inboundOrderProcess.setGrHeader(createGrHeader);
-            inboundOrderProcess.setPreInboundLines(overallCreatedPreInboundLineList);
+            inboundOrderProcess.setPreInboundLines(finalToBeCreatedPreInboundLineList);
             inboundOrderProcess.setInboundLines(inboundLines);
             inboundOrderProcess.setStagingLines(stagingLines);
-            inboundOrderProcess.setInboundIntegrationLog(inboundIntegrationLog);
-            InboundHeaderV2 createdInboundHeader = orderProcessingService.postInboundReceived(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preInboundNo, inboundOrderTypeId, inboundOrderProcess);
 
             // GR Line create and Putawayheader create
 //            createGrLineV3(companyCodeId, plantId, languageId, warehouseId, createGrHeader.getParentProductionOrderNo(), createGrHeader, idMasterAuthToken, MW_AMS);
-            return createdInboundHeader;
+            return orderProcessingService.postInboundReceived(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preInboundNo, inboundOrderTypeId, inboundOrderProcess);
         } catch (Exception e) {
             log.error("Inbound Order Processing Exception ----> " + e);
             throw e;
@@ -1292,7 +1281,6 @@ public class InboundOrderProcessingService extends BaseService {
     public InboundOrderProcess createBOMPreInboundLines(String companyCodeId, String plantId, String languageId, String warehouseId, String preInboundNo,
                                                         IKeyValuePair description, String masterAuthToken, Long statusId, String statusDescription,
                                                         InboundIntegrationHeader inboundIntegrationHeader, String loginUserId) throws Exception {
-        List<PreInboundLineEntityV2> overallCreatedPreInboundLineList = new ArrayList<>();
         List<InboundIntegrationLine> inboundIntegrationLines = new ArrayList<>();
         InboundOrderProcess inboundOrderProcess = new InboundOrderProcess();
         for (InboundIntegrationLine inboundIntegrationLine : inboundIntegrationHeader.getInboundIntegrationLine()) {
@@ -1331,26 +1319,8 @@ public class InboundOrderProcessingService extends BaseService {
                 log.info("ImBasicData1 created: {}", createdImBasicData1);
             }
 
-            /*-------------Insertion of BOM item in PREINBOUNDLINE table---------------------------------------------------------*/
-            /*
-             * Before inserting the record into Preinbound table, fetch ITM_CODE from InboundIntegrationHeader table and
-             * pass into BOMHEADER table as PAR_ITM_CODE and validate record is Not Null
-             */
-//            BomHeader bomHeader = mastersService.getBomHeader(inboundIntegrationLine.getItemCode(), warehouseId, companyCodeId, plantId, languageId, masterAuthToken);
-//            log.info("bomHeader [BOM] : {}", bomHeader);
-//            if (bomHeader != null) {
-//                BomLine[] bomLine = mastersService.getBomLine(bomHeader.getBomNumber(), companyCodeId, plantId, languageId, warehouseId, masterAuthToken);
-//                for (BomLine dbBomLine : bomLine) {
-//                    PreInboundLineEntityV2 preInboundLineEntity = createPreInboundLineBOMBasedV2(companyCodeId, plantId, languageId, warehouseId,
-//                            preInboundNo, inboundIntegrationHeader, inboundIntegrationLine,
-//                            dbBomLine, loginUserId, description, statusId, statusDescription);
-//                    overallCreatedPreInboundLineList.add(preInboundLineEntity);
-//                }
-//            }
             inboundIntegrationLines.add(inboundIntegrationLine);
         }
-        log.info("preInboundLineEntity [BOM] : {}", overallCreatedPreInboundLineList.size());
-        inboundOrderProcess.setPreInboundLines(overallCreatedPreInboundLineList);
         inboundOrderProcess.setInboundIntegrationLines(inboundIntegrationLines);
         return inboundOrderProcess;
     }

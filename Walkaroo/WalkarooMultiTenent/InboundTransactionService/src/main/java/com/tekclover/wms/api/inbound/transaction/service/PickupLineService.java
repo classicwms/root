@@ -20,10 +20,10 @@ public class PickupLineService {
     private PickupLineV2Repository pickupLineV2Repository;
 
     public PickupLineV2 getPickupLineForLastBinCheck(String companyCodeId, String plantId, String languageId, String warehouseId,
-                                                     String itemCode, String manufacturerName) {
+                                                     String articleNo, String manufacturerName) {
         PickupLineV2 pickupLine = pickupLineV2Repository
-                .findTopByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndItemCodeAndManufacturerNameAndDeletionIndicatorAndPickedStorageBinNotOrderByPickupConfirmedOnDesc(
-                        companyCodeId, plantId, languageId, warehouseId, itemCode, manufacturerName, 0L, DIRECT_STOCK_BIN);
+                .findTopByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndArticleNoAndManufacturerNameAndDeletionIndicatorAndPickedStorageBinNotOrderByPickupConfirmedOnDesc(
+                        companyCodeId, plantId, languageId, warehouseId, articleNo, manufacturerName, 0L, DIRECT_STOCK_BIN);
         if (pickupLine != null) {
             return pickupLine;
         }

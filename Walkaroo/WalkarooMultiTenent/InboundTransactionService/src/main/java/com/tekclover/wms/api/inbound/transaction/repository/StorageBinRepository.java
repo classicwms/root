@@ -131,6 +131,21 @@ public interface StorageBinRepository extends JpaRepository<StorageBin, Long>,
                                                   @Param(value = "warehouseId") String warehouseId,
                                                   @Param(value = "binClassId") Long binClassId,
                                                   @Param(value = "storageBin") String storageBin);
+
+
+    @Query(value = "select top 1 * from tblstoragebin sb \n" +
+            "WHERE \n" +
+            "sb.c_id in (:companyCode) and \n" +
+            "sb.plant_id in (:plantId) and \n" +
+            "sb.lang_id in (:languageId) and \n" +
+            "sb.wh_id in (:warehouseId) and \n" +
+            "sb.st_bin in (:storageBin) and \n" +
+            "sb.is_deleted = 0 ", nativeQuery = true)
+    public StorageBinV2 getStorageBinForTransfer(@Param(value = "companyCode") String companyCode,
+                                                 @Param(value = "plantId") String plantId,
+                                                 @Param(value = "languageId") String languageId,
+                                                 @Param(value = "warehouseId") String warehouseId,
+                                                 @Param(value = "storageBin") String storageBin);
 }
 
 

@@ -4061,7 +4061,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "(COALESCE(:itemCode, null) IS NULL OR (iv.ITM_CODE IN (:itemCode))) and \n" +
             "(COALESCE(:storageBin, null) IS NULL OR (iv.ST_BIN IN (:storageBin))) and\n" +
             "(COALESCE(:binClassId, null) IS NULL OR (iv.BIN_CL_ID IN (:binClassId))) and\n" +
-            "iv.is_deleted = 0 and iv.stck_typ_id = :stockTypeId \n", nativeQuery = true)
+            "iv.is_deleted = 0 and iv.ref_field_4 > 0 and iv.stck_typ_id = :stockTypeId \n", nativeQuery = true)
     public IInventoryImpl getInboundInventoryV3(@Param("companyCodeId") String companyCodeId,
                                                 @Param("plantId") String plantId,
                                                 @Param("languageId") String languageId,
@@ -4077,7 +4077,6 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
 
     @Query(value = "select max(inv_id) inventoryId into #inv from tblinventory \n" +
             "WHERE \n" +
-            "(COALESCE(:itemCode, null) IS NULL OR (ITM_CODE IN (:itemCode))) and \n" +
             "(COALESCE(:manufacturerName, null) IS NULL OR (MFR_NAME IN (:manufacturerName))) and \n" +
             "(COALESCE(:companyCodeId, null) IS NULL OR (c_id IN (:companyCodeId))) and \n" +
             "(COALESCE(:languageId, null) IS NULL OR (lang_id IN (:languageId))) and \n" +
@@ -4098,7 +4097,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "(COALESCE(:barcodeId, null) IS NULL OR (iv.BARCODE_ID IN (:barcodeId))) and \n" +
             "(COALESCE(:manufacturerName, null) IS NULL OR (iv.MFR_NAME IN (:manufacturerName))) and \n" +
             "(COALESCE(:packBarcodes, null) IS NULL OR (iv.PACK_BARCODE IN (:packBarcodes))) and \n" +
-            "(COALESCE(:itemCode, null) IS NULL OR (iv.ITM_CODE IN (:itemCode))) and \n" +
+            "(COALESCE(:articleNo, null) IS NULL OR (iv.ARTICLE_NO IN (:articleNo))) and \n" +
             "(COALESCE(:binClassId, null) IS NULL OR (iv.BIN_CL_ID IN (:binClassId))) and\n" +
             "iv.is_deleted = 0 and iv.stck_typ_id = 1 and iv.REF_FIELD_4 > 0 order by inv_id\n", nativeQuery = true)
     public String getPutAwayHeaderCreateInventoryV3(@Param("companyCodeId") String companyCodeId,
@@ -4106,7 +4105,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
                                                     @Param("languageId") String languageId,
                                                     @Param("warehouseId") String warehouseId,
                                                     @Param("barcodeId") String barcodeId,
-                                                    @Param("itemCode") String itemCode,
+                                                    @Param("articleNo") String articleNo,
                                                     @Param("manufacturerName") String manufacturerName,
                                                     @Param("packBarcodes") String packBarcodes,
                                                     @Param("binClassId") Long binClassId);
@@ -5570,4 +5569,44 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
                                  @Param(value = "plantId") String plantId,
                                  @Param(value = "warehouseId") String warehouseId);
 
+    @Query(value = "SELECT * from tblinventory where \n" +
+            "inv_id in (select max(inv_id) from tblinventory where is_deleted = 0 \n" +
+            "group by itm_code,barcode_id,stck_typ_id,st_bin,plant_id,wh_id,c_id,lang_id) and \n" +
+            "(COALESCE(:companyCodeId, null) IS NULL OR (c_id IN (:companyCodeId))) and \n" +
+            "(COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) and \n" +
+            "(COALESCE(:languageId, null) IS NULL OR (lang_id IN (:languageId))) and \n" +
+            "(COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and \n" +
+            "(COALESCE(:barcodeId, null) IS NULL OR (BARCODE_ID IN (:barcodeId))) and \n" +
+            "(COALESCE(:batchSerialNumber, null) IS NULL OR (STR_NO IN (:batchSerialNumber))) and \n" +
+            "(COALESCE(:manufacturerName, null) IS NULL OR (MFR_NAME IN (:manufacturerName))) and \n" +
+            "(COALESCE(:packBarcodes, null) IS NULL OR (PACK_BARCODE IN (:packBarcodes))) and \n" +
+            "(COALESCE(:itemCode, null) IS NULL OR (ITM_CODE IN (:itemCode))) and \n" +
+            "(COALESCE(:storageBin, null) IS NULL OR (ST_BIN IN (:storageBin))) and\n" +
+            "(COALESCE(:binClassId, null) IS NULL OR (BIN_CL_ID IN (:binClassId))) and\n" +
+            "is_deleted = 0 and ref_field_4 > 0 and stck_typ_id = :stockTypeId \n", nativeQuery = true)
+    public InventoryV2 findInventoryInPutAwayLine(@Param("companyCodeId") String companyCodeId,
+                                                @Param("plantId") String plantId,
+                                                @Param("languageId") String languageId,
+                                                @Param("warehouseId") String warehouseId,
+                                                @Param("barcodeId") String barcodeId,
+                                                @Param("batchSerialNumber") String batchSerialNumber,
+                                                @Param("itemCode") String itemCode,
+                                                @Param("manufacturerName") String manufacturerName,
+                                                @Param("packBarcodes") String packBarcodes,
+                                                @Param("storageBin") String storageBin,
+                                                @Param("binClassId") Long binClassId,
+                                                @Param("stockTypeId") Long stockTypeId);
+
+    @Query(value = "select * from tblinventory where ref_field_4 > 0 and " +
+            "inv_id in (select max(inv_id) from tblinventory where is_deleted = 0 group by barcode_id, itm_code) and " +
+            "barcode_id = :barcodeId and itm_code = :itemCode and " +
+            "c_id = :companyCodeId and lang_id = :languageId and " +
+            "plant_id = :plantId and wh_id = :warehouseId and st_bin = :storageBin ", nativeQuery = true)
+    InventoryV2 getInventoryForTransfer(@Param("companyCodeId") String companyCodeId,
+                                        @Param("plantId") String plantId,
+                                        @Param("languageId") String languageId,
+                                        @Param("warehouseId") String warehouseId,
+                                        @Param("barcodeId") String barcodeId,
+                                        @Param("itemCode") String itemCode,
+                                        @Param("storageBin") String storageBin);
 }

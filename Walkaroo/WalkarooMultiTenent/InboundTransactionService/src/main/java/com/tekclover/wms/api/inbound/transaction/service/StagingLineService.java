@@ -134,6 +134,9 @@ public class StagingLineService extends BaseService {
 
     @Autowired
     private ErrorLogRepository exceptionLogRepo;
+
+    @Autowired
+    private PutAwayHeaderV2Repository putAwayHeaderV2Repository;
     //----------------------------------------------------------------------------------------
 
     /**
@@ -1435,7 +1438,7 @@ public class StagingLineService extends BaseService {
                 List<StagingLineEntityV2> createdStagingLineEntityList = stagingLineV2Repository.saveAll(stagingLineEntityList);
                 log.info("created StagingLine records." + stagingLineEntityList);
                 //update INV_QTY in stagingLine - calling stored procedure
-                stagingLineV2Repository.updateStagingLineInvQtyUpdateProc(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preInboundNo);
+//                stagingLineV2Repository.updateStagingLineInvQtyUpdateProc(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preInboundNo);
 
                 // Update PreInboundLines
                 statusDescription = stagingLineV2Repository.getStatusDescription(13L, languageId);

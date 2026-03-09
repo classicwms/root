@@ -798,14 +798,15 @@ public class PutAwayHeaderService extends BaseService {
      * @param plantId
      * @param languageId
      * @param warehouseId
+     * @param articleNo
      * @param manufacturerName
      * @return
      */
     public PutAwayHeaderV2 getPutAwayHeaderExistingItemCheckV2(String companyCodeId, String plantId, String languageId, String warehouseId,
-                                                               String itemCode, String manufacturerName) {
+                                                               String articleNo, String manufacturerName) {
         PutAwayHeaderV2 dbPutAwayHeader = putAwayHeaderV2Repository.
-                findTopByCompanyCodeIdAndPlantIdAndWarehouseIdAndLanguageIdAndReferenceField5AndManufacturerNameAndStatusIdAndDeletionIndicatorOrderByCreatedOn(
-                        companyCodeId, plantId, warehouseId, languageId, itemCode, manufacturerName, 19L, 0L);
+                findTopByCompanyCodeIdAndPlantIdAndWarehouseIdAndLanguageIdAndArticleNoAndManufacturerNameAndStatusIdAndDeletionIndicatorOrderByCreatedOn(
+                        companyCodeId, plantId, warehouseId, languageId, articleNo, manufacturerName, 19L, 0L);
         if (dbPutAwayHeader != null) {
             return dbPutAwayHeader;
         }
@@ -3432,6 +3433,8 @@ public class PutAwayHeaderService extends BaseService {
         }
     }
 
+
+
     /**
      * createPutawayHeaderv3
      * @param putawayHeaders
@@ -3452,7 +3455,7 @@ public class PutAwayHeaderService extends BaseService {
             List<GrLineV2> createdGRLines = new ArrayList<>();
             String idMasterAuthToken = getIDMasterAuthToken();
             long NUM_RAN_CODE_PA_NO = 7;
-//            stagingLineEntityV2List.forEach(stagingLine -> {
+
             for (StagingLineEntityV2 stagingLine : stagingLineEntityV2List) {
                 try {
                     log.info("stagingLine ------> {}", stagingLine);
@@ -4170,6 +4173,7 @@ public class PutAwayHeaderService extends BaseService {
                 // Save the entity and add it to the list
                 PutAwayHeaderV2 savedPutAwayHeader = putAwayHeaderV2Repository.save(putAwayHeader);
                 savedPutAwayHeaders.add(savedPutAwayHeader);
+
             } catch (Exception e) {
                 log.error("Exception while PutAwayHeader create : " + e);
                 throw new BadRequestException(e.getLocalizedMessage());

@@ -246,6 +246,10 @@ public interface PutAwayLineV2Repository extends JpaRepository<PutAwayLineV2, Lo
     PutAwayLineV2 findTopByCompanyCodeAndPlantIdAndWarehouseIdAndLanguageIdAndItemCodeAndManufacturerNameAndStatusIdAndDeletionIndicatorOrderByCreatedOn(
             String companyCodeId, String plantId, String warehouseId, String languageId, String itemCode, String manufacturerName, Long statusId, Long deletionIndicator);
 
+    PutAwayLineV2 findTopByCompanyCodeAndPlantIdAndWarehouseIdAndLanguageIdAndArticleNoAndManufacturerNameAndStatusIdAndDeletionIndicatorOrderByCreatedOn(
+            String companyCodeId, String plantId, String warehouseId, String languageId, String articleNo, String manufacturerName, Long statusId, Long deletionIndicator);
+
+
     List<PutAwayLineV2> findByCompanyCodeAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndStatusIdNotAndDeletionIndicator(
             String companyCode, String plantId, String languageId, String warehouseId, String refDocNumber, String preInboundNo, Long statusId, Long deletionIndicator);
 

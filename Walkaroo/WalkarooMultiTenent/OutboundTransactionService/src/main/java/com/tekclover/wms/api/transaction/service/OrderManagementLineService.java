@@ -8,6 +8,7 @@ import java.util.stream.Stream;
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 
+import org.hibernate.exception.LockAcquisitionException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.CannotAcquireLockException;
@@ -16,6 +17,7 @@ import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.UnexpectedRollbackException;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -4667,25 +4669,28 @@ public class OrderManagementLineService extends BaseService {
     }
 
 
-    @Retryable(value = { CannotAcquireLockException.class, ObjectOptimisticLockingFailureException.class, Exception.class },
-            maxAttempts = 3, backoff = @Backoff(delay = 1000, multiplier = 2))
-    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
+//    @Retryable(value = { CannotAcquireLockException.class, ObjectOptimisticLockingFailureException.class, Exception.class },
+//            maxAttempts = 3, backoff = @Backoff(delay = 1000, multiplier = 2))
+//    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     public OrderManagementLineV2 orderAllocationInOrderFFM(String companyCodeId, String plantId, String languageId, String warehouseId,
                                                            String itemCode, String manufacturerName, List<Long> binClassId, Double ORD_QTY,
                                                            OrderManagementLineV2 orderManagementLine, String loginUserID, boolean fromOrderFullfillment) throws Exception {
         log.info("-----5------fromOrderFullfillment-------> : " + fromOrderFullfillment);
-        try {
-            OrderManagementLineV2 newOrderManagementLine = null;
 
-            List<InventoryV2> findInvList = inventoryService.getInventoryForFFM(companyCodeId, plantId, languageId, warehouseId,
-                    itemCode, manufacturerName, 1L, binClassId, orderManagementLine.getMtoNumber());
-            log.info("Inventory List in Order FFM ----------------> {} ", findInvList);
+        OrderManagementLineV2 newOrderManagementLine = null;
+        int maxAttempts = 2;
+        int attempt = 0;
+        while (attempt < maxAttempts) {
+            try {
+                List<InventoryV2> findInvList = inventoryService.getInventoryForFFM(companyCodeId, plantId, languageId, warehouseId,
+                        itemCode, manufacturerName, 1L, binClassId, orderManagementLine.getMtoNumber());
+                log.info("Inventory List in Order FFM ----------------> {} ", findInvList);
 
-            outerloop:
-            for (InventoryV2 stBinInventory : findInvList) {
-                log.info("Walkaroo Inventory for Allocation Bin wise ---->: " + stBinInventory);
+                outerloop:
+                for (InventoryV2 stBinInventory : findInvList) {
+                    log.info("Walkaroo Inventory for Allocation Bin wise ---->: " + stBinInventory);
 
-                // If the queried Inventory is empty then EMPTY orderManagementLine is created.
+                    // If the queried Inventory is empty then EMPTY orderManagementLine is created.
 
                     Long STATUS_ID = 0L;
                     Double ALLOC_QTY = 0D;
@@ -4748,7 +4753,7 @@ public class OrderManagementLineService extends BaseService {
                     newOrderManagementLine = new OrderManagementLineV2();
                     BeanUtils.copyProperties(orderManagementLine, newOrderManagementLine, CommonUtils.getNullPropertyNames(orderManagementLine));
 
-                    if(newOrderManagementLine.getCompanyDescription() == null) {
+                    if (newOrderManagementLine.getCompanyDescription() == null) {
                         description = getDescription(companyCodeId, plantId, languageId, warehouseId);
                         newOrderManagementLine.setCompanyDescription(description.getCompanyDesc());
                         newOrderManagementLine.setPlantDescription(description.getPlantDesc());
@@ -4781,7 +4786,7 @@ public class OrderManagementLineService extends BaseService {
                     if (existingOrderManagementLine) {
                         log.warn("OrderManagementLine with same barcodeId is existing ---> {}", newOrderManagementLine.getBarcodeId());
                     } else {
-                        createdOrderManagementLine = orderManagementLineV2Repository.saveAndFlush(newOrderManagementLine);
+                        createdOrderManagementLine = orderManagementLineV2Repository.save(newOrderManagementLine);
                         log.info("OrderManagementLine Saved Values is  ---> {} ", createdOrderManagementLine);
 
 //                        if(stBinInventory.getBinClassId() == 3L) {
@@ -4801,20 +4806,30 @@ public class OrderManagementLineService extends BaseService {
                         if (ORD_QTY == 0.0) {
                             log.info("ORD_QTY fully allocated: " + ORD_QTY);
                             break;
-//                            break outerloop; // If the Inventory satisfied the Ord_qty
                         }
                     }
-            }
-            if(ORD_QTY > 0.0) {
-                log.info("OrderQty ----------Value is {} ", ORD_QTY);
-                return unAllocationProcess(orderManagementLine, ORD_QTY);
-            }
+                }
+                if (ORD_QTY > 0.0) {
+                    log.info("OrderQty ----------Value is {} ", ORD_QTY);
+                    return unAllocationProcess(orderManagementLine, ORD_QTY);
+                }
 
-            return newOrderManagementLine;
-        } catch (Exception e) {
-            log.error("Exception while orderAllocation V3: " + e);
-            throw e;
+            } catch (CannotAcquireLockException |
+                     LockAcquisitionException | UnexpectedRollbackException ex) {
+                log.info("Order Allocation DeadLock Error For this RefDocNo -------> {} ", orderManagementLine.getRefDocNumber());
+                log.info("Delete OrderManagementLine ---------> For This Item --------> {} ", itemCode);
+                int deleteOrderLine = orderManagementLineV2Repository.deleteOrderManagementLineV2(companyCodeId, plantId, warehouseId, orderManagementLine.getRefDocNumber(), itemCode);
+                log.info("Deleted OrderManagementLine ----> For This Item {} And AffectedRow's --> {} ", itemCode, deleteOrderLine);
+                attempt++;
+
+                if (attempt >= maxAttempts) {
+                    log.error(" Retry failed after {} attempts", attempt, ex);
+                    throw ex;
+                }
+                log.warn(" Retry attempt {} after failure", attempt);
+            }
         }
+        return newOrderManagementLine;
     }
 
     /**
