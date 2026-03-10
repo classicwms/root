@@ -3,7 +3,6 @@ package com.tekclover.wms.api.transaction.repository;
 import java.util.List;
 import java.util.Optional;
 
-import com.tekclover.wms.api.transaction.model.report.StorageBinDesc;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -5768,20 +5767,20 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
                                         @Param("storageBin") String storageBin);
 
 
-    @Query(value = "select st_bin storageBin from tblinventory where ref_field_4 > 0 and " +
-            "inv_id in (select max(inv_id) from tblinventory where is_deleted = 0 group by barcode_id, itm_code) and " +
-            "c_id in (:companyCodeId) and lang_id in (:languageId) and " +
-            "plant_id in (:plantId) and wh_id in (:warehouseId) and " +
-            "(COALESCE(:barcodeId, null) IS NULL OR (BARCODE_ID IN (:barcodeId))) and \n" +
-            "(COALESCE(:itemCode, null) IS NULL OR (ITM_CODE IN (:itemCode))) and \n" +
-            "(:storageBin IS NULL OR ST_BIN LIKE CONCAT('%',:storageBin,'%')) ", nativeQuery = true)
-    List<StorageBinDesc> getStorageBin(@Param("companyCodeId") List<String> companyCodeId,
-                                           @Param("plantId") List<String> plantId,
-                                           @Param("languageId") List<String> languageId,
-                                           @Param("warehouseId") List<String> warehouseId,
-                                           @Param("barcodeId") List<String> barcodeId,
-                                           @Param("itemCode") List<String> itemCode,
-                                           @Param("storageBin") List<String> storageBin);
+//    @Query(value = "select st_bin storageBin from tblinventory where ref_field_4 > 0 and " +
+//            "inv_id in (select max(inv_id) from tblinventory where is_deleted = 0 group by barcode_id, itm_code) and " +
+//            "c_id in (:companyCodeId) and lang_id in (:languageId) and " +
+//            "plant_id in (:plantId) and wh_id in (:warehouseId) and " +
+//            "(COALESCE(:barcodeId, null) IS NULL OR (BARCODE_ID IN (:barcodeId))) and \n" +
+//            "(COALESCE(:itemCode, null) IS NULL OR (ITM_CODE IN (:itemCode))) and \n" +
+//            "(:storageBin IS NULL OR ST_BIN LIKE CONCAT('%',:storageBin,'%')) ", nativeQuery = true)
+//    List<StorageBinDesc> getStorageBin(@Param("companyCodeId") List<String> companyCodeId,
+//                                           @Param("plantId") List<String> plantId,
+//                                           @Param("languageId") List<String> languageId,
+//                                           @Param("warehouseId") List<String> warehouseId,
+//                                           @Param("barcodeId") List<String> barcodeId,
+//                                           @Param("itemCode") List<String> itemCode,
+//                                           @Param("storageBin") List<String> storageBin);
 
     @Query(value = "select * from tblinventory where ref_field_4 > 0 and " +
             "inv_id in (select max(inv_id) from tblinventory where is_deleted = 0 group by barcode_id, itm_code) and " +
