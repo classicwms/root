@@ -4077,6 +4077,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
 
     @Query(value = "select max(inv_id) inventoryId into #inv from tblinventory \n" +
             "WHERE \n" +
+            "(COALESCE(:itemCode, null) IS NULL OR (ITM_CODE IN (:itemCode))) and \n" +
             "(COALESCE(:manufacturerName, null) IS NULL OR (MFR_NAME IN (:manufacturerName))) and \n" +
             "(COALESCE(:companyCodeId, null) IS NULL OR (c_id IN (:companyCodeId))) and \n" +
             "(COALESCE(:languageId, null) IS NULL OR (lang_id IN (:languageId))) and \n" +
@@ -4097,7 +4098,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "(COALESCE(:barcodeId, null) IS NULL OR (iv.BARCODE_ID IN (:barcodeId))) and \n" +
             "(COALESCE(:manufacturerName, null) IS NULL OR (iv.MFR_NAME IN (:manufacturerName))) and \n" +
             "(COALESCE(:packBarcodes, null) IS NULL OR (iv.PACK_BARCODE IN (:packBarcodes))) and \n" +
-            "(COALESCE(:articleNo, null) IS NULL OR (iv.ARTICLE_NO IN (:articleNo))) and \n" +
+            "(COALESCE(:itemCode, null) IS NULL OR (iv.ITM_CODE IN (:itemCode))) and \n" +
             "(COALESCE(:binClassId, null) IS NULL OR (iv.BIN_CL_ID IN (:binClassId))) and\n" +
             "iv.is_deleted = 0 and iv.stck_typ_id = 1 and iv.REF_FIELD_4 > 0 order by inv_id\n", nativeQuery = true)
     public String getPutAwayHeaderCreateInventoryV3(@Param("companyCodeId") String companyCodeId,
@@ -4105,7 +4106,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
                                                     @Param("languageId") String languageId,
                                                     @Param("warehouseId") String warehouseId,
                                                     @Param("barcodeId") String barcodeId,
-                                                    @Param("articleNo") String articleNo,
+                                                    @Param("itemCode") String itemCode,
                                                     @Param("manufacturerName") String manufacturerName,
                                                     @Param("packBarcodes") String packBarcodes,
                                                     @Param("binClassId") Long binClassId);

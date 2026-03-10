@@ -798,15 +798,14 @@ public class PutAwayHeaderService extends BaseService {
      * @param plantId
      * @param languageId
      * @param warehouseId
-     * @param articleNo
      * @param manufacturerName
      * @return
      */
     public PutAwayHeaderV2 getPutAwayHeaderExistingItemCheckV2(String companyCodeId, String plantId, String languageId, String warehouseId,
-                                                               String articleNo, String manufacturerName) {
+                                                               String itemCode, String manufacturerName) {
         PutAwayHeaderV2 dbPutAwayHeader = putAwayHeaderV2Repository.
-                findTopByCompanyCodeIdAndPlantIdAndWarehouseIdAndLanguageIdAndArticleNoAndManufacturerNameAndStatusIdAndDeletionIndicatorOrderByCreatedOn(
-                        companyCodeId, plantId, warehouseId, languageId, articleNo, manufacturerName, 19L, 0L);
+                findTopByCompanyCodeIdAndPlantIdAndWarehouseIdAndLanguageIdAndReferenceField5AndManufacturerNameAndStatusIdAndDeletionIndicatorOrderByCreatedOn(
+                        companyCodeId, plantId, warehouseId, languageId, itemCode, manufacturerName, 19L, 0L);
         if (dbPutAwayHeader != null) {
             return dbPutAwayHeader;
         }
