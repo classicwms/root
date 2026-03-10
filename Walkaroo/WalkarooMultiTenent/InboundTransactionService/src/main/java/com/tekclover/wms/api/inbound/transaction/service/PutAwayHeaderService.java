@@ -12,16 +12,12 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.transaction.Transactional;
 
-import com.tekclover.wms.api.inbound.transaction.config.dynamicConfig.DataBaseContextHolder;
-import com.tekclover.wms.api.inbound.transaction.config.dynamicConfig.DataSourceConfig;
 import com.tekclover.wms.api.inbound.transaction.model.pickup.v2.PickupLineV2;
 import com.tekclover.wms.api.inbound.transaction.model.warehouse.inbound.ReversalLineV3;
 import com.tekclover.wms.api.inbound.transaction.model.warehouse.inbound.ReversalV3;
 import com.tekclover.wms.api.inbound.transaction.repository.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.tekclover.wms.api.inbound.transaction.controller.exception.BadRequestException;
@@ -4179,10 +4175,11 @@ public class PutAwayHeaderService extends BaseService {
             }
         });
 
-            String orderText = "PutAwayHeader Created";
-            int updateCount =  inboundOrderV2Repository.updatePutawayHeader(groupByRefDocNo, orderText);
-            log.info("Update PutAwayHeader Update Successfully ---> RefDocNo is {} And Affected Row {}", groupByRefDocNo, updateCount);
-
+        String orderText = "PutAwayHeader Created";
+        int updateCount = inboundOrderV2Repository.updatePutawayHeader(groupByRefDocNo, orderText);
+        log.info("Update PutAwayHeader Update Successfully ---> RefDocNo is {} And Affected Row {}", groupByRefDocNo, updateCount);
+        int updateStagingLine = stagingLineV2Repository.updateStagingLIne(groupByRefDocNo, orderText);
+        log.info("StagingLine Update Successfully ---> RefDocNo is {} And Affected Row {}", groupByRefDocNo, updateStagingLine);
         return savedPutAwayHeaders;
     }
 

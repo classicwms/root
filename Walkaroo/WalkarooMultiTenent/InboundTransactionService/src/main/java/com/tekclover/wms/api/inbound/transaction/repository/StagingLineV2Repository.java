@@ -3,6 +3,7 @@ package com.tekclover.wms.api.inbound.transaction.repository;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import com.tekclover.wms.api.inbound.transaction.model.report.StagingLineNewReport;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -737,4 +738,10 @@ public interface StagingLineV2Repository extends JpaRepository<StagingLineEntity
             @Param("vehicleNumber") List<String> vehicleNumber,
             @Param("startCreatedOn") Date startCreatedOn,
             @Param("endCreatedOn") Date endCreatedOn);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query(value = "update tblstagingline set status_id = 19, status_text = :text where " +
+            "REF_DOC_NO in (:refDocNo)", nativeQuery = true)
+    int updateStagingLIne(@Param("refDocNo") Set<String> refDocNo,
+                          @Param("text") String text);
 }
