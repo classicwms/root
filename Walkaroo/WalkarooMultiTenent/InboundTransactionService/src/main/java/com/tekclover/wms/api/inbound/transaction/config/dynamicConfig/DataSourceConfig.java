@@ -101,7 +101,7 @@ public class DataSourceConfig {
         config.setPassword(password);
 
         // SAFE POOL SIZE (PER DB)
-        config.setMaximumPoolSize(28); //
+        config.setMaximumPoolSize(25); //
         config.setMinimumIdle(10); //
         config.setConnectionTimeout(60000);
         config.setIdleTimeout(300000);
