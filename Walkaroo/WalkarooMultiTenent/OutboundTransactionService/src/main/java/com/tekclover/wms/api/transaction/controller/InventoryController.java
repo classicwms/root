@@ -293,8 +293,5 @@ public class InventoryController {
 			DataBaseContextHolder.clear();
 		}
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
+
 }
