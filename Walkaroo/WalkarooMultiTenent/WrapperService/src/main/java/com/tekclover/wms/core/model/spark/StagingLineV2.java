@@ -90,4 +90,12 @@ public class StagingLineV2 {
     private String color;
     private String size;
     private String noPairs;
+
+    private String palletId;
+    private String vehicleNumber;
+
+    private String sapFlag;
+    private String sapType;
+    private String sapMessage;
+    private String sapDocumentNo;
 }

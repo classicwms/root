@@ -2,6 +2,7 @@ package com.tekclover.wms.core.model.spark;
 
 import lombok.Data;
 
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -26,4 +27,11 @@ public class FindStagingLineV2 {
     private List<Long> lineNo;
     private List<String> itemCode;
     private List<Long> statusId;
+
+    //--New--
+    private Date startCreatedOn;
+    private Date endCreatedOn;
+    private List<String> palletId;
+    private List<String> barcodeId;
+    private List<String> vehicleNumber;
 }
