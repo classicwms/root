@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Repository
 @Transactional
@@ -174,4 +175,9 @@ public interface GrHeaderV2Repository extends JpaRepository<GrHeaderV2, Long>, J
             + "WHERE ref_doc_no = :refDocNumber AND is_deleted = 0", nativeQuery = true)
     void updateGRHeader_SAP(@Param("refDocNumber") String refDocNumber, @Param("sapType") String sapType,
                             @Param("docNo") String docNo);
+
+    @Modifying
+    @Query(value = "update tblgrheader set status_id = 19, status_text = :statusText where ref_doc_no in (:refDocNo) and is_deleted = 0", nativeQuery = true)
+    int updateGrHeaderStatus(@Param("refDocNo") Set<String> refDocNo,
+                             @Param("statusText") String statusText);
 }

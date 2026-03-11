@@ -4180,6 +4180,8 @@ public class PutAwayHeaderService extends BaseService {
         log.info("Update PutAwayHeader Update Successfully ---> RefDocNo is {} And Affected Row {}", groupByRefDocNo, updateCount);
         int updateStagingLine = stagingLineV2Repository.updateStagingLIne(groupByRefDocNo, orderText);
         log.info("StagingLine Update Successfully ---> RefDocNo is {} And Affected Row {}", groupByRefDocNo, updateStagingLine);
+        int grHeader = grHeaderV2Repository.updateGrHeaderStatus(groupByRefDocNo, orderText);
+        log.info("GrHeader Update Successfully ---> RefDocNo is {} And Affected Row {}", groupByRefDocNo, grHeader);
         return savedPutAwayHeaders;
     }
 
