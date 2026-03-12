@@ -2118,11 +2118,11 @@ public class WarehouseService extends BaseService {
 	 * @param interWarehouseTransfer
 	 * @return
 	 */
-	public InterWarehouseTransferOutV2 postInterWarehouseTransferOutboundV2(InterWarehouseTransferOutV2 interWarehouseTransfer) throws ParseException {
+	public WarehouseApiResponse postInterWarehouseTransferOutboundV2(InterWarehouseTransferOutV2 interWarehouseTransfer) throws ParseException {
 		log.info("InterWarehouseTransferHeader received from External: " + interWarehouseTransfer);
 		OutboundOrderV2 savedInterWarehouseTransferHeader = saveIWHTransferV2(interWarehouseTransfer);                                                    // Without Nongo
 		log.info("savedInterWarehouseTransferHeader: " + savedInterWarehouseTransferHeader);
-		return interWarehouseTransfer;
+		return idMasterService.postInterWarehouseTransferV2(interWarehouseTransfer);
 	}
 
 	/**
@@ -2644,13 +2644,6 @@ public class WarehouseService extends BaseService {
 			// Warehouse ID Validation
 			validateWarehouseId(warehouse.get().getWarehouseId());
 
-			// Checking for duplicate RefDocNumber
-//			OutboundOrderV2 obOrder = orderService.getOBOrderByIdV2(interWhTransferOutHeader.getTransferOrderNumber());
-//
-//			if (obOrder != null) {
-//				throw new OutboundOrderRequestException("TransferOrderNumber is already posted and it can't be duplicated");
-//			}
-
 			List<InterWarehouseTransferOutLineV2> interWarehouseTransferOutLines =
 					iWhTransferOutV2.getInterWarehouseTransferOutLine();
 
@@ -2689,15 +2682,15 @@ public class WarehouseService extends BaseService {
 				throw new OutboundOrderRequestException("Date format should be MM-dd-yyyy");
 			}
 
-			IKeyValuePair iKeyValuePair = outboundOrderV2Repository.getV2Description(
-					interWhTransferOutHeader.getFromCompanyCode(),
-					interWhTransferOutHeader.getFromBranchCode(),
-					warehouse.get().getWarehouseId());
-			if (iKeyValuePair != null) {
-				apiHeader.setCompanyName(iKeyValuePair.getCompanyDesc());
-				apiHeader.setBranchName(iKeyValuePair.getPlantDesc());
-				apiHeader.setWarehouseName(iKeyValuePair.getWarehouseDesc());
-			}
+//			IKeyValuePair iKeyValuePair = outboundOrderV2Repository.getV2Description(
+//					interWhTransferOutHeader.getFromCompanyCode(),
+//					interWhTransferOutHeader.getFromBranchCode(),
+//					warehouse.get().getWarehouseId());
+//			if (iKeyValuePair != null) {
+//				apiHeader.setCompanyName(iKeyValuePair.getCompanyDesc());
+//				apiHeader.setBranchName(iKeyValuePair.getPlantDesc());
+//				apiHeader.setWarehouseName(iKeyValuePair.getWarehouseDesc());
+//			}
 //			apiHeader.setOutboundOrderHeaderId(System.currentTimeMillis());
 			Set<OutboundOrderLineV2> orderLines = new HashSet<>();
 			for (InterWarehouseTransferOutLineV2 iwhTransferLine : interWarehouseTransferOutLines) {
@@ -2737,7 +2730,7 @@ public class WarehouseService extends BaseService {
 
 			if (iWhTransferOutV2.getInterWarehouseTransferOutLine() != null &&
 					!iWhTransferOutV2.getInterWarehouseTransferOutLine().isEmpty()) {
-				apiHeader.setProcessedStatusId(0L);
+				apiHeader.setProcessedStatusId(1L);
 				log.info("apiHeader: " + apiHeader);
 				OutboundOrderV2 createdOrder = orderService.createOutboundOrdersV2(apiHeader);
 				log.info("InterWarehouseTransferOut Order Success: " + createdOrder);

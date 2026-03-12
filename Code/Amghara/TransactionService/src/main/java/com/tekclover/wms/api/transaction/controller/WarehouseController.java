@@ -615,7 +615,7 @@ public ResponseEntity<?> postAsnUploadV2 (@Valid @RequestBody List<ASNV2> asnv2L
 	public ResponseEntity<?> postReturnPOV2(@Valid @RequestBody InterWarehouseTransferOutV2 interWarehouseTransfer)
 			throws IllegalAccessException, InvocationTargetException {
 		try {
-			InterWarehouseTransferOutV2 createdInterWarehouseTransfer =
+			WarehouseApiResponse createdInterWarehouseTransfer =
 					warehouseService.postInterWarehouseTransferOutboundV2(interWarehouseTransfer);
 			if (createdInterWarehouseTransfer != null) {
 				WarehouseApiResponse response = new WarehouseApiResponse();
