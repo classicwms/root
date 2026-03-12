@@ -3564,6 +3564,7 @@ public class InventoryService extends BaseService {
                 inventory.setUpdatedBy(loginUserId);
                 inventory.setCreatedOn(dbInventory.getCreatedOn());
                 inventory.setUpdatedOn(new Date());
+                inventory.setInventoryId(null);
 
                 InventoryV2 createdinventory = inventoryV2Repository.save(inventory);
                 log.info("BinClassId 3 created inventory[Existing] - reduced : {}", createdinventory);

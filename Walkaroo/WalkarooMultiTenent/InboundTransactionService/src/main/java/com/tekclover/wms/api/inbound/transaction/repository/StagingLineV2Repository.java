@@ -744,4 +744,35 @@ public interface StagingLineV2Repository extends JpaRepository<StagingLineEntity
             "REF_DOC_NO in (:refDocNo)", nativeQuery = true)
     int updateStagingLIne(@Param("refDocNo") Set<String> refDocNo,
                           @Param("text") String text);
+
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query(value = "update tblstagingline set STATUS_ID = 101, STATUS_TEXT = :statusText, PALLET_ID = :palId, st_utd_by = :loginUserId " +
+            "WHERE lang_id = :languageId AND c_id = :companyId AND plant_id = :plantId AND WH_ID = :warehouseId AND \n" +
+            "REF_DOC_NO = :refDocNo AND PRE_IB_NO = :preInboundNo AND STG_NO = :stagingNo AND CASE_CODE = :caseCode AND PAL_CODE = :palCode AND \n" +
+            "IB_LINE_NO = :lineNo AND is_deleted = 0", nativeQuery = true)
+    int updateStagingLine(@Param("languageId") String languageId,
+                          @Param("companyId") String companyId,
+                          @Param("plantId") String plantId,
+                          @Param("warehouseId") String warehouseId,
+                          @Param("refDocNo") String refDocNo,
+                          @Param("preInboundNo") String preInboundNo,
+                          @Param("stagingNo") String stagingNo,
+                          @Param("caseCode") String caseCode,
+                          @Param("palCode") String palCode,
+                          @Param("lineNo") Long lineNo,
+                          @Param("statusText") String statusText,
+                          @Param("palId") String palId,
+                          @Param("loginUserId") String loginUserID);
+
+    @Query(value = "select * from tblstagingline where \n" +
+            "(select count(*) from tblstagingline where REF_DOC_NO = :refDocNo and STATUS_ID = 101 and is_deleted = 0) = \n" +
+            "(select count(*) from tblstagingline where REF_DOC_NO = :refDocNo and is_deleted = 0) AND \n" +
+            "REF_DOC_NO = :refDocNo and is_deleted = 0 ", nativeQuery = true)
+    List<StagingLineEntityV2> findStagingLineList(@Param("refDocNo") String refDocNo);
+
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query(value = "update tblstagingline set SAP_FALG = :sapFlag " +
+            "WHERE REF_DOC_NO = :refDocNo AND is_deleted = 0", nativeQuery = true)
+    int updateStagingLine(@Param("refDocNo") String refDocNo,
+                          @Param("sapFlag") String sapFlag);
 }

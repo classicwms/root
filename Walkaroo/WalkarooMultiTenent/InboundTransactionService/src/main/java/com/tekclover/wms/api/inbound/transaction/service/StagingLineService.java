@@ -2689,106 +2689,155 @@ public class StagingLineService extends BaseService {
                 0L);
     }
 
-    public List<StagingLineEntityV2> updateStagingLinev3(List<StagingLineEntityV2> stagingLineEntityV2List, String loginUserID) {
-        try{
-            List<StagingLineEntityV2> stagingLineEntityList = new ArrayList<>();
+//    public List<StagingLineEntityV2> updateStagingLinev3(List<StagingLineEntityV2> stagingLineEntityV2List, String loginUserID) {
+//        try{
+//            List<StagingLineEntityV2> stagingLineEntityList = new ArrayList<>();
+//
+//            for(StagingLineEntityV2 sl : stagingLineEntityV2List) {
+//                log.info("Staging Line Update Input Values <-------> " + sl);
+//
+//
+//                StagingLineEntityV2 dbStaging = null;
+//                if (sl.getCompanyCode() == null || sl.getLanguageId() == null || sl.getPlantId() == null || sl.getLineNo() == null) {
+//                    dbStaging = stagingLineV2Repository.findByBarcodeIdAndDeletionIndicator(sl.getBarcodeId(), 0L);
+//                } else {
+//                    dbStaging =
+//                            stagingLineV2Repository.findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndItemCodeAndStagingNoAndCaseCodeAndPalletCodeAndLineNoAndDeletionIndicator(
+//                                    sl.getLanguageId(), sl.getCompanyCode(), sl.getPlantId(), sl.getWarehouseId(), sl.getRefDocNumber(), sl.getPreInboundNo(),
+//                                    sl.getItemCode(), sl.getStagingNo(), sl.getCaseCode(), sl.getPalletCode(), sl.getLineNo(), 0L);
+//                }
+//                if (dbStaging == null) {
+//                    log.info(RED + "Given Input Records Doesn't Exists " + sl.getStagingNo() + RESET);
+//                    throw new BadRequestException("Given Input Records Doesn't Exists StagingLine No - " + sl.getStagingNo());
+//                }
+////                InventoryV2 dbInventory = inventoryV2Repository.checkForBarcodeId(sl.getCompanyCode(), sl.getPlantId(), sl.getLanguageId(), sl.getWarehouseId(), sl.getItemCode(), sl.getManufacturerName(), sl.getBarcodeId(),sl.getRefDocNumber());
+////
+////                if(dbInventory != null){
+////                    dbInventory.setBinClassId(0L);
+////                    inventoryV2Repository.save(dbInventory);
+////                }
+//                BeanUtils.copyProperties(sl, dbStaging, CommonUtils.getNullPropertyNames(sl));
+//                dbStaging.setStatusId(101L);
+//                statusDescription = getStatusDescription(101L, dbStaging.getLanguageId());
+//                dbStaging.setStatusDescription(statusDescription);
+//                dbStaging.setUpdatedBy(loginUserID);
+//                dbStaging.setUpdatedOn(new Date());
+//                StagingLineEntityV2 staging = stagingLineV2Repository.save(dbStaging);
+//                log.info(GREEN + " Staging Line Updated Status ID 101 & Values <-------> " + staging + RESET);
+//                stagingLineEntityList.add(dbStaging);
+//            }
+//
+////            stagingLineV2Repository.saveAll(stagingLineEntityV2List);
+////            log.info("AFTER STAGING UPDATED AS 101 list --> {}",stagingLineEntityList.size());
+////            log.info("AFTER STAGING UPDATED Values --> {}",stagingLineEntityList);
+//
+//            // 2. Group by refDocNumber after all updates
+//            Map<String, List<StagingLineEntityV2>> groupedByRefDoc = stagingLineEntityList.stream()
+//                    .collect(Collectors.groupingBy(StagingLineEntityV2::getRefDocNumber));
+//
+//            for (Map.Entry<String, List<StagingLineEntityV2>> entry : groupedByRefDoc.entrySet()) {
+//                String refDocNumber = entry.getKey();
+//                List<StagingLineEntityV2> lineEntities = entry.getValue();
+//
+////                long countWithStatus = stagingLineV2Repository.countByRefDocNoAndStatusId(refDocNumber, 101L);
+////                long totalCount = stagingLineV2Repository.countByRefDocNo(refDocNumber);
+//
+//                log.info("refDocNumber --> {}", refDocNumber);
+////                log.info("countWithStatus ------> {}", countWithStatus);
+////                log.info("totalCount --------> {}", totalCount);
+//
+////                if (countWithStatus == totalCount) {
+//                    List<StagingLineEntityV2> stagingLines = stagingLineV2Repository.findByRefDocNumberAndDeletionIndicator(refDocNumber, 0L);
+//                    boolean allStatus101 = stagingLines.stream().allMatch(entity -> entity.getStatusId() == 101L);
+//                    log.info("allStatus101 ---------> {}", allStatus101);
+//
+//                    if (allStatus101) {
+//                        try {
+//                            String response = oDataService.postODataRequest(stagingLines, refDocNumber, "1", "X");
+//                            System.out.println("RES ---> {}" + response);
+//
+//                            for (StagingLineEntityV2 entity : stagingLines) {
+//                                if (response.equals("0")) {
+//                                    entity.setSapFlag("0");
+//                                    StagingLineEntityV2 updated = stagingLineV2Repository.save(entity);
+//
+//                                    GrHeaderV2 grHeaderV2 = grHeaderV2Repository.findByCompanyCodeAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
+//                                            updated.getCompanyCode(), updated.getPlantId(), updated.getLanguageId(), updated.getWarehouseId(), updated.getRefDocNumber(), updated.getPreInboundNo(), 0L);
+//                                    grHeaderV2.setSapFlag("0");
+//                                    grHeaderV2Repository.save(grHeaderV2);
+//
+//                                    // Update list again only if necessary
+//                                } else {
+//                                    log.info("SAP ERROR ---------------------------> {}", response);
+//                                    entity.setSapFlag("1");
+//                                    entity.setRemarks("SAP ERROR");
+//
+//                                    entity.setSapFlag("1");
+//                                    StagingLineEntityV2 updated = stagingLineV2Repository.save(entity);
+//
+//                                    GrHeaderV2 grHeaderV2 = grHeaderV2Repository.findByCompanyCodeAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
+//                                            updated.getCompanyCode(), updated.getPlantId(), updated.getLanguageId(), updated.getWarehouseId(), updated.getRefDocNumber(), updated.getPreInboundNo(), 0L);
+//                                    grHeaderV2.setSapFlag("1");
+//                                    grHeaderV2Repository.save(grHeaderV2);
+//                                }
+//                            }
+//                        } catch (JsonProcessingException e) {
+//                            throw new RuntimeException(e);
+//                        }
+//                    }
+////                }
+//            }
+//
+//            return stagingLineEntityList;
+//
+//        } catch (Exception e) {
+//            log.error("Exception while Updating StagingLine");
+//            throw e;
+//        }
+//    }
 
+    public List<StagingLineEntityV2> updateStagingLinev3(List<StagingLineEntityV2> stagingLineEntityV2List, String loginUserID){
+        try{
             for(StagingLineEntityV2 sl : stagingLineEntityV2List) {
                 log.info("Staging Line Update Input Values <-------> " + sl);
-
-
-                StagingLineEntityV2 dbStaging = null;
-                if (sl.getCompanyCode() == null || sl.getLanguageId() == null || sl.getPlantId() == null || sl.getLineNo() == null) {
-                    dbStaging = stagingLineV2Repository.findByBarcodeIdAndDeletionIndicator(sl.getBarcodeId(), 0L);
-                } else {
-                    dbStaging =
-                            stagingLineV2Repository.findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndItemCodeAndStagingNoAndCaseCodeAndPalletCodeAndLineNoAndDeletionIndicator(
-                                    sl.getLanguageId(), sl.getCompanyCode(), sl.getPlantId(), sl.getWarehouseId(), sl.getRefDocNumber(), sl.getPreInboundNo(),
-                                    sl.getItemCode(), sl.getStagingNo(), sl.getCaseCode(), sl.getPalletCode(), sl.getLineNo(), 0L);
-                }
-                if (dbStaging == null) {
-                    log.info(RED + "Given Input Records Doesn't Exists " + sl.getStagingNo() + RESET);
-                    throw new BadRequestException("Given Input Records Doesn't Exists StagingLine No - " + sl.getStagingNo());
-                }
-//                InventoryV2 dbInventory = inventoryV2Repository.checkForBarcodeId(sl.getCompanyCode(), sl.getPlantId(), sl.getLanguageId(), sl.getWarehouseId(), sl.getItemCode(), sl.getManufacturerName(), sl.getBarcodeId(),sl.getRefDocNumber());
-//
-//                if(dbInventory != null){
-//                    dbInventory.setBinClassId(0L);
-//                    inventoryV2Repository.save(dbInventory);
-//                }
-                BeanUtils.copyProperties(sl, dbStaging, CommonUtils.getNullPropertyNames(sl));
-                dbStaging.setStatusId(101L);
-                statusDescription = getStatusDescription(101L, dbStaging.getLanguageId());
-                dbStaging.setStatusDescription(statusDescription);
-                dbStaging.setUpdatedBy(loginUserID);
-                dbStaging.setUpdatedOn(new Date());
-                StagingLineEntityV2 staging = stagingLineV2Repository.save(dbStaging);
-                log.info(GREEN + " Staging Line Updated Status ID 101 & Values <-------> " + staging + RESET);
-                stagingLineEntityList.add(dbStaging);
+                statusDescription = getStatusDescription(101L, sl.getLanguageId());
+                int countOfRows = stagingLineV2Repository.updateStagingLine(sl.getLanguageId(), sl.getCompanyCode(), sl.getPlantId(), sl.getWarehouseId(), sl.getRefDocNumber(),
+                        sl.getPreInboundNo(), sl.getStagingNo(), sl.getCaseCode(), sl.getPalletCode(), sl.getLineNo(), statusDescription, sl.getPalletId(), loginUserID);
+                log.info("StagingLine Updated Rows: {}", countOfRows);
             }
 
-//            stagingLineV2Repository.saveAll(stagingLineEntityV2List);
-//            log.info("AFTER STAGING UPDATED AS 101 list --> {}",stagingLineEntityList.size());
-//            log.info("AFTER STAGING UPDATED Values --> {}",stagingLineEntityList);
-
             // 2. Group by refDocNumber after all updates
-            Map<String, List<StagingLineEntityV2>> groupedByRefDoc = stagingLineEntityList.stream()
+            Map<String, List<StagingLineEntityV2>> groupedByRefDoc = stagingLineEntityV2List.stream()
                     .collect(Collectors.groupingBy(StagingLineEntityV2::getRefDocNumber));
 
             for (Map.Entry<String, List<StagingLineEntityV2>> entry : groupedByRefDoc.entrySet()) {
+
                 String refDocNumber = entry.getKey();
-                List<StagingLineEntityV2> lineEntities = entry.getValue();
-
-//                long countWithStatus = stagingLineV2Repository.countByRefDocNoAndStatusId(refDocNumber, 101L);
-//                long totalCount = stagingLineV2Repository.countByRefDocNo(refDocNumber);
-
                 log.info("refDocNumber --> {}", refDocNumber);
-//                log.info("countWithStatus ------> {}", countWithStatus);
-//                log.info("totalCount --------> {}", totalCount);
 
-//                if (countWithStatus == totalCount) {
-                    List<StagingLineEntityV2> stagingLines = stagingLineV2Repository.findByRefDocNumberAndDeletionIndicator(refDocNumber, 0L);
-                    boolean allStatus101 = stagingLines.stream().allMatch(entity -> entity.getStatusId() == 101L);
-                    log.info("allStatus101 ---------> {}", allStatus101);
+                List<StagingLineEntityV2> stagingLines = stagingLineV2Repository.findStagingLineList(refDocNumber);
+                log.info("List of StagingLine Values: {} ", stagingLines);
 
-                    if (allStatus101) {
-                        try {
-                            String response = oDataService.postODataRequest(stagingLines, refDocNumber, "1", "X");
-                            System.out.println("RES ---> {}" + response);
+                if (!stagingLines.isEmpty()) {
+                    try {
+                        String response = oDataService.postODataRequest(stagingLines, refDocNumber, "1", "X");
+                        System.out.println("RES ---> {}" + response);
 
-                            for (StagingLineEntityV2 entity : stagingLines) {
-                                if (response.equals("0")) {
-                                    entity.setSapFlag("0");
-                                    StagingLineEntityV2 updated = stagingLineV2Repository.save(entity);
-
-                                    GrHeaderV2 grHeaderV2 = grHeaderV2Repository.findByCompanyCodeAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
-                                            updated.getCompanyCode(), updated.getPlantId(), updated.getLanguageId(), updated.getWarehouseId(), updated.getRefDocNumber(), updated.getPreInboundNo(), 0L);
-                                    grHeaderV2.setSapFlag("0");
-                                    grHeaderV2Repository.save(grHeaderV2);
-
-                                    // Update list again only if necessary
-                                } else {
-                                    log.info("SAP ERROR ---------------------------> {}", response);
-                                    entity.setSapFlag("1");
-                                    entity.setRemarks("SAP ERROR");
-
-                                    entity.setSapFlag("1");
-                                    StagingLineEntityV2 updated = stagingLineV2Repository.save(entity);
-
-                                    GrHeaderV2 grHeaderV2 = grHeaderV2Repository.findByCompanyCodeAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
-                                            updated.getCompanyCode(), updated.getPlantId(), updated.getLanguageId(), updated.getWarehouseId(), updated.getRefDocNumber(), updated.getPreInboundNo(), 0L);
-                                    grHeaderV2.setSapFlag("1");
-                                    grHeaderV2Repository.save(grHeaderV2);
-                                }
-                            }
-                        } catch (JsonProcessingException e) {
-                            throw new RuntimeException(e);
+                        if (response.equals("0")) {
+                            log.info("Sap Success RefDoc: {} ", refDocNumber);
+                            int grCount = grHeaderV2Repository.updateGRHeader_SAP(refDocNumber, "0");
+                            log.info("GrHeader Success Updated Rows: {}", grCount);
+                        } else {
+                            log.info("Sap Failure RefDoc: {} ", refDocNumber);
+                            int grCount = grHeaderV2Repository.updateGRHeader_SAP(refDocNumber, "1");
+                            log.info("GrHeader Failure Updated Rows: {}", grCount);
                         }
+                    } catch (JsonProcessingException e) {
+                        throw new RuntimeException(e);
                     }
-//                }
+                }
             }
-
-            return stagingLineEntityList;
+            return stagingLineEntityV2List;
 
         } catch (Exception e) {
             log.error("Exception while Updating StagingLine");
