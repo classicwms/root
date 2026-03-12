@@ -2,7 +2,9 @@ package com.tekclover.wms.api.enterprise.controller;
 
 import com.tekclover.wms.api.enterprise.service.TransferOrderService;
 import com.tekclover.wms.api.enterprise.transaction.model.warehouse.inbound.WarehouseApiResponse;
+import com.tekclover.wms.api.enterprise.transaction.model.warehouse.outbound.v2.InterWarehouseTransferOutV2;
 import com.tekclover.wms.api.enterprise.transaction.model.warehouse.outbound.v2.ShipmentOrderV2;
+import com.tekclover.wms.api.enterprise.transaction.service.InterWarehouseTransferOutService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.SwaggerDefinition;
@@ -33,6 +35,9 @@ public class OutboundOrderController {
     @Autowired
     TransferOrderService transferOrderService;
 
+    @Autowired
+    InterWarehouseTransferOutService interWarehouseTransferOutService;
+
     @ApiOperation(response = ShipmentOrderV2.class, value = "Create Shipment Order") // label for swagger
     @PostMapping("/so/v2")
     public ResponseEntity<?> postShipmenOrderV2(@Valid @RequestBody ShipmentOrderV2 shipmenOrder)
@@ -49,6 +54,25 @@ public class OutboundOrderController {
 //            }
         } catch (Exception e) {
             log.info("ShipmentOrder order Error: " + shipmenOrder);
+            e.printStackTrace();
+            WarehouseApiResponse response = new WarehouseApiResponse();
+            response.setStatusCode("1400");
+            response.setMessage("Not Success: " + e.getLocalizedMessage());
+            return new ResponseEntity<>(response, HttpStatus.EXPECTATION_FAILED);
+        }
+    }
+
+    //Inter warehouse Transfer out v2
+    @ApiOperation(response = InterWarehouseTransferOutV2.class, value = "Inter Warehouse Transfer Out v2")
+    @PostMapping("/interwarehousetransferoutv2")
+    public ResponseEntity<?> postInterWarehouseTransferOut(@Valid @RequestBody InterWarehouseTransferOutV2 itw)
+            throws IllegalAccessException, InvocationTargetException {
+        try {
+            log.info("InterWarehouseTransferOutV2 --------> {}", itw);
+            InterWarehouseTransferOutV2 response = interWarehouseTransferOutService.createInterwarehouseList(itw);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }catch (Exception e) {
+            log.info("InterWarehouseTransferOutV2 order Error: " + itw);
             e.printStackTrace();
             WarehouseApiResponse response = new WarehouseApiResponse();
             response.setStatusCode("1400");
