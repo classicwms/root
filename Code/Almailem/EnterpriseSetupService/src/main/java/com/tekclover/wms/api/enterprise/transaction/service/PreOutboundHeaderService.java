@@ -1615,9 +1615,10 @@ public class PreOutboundHeaderService extends BaseService {
          * Checking whether received refDocNumber processed already.
          */
         log.info("Outbound Process Initiated----> " + outboundIntegrationHeader.getRefDocumentNo() + ", " + outboundIntegrationHeader.getOutboundOrderTypeID());
-        Optional<PreOutboundHeaderV2> orderProcessedStatus =
-                preOutboundHeaderV2Repository.findByRefDocNumberAndOutboundOrderTypeIdAndDeletionIndicator(
-                        outboundIntegrationHeader.getRefDocumentNo(), outboundIntegrationHeader.getOutboundOrderTypeID(), 0L);
+            Optional<PreOutboundHeaderV2> orderProcessedStatus =
+                    preOutboundHeaderV2Repository.findByRefDocNumberAndCompanyCodeIdAndPlantIdAndOutboundOrderTypeIdAndDeletionIndicator(
+                            outboundIntegrationHeader.getRefDocumentNo(), outboundIntegrationHeader.getCompanyCode(), outboundIntegrationHeader.getBranchCode(),
+                            outboundIntegrationHeader.getOutboundOrderTypeID(), 0L);
 
         if (!orderProcessedStatus.isEmpty()) {
             throw new BadRequestException("Order :" + outboundIntegrationHeader.getRefDocumentNo() +
