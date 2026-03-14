@@ -31,7 +31,8 @@ public interface PreOutboundHeaderV2Repository extends JpaRepository<PreOutbound
 
     Optional<PreOutboundHeaderV2> findByRefDocNumberAndDeletionIndicator(String refDocumentNo, Long deletionIndicator);
 
-    Optional<PreOutboundHeaderV2> findByRefDocNumberAndOutboundOrderTypeIdAndDeletionIndicator(String refDocumentNo, Long outboundOrderTypeId, Long deletionIndicator);
+    Optional<PreOutboundHeaderV2> findByRefDocNumberAndCompanyCodeIdAndPlantIdAndOutboundOrderTypeIdAndDeletionIndicator(
+            String refDocumentNo, String companyCodeId, String plantId, Long outboundOrderTypeId, Long deletionIndicator);
 
     /**
      * @param warehouseId

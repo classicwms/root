@@ -114,8 +114,8 @@ public class TransferOrderService extends BaseService {
             String orderType = lineV2List.get(0).getOrderType();
 
             Optional<PreOutboundHeaderV2> orderProcessedStatus =
-                    preOutboundHeaderV2Repository.findByRefDocNumberAndOutboundOrderTypeIdAndDeletionIndicator(
-                            header.getTransferOrderNumber(), 0L, 0L);
+                    preOutboundHeaderV2Repository.findByRefDocNumberAndCompanyCodeIdAndPlantIdAndOutboundOrderTypeIdAndDeletionIndicator(
+                            header.getTransferOrderNumber(), companyCode, plantId, 0L, 0L);
 
             if (!orderProcessedStatus.isEmpty()) {
                 throw new BadRequestException("Order :" + header.getTransferOrderNumber() +
