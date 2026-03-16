@@ -1767,27 +1767,25 @@ public class InboundHeaderService extends BaseService {
             updateStatusWithRetry(companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, 24L, 17L, statusDescription17,  statusDescription, loginUserID, new Date());
             log.info("InboundLinePartialConfirm Status Update Process Completed ----------------------------------------------> ");
 
-            int rows =  inboundHeaderV2Repository.updateInboundHeader(24L, statusDescription, loginUserID, new Date(), companyCode,
-                    plantId, languageId, warehouseId, refDocNumber, preInboundNo);
-            log.info("InboundHeader rows updated: {} ---------------> RefDocNo is {} ", rows, refDocNumber);
-
-//			// Inbound Header 24 Update
-//			inboundHeaderV2Repository.updateHeaderStatusInboundConfirmProcedure(companyCode, plantId, languageId,
-//					warehouseId, refDocNumber, preInboundNo, 24L, statusDescription, loginUserID, new Date());
-//			log.info("Header Status updated using stored procedure");
-//
-//			// PutawayHeader, GrLine, Stg Line, PreIbLine Status updated
-//			String statusDescription17 = stagingLineV2Repository.getStatusDescription(17L, languageId);
-//			inboundHeaderV2Repository.updatePahGrlStglPiblStatusInboundConfirmProcedure(companyCode, plantId,
-//					languageId, warehouseId, refDocNumber, preInboundNo, 24L, 17L, statusDescription,
-//					statusDescription17, loginUserID, new Date());
-//			log.info("PutawayHeader, GrLine, Stg Line, PreIbLine Status updated using stored procedure");
+            updateInboundHeaderStatus(companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, statusDescription, loginUserID);
+//            int rows =  inboundHeaderV2Repository.updateInboundHeader(24L, statusDescription, loginUserID, new Date(), companyCode,
+//                    plantId, languageId, warehouseId, refDocNumber, preInboundNo);
+//            log.info("InboundHeader rows updated: {} ---------------> RefDocNo is {} ", rows, refDocNumber);
 
 		} catch (Exception e) {
 			throw new BadRequestException("Inbound confirmation : Exception ----> " + e.toString());
 		}
 	}
-    
+
+    @Transactional
+    public void updateInboundHeaderStatus(String companyCode, String plantId, String languageId, String warehouseId, String refDocNumber,
+                                      String preInboundNo, String statusDescription,
+                                      String loginUserID) {
+
+        int rows =  inboundHeaderV2Repository.updateInboundHeader(24L, statusDescription, loginUserID, new Date(), companyCode,
+                plantId, languageId, warehouseId, refDocNumber, preInboundNo);
+        log.info("InboundHeader rows updated: {} ---------------> RefDocNo is {} ", rows, refDocNumber);
+    }
 	/**
 	 * 
 	 */
