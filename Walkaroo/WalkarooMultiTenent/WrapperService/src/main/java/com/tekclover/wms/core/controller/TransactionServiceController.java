@@ -4493,4 +4493,12 @@ public class TransactionServiceController {
         return inboundTransactionService.findStagingLineNewV2Report(searchStagingLine, authToken);
     }
 
+    //===========New Mobile InhouseTransferHeader============================================
+    @ApiOperation(response = NewAddInhouseTransferHeader.class, value = "Create InHouseTransferHeader V2 New")// label for swagger
+    @PostMapping("/inhousetransferheader/hht/v2")
+    public ResponseEntity<?> postInHouseTransferHeaderNew(@Valid @RequestBody NewAddInhouseTransferHeader newInHouseTransferHeader, @RequestParam String loginUserID,
+                                                          @RequestParam String authToken) throws IllegalAccessException, InvocationTargetException {
+        InhouseTransferHeader createdInHouseTransferHeader = outboundTransactionService.createInhouseTransferHeaderNewV2(newInHouseTransferHeader, loginUserID, authToken);
+        return new ResponseEntity<>(createdInHouseTransferHeader, HttpStatus.OK);
+    }
 }

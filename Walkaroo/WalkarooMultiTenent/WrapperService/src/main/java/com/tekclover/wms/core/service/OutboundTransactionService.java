@@ -9463,6 +9463,25 @@ public class OutboundTransactionService {
             throw e;
         }
     }
+
+    // New -- POST - V2
+    public InhouseTransferHeader createInhouseTransferHeaderNewV2(NewAddInhouseTransferHeader newInhouseTransferHeader,
+                                                                  String loginUserID, String authToken) {
+        AuthToken oAuth = authTokenService.getOutboundTransactionServiceAuthToken();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        headers.add("User-Agent", "ClassicWMS RestTemplate");
+        headers.add("Authorization", "Bearer " + oAuth.getAccess_token());
+
+        UriComponentsBuilder builder = UriComponentsBuilder
+                .fromHttpUrl(getOutboundTransactionServiceApiUrl() + "inhousetransferheader/v2/mobile/new")
+                .queryParam("loginUserID", loginUserID);
+        HttpEntity<?> entity = new HttpEntity<>(newInhouseTransferHeader, headers);
+        ResponseEntity<InhouseTransferHeader> result = getRestTemplate().exchange(builder.toUriString(),
+                HttpMethod.POST, entity, InhouseTransferHeader.class);
+        log.info("result : " + result.getStatusCode());
+        return result.getBody();
+    }
 }
 
 
