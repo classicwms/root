@@ -139,4 +139,21 @@ public class InhouseTransferHeaderController {
 			DataBaseContextHolder.clear();
 		}
 		}
+
+	//------New-Mobile---
+	@ApiOperation(response = NewAddInhouseTransferHeader.class, value = "Create InHouseTransferHeader New") // label for swagger
+	@PostMapping("/v2/mobile/new")
+	public ResponseEntity<?> postInHouseTransferHeaderNew(@Valid @RequestBody NewAddInhouseTransferHeader newInHouseTransferHeader, @RequestParam String loginUserID)
+			throws IllegalAccessException, InvocationTargetException, ParseException {
+		try {
+			String currentDB = baseService.getDataBase(newInHouseTransferHeader.getPlantId());
+			DataBaseContextHolder.clear();
+			DataBaseContextHolder.setCurrentDb(currentDB);
+			log.info("Current DB " + currentDB);
+			InhouseTransferHeaderEntity transferHeader = inHouseTransferHeaderService.createInHouseTransferHeaderNewV2(newInHouseTransferHeader, loginUserID);
+			return new ResponseEntity<>(transferHeader,HttpStatus.OK);
+		} finally {
+			DataBaseContextHolder.clear();
+		}
+	}
 }

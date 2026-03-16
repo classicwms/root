@@ -1512,4 +1512,204 @@ public class InhouseTransferHeaderService extends BaseService {
             throw new BadRequestException("The given StorageBin ID : " + storageBin + " doesn't exist.");
         }
     }
+
+    // -----New-----
+    /**
+     * createInHouseTransferHeader
+     *
+     * @param newInhouseTransferHeader
+     * @param loginUserID
+     * @return
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     */
+    public InhouseTransferHeaderEntity createInHouseTransferHeaderNewV2(NewAddInhouseTransferHeader newInhouseTransferHeader, String loginUserID)
+            throws IllegalAccessException, InvocationTargetException, ParseException {
+
+        InhouseTransferHeader dbInhouseTransferHeader = new InhouseTransferHeader();
+        log.info("newInHouseTransferHeader : " + newInhouseTransferHeader);
+
+
+//        InventoryV2 inventorySource =
+//                inventoryV2Repository.getInventoryForTransferNew(newInhouseTransferHeader.getCompanyCodeId(), newInhouseTransferHeader.getPlantId(),
+//                        newInhouseTransferHeader.getLanguageId(), newInhouseTransferHeader.getWarehouseId(), newInhouseTransferHeader.getSourceBarcodeId());
+
+        BeanUtils.copyProperties(newInhouseTransferHeader, dbInhouseTransferHeader, CommonUtils.getNullPropertyNames(newInhouseTransferHeader));
+        AuthToken authTokenForIDMasterService = authTokenService.getIDMasterServiceAuthToken();
+
+        dbInhouseTransferHeader.setLanguageId(newInhouseTransferHeader.getLanguageId());
+        dbInhouseTransferHeader.setCompanyCodeId(newInhouseTransferHeader.getCompanyCodeId());
+        dbInhouseTransferHeader.setPlantId(newInhouseTransferHeader.getPlantId());
+        dbInhouseTransferHeader.setWarehouseId(newInhouseTransferHeader.getWarehouseId());
+        dbInhouseTransferHeader.setTransferTypeId(3L);
+        // TR_NO
+        String TRANSFER_NO = getTransferNoV2(newInhouseTransferHeader.getCompanyCodeId(),
+                newInhouseTransferHeader.getPlantId(),
+                newInhouseTransferHeader.getLanguageId(),
+                newInhouseTransferHeader.getWarehouseId(),
+                authTokenForIDMasterService.getAccess_token());
+        dbInhouseTransferHeader.setTransferNumber(TRANSFER_NO);
+
+        IKeyValuePair description = stagingLineV2Repository.getDescription(newInhouseTransferHeader.getCompanyCodeId(),
+                newInhouseTransferHeader.getLanguageId(),
+                newInhouseTransferHeader.getPlantId(),
+                newInhouseTransferHeader.getWarehouseId());
+
+        // STATUS_ID - Hard Coded Value="30" at the time of Confirmation
+        dbInhouseTransferHeader.setStatusId(30L);
+        String statusDescription = stagingLineV2Repository.getStatusDescription(30L, newInhouseTransferHeader.getLanguageId());
+        dbInhouseTransferHeader.setStatusDescription(statusDescription);
+        dbInhouseTransferHeader.setCompanyDescription(description.getCompanyDesc());
+        dbInhouseTransferHeader.setPlantDescription(description.getPlantDesc());
+        dbInhouseTransferHeader.setWarehouseDescription(description.getWarehouseDesc());
+        dbInhouseTransferHeader.setDeletionIndicator(0L);
+        dbInhouseTransferHeader.setCreatedBy(loginUserID);
+        dbInhouseTransferHeader.setUpdatedBy(loginUserID);
+        dbInhouseTransferHeader.setCreatedOn(new Date());
+        dbInhouseTransferHeader.setUpdatedOn(new Date());
+
+        /*
+         * LINES Table
+         */
+        InhouseTransferHeaderEntity responseHeader = new InhouseTransferHeaderEntity();
+        BeanUtils.copyProperties(newInhouseTransferHeader, responseHeader, CommonUtils.getNullPropertyNames(newInhouseTransferHeader));
+        List<InhouseTransferLineEntity> responseLines = new ArrayList<>();
+
+        for (NewAddInhouseTransferLine newInhouseTransferLine : newInhouseTransferHeader.getInhouseTransferLine()) {
+            InhouseTransferLine dbInhouseTransferLine = new InhouseTransferLine();
+
+            InventoryV2 inventorySource =
+                    inventoryV2Repository.getInventoryForTransferNew(newInhouseTransferHeader.getCompanyCodeId(), newInhouseTransferHeader.getPlantId(),
+                            newInhouseTransferHeader.getLanguageId(), newInhouseTransferHeader.getWarehouseId(), newInhouseTransferLine.getSourceBarcodeId());
+
+            BeanUtils.copyProperties(newInhouseTransferLine, dbInhouseTransferLine, CommonUtils.getNullPropertyNames(newInhouseTransferLine));
+
+            dbInhouseTransferLine.setLanguageId(newInhouseTransferHeader.getLanguageId());
+            dbInhouseTransferLine.setCompanyCodeId(newInhouseTransferHeader.getCompanyCodeId());
+            dbInhouseTransferLine.setPlantId(newInhouseTransferHeader.getPlantId());
+
+            // WH_ID
+            dbInhouseTransferLine.setWarehouseId(dbInhouseTransferHeader.getWarehouseId());
+
+            // TR_NO
+            dbInhouseTransferLine.setTransferNumber(TRANSFER_NO);
+            dbInhouseTransferLine.setManufacturerName(inventorySource.getManufacturerName());
+            dbInhouseTransferLine.setTransferUom(inventorySource.getInventoryUom());
+
+            // STATUS_ID - Hard Coded Value="30" at the time of Confirmation
+            dbInhouseTransferLine.setStatusId(30L);
+            dbInhouseTransferLine.setStatusDescription(statusDescription);
+            dbInhouseTransferLine.setDeletionIndicator(0L);
+            dbInhouseTransferLine.setCreatedBy(loginUserID);
+            dbInhouseTransferLine.setCreatedOn(new Date());
+            dbInhouseTransferLine.setUpdatedBy(loginUserID);
+            dbInhouseTransferLine.setUpdatedOn(new Date());
+            dbInhouseTransferLine.setConfirmedBy(loginUserID);
+            dbInhouseTransferLine.setConfirmedOn(new Date());
+
+            dbInhouseTransferLine.setCompanyDescription(description.getCompanyDesc());
+            dbInhouseTransferLine.setPlantDescription(description.getPlantDesc());
+            dbInhouseTransferLine.setWarehouseDescription(description.getWarehouseDesc());
+            dbInhouseTransferLine.setSourceBarcodeId(newInhouseTransferLine.getSourceBarcodeId());
+            dbInhouseTransferLine.setTargetBarcodeId(newInhouseTransferLine.getSourceBarcodeId());
+            dbInhouseTransferLine.setSourceItemCode(inventorySource.getItemCode());
+            dbInhouseTransferLine.setTargetItemCode(inventorySource.getItemCode());
+            dbInhouseTransferLine.setSourceStorageBin(inventorySource.getStorageBin());
+            dbInhouseTransferLine.setTargetStorageBin(newInhouseTransferLine.getTargetStorageBin());
+
+            // Save InhouseTransferLine
+            InhouseTransferLine createdInhouseTransferLine = inhouseTransferLineRepository.save(dbInhouseTransferLine);
+            log.info("InhouseTransferLine created : " + createdInhouseTransferLine);
+            InhouseTransferLineEntity responseInhouseTransferLineEntity = new InhouseTransferLineEntity();
+            BeanUtils.copyProperties(createdInhouseTransferLine, responseInhouseTransferLineEntity,
+                    CommonUtils.getNullPropertyNames(createdInhouseTransferLine));
+            responseLines.add(responseInhouseTransferLineEntity);
+
+            log.info("InhouseTransferHeader before create-->: " + dbInhouseTransferHeader);
+            InhouseTransferHeader createdInhouseTransferHeader = inhouseTransferHeaderRepository.save(dbInhouseTransferHeader);
+            log.info("InhouseTransferHeader created: " + createdInhouseTransferHeader);
+
+            /*--------------------INVENTORY TABLE UPDATES-----------------------------------------------*/
+            updateInventoryNewV3(createdInhouseTransferHeader, createdInhouseTransferLine, loginUserID);
+        }
+        responseHeader.setInhouseTransferLine(responseLines);
+        return responseHeader;
+    }
+
+    /**
+     * New Method used for Make and Change for setting ArticleNo, NoPairs, Color, etc..
+     * Aakash Vinayak 11-06-2025
+     *
+     * @param createdInhouseTransferHeader
+     * @param createdInhouseTransferLine
+     * @param loginUserID
+     * @throws InvocationTargetException
+     * @throws IllegalAccessException
+     */
+    private void updateInventoryNewV3(InhouseTransferHeader createdInhouseTransferHeader,
+                                      InhouseTransferLine createdInhouseTransferLine, String loginUserID) throws IllegalAccessException, InvocationTargetException {
+        String warehouseId = createdInhouseTransferHeader.getWarehouseId();
+        String companyCode = createdInhouseTransferHeader.getCompanyCodeId();
+        String plantId = createdInhouseTransferHeader.getPlantId();
+        String languageId = createdInhouseTransferHeader.getLanguageId();
+
+        log.info("Source Inventory Input's CompanyCode {}, PlantId {}, WarehouseId {}, BarcodeId {} , ItemCode {}, StorageBin {} ", companyCode, plantId, warehouseId, createdInhouseTransferLine.getSourceBarcodeId(),
+                createdInhouseTransferLine.getSourceItemCode(), createdInhouseTransferLine.getSourceStorageBin());
+        InventoryV2 inventorySource =
+                inventoryV2Repository.getInventoryForTransferNew(companyCode, plantId, languageId, warehouseId,
+                        createdInhouseTransferLine.getSourceBarcodeId());
+
+        log.info("Source Inventory Values ------> {} ", inventorySource);
+        if (inventorySource != null) {
+            log.info("Source Inventory Started ------>");
+            InventoryV2 newInventoryV2 = new InventoryV2();
+            BeanUtils.copyProperties(inventorySource, newInventoryV2, CommonUtils.getNullPropertyNames(inventorySource));
+            newInventoryV2.setUpdatedOn(new Date());
+            newInventoryV2.setInventoryQuantity(0D);
+            newInventoryV2.setAllocatedQuantity(0D);
+            newInventoryV2.setReferenceField4(0D);
+            newInventoryV2.setInventoryId(null);
+            newInventoryV2.setUpdatedBy(loginUserID);
+            newInventoryV2.setUpdatedOn(new Date());
+            newInventoryV2.setDeletionIndicator(0L);
+            InventoryV2 createdInventoryV2 = inventoryV2Repository.save(newInventoryV2);
+            log.info("Source Inventory created : " + createdInventoryV2);
+            log.info("Source Inventory Completed ------>");
+
+            log.info("Target Inventory is Null So Create New Inventory Process Started------>");
+            InventoryV2 newInventory = new InventoryV2();
+            BeanUtils.copyProperties(inventorySource, newInventory, CommonUtils.getNullPropertyNames(inventorySource));
+            newInventory.setBarcodeId(createdInhouseTransferLine.getTargetBarcodeId());
+            newInventory.setStorageBin(createdInhouseTransferLine.getTargetStorageBin());
+            newInventory.setItemCode(inventorySource.getItemCode());
+            newInventory.setUpdatedOn(new Date());
+            newInventory.setInventoryQuantity(1D);
+            newInventory.setReferenceField4(1D);
+            newInventory.setInventoryId(null);
+
+
+            StorageBinV2 storageBin = storageBinRepository.getStorageBinForTransfer(companyCode, plantId, languageId,
+                    createdInhouseTransferLine.getWarehouseId(), createdInhouseTransferLine.getTargetStorageBin());
+            log.info("Storage Bin Values -----> " + storageBin);
+            newInventory.setReferenceField8(inventorySource.getDescription());
+            newInventory.setReferenceField9(inventorySource.getReferenceField9());
+            newInventory.setManufacturerCode(inventorySource.getManufacturerCode());
+            newInventory.setManufacturerName(inventorySource.getManufacturerName());
+            newInventory.setDescription(inventorySource.getDescription());
+            if (storageBin != null) {
+                newInventory.setBinClassId(storageBin.getBinClassId());
+                newInventory.setReferenceField10(storageBin.getStorageSectionId());
+                newInventory.setReferenceField5(storageBin.getAisleNumber());
+                newInventory.setReferenceField6(storageBin.getShelfId());
+                newInventory.setReferenceField7(storageBin.getRowId());
+                newInventory.setLevelId(String.valueOf(storageBin.getFloorId()));
+            }
+            newInventory.setUpdatedBy(loginUserID);
+            newInventory.setUpdatedOn(new Date());
+            newInventory.setDeletionIndicator(0L);
+            inventoryV2Repository.save(newInventory);
+            log.info("Target Inventory Completed -------------> {} ", newInventory);
+        }
+
+    }
 }
