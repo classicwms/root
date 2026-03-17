@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 
@@ -128,6 +129,7 @@ public class OrderProcessingService extends BaseService {
      * @return
      * @throws Exception
      */
+    @Transactional(rollbackFor = Exception.class)
     public InboundHeaderV2 postInboundReceived(String companyCodeId, String plantId, String languageId, String warehouseId,
                                                String refDocNumber, String preInboundNo, Long inboundOrderTypeId,
                                                InboundOrderProcess inboundOrderProcess) throws Exception {
@@ -165,13 +167,11 @@ public class OrderProcessingService extends BaseService {
                 }
 
                 log.info("Inbound Order Save Process Completed ------> " + refDocNumber + ", " + inboundOrderTypeId);
-//                stagingLineV2Repository.updateStagingLineInvQtyUpdateProc(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preInboundNo);
-//                log.info("StagingLine InvQty Update using Stored Procedure Finished");
             }
             return createdInboundHeader;
 
         } catch (Exception e) {
-            createInboundIntegrationLogV2(inboundOrderProcess.getInboundIntegrationHeader(), inboundOrderProcess.getLoginUserId());
+//            createInboundIntegrationLogV2(inboundOrderProcess.getInboundIntegrationHeader(), inboundOrderProcess.getLoginUserId());
             log.error("Inbound Order Processing Exception ----> ");
             e.printStackTrace();
 
