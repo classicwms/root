@@ -381,7 +381,7 @@ public class OutboundOrderProcessingFTService extends BaseService {
 
             String refField1ForOrderType = null;
             Long statusId = 39L;
-            description = getDescription(companyCodeId, plantId, languageId, warehouseId);
+            IKeyValuePair description = getDescription(companyCodeId, plantId, languageId, warehouseId);
             statusDescription = getStatusDescription(statusId, languageId);
 
             PreOutboundHeaderV2 createdPreOutboundHeader = createPreOutboundHeaderV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, outboundIntegrationHeader, refField1ForOrderType, statusId, statusDescription, description, WK);
@@ -1106,19 +1106,42 @@ public class OutboundOrderProcessingFTService extends BaseService {
         return outboundHeaderV2List;
     }
 
-    @Retryable(value = {CannotAcquireLockException.class,LockAcquisitionException.class,UnexpectedRollbackException.class}, maxAttempts = 2, backoff = @Backoff(delay = 2000))
+//    @Retryable(value = {CannotAcquireLockException.class,LockAcquisitionException.class,UnexpectedRollbackException.class}, maxAttempts = 2, backoff = @Backoff(delay = 2000))
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void updateSalesOrderNumber(String companyCodeId, String plantId, String warehouseId, OutboundIntegrationHeaderV2 headerList, String salesOrderNo) {
 
-        int orderManagementLineCount = orderManagementLineV2Repository.updateSalesOrderNo(companyCodeId, plantId, warehouseId, headerList.getRefDocumentNo(), salesOrderNo);
-        int preOutboundHeaderCount = preOutboundHeaderV2Repository.updateSalesOrderNo(companyCodeId, plantId, warehouseId, headerList.getRefDocumentNo(), salesOrderNo);
-        int preOutboundLineCount = preOutboundLineV2Repository.updateSalesOrderNo(companyCodeId, plantId, warehouseId, headerList.getRefDocumentNo(), salesOrderNo);
-        int outboundOrderCount = outboundOrderV2Repository.updateSalesOrderNo(companyCodeId, plantId, warehouseId, headerList.getRefDocumentNo(), salesOrderNo);
+        int maxAttempts = 2;
+        int attempt = 0;
 
-        if (orderManagementLineCount == 0 || preOutboundHeaderCount == 0 || preOutboundLineCount == 0 || outboundOrderCount == 0) {
-            log.warn("No rows updated for refDocNo={} (orderManagementLineCount = {}, preOutboundHeaderCount = {} preOutboundLine= {}, outboundOrder= {})",
-                    headerList.getRefDocumentNo(), orderManagementLineCount, preOutboundHeaderCount, preOutboundLineCount, outboundOrderCount);
+        while (attempt < maxAttempts) {
+            try {
+                attempt ++;
+                int orderManagementLineCount = orderManagementLineV2Repository.updateSalesOrderNo(companyCodeId, plantId, warehouseId, headerList.getRefDocumentNo(), salesOrderNo);
+                int preOutboundHeaderCount = preOutboundHeaderV2Repository.updateSalesOrderNo(companyCodeId, plantId, warehouseId, headerList.getRefDocumentNo(), salesOrderNo);
+                int preOutboundLineCount = preOutboundLineV2Repository.updateSalesOrderNo(companyCodeId, plantId, warehouseId, headerList.getRefDocumentNo(), salesOrderNo);
+                int outboundOrderCount = outboundOrderV2Repository.updateSalesOrderNo(companyCodeId, plantId, warehouseId, headerList.getRefDocumentNo(), salesOrderNo);
+
+                if (orderManagementLineCount == 0 || preOutboundHeaderCount == 0 || preOutboundLineCount == 0 || outboundOrderCount == 0) {
+                    log.warn("No rows updated for refDocNo={} (orderManagementLineCount = {}, preOutboundHeaderCount = {} preOutboundLine= {}, outboundOrder= {})",
+                            headerList.getRefDocumentNo(), orderManagementLineCount, preOutboundHeaderCount, preOutboundLineCount, outboundOrderCount);
+                }
+                log.info("Sales OrderNumber Updated Successfully -- RefDocNo is: {} ", headerList.getRefDocumentNo());
+                return;
+            } catch (CannotAcquireLockException | LockAcquisitionException e){
+                log.warn("Deadlock occurred. Attempt: {}", attempt);
+
+                if(attempt >= maxAttempts) {
+                    throw e;
+                }
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException ex) {
+                    log.warn("Deadlock occurred. Attempt: {}", attempt);
+                }
+            }
         }
+
+
     }
 
     /**
@@ -1133,9 +1156,7 @@ public class OutboundOrderProcessingFTService extends BaseService {
         String languageId = null;
         String warehouseId = null;
         String refDocNumber = null;
-        String salesOrderNumber = null;
         try {
-            salesOrderNumber = outboundIntegrationHeader.getSalesOrderNumber();
             companyCodeId = outboundIntegrationHeader.getCompanyCode();
             plantId = outboundIntegrationHeader.getBranchCode();
             languageId = outboundIntegrationHeader.getLanguageId() != null ? outboundIntegrationHeader.getLanguageId()
