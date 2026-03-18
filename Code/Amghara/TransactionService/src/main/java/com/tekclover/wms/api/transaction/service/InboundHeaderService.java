@@ -1831,7 +1831,10 @@ public class InboundHeaderService extends BaseService {
             putAwayLineV2Repository.updatePutAwayLineStatusUpdateInboundConfirm(inboundLine.getCompanyCode(),
                     inboundLine.getPlantId(), inboundLine.getLanguageId(), inboundLine.getWarehouseId(),
                     inboundLine.getRefDocNumber(), inboundLine.getPreInboundNo(), 24L, statusDescription);
-			log.info("-----updateInboundHeaderPartialConfirmNewV2----putAwayLine-updated----");
+            log.info("-----updateInboundHeaderPartialConfirmNewV2----putAwayLine-updated----");
+
+            updateInboundHeaderStatus(inboundLine.getCompanyCode(), inboundLine.getPlantId(), inboundLine.getLanguageId(),
+                    inboundLine.getWarehouseId(), inboundLine.getRefDocNumber(), inboundLine.getPreInboundNo(), statusDescription, inboundLine.getCreatedBy());
 		});
 	}
 

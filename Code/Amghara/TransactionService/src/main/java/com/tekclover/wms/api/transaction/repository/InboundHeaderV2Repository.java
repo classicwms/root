@@ -156,6 +156,7 @@ public interface InboundHeaderV2Repository extends JpaRepository<InboundHeaderV2
 
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Transactional
     @Query(value = "UPDATE tblinboundheader SET STATUS_ID = :statusId, STATUS_TEXT = :statusDescription, " +
             "UTD_BY = :updatedBy, UTD_ON = :updatedOn, IB_CNF_BY = :updatedBy, IB_CNF_ON = :updatedOn " +
             "WHERE IS_DELETED = 0 AND C_ID = :companyCodeId AND PLANT_ID = :plantId " +
