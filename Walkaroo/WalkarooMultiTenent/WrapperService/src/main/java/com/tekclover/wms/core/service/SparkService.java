@@ -4,6 +4,7 @@ package com.tekclover.wms.core.service;
 import com.tekclover.wms.core.config.PropertiesConfig;
 import com.tekclover.wms.core.model.spark.*;
 import com.tekclover.wms.core.model.transaction.SearchInboundHeaderV2;
+import com.tekclover.wms.core.model.transaction.SearchPickupHeaderV2;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
@@ -988,6 +989,48 @@ public class SparkService {
             UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "/outboundHeader/new/find/v2");
             HttpEntity<?> entity = new HttpEntity<>(findOutboundHeaderNew, headers);
             ResponseEntity<OutboundHeaderSpark[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, OutboundHeaderSpark[].class);
+            log.info("result: " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    // PreOutboundHeaderV2
+    public PreOutboundHeaderNewRes[] findPreOutboundHeaderV2New(FindPreOutboundHeaderV2 findPreOutboundHeaderV2) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", " RestTemplate");
+//        headers.add("Authorization", "Bearer " + authToken);
+
+            UriComponentsBuilder builder =
+                    UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "/preoutboundheader/new");
+            HttpEntity<?> entity = new HttpEntity<>(findPreOutboundHeaderV2, headers);
+            ResponseEntity<PreOutboundHeaderNewRes[]> result =
+                    getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, PreOutboundHeaderNewRes[].class);
+            log.info("result: " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    // PickupHeaderV2
+    public PickupHeaderNewV2[] findPickupHeaderV3(SearchPickupHeaderV2 findPickupHeaderV2) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", " RestTemplate");
+//        headers.add("Authorization", "Bearer " + authToken);
+
+            UriComponentsBuilder builder =
+                    UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "/pickupheader/new");
+            HttpEntity<?> entity = new HttpEntity<>(findPickupHeaderV2, headers);
+            ResponseEntity<PickupHeaderNewV2[]> result =
+                    getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, PickupHeaderNewV2[].class);
             log.info("result: " + result.getStatusCode());
             return result.getBody();
         } catch (Exception e) {

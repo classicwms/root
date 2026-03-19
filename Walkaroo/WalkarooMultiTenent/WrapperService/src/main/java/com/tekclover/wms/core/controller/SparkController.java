@@ -3,6 +3,7 @@ package com.tekclover.wms.core.controller;
 import com.tekclover.wms.core.model.spark.*;
 import com.tekclover.wms.core.model.transaction.QualityLineV2;
 import com.tekclover.wms.core.model.transaction.SearchInboundHeaderV2;
+import com.tekclover.wms.core.model.transaction.SearchPickupHeaderV2;
 import com.tekclover.wms.core.service.SparkService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -390,6 +391,22 @@ public class SparkController {
     public ResponseEntity<?> findOutboundHeaderNew(@RequestBody FindOutboundHeaderNew findOutboundHeaderNew) throws Exception {
         OutboundHeaderSpark[] outboundHeader = sparkService.getOutboundHeader(findOutboundHeaderNew);
         return new ResponseEntity<>(outboundHeader, HttpStatus.OK);
+    }
+
+    //==== PreoutBoundHeader -- New
+    @ApiOperation(response = PreOutboundHeaderNewRes.class, value = "Spark PreOutboundHeader New details")
+    @PostMapping("/preoutboundheader/new")
+    public ResponseEntity<?> findPreOutboundHeaderNew(@RequestBody FindPreOutboundHeaderV2 findPreOutboundHeaderV2) throws Exception {
+        PreOutboundHeaderNewRes[] PreboundReversal = sparkService.findPreOutboundHeaderV2New(findPreOutboundHeaderV2);
+        return new ResponseEntity<>(PreboundReversal, HttpStatus.OK);
+    }
+
+    //PickupHeader
+    @ApiOperation(response = PickupHeaderNewV2.class, value = "Spark PickUpHeader details")
+    @PostMapping("/pickupheader/new")
+    public ResponseEntity<?> findPickupHeaderV2(@RequestBody SearchPickupHeaderV2 findPickupHeaderV2) throws Exception {
+        PickupHeaderNewV2[] pickupHeaderV2s = sparkService.findPickupHeaderV3(findPickupHeaderV2);
+        return new ResponseEntity<>(pickupHeaderV2s, HttpStatus.OK);
     }
 
 }
