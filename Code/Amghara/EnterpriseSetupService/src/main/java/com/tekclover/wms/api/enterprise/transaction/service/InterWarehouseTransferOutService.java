@@ -26,6 +26,7 @@ import com.tekclover.wms.api.enterprise.util.CommonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -103,6 +104,7 @@ public class InterWarehouseTransferOutService extends BaseService {
      * @param interWarehouseTransferOutV2 interWarehouseTransferOutV2
      * @return
      */
+    @Async("asyncTaskExecutor")
     public InterWarehouseTransferOutV2 createInterwarehouseList(InterWarehouseTransferOutV2 interWarehouseTransferOutV2) {
         log.info("Outbound Process Start {} Inter warehouse transfer out", interWarehouseTransferOutV2);
 
@@ -272,6 +274,7 @@ public class InterWarehouseTransferOutService extends BaseService {
         preOutboundLine.setDeletionIndicator(0L);
         preOutboundLine.setCreatedBy("MW_AMS");
         preOutboundLine.setCreatedOn(new Date());
+        preOutboundLine.setSalesOrderNumber(null);
         log.info("preOutboundLine : " + preOutboundLine);
         return preOutboundLine;
     }

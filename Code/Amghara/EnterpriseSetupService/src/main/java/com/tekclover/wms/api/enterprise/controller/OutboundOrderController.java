@@ -68,8 +68,12 @@ public class OutboundOrderController {
     public ResponseEntity<?> postInterWarehouseTransferOut(@Valid @RequestBody InterWarehouseTransferOutV2 itw)
             throws IllegalAccessException, InvocationTargetException {
         try {
-            log.info("InterWarehouseTransferOutV2 --------> {}", itw);
-            InterWarehouseTransferOutV2 response = interWarehouseTransferOutService.createInterwarehouseList(itw);
+            log.info("InterWarehouseTransferOutV2 --------> Async Process Started ------------> ");
+            InterWarehouseTransferOutV2 interWarehouse = interWarehouseTransferOutService.createInterwarehouseList(itw);
+            log.info("InterWarehouseTransferOutV2 --------> Async Process Completed ------------> ");
+            WarehouseApiResponse response = new WarehouseApiResponse();
+            response.setStatusCode("200");
+            response.setMessage("Success");
             return new ResponseEntity<>(response, HttpStatus.OK);
         }catch (Exception e) {
             log.info("InterWarehouseTransferOutV2 order Error: " + itw);
