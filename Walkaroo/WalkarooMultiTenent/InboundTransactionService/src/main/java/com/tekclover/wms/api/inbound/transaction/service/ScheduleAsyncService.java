@@ -53,6 +53,12 @@ public class ScheduleAsyncService {
         return CompletableFuture.completedFuture(inboundOrder);
     }
 
+    @Async("asyncExecutor")
+    public CompletableFuture<WarehouseApiResponse> processInboundOrderV5() throws Exception{
+        WarehouseApiResponse inboundOrder = transactionService.processInboundOrder("CCL");
+        return CompletableFuture.completedFuture(inboundOrder);
+    }
+
 
     //-------------------------------------------------------------------Inbound-Failed-Order-------------------------------------------------------------
     @Async("asyncExecutor")
