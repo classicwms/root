@@ -125,6 +125,8 @@ public class BaseService {
 			return "CHN";
 		} else if (plantId.equalsIgnoreCase("1200")) {
 			return "VGA";
+		} else if (plantId.equalsIgnoreCase("1202")) {
+			return "CCL";
 		} else {
 			return "WK";
 		}
