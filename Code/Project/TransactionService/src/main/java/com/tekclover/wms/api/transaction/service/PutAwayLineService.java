@@ -553,7 +553,7 @@ public class PutAwayLineService extends BaseService {
 		}
 		
 		inboundLine.setStatusId(20L);
-		inboundLine = inboundLineRepository.save(inboundLine);
+		inboundLine = inboundLineRepository.saveAndFlush(inboundLine);
 		log.info("inboundLine updated : " + inboundLine);
 	}
 	
