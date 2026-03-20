@@ -7304,4 +7304,112 @@ public class MultiTenantService {
         }
     }
 
+    /**
+     * @param findInventory
+     * @return
+     */
+    public List<InventoryNewV9> searchInventoryV9(FindInventoryV2 findInventory) throws ExecutionException, InterruptedException {
+        try {
+
+            DataBaseContextHolder.setCurrentDb("IMF");
+            String routingDb = dbConfigRepository.getDbName(findInventory.getCompanyCodeId(), findInventory.getPlantId(), findInventory.getWarehouseId());
+            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(routingDb);
+
+            String sqlQuery = "select inv.INV_ID, inv.LANG_ID, inv.C_ID, inv.PLANT_ID, inv.WH_ID, inv.PAL_CODE, inv.CASE_CODE, inv.PACK_BARCODE, inv.ITM_CODE,\n" +
+                    "inv.VAR_ID, inv.VAR_SUB_ID, inv.STR_NO, inv.ST_BIN, inv.STCK_TYP_ID, inv.SP_ST_IND_ID, inv.REF_ORD_NO, inv.STR_MTD, inv.ARTICLE_NO, \n" +
+                    "inv.GENDER, inv.BIN_CL_ID, inv.TEXT, inv.INV_QTY, inv.ALLOC_QTY, inv.INV_UOM, inv.MFR_DATE, inv.EXP_DATE, inv.IS_DELETED, inv.REF_FIELD_1,\n" +
+                    "inv.REF_FIELD_2,inv.REF_FIELD_3, inv.REF_FIELD_4, inv.REF_FIELD_5, inv.REF_FIELD_6, inv.REF_FIELD_7, inv.REF_FIELD_8, inv.REF_FIELD_9,\n" +
+                    "inv.REF_FIELD_10, inv.IU_CTD_BY, inv.IU_CTD_ON, inv.UTD_BY, inv.UTD_ON, inv.MFR_CODE, inv.BARCODE_ID, inv.CBM, inv.level_id, inv.CBM_UNIT,\n" +
+                    "inv.CBM_PER_QTY, inv.MFR_NAME,inv.ORIGIN, inv.BRAND, inv.REF_DOC_NO, inv.C_TEXT, inv.PLANT_TEXT, inv.WH_TEXT, inv.STCK_TYP_TEXT, inv.COLOR,\n" +
+                    "inv.STATUS_TEXT, inv.PARTNER_CODE, inv.ITM_TYP_ID, inv.ITM_TYP_TXT, inv.BATCH_DATE, inv.ALT_UOM, inv.NO_BAGS, inv.BAG_SIZE, inv.CASE_QTY,\n" +
+                    "inv.PIECE_QTY, inv.CRATE_QTY, inv.QTY_IN_CASE, inv.QTY_IN_PIECE, inv.QTY_IN_CREATE, inv.VEHICLE_NO, inv.VEHICLE_REPORTING_DATE,\n" +
+                    "inv.VEHICLE_UNLOADING_DATE, inv.SELF_LIFE, inv.REMAINING_DAYS, inv.REMAINING_SELF_LIFE_PERCENTAGE, inv.RECEIVINGVARIANCE, inv.PALLET_ID,\n" +
+                    "inv.LOOSE_PACK, inv.MRP, inv.TPL_PARTNER_ID, inv.PRICE_SEGMENT, inv.MATERIAL_NO ,ol.allocatedQty from tblinventory inv\n" +
+                    "\n" +
+                    "left join(select sum(o.ALLOC_QTY) as allocatedQty,o.C_ID,o.PLANT_ID,o.LANG_ID,o.WH_ID,o.ITM_CODE,o.PARTNER_ITEM_BARCODE,o.PALLET_ID,o.PROP_ST_BIN from tblordermangementline o \n" +
+                    "where o.STATUS_ID in (43,48,42) and o.IS_DELETED = 0 \n" +
+                    "group by o.ITM_CODE,o.PARTNER_ITEM_BARCODE,o.PALLET_ID,o.PROP_ST_BIN,o.C_ID,o.PLANT_ID,o.LANG_ID,o.WH_ID) as ol \n" +
+                    "\n" +
+                    "on inv.C_ID = ol.C_ID and inv.PLANT_ID = ol.PLANT_ID and inv.LANG_ID = ol.LANG_ID and inv.WH_ID = ol.WH_ID and inv.ITM_CODE = ol.ITM_CODE\n" +
+                    "and inv.PAL_CODE = ol.PALLET_ID and inv.BARCODE_ID = ol.PARTNER_ITEM_BARCODE  and inv.ST_BIN = ol.PROP_ST_BIN ";
+
+            List<String> conditions = new ArrayList<>();
+            ConditionUtils.addCondition(conditions, "inv.LANG_ID", findInventory.getLanguageId());
+            ConditionUtils.addCondition(conditions, "inv.C_ID", findInventory.getCompanyCodeId());
+            ConditionUtils.addCondition(conditions, "inv.PLANT_ID", findInventory.getPlantId());
+            ConditionUtils.addCondition(conditions, "inv.WH_ID", findInventory.getWarehouseId());
+            ConditionUtils.addCondition(conditions, "inv.REF_DOC_NO", findInventory.getReferenceDocumentNo());
+            ConditionUtils.addCondition(conditions, "inv.BARCODE_ID", findInventory.getBarcodeId());
+            ConditionUtils.addCondition(conditions, "inv.MFR_CODE", findInventory.getManufacturerCode());
+            ConditionUtils.addCondition(conditions, "inv.MFR_NAME", findInventory.getManufacturerName());
+            ConditionUtils.addCondition(conditions, "inv.PACK_BARCODE", findInventory.getPackBarcodes());
+            ConditionUtils.addCondition(conditions, "inv.ITM_CODE", findInventory.getItemCode());
+            ConditionUtils.addCondition(conditions, "inv.ST_BIN", findInventory.getStorageBin());
+            ConditionUtils.addCondition(conditions, "inv.TEXT", findInventory.getDescription());
+            ConditionUtils.addCondition(conditions, "inv.PARTNER_CODE", findInventory.getPartnerCode());
+            ConditionUtils.addCondition(conditions, "inv.REF_FIELD_10", findInventory.getStorageSectionId());
+            ConditionUtils.addCondition(conditions, "inv.REF_FIELD_7", findInventory.getReferenceField7());
+            ConditionUtils.addCondition(conditions, "inv.level_id", findInventory.getLevelId());
+            ConditionUtils.addCondition(conditions, "inv.alt_uom", findInventory.getAltUom());
+            ConditionUtils.addCondition(conditions, "inv.MATERIAL_NO", findInventory.getInventoryOwner());
+            ConditionUtils.addCondition(conditions, "inv.ORIGIN", findInventory.getOrigin());
+
+            if (findInventory.getStockTypeId() != null) {
+                ConditionUtils.numericConditions(conditions, "inv.STCK_TYP_ID", findInventory.getStockTypeId());
+            }
+            if (findInventory.getSpecialStockIndicatorId() != null) {
+                ConditionUtils.numericConditions(conditions, "inv.SP_ST_IND_ID", findInventory.getSpecialStockIndicatorId());
+            }
+            if (findInventory.getBinClassId() != null) {
+                ConditionUtils.numericConditions(conditions, "inv.BIN_CL_ID", findInventory.getBinClassId());
+            }
+            if (findInventory.getItemTypeId() != null) {
+                ConditionUtils.numericConditions(conditions, "inv.ITM_TYP_ID", findInventory.getItemTypeId());
+            }
+
+            Dataset<Row> data = null;
+            if (routingDb.equals("BF")) {
+                if (!conditions.isEmpty()) {
+                    sqlQuery += " WHERE inv.IS_DELETED = 0 AND inv.REF_FIELD_4 > 0 AND inv.INV_ID in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,pal_code,barcode_id,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
+                } data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl9);
+            } else if (routingDb.equals("KKF")) {
+                if (!conditions.isEmpty()) {
+                    sqlQuery += " WHERE inv.IS_DELETED = 0 AND inv.REF_FIELD_4 > 0 AND inv.INV_ID in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,pal_code,barcode_id,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
+                } data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
+                log.info("JDBC URL check -->{}", jdbcUrl10);
+            }
+            Encoder<InventoryNewV9> inventoryV2CoreEncoder = Encoders.bean(InventoryNewV9.class);
+            Dataset<InventoryNewV9> inventoryV2CoreDataset = data.as(inventoryV2CoreEncoder);
+//
+//            return result;
+
+            // Run collect asynchronously
+            ExecutorService executor = Executors.newSingleThreadExecutor();
+            Future<List<InventoryNewV9>> future = executor.submit(inventoryV2CoreDataset::collectAsList);
+
+            try {
+                return future.get(120, TimeUnit.SECONDS);  // Optional timeout
+            } catch (TimeoutException ex) {
+                log.error("Spark job timeout!");
+                future.cancel(true);
+                throw new RuntimeException("Spark job took too long to complete");
+            } finally {
+                executor.shutdownNow();
+            }
+        } catch (Exception e) {
+            log.error("Find Inventory Spark Exception : " + e.toString());
+            throw e;
+        }
+    }
+
+
 }

@@ -378,4 +378,12 @@ public class MultiTenantController {
 //        List<StagingLineV5> stagingLineV2 = multiTenantService.findStagingLineV6(findStagingLineV2);
 //        return new ResponseEntity<>(stagingLineV2, HttpStatus.OK);
 //    }
+
+    // Find InventoryV2
+    @ApiOperation(response = InventoryV4.class, value = "Spark Find Inventory")
+    @PostMapping("/inventory/v9/new")
+    public ResponseEntity<?> findInventoryV9(@RequestBody FindInventoryV2 findInventoryV2) throws Exception {
+        List<InventoryNewV9> inventoryList = multiTenantService.searchInventoryV9(findInventoryV2);
+        return new ResponseEntity<>(inventoryList, HttpStatus.OK);
+    }
 }
