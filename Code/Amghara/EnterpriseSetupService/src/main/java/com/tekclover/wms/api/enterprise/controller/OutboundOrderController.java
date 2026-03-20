@@ -3,8 +3,10 @@ package com.tekclover.wms.api.enterprise.controller;
 import com.tekclover.wms.api.enterprise.service.TransferOrderService;
 import com.tekclover.wms.api.enterprise.transaction.model.warehouse.inbound.WarehouseApiResponse;
 import com.tekclover.wms.api.enterprise.transaction.model.warehouse.outbound.v2.InterWarehouseTransferOutV2;
+import com.tekclover.wms.api.enterprise.transaction.model.warehouse.outbound.v2.SalesOrderV2;
 import com.tekclover.wms.api.enterprise.transaction.model.warehouse.outbound.v2.ShipmentOrderV2;
 import com.tekclover.wms.api.enterprise.transaction.service.InterWarehouseTransferOutService;
+import com.tekclover.wms.api.enterprise.transaction.service.SalesOrderService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.SwaggerDefinition;
@@ -26,7 +28,7 @@ import java.lang.reflect.InvocationTargetException;
 @Slf4j
 @Validated
 @Api(tags = {"OutboundOrder"}, value = "OutboundOrder  Operations related to OrderController")
-@SwaggerDefinition(tags = {@Tag(name = "Warehouse ",description = "Operations related to OutboundOrder")})
+@SwaggerDefinition(tags = {@Tag(name = "Warehouse ", description = "Operations related to OutboundOrder")})
 @RequestMapping("/outbound")
 @RestController
 public class OutboundOrderController {
@@ -38,6 +40,9 @@ public class OutboundOrderController {
     @Autowired
     InterWarehouseTransferOutService interWarehouseTransferOutService;
 
+    @Autowired
+    SalesOrderService salesOrderService;
+
     @ApiOperation(response = ShipmentOrderV2.class, value = "Create Shipment Order") // label for swagger
     @PostMapping("/so/v2")
     public ResponseEntity<?> postShipmenOrderV2(@Valid @RequestBody ShipmentOrderV2 shipmenOrder)
@@ -47,10 +52,10 @@ public class OutboundOrderController {
             ShipmentOrderV2 createdSO = transferOrderService.createShipmentOrderList(shipmenOrder);
             log.info("Transfer Order Async Process Completed ------------>");
 //            if (createdSO != null) {
-                WarehouseApiResponse response = new WarehouseApiResponse();
-                response.setStatusCode("200");
-                response.setMessage("Success");
-                return new ResponseEntity<>(response, HttpStatus.OK);
+            WarehouseApiResponse response = new WarehouseApiResponse();
+            response.setStatusCode("200");
+            response.setMessage("Success");
+            return new ResponseEntity<>(response, HttpStatus.OK);
 //            }
         } catch (Exception e) {
             log.info("ShipmentOrder order Error: " + shipmenOrder);
@@ -77,6 +82,28 @@ public class OutboundOrderController {
             return new ResponseEntity<>(response, HttpStatus.OK);
         }catch (Exception e) {
             log.info("InterWarehouseTransferOutV2 order Error: " + itw);
+            e.printStackTrace();
+            WarehouseApiResponse response = new WarehouseApiResponse();
+            response.setStatusCode("1400");
+            response.setMessage("Not Success: " + e.getLocalizedMessage());
+            return new ResponseEntity<>(response, HttpStatus.EXPECTATION_FAILED);
+        }
+    }
+    
+    //Pick_List
+    @ApiOperation(response = SalesOrderV2.class, value = "Sales order") // label for swagger
+    @PostMapping("/salesorderv2")
+    public ResponseEntity<?> postSalesOrderV2List(@Valid @RequestBody SalesOrderV2 salesOrderV2)
+            throws IllegalAccessException, InvocationTargetException {
+        try {
+            log.info("Sales Order Input values -----------------------> " + salesOrderV2);
+            SalesOrderV2 salesOrderList = salesOrderService.createSalesOrderList(salesOrderV2);
+            WarehouseApiResponse response = new WarehouseApiResponse();
+            response.setStatusCode("200");
+            response.setMessage("Success");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            log.info("Sales order Error: " + salesOrderV2);
             e.printStackTrace();
             WarehouseApiResponse response = new WarehouseApiResponse();
             response.setStatusCode("1400");
