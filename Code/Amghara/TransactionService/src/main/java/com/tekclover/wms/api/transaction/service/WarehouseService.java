@@ -2099,6 +2099,7 @@ public class WarehouseService extends BaseService {
 	public SalesOrderV2 postSalesOrderV2(SalesOrderV2 salesOrder) throws ParseException {
 		log.info("SalesOrderHeader received from External: " + salesOrder);
 		OutboundOrderV2 savedSoHeader = saveSalesOrderV2(salesOrder);                                // Without Nongo
+		idMasterService.postSalesOrderV2(salesOrder);
 		log.info("salesOrderHeader: " + savedSoHeader);
 		return salesOrder;
 	}
@@ -2486,7 +2487,7 @@ public class WarehouseService extends BaseService {
 			apiHeader.setOrderProcessedOn(new Date());
 
 			if (salesOrder.getSalesOrderLine() != null && !salesOrder.getSalesOrderLine().isEmpty()) {
-				apiHeader.setProcessedStatusId(0L);
+				apiHeader.setProcessedStatusId(1L);
 				log.info("apiHeader : " + apiHeader);
 				OutboundOrderV2 createdOrder = orderService.createOutboundOrdersV2(apiHeader);
 				log.info("SalesOrder Order Success: " + createdOrder);

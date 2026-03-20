@@ -7,6 +7,7 @@ import java.util.Date;
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.WarehouseApiResponse;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.ShipmentOrder;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.v2.InterWarehouseTransferOutV2;
+import com.tekclover.wms.api.transaction.model.warehouse.outbound.v2.SalesOrderV2;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.v2.ShipmentOrderV2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -364,6 +365,21 @@ public class IDMasterService {
 		headers.add("Authorization", "Bearer " + authToken.getAccess_token());
 		UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getEnterPriseServiceApiUrl() + "/outbound/interwarehousetransferoutv2");
 		HttpEntity<?> entity = new HttpEntity<>(interWarehouseTransferOutV2, headers);
+		ResponseEntity<WarehouseApiResponse> result =
+				getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, WarehouseApiResponse.class);
+		log.info("result: " + result.getStatusCode());
+		return result.getBody();
+	}
+
+	public WarehouseApiResponse postSalesOrderV2(SalesOrderV2 salesOrderV2) {
+		HttpHeaders headers = new HttpHeaders();
+		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+		headers.add("User-Agent", "ClassicWMS RestTemplate");
+//        headers.add("Authorization", "Bearer " + authToken.getAccess_token());
+		AuthToken authToken = authTokenService.getEnterPriseServiceAuthToken();
+		headers.add("Authorization", "Bearer " + authToken.getAccess_token());
+		UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getEnterPriseServiceApiUrl() + "/outbound/salesorderv2");
+		HttpEntity<?> entity = new HttpEntity<>(salesOrderV2, headers);
 		ResponseEntity<WarehouseApiResponse> result =
 				getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, WarehouseApiResponse.class);
 		log.info("result: " + result.getStatusCode());
