@@ -4691,14 +4691,14 @@ public class PutAwayLineService extends BaseService {
      * @param putAwayLine
      * @return
      */
-    @Transactional
-    @Retryable(value = {SQLException.class, SQLServerException.class, CannotAcquireLockException.class,
-            LockAcquisitionException.class, UnexpectedRollbackException.class}, maxAttempts = 2, backoff = @Backoff(delay = 2000))
+//    @Transactional
+//    @Retryable(value = {SQLException.class, SQLServerException.class, CannotAcquireLockException.class,
+//            LockAcquisitionException.class, UnexpectedRollbackException.class}, maxAttempts = 2, backoff = @Backoff(delay = 2000))
     private InventoryV2 createInventoryNonCBMV7(String companyCode, String plantId, String languageId,
                                                 String warehouseId, String itemCode, String manufacturerName,
                                                 String refDocNumber, PutAwayLineV2 putAwayLine, String loginUserId) {
-        alreadyExecuted = false;
-        log.info("Create Inventory Initiated ---> alreadyExecuted ---> " + new Date() + ", " + alreadyExecuted);
+//        alreadyExecuted = false;
+//        log.info("Create Inventory Initiated ---> alreadyExecuted ---> " + new Date() + ", " + alreadyExecuted);
         String palletCode = null;
         String caseCode = null;
         try {
@@ -4752,10 +4752,10 @@ public class PutAwayLineService extends BaseService {
                     inventory2.setCreatedOn(existinginventory.getCreatedOn());
                     inventory2.setUpdatedOn(new Date());
                     inventory2.setUpdatedBy(loginUserId);
-                    if (!alreadyExecuted) {
+//                    if (!alreadyExecuted) {
                         InventoryV2 createdinventoryV2 = inventoryV2Repository.save(inventory2);
                         log.info("----existinginventory--createdInventoryV2--------> : " + createdinventoryV2);
-                    }
+//                    }
                 }
             }
         } catch (Exception e) {
@@ -4904,11 +4904,11 @@ public class PutAwayLineService extends BaseService {
             inventory.setBatchDate(new Date());
 
             InventoryV2 createdinventory = null;
-            if (!alreadyExecuted) {
+//            if (!alreadyExecuted) {
                 createdinventory = inventoryV2Repository.save(inventory);
-                alreadyExecuted = true;             //to ensure method executing only once
-                log.info("created inventory : executed" + createdinventory + " -----> " + alreadyExecuted);
-            }
+//                alreadyExecuted = true;             //to ensure method executing only once
+                log.info("created inventory : executed" + createdinventory );
+//            }
 
             return createdinventory;
         } catch (Exception e) {
