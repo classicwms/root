@@ -1240,7 +1240,7 @@ public class InventoryService extends BaseService {
      * @param manufacturerName
      * @return
      */
-    public synchronized List<IInventoryImpl> getInventoryForOrderManagementGroupByLevelIdV2(String companyCodeId, String plantId, String languageId, String warehouseId,
+    public List<IInventoryImpl> getInventoryForOrderManagementGroupByLevelIdV2(String companyCodeId, String plantId, String languageId, String warehouseId,
                                                                                String itemCode, Long stockTypeId, Long binClassId, Long levelId, String manufacturerName) {
         if (companyCodeId == null || plantId == null || languageId == null || warehouseId == null ||
                 itemCode == null || stockTypeId == null || binClassId == null || manufacturerName == null) {
@@ -1248,7 +1248,7 @@ public class InventoryService extends BaseService {
                     + companyCodeId + ", " + plantId + ", " + languageId + "," + warehouseId + "," + itemCode + "," + stockTypeId + "," + binClassId + "," + manufacturerName);
         }
 
-        List<IInventoryImpl> inventory = inventoryV2Repository.findInventoryOmlGroupByLevelId(companyCodeId, plantId, languageId, warehouseId, itemCode, manufacturerName, stockTypeId, binClassId, levelId);
+        List<IInventoryImpl> inventory = inventoryV2Repository.findInventoryOmlGroupByLevelIdV2(companyCodeId, plantId, languageId, warehouseId, itemCode, manufacturerName, stockTypeId, binClassId, levelId);
         return inventory;
     }
 
