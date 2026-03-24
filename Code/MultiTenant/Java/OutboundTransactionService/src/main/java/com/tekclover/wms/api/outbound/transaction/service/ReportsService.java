@@ -1318,7 +1318,8 @@ public class ReportsService extends BaseService {
                 IKeyValuePair ol = outboundLineV2Repository.getOutboundLineValue(pl.getRefDocNumber(), pl.getItemCode());
                 if (ol != null && ol.getOrderQty() != null) {
                     shipmentDelivery.setOrderQty(ol.getOrderQty());
-                    shipmentDelivery.setQuantity(ol.getOrderQty());
+//                    shipmentDelivery.setQuantity(ol.getOrderQty());
+                    shipmentDelivery.setQuantity(ol.getRxdQty());
                 }
                 if (ol != null && ol.getRemarks() != null) {
                     shipmentDelivery.setRemarks(ol.getRemarks());

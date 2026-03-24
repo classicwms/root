@@ -296,7 +296,8 @@ public interface PickupLineV2Repository extends JpaRepository<PickupLineV2, Long
 
     @Query(value = "select count(*) from tblpickupline WHERE C_ID = :companyCodeId \n " +
             "AND PLANT_ID = :plantId AND LANG_ID = :languageId AND WH_ID = :warehouseId \n " +
-            "AND REF_DOC_NO = :refDocNo AND IS_DELETED = 0 AND itm_code = :itmCode AND exp_date =:expDate ", nativeQuery = true)
+            "AND REF_DOC_NO = :refDocNo AND IS_DELETED = 0 AND itm_code = :itmCode AND exp_date =:expDate \n" +
+            "AND pick_cnf_qty > 0 ", nativeQuery = true)
     Long getNoOfBags(@Param("companyCodeId") String companyCodeId,
                      @Param("plantId") String plantId,
                      @Param("languageId") String languageId,
@@ -308,7 +309,8 @@ public interface PickupLineV2Repository extends JpaRepository<PickupLineV2, Long
 
     @Query(value = "select count(*) from tblpickupline WHERE C_ID = :companyCodeId \n " +
             "AND PLANT_ID = :plantId AND LANG_ID = :languageId AND WH_ID = :warehouseId \n " +
-            "AND REF_DOC_NO = :refDocNo AND IS_DELETED = 0 AND itm_code = :itmCode AND exp_date IS NULL ", nativeQuery = true)
+            "AND REF_DOC_NO = :refDocNo AND IS_DELETED = 0 AND itm_code = :itmCode AND exp_date IS NULL \n" +
+            "AND pick_cnf_qty > 0", nativeQuery = true)
     Long getNoOfBags(@Param("companyCodeId") String companyCodeId,
                      @Param("plantId") String plantId,
                      @Param("languageId") String languageId,
