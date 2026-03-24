@@ -1302,6 +1302,43 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             @Param(value = "stockTypeId") Long stockTypeId,
             @Param(value = "binClassId") Long binClassId);
 
+    @Query (value = "SELECT LEVEL_ID AS levelId, SUM(INV_QTY) AS inventoryQty FROM tblinventory \r\n"
+            + "WHERE WH_ID = :warehouseId and ITM_CODE = :itemCode AND BIN_CL_ID = :binClassId AND STCK_TYP_ID = :stockTypeId \r\n"
+            + "AND C_ID = :companyCodeId and PLANT_ID = :plantId AND LANG_ID = :languageId \r\n"
+            + "AND MFR_NAME = :manufacturerName AND IS_DELETED = 0 \r\n"
+            + "AND INV_ID in (SELECT max(INV_ID) inventoryId FROM TBLINVENTORY WHERE is_deleted = 0 GROUP BY ITM_CODE,MFR_NAME,ST_BIN,PLANT_ID,WH_ID,C_ID,LANG_ID) \r\n"
+            + "GROUP BY LEVEL_ID, ITM_CODE, MFR_NAME, PLANT_ID, WH_ID, C_ID, LANG_ID \r\n"
+            + "HAVING SUM(INV_QTY) > 0 \r\n"
+            + "ORDER BY LEVEL_ID, SUM(INV_QTY)", nativeQuery = true)
+    public List<IInventory> findInventoryGroupByLevelIdV2 (
+            @Param(value = "companyCodeId") String companyCodeId,
+            @Param(value = "plantId") String plantId,
+            @Param(value = "languageId") String languageId,
+            @Param(value = "warehouseId") String warehouseId,
+            @Param(value = "itemCode") String itemCode,
+            @Param(value = "manufacturerName") String manufacturerName,
+            @Param(value = "stockTypeId") Long stockTypeId,
+            @Param(value = "binClassId") Long binClassId);
+
+//    @Query (value = "SELECT max(INV_ID) inventoryId into #inv FROM TBLINVENTORY WHERE is_deleted = 0 GROUP BY ITM_CODE,MFR_NAME,ST_BIN,PLANT_ID,WH_ID,C_ID,LANG_ID \r\n"
+//            + "SELECT LEVEL_ID AS levelId, SUM(INV_QTY) AS inventoryQty FROM tblinventory \r\n"
+//            + "WHERE WH_ID = :warehouseId and ITM_CODE = :itemCode AND BIN_CL_ID = :binClassId AND STCK_TYP_ID = :stockTypeId \r\n"
+//            + "AND C_ID = :companyCodeId and PLANT_ID = :plantId AND LANG_ID = :languageId \r\n"
+//            + "AND MFR_NAME = :manufacturerName AND IS_DELETED = 0 \r\n"
+//            + "AND INV_ID in (select inventoryId from #inv) \r\n"
+//            + "GROUP BY LEVEL_ID, ITM_CODE, MFR_NAME, PLANT_ID, WH_ID, C_ID, LANG_ID \r\n"
+//            + "HAVING SUM(INV_QTY) > 0 \r\n"
+//            + "ORDER BY LEVEL_ID, SUM(INV_QTY)", nativeQuery = true)
+//    public List<IInventory> findInventoryGroupByLevelId (
+//            @Param(value = "companyCodeId") String companyCodeId,
+//            @Param(value = "plantId") String plantId,
+//            @Param(value = "languageId") String languageId,
+//            @Param(value = "warehouseId") String warehouseId,
+//            @Param(value = "itemCode") String itemCode,
+//            @Param(value = "manufacturerName") String manufacturerName,
+//            @Param(value = "stockTypeId") Long stockTypeId,
+//            @Param(value = "binClassId") Long binClassId);
+
     @Query (value = "SELECT max(INV_ID) inventoryId into #inv FROM TBLINVENTORY WHERE is_deleted = 0 GROUP BY ITM_CODE,MFR_NAME,ST_BIN,PLANT_ID,WH_ID,C_ID,LANG_ID \r\n"
             + "SELECT IU_CTD_ON AS createdOn, ITM_CODE AS itemCode, MFR_NAME AS manufacturerName, SUM(INV_QTY) AS inventoryQty, ST_BIN AS storageBin\r\n"
             + "FROM tblinventory WHERE WH_ID = :warehouseId and ITM_CODE = :itemCode \r\n"
