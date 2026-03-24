@@ -682,10 +682,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
                                                                @Param("manufacturerName") String manufacturerName,
                                                                @Param("stockTypeId") Long stockTypeId,
                                                                @Param("binClassId") Long binClassId);
-    @Query(value = "select max(inv_id) inventoryId into #inv from tblinventory \n"
-            + "WHERE is_deleted = 0 group by itm_code,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id \n" +
-
-            "SELECT \n" +
+    @Query(value = "SELECT \n" +
             "iv.INV_ID inventoryId, \n" +
             "iv.LANG_ID languageId, \n" +
             "iv.C_ID companyCodeId,\n" +
@@ -743,7 +740,8 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "iv.STATUS_TEXT statusDescription\n" +
             "from tblinventory iv\n" +
             "where \n" +
-            "iv.inv_id in (select inventoryId from #inv) and \n" +
+            "iv.inv_id in (select max(inv_id) inventoryId from tblinventory \n" +
+            "WHERE is_deleted = 0 group by itm_code,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) and \n" +
             "(COALESCE(:companyCodeId, null) IS NULL OR (iv.c_id IN (:companyCodeId))) and \n" +
             "(COALESCE(:languageId, null) IS NULL OR (iv.lang_id IN (:languageId))) and \n" +
             "(COALESCE(:plantId, null) IS NULL OR (iv.plant_id IN (:plantId))) and \n" +
@@ -1283,12 +1281,11 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             @Param(value = "stockTypeId") Long stockTypeId,
             @Param(value = "manufacturerName") String manufacturerName);
 
-    @Query (value = "SELECT max(INV_ID) inventoryId into #inv FROM TBLINVENTORY WHERE is_deleted = 0 GROUP BY ITM_CODE,MFR_NAME,ST_BIN,PLANT_ID,WH_ID,C_ID,LANG_ID \r\n"
-            + "SELECT LEVEL_ID AS levelId, SUM(INV_QTY) AS inventoryQty FROM tblinventory \r\n"
+    @Query (value = "SELECT LEVEL_ID AS levelId, SUM(INV_QTY) AS inventoryQty FROM tblinventory \r\n"
             + "WHERE WH_ID = :warehouseId and ITM_CODE = :itemCode AND BIN_CL_ID = :binClassId AND STCK_TYP_ID = :stockTypeId \r\n"
             + "AND C_ID = :companyCodeId and PLANT_ID = :plantId AND LANG_ID = :languageId \r\n"
             + "AND MFR_NAME = :manufacturerName AND IS_DELETED = 0 \r\n"
-            + "AND INV_ID in (select inventoryId from #inv) \r\n"
+            + "AND INV_ID in (SELECT max(INV_ID) inventoryId FROM TBLINVENTORY WHERE is_deleted = 0 GROUP BY ITM_CODE,MFR_NAME,ST_BIN,PLANT_ID,WH_ID,C_ID,LANG_ID) \r\n"
             + "GROUP BY LEVEL_ID, ITM_CODE, MFR_NAME, PLANT_ID, WH_ID, C_ID, LANG_ID \r\n"
             + "HAVING SUM(INV_QTY) > 0 \r\n"
             + "ORDER BY LEVEL_ID, SUM(INV_QTY)", nativeQuery = true)
