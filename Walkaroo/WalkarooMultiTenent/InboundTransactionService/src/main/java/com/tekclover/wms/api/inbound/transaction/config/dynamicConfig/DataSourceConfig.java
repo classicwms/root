@@ -112,13 +112,13 @@ public class DataSourceConfig {
         config.setPassword(password);
 
         // SAFE POOL SIZE (PER DB)
-        config.setMaximumPoolSize(25); //
-        config.setMinimumIdle(10); //
+        config.setMaximumPoolSize(27); //
+        config.setMinimumIdle(12); //
         config.setConnectionTimeout(60000);
         config.setIdleTimeout(300000);
         config.setMaxLifetime(1800000);
 //        config.setAutoCommit(false);
-        config.setLeakDetectionThreshold(30000); //
+//        config.setLeakDetectionThreshold(30000); //
 
         // SQL Server recommended
         config.addDataSourceProperty("encrypt", "false");
