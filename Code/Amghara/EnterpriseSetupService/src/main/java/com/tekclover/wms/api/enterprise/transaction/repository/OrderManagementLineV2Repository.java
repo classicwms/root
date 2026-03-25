@@ -122,7 +122,7 @@ public interface OrderManagementLineV2Repository extends JpaRepository<OrderMana
             @Param("statusDescription") String statusDescription
     );
 
-    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Modifying
     @Query("UPDATE OrderManagementLineV2 ob SET ob.statusId = :statusId, ob.statusDescription = :statusDescription, ob.pickupUpdatedOn = :updatedOn, \r\n"
             + "ob.pickupNumber = :pickupNumber \r\n "
             + " WHERE ob.companyCodeId = :companyCodeId AND ob.plantId = :plantId AND ob.languageId = :languageId AND ob.warehouseId = :warehouseId AND \r\n "

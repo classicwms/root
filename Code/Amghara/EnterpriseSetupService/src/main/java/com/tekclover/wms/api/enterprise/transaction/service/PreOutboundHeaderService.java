@@ -2275,10 +2275,15 @@ public class PreOutboundHeaderService extends BaseService {
                 PickupHeaderV2 createdPickupHeader = pickupHeaderService.createOutboundOrderProcessingPickupHeaderV2(newPickupHeader, orderManagementLine.getPickupCreatedBy());
                 log.info("PickupHeader Creation Process Completed ---> Values is {} ", createdPickupHeader);
                 pickupHeaderV2List.add(createdPickupHeader);
-                orderManagementLineV2Repository.updateOrderManagementLineV2(
-                        companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode,
-                        orderManagementLine.getLineNumber(), orderManagementLine.getItemCode(),
-                        48L, statusDescription, PU_NO, new Date());
+
+                log.info("Update OrderManagementLine Process PickupNo: {} ", PU_NO);
+                updateOrderManagementLine(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode,
+                        orderManagementLine, statusDescription, PU_NO);
+
+//                orderManagementLineV2Repository.updateOrderManagementLineV2(
+//                        companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode,
+//                        orderManagementLine.getLineNumber(), orderManagementLine.getItemCode(),
+//                        48L, statusDescription, PU_NO, new Date());
             }
         }
 
@@ -4527,4 +4532,35 @@ public class PreOutboundHeaderService extends BaseService {
 //        log.info("Pick List Cancellation Completed");
 //        insertNewPickListCancelRecord(outboundHeaderV2, outboundLineV2, pickupLineV2, createNewPickUpLineList, orderManagementLine, companyCodeId, plantId, languageId, warehouseId, oldPickListNumber, newPickListNumber);
 //    }
+
+    // OrderManagementLine Update Process
+    public void updateOrderManagementLine(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                          String preOutboundNo, String refDocNumber, String partnerCode, OrderManagementLineV2 orderManagementLine,
+                                          String statusDescription, String PU_NO) {
+        int maxRetry = 3;
+        int attempt = 0;
+        boolean success = false;
+        while(!success && attempt < maxRetry) {
+            try {
+                attempt ++;
+                orderManagementLineV2Repository.updateOrderManagementLineV2(
+                        companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode,
+                        orderManagementLine.getLineNumber(), orderManagementLine.getItemCode(),
+                        48L, statusDescription, PU_NO, new Date());
+
+                success = true; // success
+            } catch (CannotAcquireLockException ex) {
+                log.warn("Retry {} failed for preOutboundNo: {} line: {}", attempt, preOutboundNo, orderManagementLine.getLineNumber());
+
+                try {
+                    Thread.sleep(1000); // wait 1 sec
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }
+        if (!success) {
+            log.info("Failed after retries for preOutboundNo: " + preOutboundNo);
+        }
+    }
 }
