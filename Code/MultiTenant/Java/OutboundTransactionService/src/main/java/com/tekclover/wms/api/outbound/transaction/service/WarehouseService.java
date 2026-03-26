@@ -7,6 +7,7 @@ import com.tekclover.wms.api.outbound.transaction.config.PropertiesConfig;
 import com.tekclover.wms.api.outbound.transaction.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.outbound.transaction.controller.exception.OutboundOrderRequestException;
 import com.tekclover.wms.api.outbound.transaction.model.IKeyValuePair;
+import com.tekclover.wms.api.outbound.transaction.model.inventory.v2.InventoryV2;
 import com.tekclover.wms.api.outbound.transaction.model.warehouse.Warehouse;
 import com.tekclover.wms.api.outbound.transaction.model.warehouse.cyclecount.CycleCountHeader;
 import com.tekclover.wms.api.outbound.transaction.model.warehouse.cyclecount.CycleCountLine;
@@ -1490,5 +1491,40 @@ public class WarehouseService extends BaseService {
 		}
 		return null;
 	}
+
+    @Transactional
+    public List<FileUpdateUpload> updateInvByBarcode(List<FileUpdateUpload> inputs, String companyCodeId,
+                                                     String plantId, String languageId,
+                                                     String warehouseId, String loginUserID) {
+
+        List<FileUpdateUpload> updatedList = new ArrayList<>();
+
+        for (FileUpdateUpload input : inputs) {
+
+            String barcodeId = input.getBarcodeId();
+            Double invQty = input.getInventoryQuantity();
+            Double refField4 = input.getReferenceField4();
+
+            List<InventoryV2> inventoryList = inventoryV2Repository.findByBarcode(companyCodeId, plantId, languageId, warehouseId, barcodeId);
+
+            if (inventoryList != null && !inventoryList.isEmpty()) {
+
+                InventoryV2 latestInventory = inventoryList.get(0);
+                Long inventoryId = latestInventory.getInventoryId();
+
+                int updated = inventoryV2Repository.updateInventory(inventoryId, invQty,
+                        refField4, companyCodeId, plantId, languageId, warehouseId);
+
+                log.info("Barcode: {} ------------------------> Updated Rows: {}", barcodeId, updated);
+
+            } else {
+                log.info("No Inventory found for Barcode: {}", barcodeId);
+            }
+
+            updatedList.add(input);
+        }
+
+        return updatedList;
+    }
 
 }

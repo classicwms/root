@@ -9,6 +9,7 @@ import com.tekclover.wms.api.outbound.transaction.model.inventory.v2.IInventoryI
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
@@ -2813,4 +2814,36 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
                                                                 @Param("binClassId") Long binClassId,
                                                                 @Param("stockTypeId") Long stockTypeId,
                                                                 @Param("alternateUom") String alternateUom);
+
+    @Query(value = "SELECT * FROM tblinventory " +
+            "WHERE is_deleted = 0 " +
+            "AND c_id = :companyId " +
+            "AND plant_id = :plantId " +
+            "AND lang_id = :languageId " +
+            "AND wh_id = :warehouseId " +
+            "AND barcode_id = :barcodeId " +
+            "ORDER BY inv_id DESC",
+            nativeQuery = true)
+    List<InventoryV2> findByBarcode(@Param("companyId") String companyId,
+                                    @Param("plantId") String plantId, @Param("languageId") String languageId,
+                                    @Param("warehouseId") String warehouseId, @Param("barcodeId") String barcodeId);
+
+    @Modifying
+    @Query(value = "UPDATE tblinventory SET " +
+            "inv_qty = :inventoryQuantity, " +
+            "ref_field_4 = :referenceField4 " +
+            "WHERE inv_id = :inventoryId " +
+            "AND is_deleted = 0 " +
+            "AND c_id = :companyId " +
+            "AND plant_id = :plantId " +
+            "AND lang_id = :languageId " +
+            "AND wh_id = :warehouseId",
+            nativeQuery = true)
+    int updateInventory(@Param("inventoryId") Long inventoryId,
+                        @Param("inventoryQuantity") Double inventoryQuantity, @Param("referenceField4") Double referenceField4,
+                        @Param("companyId") String companyId, @Param("plantId") String plantId,
+                        @Param("languageId") String languageId,
+                        @Param("warehouseId") String warehouseId);
+
+
 }

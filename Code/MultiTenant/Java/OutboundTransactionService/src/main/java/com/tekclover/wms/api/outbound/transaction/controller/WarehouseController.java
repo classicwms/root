@@ -11,6 +11,7 @@ import com.tekclover.wms.api.outbound.transaction.model.warehouse.cyclecount.Cyc
 import com.tekclover.wms.api.outbound.transaction.model.warehouse.cyclecount.periodic.Periodic;
 import com.tekclover.wms.api.outbound.transaction.model.warehouse.cyclecount.perpetual.Perpetual;
 import com.tekclover.wms.api.outbound.transaction.model.warehouse.inbound.v2.InterWarehouseTransferInV2;
+import com.tekclover.wms.api.outbound.transaction.model.warehouse.outbound.FileUpdateUpload;
 import com.tekclover.wms.api.outbound.transaction.model.warehouse.outbound.ShipmentOrder;
 import com.tekclover.wms.api.outbound.transaction.model.warehouse.outbound.v2.OutboundOrderV2;
 import com.tekclover.wms.api.outbound.transaction.model.warehouse.outbound.v2.ReturnPOV2;
@@ -23,10 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.tekclover.wms.api.outbound.transaction.model.warehouse.inbound.WarehouseApiResponse;
 
@@ -402,4 +400,22 @@ public class WarehouseController {
 			DataBaseContextHolder.clear();
 		}
 	}
+
+    @ApiOperation(response = FileUpdateUpload.class, value = "Update Upload File") // label for swagger
+    @PostMapping("/update/upload")
+    public ResponseEntity<?> postUpdateUpload(@RequestBody List<FileUpdateUpload> updateUploads, @RequestParam String companyCodeId, @RequestParam String plantId,
+                                              @RequestParam String languageId, @RequestParam String warehouseId, @RequestParam String loginUserID)
+            throws IllegalAccessException, InvocationTargetException {
+        try {
+            DataBaseContextHolder.setCurrentDb("MT");
+            String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
+            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(routingDb);
+            List<FileUpdateUpload> createdInventory = warehouseService.updateInvByBarcode(updateUploads, companyCodeId, plantId, languageId, warehouseId, loginUserID);
+            return new ResponseEntity<>(createdInventory, HttpStatus.OK);
+        } finally {
+            DataBaseContextHolder.clear();
+        }
+    }
 }

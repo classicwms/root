@@ -2327,4 +2327,128 @@ public class FileStorageService {
         }
     }
 
+    //--------------------------------------------------------FileUpdateUpload----------------------------//
+
+    /**
+     * @param file
+     * @return
+     * @throws Exception
+     */
+    public Map<String, String> fileUpdateUpload(String companyCodeId, String plantId, String languageId,
+                                                String warehouseId, String loginUserId, MultipartFile file, String authTokens) throws Exception {
+        this.fileStorageLocation = Paths.get(propertiesConfig.getFileUploadDir()).toAbsolutePath().normalize();
+        if (!Files.exists(fileStorageLocation)) {
+            try {
+                Files.createDirectories(this.fileStorageLocation);
+            } catch (Exception ex) {
+                throw new BadRequestException(
+                        "Could not create the directory where the uploaded files will be stored.");
+            }
+        }
+
+        log.info("loca : " + fileStorageLocation);
+
+        // Normalize file name
+        String fileName = StringUtils.cleanPath(file.getOriginalFilename());
+        log.info("filename before: " + fileName);
+        fileName = fileName.replace(" ", "_");
+        log.info("filename after: " + fileName);
+        try {
+            // Check if the file's name contains invalid characters
+            if (fileName.contains("..")) {
+                throw new BadRequestException("Sorry! Filename contains invalid path sequence " + fileName);
+            }
+
+            // Copy file to the target location (Replacing existing file with the same name)
+            Path targetLocation = this.fileStorageLocation.resolve(fileName);
+            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+            log.info("Copied : " + targetLocation);
+
+            List<List<String>> allRowsList = readExcelDataFileUpdateUpload(targetLocation.toFile());
+            List<FileUpdateUpload> inventoryUpdate = uploadFileUpdate(allRowsList);
+            log.info("InventoryUpdate : " + inventoryUpdate);
+
+            // Uploading Orders
+            WarehouseApiResponse[] dbWarehouseApiResponse = new WarehouseApiResponse[0];
+            AuthToken authToken = authTokenService.getOutboundTransactionServiceAuthToken();
+            dbWarehouseApiResponse = outboundTransactionService.fileUpdateUpload(inventoryUpdate, companyCodeId, plantId, languageId, warehouseId, loginUserId, authToken.getAccess_token());
+
+            if (dbWarehouseApiResponse != null) {
+                Map<String, String> mapFileProps = new HashMap<>();
+                mapFileProps.put("file", fileName);
+                mapFileProps.put("status", "UPLOADED SUCCESSFULLY");
+                return mapFileProps;
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            throw new BadRequestException("Could not store file " + fileName + ". Please try again!");
+        }
+        return null;
+    }
+
+
+    private List<FileUpdateUpload> uploadFileUpdate(List<List<String>> allRowsList) {
+
+        List<FileUpdateUpload> fileList = new ArrayList<>();
+
+        for (List<String> row : allRowsList) {
+
+            if (row == null || row.size() < 3) {
+                continue;
+            }
+            FileUpdateUpload obj = new FileUpdateUpload();
+            obj.setBarcodeId(row.get(0));
+            obj.setInventoryQuantity(row.get(1) != null && !row.get(1).isEmpty() ? Double.valueOf(row.get(1)) : 0.0);
+            obj.setReferenceField4(row.get(2) != null && !row.get(2).isEmpty() ? Double.valueOf(row.get(2)) : 0.0);
+            fileList.add(obj);
+        }
+        return fileList;
+    }
+
+    private List<List<String>> readExcelDataFileUpdateUpload(File file) {
+
+        List<List<String>> allRowsList = new ArrayList<>();
+
+        try (Workbook workbook = new XSSFWorkbook(file)) {
+
+            Sheet sheet = workbook.getSheetAt(0);
+            Iterator<Row> iterator = sheet.iterator();
+
+            if (iterator.hasNext()) {
+                iterator.next();
+            }
+
+            while (iterator.hasNext()) {
+                Row currentRow = iterator.next();
+                List<String> rowData = new ArrayList<>();
+
+                for (int i = 0; i < 3; i++) {
+                    Cell cell = currentRow.getCell(i, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+                    switch (cell.getCellType()) {
+                        case STRING:
+                            rowData.add(cell.getStringCellValue().trim());
+                            break;
+                        case NUMERIC:
+                            double numValue = cell.getNumericCellValue();
+                            if (numValue == Math.floor(numValue)) {
+                                rowData.add(String.valueOf((long) numValue));
+                            } else {
+                                rowData.add(String.valueOf(numValue));
+                            }
+                            break;
+
+                        default:
+                            rowData.add("");
+                    }
+                }
+
+                allRowsList.add(rowData);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BadRequestException("Error reading Excel file");
+        }
+        return allRowsList;
+    }
+
 }

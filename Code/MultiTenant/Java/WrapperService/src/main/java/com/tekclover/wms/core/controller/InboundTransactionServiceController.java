@@ -1898,5 +1898,15 @@ public class InboundTransactionServiceController {
                                                                    @RequestParam String authToken) throws Exception {
         return transactionService.getInventoryByBinItemGroupByV7(inventoryBinItmGroupInput, authToken);
     }
+    //=====================================================File-Update-Upload==========================================
+    // File Upload - Update
+    @ApiOperation(response = Inventory.class, value = "Update Upload File") // label for swagger
+    @PostMapping("/update/Upload/file")
+    public ResponseEntity<?> fileUpdateUpload(@RequestParam String companyCodeId, @RequestParam String plantId,
+                                              @RequestParam String languageId, @RequestParam String warehouseId,
+                                              @RequestParam String loginUserID, @RequestParam("file") MultipartFile file, @RequestHeader(value="AuthToken") String authToken) throws Exception {
+        Map<String, String> response = fileStorageService.fileUpdateUpload(companyCodeId, plantId, languageId, warehouseId, loginUserID, file,authToken);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 
 }
