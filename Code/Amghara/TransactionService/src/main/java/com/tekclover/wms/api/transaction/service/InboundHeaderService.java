@@ -1833,9 +1833,11 @@ public class InboundHeaderService extends BaseService {
                     inboundLine.getRefDocNumber(), inboundLine.getPreInboundNo(), 24L, statusDescription);
             log.info("-----updateInboundHeaderPartialConfirmNewV2----putAwayLine-updated----");
 
-            updateInboundHeaderStatus(inboundLine.getCompanyCode(), inboundLine.getPlantId(), inboundLine.getLanguageId(),
-                    inboundLine.getWarehouseId(), inboundLine.getRefDocNumber(), inboundLine.getPreInboundNo(), statusDescription, inboundLine.getCreatedBy());
+//            updateInboundHeaderStatus(inboundLine.getCompanyCode(), inboundLine.getPlantId(), inboundLine.getLanguageId(),
+//                    inboundLine.getWarehouseId(), inboundLine.getRefDocNumber(), inboundLine.getPreInboundNo(), statusDescription, inboundLine.getCreatedBy());
 		});
+        int updateInboundHeader = inboundHeaderV2Repository.updateInboundConfirmStatus(24L, "Receipt Confirmed");
+        log.info("updateInboundHeader Affected Row's : {} ", updateInboundHeader);
 	}
 
     /**

@@ -169,4 +169,10 @@ public interface InboundHeaderV2Repository extends JpaRepository<InboundHeaderV2
                              @Param("companyCodeId") String companyCodeId, @Param("plantId") String plantId,
                              @Param("languageId") String languageId, @Param("warehouseId") String warehouseId,
                              @Param("refDocNumber") String refDocNumber, @Param("preInboundNo") String preInboundNo);
+
+    @Modifying
+    @Query(value = "update ib set ib.status_id = :statusId, ib.STATUS_TEXT = :statusText from tblinboundheader ib\n" +
+            "where ib.is_deleted =0 and not exists(select 1 from tblinboundline il where il.is_deleted = 0 and il.ref_doc_no = ib.ref_doc_no and il.status_id <> 24) and ib.status_id <> 24\n", nativeQuery = true)
+    int updateInboundConfirmStatus(@Param("statusId") Long statusId,
+                                   @Param("statusText") String statusText);
 }
