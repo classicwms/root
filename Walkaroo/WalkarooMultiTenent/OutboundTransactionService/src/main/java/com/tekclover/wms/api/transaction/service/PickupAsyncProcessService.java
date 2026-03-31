@@ -179,8 +179,30 @@ public class PickupAsyncProcessService extends BaseService{
     /**
      * Persist a batch of pickup headers in a short transactional block.
      */
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public List<PickupHeaderV2> savePickupHeadersTx(List<PickupHeaderV2> pickupHeaderV2List) {
+        log.info("PickupHeader Saved Process Completed Size is -----------------------> " + pickupHeaderV2List.size());
+
+        int retry = 3;
+
+        while (retry > 0) {
+            try {
+                return savePickupHeaders(pickupHeaderV2List);
+            } catch (Exception e) {
+//                if (e.getMessage().contains("deadlock")) {
+                    retry--;
+                    try {
+                        Thread.sleep(200);
+                    } catch (Exception ignored)
+                    {}
+//                }
+            }
+        }
+        throw new RuntimeException("Failed after retries");
+//        return pickupHeaderV2Repository.saveAll(pickupHeaderV2List);
+    }
+
+    @Transactional
+    public List<PickupHeaderV2> savePickupHeaders(List<PickupHeaderV2> pickupHeaderV2List) {
         log.info("PickupHeader Saved Process Completed Size is -----------------------> " + pickupHeaderV2List.size());
         return pickupHeaderV2Repository.saveAll(pickupHeaderV2List);
     }
