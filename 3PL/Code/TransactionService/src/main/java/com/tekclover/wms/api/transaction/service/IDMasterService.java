@@ -490,6 +490,8 @@ public class IDMasterService {
             headers.set(propertiesConfig.getTngSecretKey(), propertiesConfig.getTngSecretValue());
             headers.set("User-Agent", "MySpringApp/1.0");
 
+            log.info("FetchStock api input -----> {}", fetch);
+
             UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getTNGUrl() + "FetchStock");
 
             HttpEntity<?> entity = new HttpEntity<>(fetch, headers);

@@ -366,8 +366,11 @@ public class PreOutboundLineService extends BaseService {
             dbPreOutboundLine.setUpdatedBy(loginUserID);
             dbPreOutboundLine.setUpdatedOn(new Date());
             //TNG
-            String businessPartnerCode = imBasicData1V2Repository.getPartnerCode(companyCodeId,plantId,languageId,warehouseId,dbPreOutboundLine.getPartnerCode());
-            if (businessPartnerCode != null && businessPartnerCode.equalsIgnoreCase("True")) {
+//            String businessPartnerCode = imBasicData1V2Repository.getPartnerCode(companyCodeId,plantId,languageId,warehouseId,dbPreOutboundLine.getPartnerCode());
+            String storerKey = imBasicData1V2Repository.getKeyBasedOnPartnerId(companyCodeId,plantId,languageId,warehouseId,dbPreOutboundLine.getPartnerCode());
+//            if (businessPartnerCode != null && businessPartnerCode.equalsIgnoreCase("True")) {
+            log.info("TNG Order PartnerCode: {}, StorerKey: {}", dbPreOutboundLine.getPartnerCode(), storerKey);
+            if (storerKey != null && !storerKey.isEmpty()) {
                 UpdateShipmentOrder updateShipmentOrder = new UpdateShipmentOrder();
                 List<Sku> skus = new ArrayList<>();
 
@@ -377,10 +380,11 @@ public class PreOutboundLineService extends BaseService {
                 skus.add(sku);
 
                 updateShipmentOrder.setOrderReference(dbPreOutboundLine.getRefDocNumber());
-                updateShipmentOrder.setStorerKey("TAAGER");
+                updateShipmentOrder.setStorerKey(storerKey);
                 updateShipmentOrder.setSku(skus);
 
                 try {
+                    log.info("TNG UpdateShipment Input's: {} ", updateShipmentOrder);
                     OrderResponse response = idmasterService.updateShipmentOrder(updateShipmentOrder);
 
                     if (response.getSuccess()) {
@@ -440,14 +444,19 @@ public class PreOutboundLineService extends BaseService {
             preOutboundLine.setDeletionIndicator(1L);
             preOutboundLine.setUpdatedBy(loginUserID);
             preOutboundLine.setUpdatedOn(new Date());
-            String customerCode = imBasicData1V2Repository.getPartnerCode(companyCodeId,plantId,languageId,warehouseId,partnerCode);
-            if (customerCode != null && customerCode.equalsIgnoreCase("True")) {
+//            String customerCode = imBasicData1V2Repository.getPartnerCode(companyCodeId,plantId,languageId,warehouseId,partnerCode);
+            String storerKey = imBasicData1V2Repository.getKeyBasedOnPartnerId(companyCodeId,plantId,languageId,warehouseId,partnerCode);
+//            if (customerCode != null && customerCode.equalsIgnoreCase("True")) {
+            log.info("TNG Order PartnerCode: {}, StorerKey: {} ", partnerCode, storerKey);
+            if (storerKey != null && !storerKey.isEmpty()) {
                 CancelShipmentOrder cancelShipmentOrder = new CancelShipmentOrder();
                 cancelShipmentOrder.setOrderReference(preOutboundLine.getRefDocNumber());
                 cancelShipmentOrder.setWarehouseKey("INFOR_SCPRD_wmwhse1");
+//                cancelShipmentOrder.setWarehouseKey(storerKey);
                 cancelShipmentOrder.setOrderKey("0000036565");
 
                 try {
+                    log.info("TNG CancelShipment Input's: {} ", cancelShipmentOrder);
                     CancelShipmentOrderResponse response = idmasterService.cancelShipmentOrder(cancelShipmentOrder);
 
                     if (response.getSuccess()) {

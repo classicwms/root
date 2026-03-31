@@ -55,49 +55,56 @@ public class BatchJobScheduler {
     @Scheduled(fixedDelay = 900000)
     public void processInventory() {
 
-        List<String> businessPartTrueList = imBasicData1V2Repository.findByRefTrue(0L);
+        List<Object[]> businessPartTrueList = imBasicData1V2Repository.findByRefTrue(0L);
 
-        List<String> sqlInventory = imBasicData1V2Repository.findByItemCode(0L, businessPartTrueList);
+        for(Object[] row: businessPartTrueList) {
 
-        if (sqlInventory != null && !sqlInventory.isEmpty()){
-            Fetch fetch = new Fetch();
-            fetch.setStorerKey("TAAGER");
-            fetch.setSku(sqlInventory);
+            String partnerCode = row[0] != null ? row[0].toString() : null;
+            String storerKey  = row[1] != null ? row[1].toString() : null;
 
-            log.info("Fetch Stock Input's -----------------> {} ", fetch);
-            List<FetchStock> response = idMasterService.fetchStock(fetch);
+            log.info("Inventory Schedule for TNG -- PartnerCode: {}, StorerKey: {} ", partnerCode, storerKey);
+            List<String> sqlInventory = imBasicData1V2Repository.findByItemCode(0L, partnerCode);
 
-            for (FetchStock fetchStock : response) {
-                InventoryV2 inventory = new InventoryV2();
-                inventory.setBarcodeId("88888");
-                inventory.setBinClassId(1L);
-                inventory.setDeletionIndicator(0L);
-                inventory.setStorageBin("BIN0001");
-                PartnerInfoProjection partnerData = imBasicData1V2Repository.getPartnerId(fetchStock.getSku());
+            if (sqlInventory != null && !sqlInventory.isEmpty()) {
+                Fetch fetch = new Fetch();
+//                fetch.setStorerKey("987654");
+                fetch.setStorerKey(storerKey);
+                fetch.setSku(sqlInventory);
 
-                if (partnerData != null ) {
-                    inventory.setThreePLPartnerId(partnerData.getPartNo() != null ? partnerData.getPartNo() : null );
-                    inventory.setManufacturerName(partnerData.getPartName() != null ? partnerData.getPartName() : null);
-                    inventory.setManufacturerCode(partnerData.getPartName() != null ? partnerData.getPartName() : null);
-                    inventory.setCompanyDescription(partnerData.getCompanyText() != null ? partnerData.getCompanyText() : null);
-                    inventory.setPlantDescription(partnerData.getPlantText() != null ? partnerData.getPlantText() : null);
-                    inventory.setWarehouseDescription(partnerData.getWarehouseText() != null ? partnerData.getWarehouseText() : null);
-                    String partnerText = imBasicData1V2Repository.findPartnerText(partnerData.getPartNo());
-                    inventory.setThreePLPartnerText(partnerText);
+                List<FetchStock> response = idMasterService.fetchStock(fetch);
+
+                for (FetchStock fetchStock : response) {
+                    InventoryV2 inventory = new InventoryV2();
+                    inventory.setBarcodeId("88888");
+                    inventory.setBinClassId(1L);
+                    inventory.setDeletionIndicator(0L);
+                    inventory.setStorageBin("BIN0001");
+                    PartnerInfoProjection partnerData = imBasicData1V2Repository.getPartnerId(fetchStock.getSku());
+
+                    if (partnerData != null) {
+                        inventory.setThreePLPartnerId(partnerData.getPartNo() != null ? partnerData.getPartNo() : null);
+                        inventory.setManufacturerName(partnerData.getPartName() != null ? partnerData.getPartName() : null);
+                        inventory.setManufacturerCode(partnerData.getPartName() != null ? partnerData.getPartName() : null);
+                        inventory.setCompanyDescription(partnerData.getCompanyText() != null ? partnerData.getCompanyText() : null);
+                        inventory.setPlantDescription(partnerData.getPlantText() != null ? partnerData.getPlantText() : null);
+                        inventory.setWarehouseDescription(partnerData.getWarehouseText() != null ? partnerData.getWarehouseText() : null);
+                        String partnerText = imBasicData1V2Repository.findPartnerText(partnerData.getPartNo());
+                        inventory.setThreePLPartnerText(partnerText);
+                    }
+                    inventory.setItemCode(fetchStock.getSku());
+                    inventory.setDescription(fetchStock.getDescription());
+                    inventory.setReferenceField8(fetchStock.getDescription());
+                    inventory.setCompanyCodeId("1000");
+                    inventory.setPlantId("1100");
+                    inventory.setWarehouseId("200");
+                    inventory.setLanguageId("EN");
+                    inventory.setInventoryQuantity(fetchStock.getAvailableQty());
+                    inventory.setReferenceField4(fetchStock.getAvailableQty());
+                    inventory.setCreatedBy("TNG");
+                    inventory.setCreatedOn(new Date());
+
+                    inventoryV2Repository.save(inventory);
                 }
-                inventory.setItemCode(fetchStock.getSku());
-                inventory.setDescription(fetchStock.getDescription());
-                inventory.setReferenceField8(fetchStock.getDescription());
-                inventory.setCompanyCodeId("1000");
-                inventory.setPlantId("1100");
-                inventory.setWarehouseId("200");
-                inventory.setLanguageId("EN");
-                inventory.setInventoryQuantity(fetchStock.getAvailableQty());
-                inventory.setReferenceField4(fetchStock.getAvailableQty());
-                inventory.setCreatedBy("TNG");
-                inventory.setCreatedOn(new Date());
-
-                inventoryV2Repository.save(inventory);
             }
         }
     }

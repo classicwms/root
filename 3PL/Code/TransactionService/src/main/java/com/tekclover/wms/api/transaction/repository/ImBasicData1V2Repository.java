@@ -72,13 +72,13 @@ public interface ImBasicData1V2Repository extends PagingAndSortingRepository<ImB
 										   @Param(value = "manufactureName") String manufactureName);
 
 	@Query(value = "SELECT ITM_CODE FROM tblimbasicdata1 WHERE IS_DELETED = :is_deleted \n " +
-			"AND supplier_part_number in (:partnerCodes)", nativeQuery = true)
+			"AND supplier_part_number = :partnerCodes", nativeQuery = true)
 	public List<String> findByItemCode(@Param("is_deleted") Long deletionIndicator,
-									   @Param("partnerCodes") List<String> partnerCodes);
+									   @Param("partnerCodes") String partnerCodes);
 
-	@Query(value = "SELECT partner_code from tblbusinesspartner WHERE IS_DELETED = :is_deleted \n " +
-			"AND REF_FIELD_8 = 'true'", nativeQuery = true)
-	public List<String> findByRefTrue(@Param("is_deleted") Long deletionIndicator);
+	@Query(value = "SELECT partner_code partnerCode,remarks storerKey from tblbusinesspartner WHERE IS_DELETED = :is_deleted \n " +
+			"AND REF_FIELD_8 = 'true' and remarks is not null", nativeQuery = true)
+	public List<Object[]> findByRefTrue(@Param("is_deleted") Long deletionIndicator);
 
 	@Query(value = "select ref_field_8 from tblbusinesspartner where " +
 			"c_id = :companyCodeId and plant_id = :plantId and lang_id = :languageId and wh_id = :warehouseId " +
@@ -89,6 +89,14 @@ public interface ImBasicData1V2Repository extends PagingAndSortingRepository<ImB
 								 @Param("warehouseId") String warehouseId,
 								 @Param("partnerCode") String partnerCode);
 
+	@Query(value = "select remarks from tblbusinesspartner where " +
+			"c_id = :companyCodeId and plant_id = :plantId and lang_id = :languageId and wh_id = :warehouseId " +
+			"and partner_code = :partnerCode and is_deleted=0 and ref_field_8 = 'true'",nativeQuery = true)
+	public String getKeyBasedOnPartnerId(@Param("companyCodeId") String companyCodeId,
+								 @Param("plantId") String plantId,
+								 @Param("languageId") String languageId,
+								 @Param("warehouseId") String warehouseId,
+								 @Param("partnerCode") String partnerCode);
 
 	@Query(value = "select supplier_part_number partNo, MFR_PART partName, C_TEXT companyText, PLANT_TEXT plantText, WH_TEXT warehouseText from tblimbasicdata1 \n" +
 			" where is_deleted = 0 and itm_code = :itemCode and MFR_PART = 'Tagger - UAE'", nativeQuery = true)

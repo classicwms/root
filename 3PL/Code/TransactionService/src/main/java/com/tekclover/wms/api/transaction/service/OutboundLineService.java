@@ -1167,15 +1167,21 @@ public class OutboundLineService extends BaseService {
             outboundLine.setUpdatedBy(loginUserID);
             outboundLineRepository.save(outboundLine);
 
-            String customerCode = imBasicData1V2Repository.getPartnerCode(outboundLine.getCompanyCodeId(),outboundLine.getPlantId(),
+//            String customerCode = imBasicData1V2Repository.getPartnerCode(outboundLine.getCompanyCodeId(),outboundLine.getPlantId(),
+//                    outboundLine.getLanguageId(),outboundLine.getWarehouseId(),outboundLine.getPartnerCode());
+            String storerKey = imBasicData1V2Repository.getKeyBasedOnPartnerId(outboundLine.getCompanyCodeId(),outboundLine.getPlantId(),
                     outboundLine.getLanguageId(),outboundLine.getWarehouseId(),outboundLine.getPartnerCode());
-            if (customerCode != null && customerCode.equalsIgnoreCase("True")) {
+            log.info("TNG Order PartnerCode: {}, StorerKey: {}", outboundLine.getPartnerCode(), storerKey);
+//            if (customerCode != null && customerCode.equalsIgnoreCase("True")) {
+            if(storerKey != null && !storerKey.isEmpty()) {
                 CancelShipmentOrder cancelShipmentOrder = new CancelShipmentOrder();
                 cancelShipmentOrder.setOrderReference(refDocNumber);
                 cancelShipmentOrder.setWarehouseKey("INFOR_SCPRD_wmwhse1");
+//                cancelShipmentOrder.setWarehouseKey(storerKey);
                 cancelShipmentOrder.setOrderKey("0000036565");
 
                 try {
+                    log.info("TNG Cancel ShipmentOrder: {}", cancelShipmentOrder);
                     CancelShipmentOrderResponse response = idmasterService.cancelShipmentOrder(cancelShipmentOrder);
 
                     if (response.getSuccess()) {
@@ -2826,9 +2832,12 @@ public class OutboundLineService extends BaseService {
         outboundLineV2Repository.save(outboundLine);
 
         //TNG
-        String businessPartnerCode = imBasicData1V2Repository.getPartnerCode(outboundLine.getCompanyCodeId(),outboundLine.getPlantId(),outboundLine.getLanguageId(),
+        String storerKey = imBasicData1V2Repository.getKeyBasedOnPartnerId(outboundLine.getCompanyCodeId(),outboundLine.getPlantId(),outboundLine.getLanguageId(),
                 outboundLine.getWarehouseId(),outboundLine.getPartnerCode());
-        if (businessPartnerCode != null && businessPartnerCode.equalsIgnoreCase("True")) {
+
+        log.info("TNG Order PartnerCode: {}, StorerKey: {}", outboundLine.getPartnerCode(), storerKey);
+//        if (businessPartnerCode != null && businessPartnerCode.equalsIgnoreCase("True")) {
+        if (storerKey != null && !storerKey.isEmpty()) {
             UpdateShipmentOrder updateShipmentOrder = new UpdateShipmentOrder();
             List<Sku> skus = new ArrayList<>();
 
@@ -2838,10 +2847,12 @@ public class OutboundLineService extends BaseService {
             skus.add(sku);
 
             updateShipmentOrder.setOrderReference(outboundLine.getRefDocNumber());
-            updateShipmentOrder.setStorerKey("TAAGER");
+//            updateShipmentOrder.setStorerKey("987654");
+            updateShipmentOrder.setStorerKey(storerKey);
             updateShipmentOrder.setSku(skus);
 
             try {
+                log.info("TNG UpdateShipment Input's: {} ", updateShipmentOrder);
                 OrderResponse response = idmasterService.updateShipmentOrder(updateShipmentOrder);
 
                 if (response.getSuccess()) {

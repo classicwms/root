@@ -2506,15 +2506,19 @@ public class PreInboundHeaderService extends BaseService {
 
 
     //TNG
-    public void pushTNGOrder(List<PreInboundLineEntityV2> createdPreInboundLine, String refDocNumber) {
+    public void pushTNGOrder(List<PreInboundLineEntityV2> lines, String refDocNumber) {
 
-        String partnerCode = imBasicData1V2Repository.getPartnerCode(createdPreInboundLine.get(0).getCompanyCode(),createdPreInboundLine.get(0).getPlantId(),
-                createdPreInboundLine.get(0).getLanguageId(),createdPreInboundLine.get(0).getWarehouseId(),createdPreInboundLine.get(0).getBusinessPartnerCode());
-        if (partnerCode != null && partnerCode.equalsIgnoreCase("True")) {
+//        String partnerCode = imBasicData1V2Repository.getPartnerCode(createdPreInboundLine.get(0).getCompanyCode(),createdPreInboundLine.get(0).getPlantId(),
+//                createdPreInboundLine.get(0).getLanguageId(),createdPreInboundLine.get(0).getWarehouseId(),createdPreInboundLine.get(0).getBusinessPartnerCode());
+        String storerKey = imBasicData1V2Repository.getKeyBasedOnPartnerId(lines.get(0).getCompanyCode(),lines.get(0).getPlantId(),
+                lines.get(0).getLanguageId(),lines.get(0).getWarehouseId(),lines.get(0).getBusinessPartnerCode());
+        log.info("TNG Order PartnerCode: {}, StorerKey: {}", lines.get(0).getBusinessPartnerCode(), storerKey);
+        if(storerKey != null && !storerKey.isEmpty()) {
+//        if (partnerCode != null && partnerCode.equalsIgnoreCase("True")) {
             PurchaseOrder purchaseOrder = new PurchaseOrder();
 
             List<Sku> skus = new ArrayList<>();
-            for (PreInboundLineEntityV2 preInboundLine : createdPreInboundLine) {
+            for (PreInboundLineEntityV2 preInboundLine : lines) {
                 Sku sku = new Sku();
                 sku.setQty(preInboundLine.getOrderQty());
                 sku.setSku(preInboundLine.getItemCode());
@@ -2522,27 +2526,29 @@ public class PreInboundHeaderService extends BaseService {
             }
 
             purchaseOrder.setPoKey(refDocNumber);
-            purchaseOrder.setStorerKey("TAAGER");
+            purchaseOrder.setStorerKey(storerKey);
+//            purchaseOrder.setStorerKey("TAAGER");
             purchaseOrder.setWarehouseKey("INFOR_SCPRD_wmwhse6");
             purchaseOrder.setSkus(skus);
 
             try {
-                log.info("TNG --> Purchase Order Creation Input's ----> " + purchaseOrder);
+                log.info("TNG --> Purchase Order Creation Input: {}", purchaseOrder);
                 OrderResponse response = idmasterService.purchaseOrder(purchaseOrder);
                 log.info("TNG --> Purchase Order Creation Response----------->" + purchaseOrder);
                 log.info("TNG --> Purchase Response----------->" + response);
 
                 if (response.getSuccess()) {
                     Long WEBHOOK_STATUS = 200L;
-                    inboundHeaderV2Repository.updateWebhookStatus(createdPreInboundLine.get(0).getRefDocNumber(), WEBHOOK_STATUS);
+                    inboundHeaderV2Repository.updateWebhookStatus(lines.get(0).getRefDocNumber(), WEBHOOK_STATUS);
                 } else {
                     Long WEBHOOK_STATUS = 500L;
-                    inboundHeaderV2Repository.updateWebhookStatus(createdPreInboundLine.get(0).getRefDocNumber(), WEBHOOK_STATUS);
+                    inboundHeaderV2Repository.updateWebhookStatus(lines.get(0).getRefDocNumber(), WEBHOOK_STATUS);
                 }
             } catch (RestClientException e) {
                 log.error("WebHook Error while pushing purchaseOrder ----> " + e);
             }
         }
+//        }
     }
 
 
