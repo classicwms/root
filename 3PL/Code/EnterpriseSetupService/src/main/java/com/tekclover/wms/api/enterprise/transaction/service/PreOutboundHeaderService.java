@@ -1697,7 +1697,8 @@ public class PreOutboundHeaderService extends BaseService {
                 String partnerCode = imBasicData1V2Repository.getPartnerCode(outboundHeader.getCompanyCodeId(),outboundHeader.getPlantId(),
                         outboundHeader.getLanguageId(),outboundHeader.getWarehouseId(),outboundHeader.getPartnerCode());
                 log.info("PartnerCode Id is {} ----> ref_field_8 is {} ---> ", outboundHeader.getPartnerCode(), partnerCode);
-                if (partnerCode != null && partnerCode.equalsIgnoreCase("True")) {
+//                if (partnerCode != null && partnerCode.equalsIgnoreCase("True")) {
+                if (partnerCode != null && !partnerCode.isEmpty()) {
                     return outboundHeader;
                 }
             }
@@ -6192,15 +6193,19 @@ public class PreOutboundHeaderService extends BaseService {
 //        insertNewPickListCancelRecord(outboundHeaderV2, outboundLineV2, pickupLineV2, createNewPickUpLineList, orderManagementLine, companyCodeId, plantId, languageId, warehouseId, oldPickListNumber, newPickListNumber);
 //    }
 
-    public void shipmentOrder(List<PreOutboundLineV2> createdPreOutboundLine) {
+    public void shipmentOrder(List<PreOutboundLineV2> lines) {
 
-        String partnerCode = imBasicData1V2Repository.getPartnerCode(createdPreOutboundLine.get(0).getCompanyCodeId(),createdPreOutboundLine.get(0).getPlantId(),
-                createdPreOutboundLine.get(0).getLanguageId(),createdPreOutboundLine.get(0).getWarehouseId(),createdPreOutboundLine.get(0).getPartnerCode());
-        if (partnerCode != null && partnerCode.equalsIgnoreCase("True")) {
+        String storerKey = imBasicData1V2Repository.getPartnerCode(lines.get(0).getCompanyCodeId(),lines.get(0).getPlantId(),
+                lines.get(0).getLanguageId(),lines.get(0).getWarehouseId(),lines.get(0).getPartnerCode());
+//        String partnerCode = imBasicData1V2Repository.getPartnerCode(createdPreOutboundLine.get(0).getCompanyCodeId(),createdPreOutboundLine.get(0).getPlantId(),
+//                createdPreOutboundLine.get(0).getLanguageId(),createdPreOutboundLine.get(0).getWarehouseId(),createdPreOutboundLine.get(0).getPartnerCode());
+//        if (partnerCode != null && partnerCode.equalsIgnoreCase("True")) {
+        log.info("TNG Shipment Order -- PartnerCode: {}, StorerKey: {} ", lines.get(0).getPartnerCode(), storerKey );
+        if (storerKey != null && !storerKey.isEmpty()) {
             //TNG
             ShipmentOrder shipmentOrder = new ShipmentOrder();
             List<Skus> skus = new ArrayList<>();
-            for (PreOutboundLineV2 preOutboundLine : createdPreOutboundLine) {
+            for (PreOutboundLineV2 preOutboundLine : lines) {
                 Skus sku = new Skus();
                 sku.setQty(preOutboundLine.getOrderQty());
                 sku.setSku(preOutboundLine.getItemCode());
@@ -6208,7 +6213,8 @@ public class PreOutboundHeaderService extends BaseService {
 
 
                 shipmentOrder.setOrderReference(preOutboundLine.getRefDocNumber());
-                shipmentOrder.setStorerKey("TAAGER");
+//                shipmentOrder.setStorerKey("TAAGER");
+                shipmentOrder.setStorerKey(storerKey);
                 shipmentOrder.setWarehouseKey("INFOR_SCPRD_wmwhse6");
                 shipmentOrder.setConsigneeName("Abed test");
                 shipmentOrder.setSkus(skus);

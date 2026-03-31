@@ -63,9 +63,9 @@ public interface ImBasicData1V2Repository extends PagingAndSortingRepository<ImB
 											   @Param(value = "manufactureName") String manufactureName);
 
 	//TNG
-	@Query(value = "select ref_field_8 from tblbusinesspartner where " +
+	@Query(value = "select remarks from tblbusinesspartner where " +
 			"c_id = :companyCodeId and plant_id = :plantId and lang_id = :languageId and wh_id = :warehouseId " +
-			"and partner_code = :partnerCode and is_deleted=0",nativeQuery = true)
+			"and partner_code = :partnerCode and is_deleted=0 and ref_field_8 = 'true'",nativeQuery = true)
 	public String getPartnerCode(@Param("companyCodeId") String companyCodeId,
 								 @Param("plantId") String plantId,
 								 @Param("languageId") String languageId,
