@@ -243,12 +243,12 @@ public class PutAwayHeaderController extends BaseService {
     public List<PutAwayHeaderV2> createPutawayHeader(@RequestBody List<PutawayHeaderInt> putawayHeaders)
             throws Exception {
         try {
-            String currentDB = baseService.getDataBase(putawayHeaders.get(0).getSapDocumentNo());
-            DataBaseContextHolder.clear();
-            DataBaseContextHolder.setCurrentDb(currentDB);
-            log.info("Current DB " + currentDB);
+//            String currentDB = baseService.getDataBase(putawayHeaders.get(0).getSapDocumentNo());
+//            DataBaseContextHolder.clear();
+//            DataBaseContextHolder.setCurrentDb(currentDB);
+//            log.info("Current DB " + currentDB);
             log.info("PutAwayHeader from SAP started....");
-            scheduleAsyncService.createPutAwayHeaderAsynProcess(putawayHeaders);
+//            scheduleAsyncService.createPutAwayHeaderAsynProcess(putawayHeaders);
             log.info("PutAwayHeader from SAP Completed....");
             return new ArrayList<>();
         } finally {

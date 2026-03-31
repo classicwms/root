@@ -176,14 +176,17 @@ public interface GrHeaderV2Repository extends JpaRepository<GrHeaderV2, Long>, J
     void updateGRHeader_SAP(@Param("refDocNumber") String refDocNumber, @Param("sapType") String sapType,
                             @Param("docNo") String docNo);
 
+    @Modifying
+    @Query(value = "update tblgrheader set status_id = 19, status_text = :statusText where ref_doc_no in (:refDocNo) and is_deleted = 0", nativeQuery = true)
+    int updateGrHeaderStatus(@Param("refDocNo") Set<String> refDocNo,
+                             @Param("statusText") String statusText);
+
+    @Query(value = "select ref_doc_no, gr_no from tblgrheader where ref_doc_no in (:refDocNo) and is_deleted = 0 ", nativeQuery = true)
+    List<Object[]> findGrNo(@Param("refDocNo") Set<String> refDocNo);
+
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query(value = "UPDATE tblgrheader \r\n"
             + "SET SAP_FLAG = :sapFlag \r\n"
             + "WHERE ref_doc_no = :refDocNumber AND is_deleted = 0", nativeQuery = true)
     int updateGRHeader_SAP(@Param("refDocNumber") String refDocNumber, @Param("sapFlag") String sapFlag);
-
-    @Modifying
-    @Query(value = "update tblgrheader set status_id = 19, status_text = :statusText where ref_doc_no in (:refDocNo) and is_deleted = 0", nativeQuery = true)
-    int updateGrHeaderStatus(@Param("refDocNo") Set<String> refDocNo,
-                             @Param("statusText") String statusText);
 }

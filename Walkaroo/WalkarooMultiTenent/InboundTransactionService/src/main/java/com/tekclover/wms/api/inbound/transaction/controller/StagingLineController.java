@@ -417,7 +417,8 @@ public class StagingLineController {
             DataBaseContextHolder.clear();
             DataBaseContextHolder.setCurrentDb(currentDB);
             log.info("StagingLine Update /v2/------> Current DB " + currentDB);
-            List<StagingLineEntityV2> createdStagingLine = staginglineService.updateStagingLinev3(stagingLine, loginUserID);
+            //List<StagingLineEntityV2> createdStagingLine = staginglineService.updateStagingLinev4(stagingLine, loginUserID);
+            List<StagingLineEntityV2> createdStagingLine = staginglineService.updateStagingLinev4(stagingLine, loginUserID);
             return new ResponseEntity<>(createdStagingLine, HttpStatus.OK);
         } finally {
             DataBaseContextHolder.clear();

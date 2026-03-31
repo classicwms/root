@@ -137,6 +137,9 @@ public class StagingLineService extends BaseService {
 
     @Autowired
     private PutAwayHeaderV2Repository putAwayHeaderV2Repository;
+
+    @Autowired
+    private PutAwayLineAsyncProcess putAwayLineAsyncProcess;
     //----------------------------------------------------------------------------------------
 
     /**
@@ -2921,6 +2924,61 @@ public class StagingLineService extends BaseService {
 
 
         return stagingLines;
+    }
+
+    /**
+     *
+     * @param stagingLineEntityV2List stagingLine
+     * @param loginUserID userID
+     * @return
+     * @throws JsonProcessingException exception
+     */
+    public List<StagingLineEntityV2> updateStagingLinev4(List<StagingLineEntityV2> stagingLineEntityV2List, String loginUserID) throws JsonProcessingException {
+        try{
+            for(StagingLineEntityV2 sl : stagingLineEntityV2List) {
+                log.info("Staging Line Update Input Values <-------> " + sl);
+                int putAwayHeader = putAwayHeaderV2Repository.getStatusCount(sl.getPalletId(), 19L);
+                if(putAwayHeader != 0 ) {
+                    throw new BadRequestException("PalletId is InValid");
+                }
+                statusDescription = getStatusDescription(101L, sl.getLanguageId());
+                int countOfRows = stagingLineV2Repository.updateStagingLine(sl.getLanguageId(), sl.getCompanyCode(), sl.getPlantId(), sl.getWarehouseId(), sl.getRefDocNumber(),
+                        sl.getPreInboundNo(), sl.getStagingNo(), sl.getCaseCode(), sl.getPalletCode(), sl.getLineNo(), statusDescription, sl.getPalletId(), loginUserID);
+                log.info("StagingLine Updated Rows: {}", countOfRows);
+            }
+
+            // 2. Group by refDocNumber after all updates
+            Map<String, List<StagingLineEntityV2>> groupedByRefDoc = stagingLineEntityV2List.stream()
+                    .collect(Collectors.groupingBy(StagingLineEntityV2::getRefDocNumber));
+
+            List<StagingLineEntityV2> sapPushLineList = new ArrayList<>();
+            for (Map.Entry<String, List<StagingLineEntityV2>> entry : groupedByRefDoc.entrySet()) {
+                String refDocNumber = entry.getKey();
+                log.info("refDocNumber --> {}", refDocNumber);
+                List<StagingLineEntityV2> stagingLines = stagingLineV2Repository.findStagingLineList(refDocNumber);
+                log.info("List of StagingLine Values: {} ", stagingLines);
+                if(!stagingLines.isEmpty()) {
+                        String response = oDataService.postODataRequest(stagingLines, refDocNumber, "1", "X");
+                        System.out.println("RES ---> {}" + response);
+                    if (response.equals("0")) {
+                    log.info("Sap Success RefDoc: {} ", refDocNumber);
+                    int grCount = grHeaderV2Repository.updateGRHeader_SAP(refDocNumber, "0");
+                    log.info("GrHeader Success Updated Rows: {}", grCount);
+                    sapPushLineList.addAll(stagingLines);
+                } else {
+                        log.info("Sap Failure RefDoc: {} ", refDocNumber);
+                        int grCount = grHeaderV2Repository.updateGRHeader_SAP(refDocNumber, "1");
+                        log.info("GrHeader Failure Updated Rows: {}", grCount);
+                    }
+                }
+            }
+            putAwayLineAsyncProcess.createPutawayHeaderv4(sapPushLineList);
+            return stagingLineEntityV2List;
+
+        } catch (Exception e) {
+            log.error("Exception while Updating StagingLine");
+            throw e;
+        }
     }
 
 }
