@@ -43,7 +43,7 @@ import java.util.stream.Stream;
 
 @Slf4j
 @Service
-public class ImBasicData1Service {
+public class ImBasicData1Service extends BaseService {
     @Autowired
     private ImBasicData1V2Repository imBasicData1V2Repository;
 
@@ -56,13 +56,13 @@ public class ImBasicData1Service {
     private IDMasterService idMasterService;
 
     @Autowired
+    private MasterService masterService;
+
+    @Autowired
     private ExceptionLogRepository exceptionLogRepo;
 
     @Autowired
     BusinessPartnerV2Repository businessPartnerV2Repository;
-
-    @Autowired
-    MasterService masterService;
 
     /**
      * getImBasicData1s
@@ -103,7 +103,6 @@ public class ImBasicData1Service {
     }
 
     /**
-     *
      * @param itemCode
      * @param warehouseId
      * @param companyCodeId
@@ -395,17 +394,21 @@ public class ImBasicData1Service {
 
             Long webhookStatus = 0L;
 
-            String partnerCode = businessPartnerV2Repository.getPartnerCode(dbImBasicData1.getCompanyCodeId(),dbImBasicData1.getPlantId(),
+            String storerKey = businessPartnerV2Repository.getPartnerCode(dbImBasicData1.getCompanyCodeId(),dbImBasicData1.getPlantId(),
                     dbImBasicData1.getLanguageId(),dbImBasicData1.getWarehouseId(),dbImBasicData1.getSupplierPartNumber());
-
-            if (partnerCode != null && partnerCode.equalsIgnoreCase("True")) {
+//            String partnerCode = businessPartnerV2Repository.getPartnerCode(dbImBasicData1.getCompanyCodeId(),dbImBasicData1.getPlantId(),
+//                    dbImBasicData1.getLanguageId(),dbImBasicData1.getWarehouseId(),dbImBasicData1.getSupplierPartNumber());
+            log.info("TNG Order PartnerCode:{}, StorerKey: {} ", dbImBasicData1.getSupplierPartNumber(), storerKey);
+//            if (partnerCode != null && partnerCode.equalsIgnoreCase("True")) {
+            if (storerKey != null && !storerKey.isEmpty()) {
                 //-----------------------TNG --------------------------------//
 
                 ItemSku itemSku = new ItemSku();
                 Items items = new Items();
 
-                itemSku.setStorerKey("TAAGER");
+              //  itemSku.setStorerKey("TAAGER");
                 itemSku.setWarehouseKey("INFOR_SCPRD_wmwhse6");
+                itemSku.setStorerKey(storerKey);
 
                 items.setSku(dbImBasicData1.getItemCode());
                 items.setDescription(dbImBasicData1.getDescription());
@@ -425,7 +428,7 @@ public class ImBasicData1Service {
                     SKUResponse response = masterService.createItemSku(itemSku);
                     log.info("TNG Response-------->" +response);
                     if (response.getSuccess()) {
-                        webhookStatus = 200L;
+                         webhookStatus = 200L;
                     } else {
                         webhookStatus = 500L;
                     }
@@ -466,6 +469,7 @@ public class ImBasicData1Service {
         dbImBasicData1.setUpdatedOn(new Date());
         return imbasicdata1Repository.save(dbImBasicData1);
     }
+
     public ImBasicData1V2 updateImBasicData1V2(String itemCode, String companyCodeId, String plantId, String languageId, String uomId,
                                                String warehouseId, String manufacturerPartNo, ImBasicData1V2 updateImBasicData1, String loginUserID)
             throws IllegalAccessException, InvocationTargetException, ParseException {
@@ -551,7 +555,6 @@ public class ImBasicData1Service {
     }
 
     /**
-     *
      * @param itemCode
      * @param companyCodeId
      * @param plantId

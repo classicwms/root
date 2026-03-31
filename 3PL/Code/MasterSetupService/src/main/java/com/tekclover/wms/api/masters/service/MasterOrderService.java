@@ -170,12 +170,9 @@ public class MasterOrderService {
     public ImBasicData1V2 processItemMasterReceived(ImBasicData1V2 item) throws ParseException {
 
         ImBasicData1V2 imBasicData1 = new ImBasicData1V2();
-        Boolean updateImbasicData1 = false;
 
         try {
-
             BeanUtils.copyProperties(item, imBasicData1, CommonUtils.getNullPropertyNames(item));
-
             // Get Warehouse
             Optional<Warehouse> dbWarehouse =
                     warehouseRepository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndDeletionIndicator(
@@ -186,187 +183,28 @@ public class MasterOrderService {
                     );
             log.info("dbWarehouse : " + dbWarehouse);
 
-            Optional<ImBasicData1V2> existingImBasicData = imBasicData1V2Repo.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndItemCodeAndManufacturerPartNoAndDeletionIndicator(
-                    item.getCompanyCodeId(), item.getPlantId(), "EN", dbWarehouse.get().getWarehouseId(), item.getItemCode(), item.getManufacturerName(), 0L);
-
-            Item dbitem = itemMasterRepository.findTopByCompanyCodeAndBranchCodeAndSkuAndManufacturerNameAndProcessedStatusIdOrderByOrderReceivedOn(
-                    item.getCompanyCodeId(), item.getPlantId(), item.getItemCode(), item.getManufacturerName(), 0L);
-
-            if (dbWarehouse != null && !dbWarehouse.isEmpty()) {
+            if (dbWarehouse.isPresent()) {
                 imBasicData1.setLanguageId(dbWarehouse.get().getLanguageId());
                 imBasicData1.setWarehouseId(dbWarehouse.get().getWarehouseId());
-            }
-            if (item.getIsNew() != null) {
-                if (item.getIsNew().equalsIgnoreCase("Y") && (item.getIsUpdate() == null || item.getIsUpdate().equalsIgnoreCase("N")) ||
-                        item.getIsNew().equalsIgnoreCase("1") && (item.getIsUpdate() == null || item.getIsUpdate().equalsIgnoreCase("0")) ||
-                        item.getIsNew().equalsIgnoreCase("TRUE") && (item.getIsUpdate() == null || item.getIsUpdate().equalsIgnoreCase("FALSE"))) {
 
-                    if (existingImBasicData != null && !existingImBasicData.isEmpty()) {
+                Optional<ImBasicData1V2> existingImBasicData = imBasicData1V2Repo.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndItemCodeAndManufacturerPartNoAndDeletionIndicator(
+                        item.getCompanyCodeId(), item.getPlantId(), "EN", dbWarehouse.get().getWarehouseId(), item.getItemCode(), item.getManufacturerName(), 0L);
 
-                        updateImbasicData1 = imBasicData1Service.deleteImBasicData1V2(item.getItemCode(), item.getCompanyCodeId(),
-                                item.getPlantId(), "EN", item.getManufacturerName(), dbWarehouse.get().getWarehouseId());
-
-                        dbitem.setRemarks("item Master Already Exist");
-                        dbitem.setOrderProcessedOn(new Date());
-                        log.info("item Master Already Exist and tblorderitem updated with remarks");
-
-                        if (updateImbasicData1) {
-                            try {
-
-                                imBasicData1.setCreatedBy(existingImBasicData.get().getCreatedBy());
-                                imBasicData1.setCreatedOn(existingImBasicData.get().getCreatedOn());
-                                imBasicData1.setUpdatedBy(item.getCreatedBy());
-                                imBasicData1.setUpdatedOn(new Date());
-
-                                IKeyValuePair description = imBasicData1V2Repo.getDescription(imBasicData1.getCompanyCodeId(),
-                                        imBasicData1.getLanguageId(),
-                                        imBasicData1.getPlantId(),
-                                        imBasicData1.getWarehouseId());
-
-                                if(description != null) {
-                                    imBasicData1.setCompanyDescription(description.getCompanyDesc());
-                                    imBasicData1.setPlantDescription(description.getPlantDesc());
-                                    imBasicData1.setWarehouseDescription(description.getWarehouseDesc());
-                                }
-
-                                imBasicData1V2Repo.save(imBasicData1);
-                                log.info("Item Master updated Successfully");
-
-                                dbitem.setRemarks("item Master Updated Successfully");
-                                dbitem.setOrderProcessedOn(new Date());
-                                log.info("item Master updated Successfully");
-
-                                return imBasicData1;
-
-                            } catch (BeansException e) {
-                                throw new RuntimeException(e);
-                            }
-                        }
-
-
-                    } else {
-
-                        imBasicData1.setCreatedBy(item.getCreatedBy());
-                        imBasicData1.setCreatedOn(new Date());
-                        imBasicData1.setUpdatedOn(null);
-
-                        IKeyValuePair description = imBasicData1V2Repo.getDescription(imBasicData1.getCompanyCodeId(),
-                                imBasicData1.getLanguageId(),
-                                imBasicData1.getPlantId(),
-                                imBasicData1.getWarehouseId());
-
-                        if(description != null) {
-                            imBasicData1.setCompanyDescription(description.getCompanyDesc());
-                            imBasicData1.setPlantDescription(description.getPlantDesc());
-                            imBasicData1.setWarehouseDescription(description.getWarehouseDesc());
-                        }
-
-                        imBasicData1V2Repo.save(imBasicData1);
-
-                        dbitem.setRemarks("item Master Created Successfully");
-                        log.info("item Master Created Successfully: " + imBasicData1);
-
-                        return imBasicData1;
-                    }
-                }
-            }
-            if (item.getIsUpdate() != null) {
-                if (item.getIsUpdate().equalsIgnoreCase("Y") && (item.getIsNew() == null || item.getIsNew().equalsIgnoreCase("N")) ||
-                        item.getIsUpdate().equalsIgnoreCase("1") && (item.getIsNew() == null || item.getIsNew().equalsIgnoreCase("0")) ||
-                        item.getIsUpdate().equalsIgnoreCase("true") && (item.getIsNew() == null || item.getIsNew().equalsIgnoreCase("FALSE"))) {
-
-                    if (existingImBasicData != null && !existingImBasicData.isEmpty()) {
-                        updateImbasicData1 = imBasicData1Service.deleteImBasicData1V2(item.getItemCode(), item.getCompanyCodeId(),
-                                item.getPlantId(), "EN", item.getManufacturerName(), dbWarehouse.get().getWarehouseId());
-                    }
-
-                    if (updateImbasicData1) {
-                        try {
-
-                            imBasicData1.setCreatedBy(existingImBasicData.get().getCreatedBy());
-                            imBasicData1.setCreatedOn(existingImBasicData.get().getCreatedOn());
-                            imBasicData1.setUpdatedBy(item.getCreatedBy());
-                            imBasicData1.setUpdatedOn(new Date());
-
-                            IKeyValuePair description = imBasicData1V2Repo.getDescription(imBasicData1.getCompanyCodeId(),
-                                    imBasicData1.getLanguageId(),
-                                    imBasicData1.getPlantId(),
-                                    imBasicData1.getWarehouseId());
-
-                            if(description != null) {
-                                imBasicData1.setCompanyDescription(description.getCompanyDesc());
-                                imBasicData1.setPlantDescription(description.getPlantDesc());
-                                imBasicData1.setWarehouseDescription(description.getWarehouseDesc());
-                            }
-
-                            imBasicData1V2Repo.save(imBasicData1);
-                            log.info("Item Master updated Successfully: " + imBasicData1);
-
-                            dbitem.setRemarks("item Master Updated Successfully");
-                            dbitem.setOrderProcessedOn(new Date());
-                            log.info("item Master updated Successfully");
-
-                            return imBasicData1;
-
-                        } catch (BeansException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                }
-            }
-
-            if (item.getIsNew() == null && item.getIsUpdate() == null) {
-
-                if (existingImBasicData != null && !existingImBasicData.isEmpty()) {
-                    dbitem.setRemarks("item Master Already Exist");
-                    dbitem.setOrderProcessedOn(new Date());
-                    log.info("item Master Already Exist and tblorderitem updated with remarks");
-
-                    throw new BadRequestException("item Master Already Exist");
-
-                } else {
-
-                    imBasicData1.setCreatedBy(item.getCreatedBy());
-                    imBasicData1.setCreatedOn(new Date());
-                    imBasicData1.setUpdatedOn(null);
-
+                log.info("ImbasicData1 values ------------------> " + existingImBasicData);
+                if (existingImBasicData.isEmpty()) {
                     IKeyValuePair description = imBasicData1V2Repo.getDescription(imBasicData1.getCompanyCodeId(),
                             imBasicData1.getLanguageId(),
                             imBasicData1.getPlantId(),
                             imBasicData1.getWarehouseId());
 
-                    if(description != null) {
+                    if (description != null) {
                         imBasicData1.setCompanyDescription(description.getCompanyDesc());
                         imBasicData1.setPlantDescription(description.getPlantDesc());
                         imBasicData1.setWarehouseDescription(description.getWarehouseDesc());
                     }
-
                     imBasicData1V2Repo.save(imBasicData1);
-                    log.info("item Master Created Successfully: " + imBasicData1);
-
-                    dbitem.setRemarks("item Master Created Successfully");
-                    itemMasterRepository.save(dbitem);
-                    log.info("item Master Created Successfully");
-
-                    return imBasicData1;
                 }
             }
-
-            if (item.getIsNew().equalsIgnoreCase("N") && item.getIsUpdate().equalsIgnoreCase("N")) {
-
-                if (existingImBasicData != null && !existingImBasicData.isEmpty()) {
-                    dbitem.setRemarks("item Master Already Exist");
-                    dbitem.setOrderProcessedOn(new Date());
-
-                    log.info("item Master Already Exist and tblorderitem updated with remarks");
-
-                    throw new BadRequestException("item Master Already Exist");
-                }
-            }
-
-            dbitem.setProcessedStatusId(10L);
-            itemMasterRepository.save(dbitem);
-
         } catch (Exception e) {
             throw e;
         }

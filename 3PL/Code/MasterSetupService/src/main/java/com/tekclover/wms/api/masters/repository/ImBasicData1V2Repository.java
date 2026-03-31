@@ -6,6 +6,7 @@ import com.tekclover.wms.api.masters.model.imbasicdata1.v2.ImBasicData1V2;
 import com.tekclover.wms.api.masters.repository.fragments.StreamableJpaSpecificationRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -57,4 +58,12 @@ public interface ImBasicData1V2Repository extends JpaRepository<ImBasicData1V2, 
 
     Optional<ImBasicData1V2> findByCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndUomIdAndManufacturerPartNoAndLanguageIdAndDeletionIndicator(
             String companyCodeId, String plantId, String warehouseId, String itemCode, String uomId, String manufacturerPartNo, String languageId, long l);
+
+
+    @Modifying
+    @Query(value = "UPDATE tblimbasicdata1 SET WEBHOOK_STATUS = :webhookStatus \n" +
+            "WHERE ITM_CODE = :itemCode AND IS_DELETED = 0", nativeQuery = true)
+    void updateWebhookStatus(@Param("itemCode") String itemCode,
+                             @Param("webhookStatus") Long webHookStatus);
+
 }

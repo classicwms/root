@@ -4,6 +4,7 @@ import com.tekclover.wms.api.masters.exception.BadRequestException;
 import com.tekclover.wms.api.masters.model.businesspartner.v2.BusinessPartnerV2;
 
 import com.tekclover.wms.api.masters.model.email.OrderCancelInput;
+import com.tekclover.wms.api.masters.model.imbasicdata1.ImBasicData1;
 import com.tekclover.wms.api.masters.model.imbasicdata1.v2.ImBasicData1V2;
 import com.tekclover.wms.api.masters.model.masters.Customer;
 import com.tekclover.wms.api.masters.model.masters.Item;
@@ -56,19 +57,21 @@ public class BatchJobScheduler {
 
     //-------------------------------------------------------------------------------------------
 
-    List<ImBasicData1V2> inboundItemList = null;
     List<BusinessPartnerV2> inboundCustomerList = null;
     static CopyOnWriteArrayList<ImBasicData1V2> spList = null;            // Inbound List
     static CopyOnWriteArrayList<BusinessPartnerV2> spCustomerList = null;    // Customer List
 
-//    @Scheduled(fixedDelay = 30000)
+    @Scheduled(fixedDelay = 30000)
     public void processInboundOrder() throws IllegalAccessException, InvocationTargetException, ParseException, MessagingException, IOException {
-        if (inboundItemList == null || inboundItemList.isEmpty()) {
             List<Item> sqlInboundList = itemMasterRepository.findByProcessedStatusIdOrderByOrderReceivedOn(0L);
-            inboundItemList = new ArrayList<>();
-            for (Item item : sqlInboundList) {
-                ImBasicData1V2 imBasicData1 = new ImBasicData1V2();
 
+            log.info("Item Records Size is  -------------------------> " + sqlInboundList.size());
+            List<ImBasicData1V2> inboundItemList = new ArrayList<>();
+            for (Item item : sqlInboundList) {
+
+                itemMasterRepository.updateItemMaster(item.getItem_id());
+                log.info("ItemId is  {} Updated Processed StatusId is -------------->1",  item.getItem_id());
+                ImBasicData1V2 imBasicData1 = new ImBasicData1V2();
                 imBasicData1.setCompanyCodeId(item.getCompanyCode());
                 imBasicData1.setPlantId(item.getBranchCode());
                 imBasicData1.setItemCode(item.getSku());
@@ -91,9 +94,6 @@ public class BatchJobScheduler {
 
                 try {
                     Date reqDelDate = new Date();
-//                    if (item.getCreatedOn().length() > 10) {
-//                        reqDelDate = DateUtils.convertStringToDateWithTime(item.getCreatedOn());
-//                    }
                     if (item.getCreatedOn() != null) {
                         reqDelDate = DateUtils.convertStringToDate2(item.getCreatedOn());
                         imBasicData1.setCreatedOn(reqDelDate);
@@ -102,27 +102,17 @@ public class BatchJobScheduler {
                     e.printStackTrace();
                     throw new BadRequestException("Date format should be MM-dd-yyyy");
                 }
-
                 imBasicData1.setDeletionIndicator(0L);
-                imBasicData1.setMiddlewareId(item.getMiddlewareId());
-                imBasicData1.setMiddlewareTable(item.getMiddlewareTable());
-
                 inboundItemList.add(imBasicData1);
             }
-            spList = new CopyOnWriteArrayList<ImBasicData1V2>(inboundItemList);
-            log.info("There is no Item Master record found to process (sql) ...Waiting..");
-        }
-
-        if (inboundItemList != null) {
             log.info("Latest Item Master found: " + inboundItemList);
-            for (ImBasicData1V2 inbound : spList) {
+            for (ImBasicData1V2 inbound : inboundItemList) {
                 try {
                     log.info("Imbasic Data 1 sku : " + inbound.getItemCode());
                     ImBasicData1V2 inboundItemMaster = masterOrderService.processItemMasterReceived(inbound);
                     if (inboundItemMaster != null) {
                         // Updating the Processed Status
                         masterOrderService.updateProcessedItemMaster(inbound.getCompanyCodeId(), inbound.getPlantId(), inbound.getItemCode(), inbound.getManufacturerName(), 10L);
-                        inboundItemList.remove(inbound);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -130,37 +120,6 @@ public class BatchJobScheduler {
                     // Updating the Processed Status
                     masterOrderService.updateProcessedItemMaster(inbound.getCompanyCodeId(), inbound.getPlantId(), inbound.getItemCode(), inbound.getManufacturerName(), 100L);
 
-                    //============================================================================================
-                    //Sending Failed Details through Mail
-                    OrderCancelInput inboundOrderCancelInput = new OrderCancelInput();
-                    inboundOrderCancelInput.setCompanyCodeId(inbound.getCompanyCodeId());
-                    inboundOrderCancelInput.setPlantId(inbound.getPlantId());
-                    inboundOrderCancelInput.setRefDocNumber(inbound.getItemCode());
-                    inboundOrderCancelInput.setReferenceField2(inbound.getManufacturerName());
-                    inboundOrderCancelInput.setReferenceField1("ITEMMASTER");
-                    String errorDesc = null;
-                    try {
-                        if(e.toString().contains("message")) {
-                            errorDesc = e.toString().substring(e.toString().indexOf("message") + 9);
-                            errorDesc = errorDesc.replaceAll("}]", "");
-                        }
-                        if(e.toString().contains("DataIntegrityViolationException") || e.toString().contains("ConstraintViolationException")) {
-                            errorDesc = "Null Pointer Exception";
-                        }
-                        if(e.toString().contains("BadRequestException")){
-                            errorDesc = e.toString().substring(e.toString().indexOf("BadRequestException:") + 20);
-                        }
-                    } catch (Exception ex) {
-                        throw new BadRequestException("ErrorDesc Extract Error" + ex);
-                    }
-                    inboundOrderCancelInput.setRemarks(errorDesc);
-
-                    sendMailService.sendMail(inboundOrderCancelInput);
-                    //============================================================================================
-
-                    masterOrderService.createInboundIntegrationLog(inbound);
-                    inboundItemList.remove(inbound);
-                }
             }
         }
     }

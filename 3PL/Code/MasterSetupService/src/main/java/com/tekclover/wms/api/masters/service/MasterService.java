@@ -25,15 +25,12 @@ public class MasterService {
     private CustomerMasterRepository customerMasterRepository;
     @Autowired
     private ItemMasterRepository itemMasterRepository;
-    //-------------------------------------------------------------------------------------------
-
-    @Autowired
-    MasterOrderService masterOrderService;
-
     @Autowired
     PropertiesConfig propertiesConfig;
     //-------------------------------------------------------------------------------------------
 
+    @Autowired
+    MasterOrderService masterOrderService;
 
     private RestTemplate getRestTemplate() {
         RestTemplate restTemplate = new RestTemplate();
@@ -43,7 +40,6 @@ public class MasterService {
     private String getTNGUrl () {
         return propertiesConfig.getTngUrl();
     }
-
 
     //-------------------------------------------------------------------------------------------
 
@@ -191,7 +187,7 @@ public class MasterService {
         try {
 //			String credentials = propertiesConfig.getTngSecretKey() + ":" + propertiesConfig.getTngSecretValue();
 //			String encodedCredentials = new String(Base64.encodeBase64(credentials.getBytes()));
-
+            log.info("TNG Item Creation Input's: {} ", itemSku);
             HttpHeaders headers = new HttpHeaders();
             headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
 //			headers.add("Authorization", "Basic " + encodedCredentials);
@@ -214,4 +210,8 @@ public class MasterService {
             throw new BadRequestException(e.getLocalizedMessage());
         }
     }
+
+
+
+
 }
