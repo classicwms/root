@@ -1338,7 +1338,7 @@ public class QualityLineService extends BaseService {
                         toBeCreatedQLList.stream().map(QualityLineV2::getQualityInspectionNo).distinct().collect(Collectors.toList());
                 log.info("-----------getQualityInspectionNos-------> : " + getQualityInspectionNos);
                 int quality = qualityHeaderV2Repository.updateQualityHeader(statusDescription, getQualityInspectionNos);
-                log.info("QualityHeader Status Updated Successfully: {}", quality);
+                log.info("QualityHeader Status Updated Successfully: Affected Row's {}", quality);
 
             	List<QualityLineV2> createdQualityLineList = qualityLineV2Repository.saveAll(toBeCreatedQLList);
             	log.info("-----------createdQualityLineList-------> : " + createdQualityLineList);
