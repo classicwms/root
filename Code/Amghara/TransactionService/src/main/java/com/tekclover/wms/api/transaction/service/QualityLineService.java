@@ -1333,17 +1333,24 @@ public class QualityLineService extends BaseService {
             } // End of for
             
             if (toBeCreatedQLList != null) {
+                statusDescription = stagingLineV2Repository.getStatusDescription(55L, toBeCreatedQLList.get(0).getLanguageId());
+                List<String> getQualityInspectionNos =
+                        toBeCreatedQLList.stream().map(QualityLineV2::getQualityInspectionNo).distinct().collect(Collectors.toList());
+                log.info("-----------getQualityInspectionNos-------> : " + getQualityInspectionNos);
+                int quality = qualityHeaderV2Repository.updateQualityHeader(statusDescription, getQualityInspectionNos);
+                log.info("QualityHeader Status Updated Successfully: {}", quality);
+
             	List<QualityLineV2> createdQualityLineList = qualityLineV2Repository.saveAll(toBeCreatedQLList);
             	log.info("-----------createdQualityLineList-------> : " + createdQualityLineList);
-            	
+
                 createOutboundLineInterimV2(createdQualityLineList);
-                statusDescription = stagingLineV2Repository.getStatusDescription(55L, createdQualityLineList.get(0).getLanguageId());
-                
-                List<String> getQualityInspectionNos = 
-                		createdQualityLineList.stream().map(QualityLineV2::getQualityInspectionNo).distinct().collect(Collectors.toList());
-                log.info("-----------getQualityInspectionNos-------> : " + getQualityInspectionNos);
-                qualityHeaderV2Repository.updateQualityHeader(statusDescription, getQualityInspectionNos);
-                
+
+
+//                List<String> getQualityInspectionNos =
+//                		createdQualityLineList.stream().map(QualityLineV2::getQualityInspectionNo).distinct().collect(Collectors.toList());
+//                log.info("-----------getQualityInspectionNos-------> : " + getQualityInspectionNos);
+//                qualityHeaderV2Repository.updateQualityHeader(statusDescription, getQualityInspectionNos);
+
                 /*
                  * 
                  */
@@ -1409,7 +1416,6 @@ public class QualityLineService extends BaseService {
     /**
      * @param dbQualityLine
      * @param statusDescription2 
-     * @param DLV_ORD_NO
      */
     private void updateOutboundLineV2(QualityLineV2 dbQualityLine, String statusDescription2) {
         try {
