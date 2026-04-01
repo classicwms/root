@@ -409,4 +409,11 @@ public class SparkController {
         return new ResponseEntity<>(pickupHeaderV2s, HttpStatus.OK);
     }
 
+    //PickupHeader
+    @ApiOperation(response = NewPickupHeaderRes.class, value = "Spark PickUpHeader V2 new")
+    @PostMapping("/pickupheader/v2")
+    public ResponseEntity<?> findPickupHeaderV2New(@RequestBody SearchPickupHeaderV2 findPickupHeaderV2) throws Exception {
+        NewPickupHeaderRes[] pickupHeaderV2s = sparkService.findPickupHeaderV3New(findPickupHeaderV2);
+        return new ResponseEntity<>(pickupHeaderV2s, HttpStatus.OK);
+    }
 }
