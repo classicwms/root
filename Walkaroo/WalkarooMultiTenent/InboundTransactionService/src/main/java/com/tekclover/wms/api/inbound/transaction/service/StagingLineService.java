@@ -2937,10 +2937,10 @@ public class StagingLineService extends BaseService {
         try{
             for(StagingLineEntityV2 sl : stagingLineEntityV2List) {
                 log.info("Staging Line Update Input Values <-------> " + sl);
-                int putAwayHeader = putAwayHeaderV2Repository.getStatusCount(sl.getPalletId(), 19L);
-                if(putAwayHeader != 0 ) {
-                    throw new BadRequestException("PalletId is InValid");
-                }
+//                int putAwayHeader = putAwayHeaderV2Repository.getStatusCount(sl.getPalletId(), 19L);
+//                if(putAwayHeader != 0 ) {
+//                    throw new BadRequestException("PalletId is InValid");
+//                }
                 statusDescription = getStatusDescription(101L, sl.getLanguageId());
                 int countOfRows = stagingLineV2Repository.updateStagingLine(sl.getLanguageId(), sl.getCompanyCode(), sl.getPlantId(), sl.getWarehouseId(), sl.getRefDocNumber(),
                         sl.getPreInboundNo(), sl.getStagingNo(), sl.getCaseCode(), sl.getPalletCode(), sl.getLineNo(), statusDescription, sl.getPalletId(), loginUserID);
