@@ -794,14 +794,15 @@ public class PutAwayHeaderService extends BaseService {
      * @param plantId
      * @param languageId
      * @param warehouseId
+     * @param articleNo
      * @param manufacturerName
      * @return
      */
     public PutAwayHeaderV2 getPutAwayHeaderExistingItemCheckV2(String companyCodeId, String plantId, String languageId, String warehouseId,
-                                                               String itemCode, String manufacturerName) {
+                                                               String articleNo, String manufacturerName, String itemCode) {
         PutAwayHeaderV2 dbPutAwayHeader = putAwayHeaderV2Repository.
-                findTopByCompanyCodeIdAndPlantIdAndWarehouseIdAndLanguageIdAndReferenceField5AndManufacturerNameAndStatusIdAndDeletionIndicatorOrderByCreatedOn(
-                        companyCodeId, plantId, warehouseId, languageId, itemCode, manufacturerName, 19L, 0L);
+                findTopByCompanyCodeIdAndPlantIdAndWarehouseIdAndLanguageIdAndArticleNoAndManufacturerNameAndStatusIdAndReferenceField5AndDeletionIndicatorOrderByCreatedOn(
+                        companyCodeId, plantId, warehouseId, languageId, articleNo, manufacturerName, 19L, itemCode, 0L);
         if (dbPutAwayHeader != null) {
             return dbPutAwayHeader;
         }
@@ -3894,7 +3895,7 @@ public class PutAwayHeaderService extends BaseService {
 
                         //Checking confirmed bin in putAway line for that item
                         PutAwayLineV2 existingBinPutAwayLineItemCheck = putAwayLineService.getPutAwayLineExistingItemCheckV2(companyCode, plantId, languageId, warehouseId,
-                                itemCode, createdGRLine.getManufacturerName());
+                                createdGRLine.getArticleNo(), createdGRLine.getManufacturerName(), createdGRLine.getItemCode());
                         log.info("existingBinPutAwayLineItemCheck: " + existingBinPutAwayLineItemCheck);
                         if (existingBinPutAwayLineItemCheck != null) {
                             proposedStorageBin = existingBinPutAwayLineItemCheck.getConfirmedStorageBin();

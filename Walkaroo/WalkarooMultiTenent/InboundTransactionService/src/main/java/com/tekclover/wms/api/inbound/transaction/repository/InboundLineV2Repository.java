@@ -83,6 +83,9 @@ public interface InboundLineV2Repository extends JpaRepository<InboundLineV2, Lo
     List<InboundLineV2> findByCompanyCodeAndLanguageIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
             String companyCode, String languageId, String plantId, String warehouseId, String refDocNumber, String preInboundNo, Long deletionIndicator);
 
+    InboundLineV2 findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndBarcodeIdAndDeletionIndicator(String languageId, String companyCode, String plantId,
+                                                                                                               String warehouseId, String barcodeId, Long deletionIndicator);
+
     List<InboundLineV2> findByCompanyCodeAndLanguageIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndStatusIdAndDeletionIndicator(
             String companyCode, String languageId, String plantId, String warehouseId, String refDocNumber, String preInboundNo, Long statusId, Long deletionIndicator);
 
@@ -327,6 +330,18 @@ public interface InboundLineV2Repository extends JpaRepository<InboundLineV2, Lo
     List<FastSlowMovingDashboard.FastSlowMovingDashboardImpl> getFastSlowMovingDashboardData(@Param("warehouseId") String warehouseId,
                                                                                              @Param("fromDate") Date fromDate,
                                                                                              @Param("toDate") Date toDate);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Transactional
+    @Query(value = "UPDATE tblinboundline SET MATERIAL_NO = :materialNo, PRICE_SEGMENT = :priceSegment, ITM_CODE = :itemCode " +
+            "WHERE LANG_ID = :languageId AND C_ID = :companyCode AND PLANT_ID = :plantId AND WH_ID = :warehouseId AND BARCODE_ID = :barcodeId ",
+            nativeQuery = true)
+    int updateInboundLine(@Param("materialNo") String materialNo,
+                             @Param("priceSegment") String priceSegment, @Param("itemCode") String itemCode,
+                             @Param("languageId") String languageId,
+                             @Param("companyCode") String companyCode, @Param("plantId") String plantId,
+                            @Param("warehouseId") String warehouseId,
+                             @Param("barcodeId") String barcodeId);
 
 }
 

@@ -74,6 +74,9 @@ public interface PreInboundLineV2Repository extends JpaRepository<PreInboundLine
     List<PreInboundLineEntityV2> findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
             String languageId, String companyCode, String plantId, String warehouseId, String refDocNumber, Long deletionIndicator);
 
+    PreInboundLineEntityV2 findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndBarcodeIdAndDeletionIndicator(String languageId, String companyCode,
+            String plantId, String warehouseId, String barcodeId, Long deletionIndicator);
+
     List<PreInboundLineEntityV2> findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
             String languageId, String companyCode, String plantId, String warehouseId, String refDocNumber, String preInboundNo, Long deletionIndicator);
 
@@ -144,5 +147,16 @@ public interface PreInboundLineV2Repository extends JpaRepository<PreInboundLine
             "FROM tblputawaystrategy p WHERE p.article = :article and p.gender = :gender and is_deleted = 0", nativeQuery = true)
     PutAwayStrategyDetails getPutAwayStrategyDetails(@Param("article") String articleNo,
                                                      @Param("gender") String gender);
-    
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Transactional
+    @Query(value = "UPDATE tblpreinboundline SET MATERIAL_NO = :materialNo, PRICE_SEGMENT = :priceSegment, ITM_CODE = :itemCode " +
+            "WHERE LANG_ID = :languageId AND C_ID = :companyCode AND PLANT_ID = :plantId AND WH_ID = :warehouseId AND BARCODE_ID = :barcodeId",
+            nativeQuery = true)
+    int updatePreInboundLine(@Param("materialNo") String materialNo,
+            @Param("priceSegment") String priceSegment, @Param("itemCode") String itemCode,
+            @Param("languageId") String languageId,
+            @Param("companyCode") String companyCode, @Param("plantId") String plantId,
+           @Param("warehouseId") String warehouseId,
+           @Param("barcodeId") String barcodeId);
 }

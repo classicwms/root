@@ -78,8 +78,8 @@ public interface PutAwayHeaderV2Repository extends JpaRepository<PutAwayHeaderV2
     PutAwayHeaderV2 findTopByCompanyCodeIdAndPlantIdAndWarehouseIdAndLanguageIdAndReferenceField5AndManufacturerNameAndStatusIdAndDeletionIndicatorOrderByCreatedOn(
             String companyCodeId, String plantId, String warehouseId, String languageId, String itemCode, String manufacturerName, Long statusId, Long deletionIndicator);
 
-    PutAwayHeaderV2 findTopByCompanyCodeIdAndPlantIdAndWarehouseIdAndLanguageIdAndArticleNoAndManufacturerNameAndStatusIdAndDeletionIndicatorOrderByCreatedOn(
-            String companyCodeId, String plantId, String warehouseId, String languageId, String articleNo, String manufacturerName, Long statusId, Long deletionIndicator);
+    PutAwayHeaderV2 findTopByCompanyCodeIdAndPlantIdAndWarehouseIdAndLanguageIdAndArticleNoAndManufacturerNameAndStatusIdAndReferenceField5AndDeletionIndicatorOrderByCreatedOn(
+            String companyCodeId, String plantId, String warehouseId, String languageId, String articleNo, String manufacturerName, Long statusId, String itemCode, Long deletionIndicator);
 
     List<PutAwayHeaderV2> findByCompanyCodeIdAndPlantIdAndWarehouseIdAndLanguageIdAndStatusIdAndDeletionIndicatorOrderByCreatedOn(
             String companyCodeId, String plantId, String warehouseId, String languageId, Long statusId, Long deletionIndicator);
@@ -661,4 +661,17 @@ int getBarcodeId(
         @Param("plantId") String plantId,
         @Param("languageId") String languageId,
         @Param("warehouseId") String warehouseId);
+
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Transactional
+    @Query(value = "UPDATE tblputawayheader SET MATERIAL_NO = :materialNo, PRICE_SEGMENT = :priceSegment, REF_FIELD_5 = :itemCode " +
+            "WHERE LANG_ID = :languageId AND C_ID = :companyCode AND PLANT_ID = :plantId AND WH_ID = :warehouseId AND BARCODE_ID = :barcodeId ",
+            nativeQuery = true)
+    int updatePutawayHeader(@Param("materialNo") String materialNo,
+                          @Param("priceSegment") String priceSegment, @Param("itemCode") String itemCode,
+                          @Param("languageId") String languageId,
+                          @Param("companyCode") String companyCode, @Param("plantId") String plantId,
+                          @Param("warehouseId") String warehouseId,
+                          @Param("barcodeId") String barcodeId);
 }
