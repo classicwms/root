@@ -36,6 +36,8 @@ public class BatchJobScheduler {
         CompletableFuture<WarehouseApiResponse> outboundOrderV4 = scheduleAsyncService.processOutboundOrderV4();
         //CCL
         CompletableFuture<WarehouseApiResponse> outboundOrderV5 = scheduleAsyncService.processOutboundOrderV5();
+        //HYD
+        CompletableFuture<WarehouseApiResponse> outboundOrderV6 = scheduleAsyncService.processOutboundOrderV6();
 
     }
 
@@ -51,8 +53,10 @@ public class BatchJobScheduler {
         scheduleAsyncService.processDeliveryConfirmationV3();
         //VGA
         scheduleAsyncService.processDeliveryConfirmationV4();
-
+        //CCL
         scheduleAsyncService.processDeliveryConfirmationV5();
+        //HYD
+        scheduleAsyncService.processDeliveryConfirmationV6();
 
         // MDU
 //        CompletableFuture<WarehouseApiResponse> outboundOrder = scheduleAsyncService.processDeliveryConfirmationV1();
