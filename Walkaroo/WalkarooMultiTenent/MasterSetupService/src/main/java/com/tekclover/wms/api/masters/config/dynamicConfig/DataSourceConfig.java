@@ -33,6 +33,7 @@ public class DataSourceConfig {
         targetDataSources.put("CHN", chnDataSource());
         targetDataSources.put("VGA", vgaDataSource());
         targetDataSources.put("CCL", cclDataSource());
+        targetDataSources.put("HYD", hydDataSource());
 
         DynamicDataSource ds = new DynamicDataSource();
         ds.setTargetDataSources(targetDataSources);
@@ -91,6 +92,14 @@ public class DataSourceConfig {
                 "jdbc:sqlserver://10.20.0.19;databaseName=WMS_CCL",
                 "sa",
                 "TvHcGBR84nxvyJx6EPpoOsL5V"
+        );
+    }
+    private DataSource hydDataSource() {
+        return buildDataSource(
+                "HYD",
+                "jdbc:sqlserver://10.10.10.61;databaseName=WMS_HYD",
+                "sa",
+                "4V7lOXaxgAi3i6mgJL7qBUSP"
         );
     }
 

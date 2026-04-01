@@ -127,6 +127,8 @@ public class BaseService {
 			return "VGA";
 		} else if (plantId.equalsIgnoreCase("1202")) {
 			return "CCL";
+		} else if (plantId.equalsIgnoreCase("1205")) {
+			return "HYD";
 		} else {
 			return "WK";
 		}
