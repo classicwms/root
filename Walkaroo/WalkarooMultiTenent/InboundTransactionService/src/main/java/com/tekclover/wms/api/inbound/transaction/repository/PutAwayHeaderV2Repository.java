@@ -78,8 +78,8 @@ public interface PutAwayHeaderV2Repository extends JpaRepository<PutAwayHeaderV2
     PutAwayHeaderV2 findTopByCompanyCodeIdAndPlantIdAndWarehouseIdAndLanguageIdAndReferenceField5AndManufacturerNameAndStatusIdAndDeletionIndicatorOrderByCreatedOn(
             String companyCodeId, String plantId, String warehouseId, String languageId, String itemCode, String manufacturerName, Long statusId, Long deletionIndicator);
 
-    PutAwayHeaderV2 findTopByCompanyCodeIdAndPlantIdAndWarehouseIdAndLanguageIdAndArticleNoAndManufacturerNameAndStatusIdAndReferenceField5AndDeletionIndicatorOrderByCreatedOn(
-            String companyCodeId, String plantId, String warehouseId, String languageId, String articleNo, String manufacturerName, Long statusId, String itemCode, Long deletionIndicator);
+    PutAwayHeaderV2 findTopByCompanyCodeIdAndPlantIdAndWarehouseIdAndLanguageIdAndArticleNoAndManufacturerNameAndStatusIdAndDeletionIndicatorOrderByCreatedOn(
+            String companyCodeId, String plantId, String warehouseId, String languageId, String articleNo, String manufacturerName, Long statusId, Long deletionIndicator);
 
     List<PutAwayHeaderV2> findByCompanyCodeIdAndPlantIdAndWarehouseIdAndLanguageIdAndStatusIdAndDeletionIndicatorOrderByCreatedOn(
             String companyCodeId, String plantId, String warehouseId, String languageId, Long statusId, Long deletionIndicator);

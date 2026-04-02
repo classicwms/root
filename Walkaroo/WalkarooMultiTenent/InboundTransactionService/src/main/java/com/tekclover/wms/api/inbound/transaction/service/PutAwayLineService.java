@@ -3294,14 +3294,15 @@ public class PutAwayLineService extends BaseService {
      * @param plantId
      * @param languageId
      * @param warehouseId
+     * @param itemCode
      * @param manufacturerName
      * @return
      */
     public PutAwayLineV2 getPutAwayLineExistingItemCheckV2(String companyCodeId, String plantId, String languageId, String warehouseId,
-                                                           String articleNo, String manufacturerName, String itemCode) {
+                                                           String itemCode, String manufacturerName) {
         PutAwayLineV2 dbPutawayLine = putAwayLineV2Repository.
-                findTopByCompanyCodeAndPlantIdAndWarehouseIdAndLanguageIdAndArticleNoAndManufacturerNameAndStatusIdAndItemCodeAndDeletionIndicatorOrderByCreatedOn(
-                        companyCodeId, plantId, warehouseId, languageId, articleNo, manufacturerName, 20L, itemCode, 0L);
+                findTopByCompanyCodeAndPlantIdAndWarehouseIdAndLanguageIdAndItemCodeAndManufacturerNameAndStatusIdAndDeletionIndicatorOrderByCreatedOn(
+                        companyCodeId, plantId, warehouseId, languageId, itemCode, manufacturerName, 20L, 0L);
         if (dbPutawayLine != null) {
             return dbPutawayLine;
         }
