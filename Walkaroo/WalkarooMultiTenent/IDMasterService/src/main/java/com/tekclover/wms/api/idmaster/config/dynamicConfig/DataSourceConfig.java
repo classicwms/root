@@ -100,7 +100,7 @@ public class DataSourceConfig {
                 "HYD",
                 "jdbc:sqlserver://10.10.10.61;databaseName=WMS_HYD",
                 "sa",
-                "4V7lOXaxgAi3i6mgJL7qBUSP"
+                "4V7lOXaxgAi3i6mgJL7qBUSPM"
         );
     }
 
