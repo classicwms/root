@@ -2345,7 +2345,7 @@ public class GrLineService extends BaseService {
 
                         //Checking confirmed bin in putAway line for that item
                         PutAwayLineV2 existingBinPutAwayLineItemCheck = putAwayLineService.getPutAwayLineExistingItemCheckV2(companyCode, plantId, languageId, warehouseId,
-                                itemCode, createdGRLine.getManufacturerName());
+                                itemCode, createdGRLine.getManufacturerName(), createdGRLine.getArticleNo());
                         log.info("existingBinPutAwayLineItemCheck: " + existingBinPutAwayLineItemCheck);
                         if (existingBinPutAwayLineItemCheck != null) {
                             proposedStorageBin = existingBinPutAwayLineItemCheck.getConfirmedStorageBin();
@@ -5421,20 +5421,20 @@ public class GrLineService extends BaseService {
                 return putAwayHeaderStrategyBin;
             }
 
-            String storageBin = inventoryV2Repository.getPutAwayHeaderCreateInventoryV3(companyCode, plantId, languageId, warehouseId, null, itemCode, manufacturerName, PACK_BARCODE, 1L);
+            String storageBin = inventoryV2Repository.getPutAwayHeaderCreateInventoryV3(companyCode, plantId, languageId, warehouseId, null, article, manufacturerName, PACK_BARCODE, 1L, itemCode);
             log.info("Proposed InventoryBin: " + storageBin);
             if (storageBin != null) {
                 return storageBin;
             }
 
-            PutAwayLineV2 putAwayLine = putAwayLineService.getPutAwayLineExistingItemCheckV2(companyCode, plantId, languageId, warehouseId, itemCode, manufacturerName);
+            PutAwayLineV2 putAwayLine = putAwayLineService.getPutAwayLineExistingItemCheckV2(companyCode, plantId, languageId, warehouseId, article, manufacturerName, itemCode);
             log.info("Proposed PutAwayLine: " + putAwayLine);
             if (putAwayLine != null) {
                 log.info("Proposed PutAwayLine-Bin: " + putAwayLine.getConfirmedStorageBin());
                 return putAwayLine.getConfirmedStorageBin();
             }
 
-            PutAwayHeaderV2 putAwayHeader = putAwayHeaderService.getPutAwayHeaderExistingItemCheckV2(companyCode, plantId, languageId, warehouseId, itemCode, manufacturerName);
+            PutAwayHeaderV2 putAwayHeader = putAwayHeaderService.getPutAwayHeaderExistingItemCheckV2(companyCode, plantId, languageId, warehouseId, article, manufacturerName, itemCode);
             log.info("Proposed Existing PutawayHeader: " + putAwayHeader);
             if(putAwayHeader != null) {
                 log.info("Proposed Existing PutawayHeader-Bin: " + putAwayHeader.getProposedStorageBin());
@@ -5456,7 +5456,7 @@ public class GrLineService extends BaseService {
             log.info("No StorageBin Available..!");
             return null;
         } catch (Exception e) {
-            log.error("Exception while fetching StorageBin..!");
+            log.error("Exception while fetching StorageBin..!" + e.getMessage());
             throw e;
         }
     }
