@@ -428,6 +428,9 @@ public interface PutAwayHeaderV2Repository extends JpaRepository<PutAwayHeaderV2
     PutAwayHeaderV2 findTopByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndReferenceField5AndBarcodeIdAndStatusIdAndDeletionIndicator(
             String companyCodeId, String plantId, String languageId, String warehouseId, String itemCode, String barcodeId, Long statusId, Long deletionIndicator);
 
+    PutAwayHeaderV2 findTopByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndReferenceField5AndBarcodeIdAndDeletionIndicator(
+            String companyCodeId, String plantId, String languageId, String warehouseId, String itemCode, String barcodeId, Long deletionIndicator);
+
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value = "UPDATE tblputawayheader SET ASS_USER_ID = :assignedUserId \n" +
             "WHERE PA_NO = :putAwayNumber", nativeQuery = true)

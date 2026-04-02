@@ -4692,106 +4692,114 @@ public class PutAwayHeaderService extends BaseService {
         ));
 
         List<PutAwayHeaderV2> savedPutAwayHeaders = new ArrayList<>();
-        entityV2List.forEach(createdGRLine -> {
-            try {
-                String companyCode = createdGRLine.getCompanyCode();
-                String plantId = createdGRLine.getPlantId();
-                String languageId = createdGRLine.getLanguageId();
-                String warehouseId = createdGRLine.getWarehouseId();
+//        entityV2List.forEach(createdGRLine -> {
+            for(StagingLineEntityV2 createdGRLine : entityV2List) {
+                try {
+                    String companyCode = createdGRLine.getCompanyCode();
+                    String plantId = createdGRLine.getPlantId();
+                    String languageId = createdGRLine.getLanguageId();
+                    String warehouseId = createdGRLine.getWarehouseId();
 
-                // Create and Copy Properties
-                PutAwayHeaderV2 putAwayHeader = new PutAwayHeaderV2();
-                BeanUtils.copyProperties(createdGRLine, putAwayHeader, CommonUtils.getNullPropertyNames(createdGRLine));
-                putAwayHeader.setPalletId(createdGRLine.getPalletId());
-                putAwayHeader.setCompanyCodeId(companyCode);
-                String goodsReceiptNo = refDocToGrNoMap.get(createdGRLine.getRefDocNumber());
-                putAwayHeader.setGoodsReceiptNo(goodsReceiptNo);
-                putAwayHeader.setQuantityType("A");
+                    // Create and Copy Properties
+                    PutAwayHeaderV2 putAwayHeader = new PutAwayHeaderV2();
+                    BeanUtils.copyProperties(createdGRLine, putAwayHeader, CommonUtils.getNullPropertyNames(createdGRLine));
+                    putAwayHeader.setPalletId(createdGRLine.getPalletId());
+                    putAwayHeader.setCompanyCodeId(companyCode);
+                    String goodsReceiptNo = refDocToGrNoMap.get(createdGRLine.getRefDocNumber());
+                    putAwayHeader.setGoodsReceiptNo(goodsReceiptNo);
+                    putAwayHeader.setQuantityType("A");
 
-                String priceSegment = (createdGRLine.getPriceSegment() != null
-                        && createdGRLine.getPriceSegment().length() > 1)
-                        ? createdGRLine.getPriceSegment().substring(0, 2)
-                        : createdGRLine.getPriceSegment();
+                    String priceSegment = (createdGRLine.getPriceSegment() != null
+                            && createdGRLine.getPriceSegment().length() > 1)
+                            ? createdGRLine.getPriceSegment().substring(0, 2)
+                            : createdGRLine.getPriceSegment();
 
-                StringBuilder concatField = new StringBuilder().append(createdGRLine.getArticleNo()).append("_")
-                        .append(createdGRLine.getGender()).append("_").append(createdGRLine.getColor()).append("_")
-                        .append(createdGRLine.getSize()).append("_").append(priceSegment);
-                putAwayHeader.setReferenceField3(concatField.toString());
+                    StringBuilder concatField = new StringBuilder().append(createdGRLine.getArticleNo()).append("_")
+                            .append(createdGRLine.getGender()).append("_").append(createdGRLine.getColor()).append("_")
+                            .append(createdGRLine.getSize()).append("_").append(priceSegment);
+                    putAwayHeader.setReferenceField3(concatField.toString());
 
-                putAwayHeader.setPutAwayUom(createdGRLine.getOrderUom());
-                String packBarCode = getNextRangeNumber(6L, companyCode, plantId, languageId, warehouseId);
-                putAwayHeader.setPackBarcodes(packBarCode);
-                putAwayHeader.setPutAwayQuantity(1D);
+                    putAwayHeader.setPutAwayUom(createdGRLine.getOrderUom());
+                    String packBarCode = getNextRangeNumber(6L, companyCode, plantId, languageId, warehouseId);
+                    putAwayHeader.setPackBarcodes(packBarCode);
+                    putAwayHeader.setPutAwayQuantity(1D);
 
-                String proposedBin = null;
+                    String proposedBin = null;
 
-                // Step 1: Check MTO
-                if (createdGRLine.getMtoNumber() != null) {
-                    log.info("MTO Order -----------------> In PuAwayCreation Process");
-                    Long binClassId = 10L;
-                    proposedBin = storageBinV2Repository.getStorageBin(companyCode, plantId, languageId, warehouseId, binClassId);
-                    log.info("MTO Order Proposed Bin is --- > " + proposedBin);
-                    if (proposedBin != null) {
-                        putAwayHeader.setProposedStorageBin(proposedBin);
-                    }else {
-                        proposedBin = storageBinV2Repository.getPutAwayStrategyStorageBinV3(companyCode, plantId,
-                                languageId, warehouseId, createdGRLine.getReferenceField5(), createdGRLine.getGender(),
-                                createdGRLine.getArticleNo());
-                        log.info("MasterPutAwayHeaderStrategyBin: {}", proposedBin);
-
+                    // Step 1: Check MTO
+                    if (createdGRLine.getMtoNumber() != null) {
+                        log.info("MTO Order -----------------> In PuAwayCreation Process");
+                        Long binClassId = 10L;
+                        proposedBin = storageBinV2Repository.getStorageBin(companyCode, plantId, languageId, warehouseId, binClassId);
+                        log.info("MTO Order Proposed Bin is --- > " + proposedBin);
                         if (proposedBin != null) {
                             putAwayHeader.setProposedStorageBin(proposedBin);
+                        } else {
+                            proposedBin = storageBinV2Repository.getPutAwayStrategyStorageBinV3(companyCode, plantId,
+                                    languageId, warehouseId, createdGRLine.getReferenceField5(), createdGRLine.getGender(),
+                                    createdGRLine.getArticleNo());
+                            log.info("MasterPutAwayHeaderStrategyBin: {}", proposedBin);
+
+                            if (proposedBin != null) {
+                                putAwayHeader.setProposedStorageBin(proposedBin);
+                            } else {
+                                putAwayHeader.setProposedStorageBin("B09_00");
+                            }
+                        }
+                    } else {
+                        String storageBin = getStorageBin(companyCode, plantId, languageId, warehouseId,
+                                createdGRLine.getItemCode(), createdGRLine.getManufacturerName(), createdGRLine.getArticleNo(),
+                                createdGRLine.getGender(), createdGRLine.getReferenceField5());
+                        log.info("-----proposedBin---------assigned: {}", storageBin);
+                        if (storageBin != null) {
+                            putAwayHeader.setProposedStorageBin(storageBin);
                         } else {
                             putAwayHeader.setProposedStorageBin("B09_00");
                         }
                     }
-                } else {
-                    String storageBin = getStorageBin(companyCode, plantId, languageId, warehouseId,
-                            createdGRLine.getItemCode(), createdGRLine.getManufacturerName(), createdGRLine.getArticleNo(),
-                            createdGRLine.getGender(), createdGRLine.getReferenceField5());
-                    log.info("-----proposedBin---------assigned: {}", storageBin);
-                    if (storageBin != null) {
-                        putAwayHeader.setProposedStorageBin(storageBin);
-                    } else {
-                        putAwayHeader.setProposedStorageBin("B09_00");
-                    }
-                }
-                putAwayHeader.setReferenceField5(createdGRLine.getItemCode());
-                putAwayHeader.setReferenceField6(createdGRLine.getManufacturerName());
-                putAwayHeader.setReferenceField7(createdGRLine.getBarcodeId());
-                putAwayHeader.setReferenceField8(createdGRLine.getItemDescription());
-                putAwayHeader.setReferenceField9(String.valueOf(createdGRLine.getLineNo()));
-                putAwayHeader.setStatusId(19L);
-                statusDescription = stagingLineV2Repository.getStatusDescription(19L, languageId);
-                putAwayHeader.setStatusDescription(statusDescription);
-                putAwayHeader.setDeletionIndicator(0L);
-                putAwayHeader.setCreatedBy(createdGRLine.getCreatedBy());
-                putAwayHeader.setUpdatedBy(createdGRLine.getCreatedBy());
-                putAwayHeader.setCreatedOn(new Date());
-                putAwayHeader.setUpdatedOn(new Date());
-                putAwayHeader.setConfirmedOn(new Date());
-                putAwayHeader.setPutAwayNumber(paNo);
-                log.info("putAwayHeader create---->: {}", putAwayHeader);
-                log.info("-------PalletId---> {}" , putAwayHeader.getPalletId());
+                    putAwayHeader.setReferenceField5(createdGRLine.getItemCode());
+                    putAwayHeader.setReferenceField6(createdGRLine.getManufacturerName());
+                    putAwayHeader.setReferenceField7(createdGRLine.getBarcodeId());
+                    putAwayHeader.setReferenceField8(createdGRLine.getItemDescription());
+                    putAwayHeader.setReferenceField9(String.valueOf(createdGRLine.getLineNo()));
+                    putAwayHeader.setStatusId(19L);
+                    statusDescription = stagingLineV2Repository.getStatusDescription(19L, languageId);
+                    putAwayHeader.setStatusDescription(statusDescription);
+                    putAwayHeader.setDeletionIndicator(0L);
+                    putAwayHeader.setCreatedBy(createdGRLine.getCreatedBy());
+                    putAwayHeader.setUpdatedBy(createdGRLine.getCreatedBy());
+                    putAwayHeader.setCreatedOn(new Date());
+                    putAwayHeader.setUpdatedOn(new Date());
+                    putAwayHeader.setConfirmedOn(new Date());
+                    putAwayHeader.setPutAwayNumber(paNo);
+                    log.info("putAwayHeader create---->: {}", putAwayHeader);
+                    log.info("-------PalletId---> {}", putAwayHeader.getPalletId());
 
-                /*
-                 * createInventory
-                 */
-                createInventoryNonCBMV4(companyCode, plantId, languageId, warehouseId, createdGRLine, createdGRLine.getCreatedBy());
+                    /*
+                     * createInventory
+                     */
+                    createInventoryNonCBMV4(companyCode, plantId, languageId, warehouseId, createdGRLine, createdGRLine.getCreatedBy());
 
-                // Save the entity and add it to the list
+                    // Save the entity and add it to the list
 //                PutAwayHeaderV2 savedPutAwayHeader = putAwayHeaderV2Repository.save(putAwayHeader);
-                savedPutAwayHeaders.add(putAwayHeader);
+                    PutAwayHeaderV2 putAway = putAwayHeaderV2Repository.findTopByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndReferenceField5AndBarcodeIdAndDeletionIndicator(
+                            companyCode, plantId, languageId, warehouseId, createdGRLine.getItemCode(), createdGRLine.getBarcodeId(), 0L);
+                    if (putAway == null) {
+                        savedPutAwayHeaders.add(putAwayHeader);
+                    } else {
+                        log.warn("PutAwayHeader Duplicate -- RefDocNo: {}", putAway.getRefDocNumber());
+                    }
 
-            } catch (Exception e) {
-                log.error("Exception while PutAwayHeader create : " + e);
-                throw new BadRequestException(e.getLocalizedMessage());
+                } catch (Exception e) {
+                    log.error("Exception while PutAwayHeader create : " + e);
+                    throw new BadRequestException(e.getLocalizedMessage());
+                }
             }
-        });
 
-        putAwayHeaderV2Repository.saveAll(savedPutAwayHeaders);
-        log.info("PutAwayHeader Saved Size: {} ", savedPutAwayHeaders.size());
-
+            if(!savedPutAwayHeaders.isEmpty()) {
+                putAwayHeaderV2Repository.saveAll(savedPutAwayHeaders);
+                log.info("PutAwayHeader Saved Size: {} ", savedPutAwayHeaders.size());
+            }
         String orderText = "PutAway Created";
         int updateCount =  inboundOrderV2Repository.updatePutawayHeader(groupByRefDocNo, orderText);
         log.info("Update PutAwayHeader Update Successfully ---> RefDocNo is {} And Affected Row {}", groupByRefDocNo, updateCount);
