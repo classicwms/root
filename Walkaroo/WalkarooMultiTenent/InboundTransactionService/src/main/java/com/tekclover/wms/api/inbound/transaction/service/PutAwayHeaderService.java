@@ -4720,8 +4720,8 @@ public class PutAwayHeaderService extends BaseService {
                     putAwayHeader.setReferenceField3(concatField.toString());
 
                     putAwayHeader.setPutAwayUom(createdGRLine.getOrderUom());
-                    String packBarCode = getNextRangeNumber(6L, companyCode, plantId, languageId, warehouseId);
-                    putAwayHeader.setPackBarcodes(packBarCode);
+//                    String packBarCode = getNextRangeNumber(6L, companyCode, plantId, languageId, warehouseId);
+                    putAwayHeader.setPackBarcodes(createdGRLine.getBarcodeId());
                     putAwayHeader.setPutAwayQuantity(1D);
 
                     String proposedBin = null;
@@ -4796,9 +4796,13 @@ public class PutAwayHeaderService extends BaseService {
                 }
             }
 
-            if(!savedPutAwayHeaders.isEmpty()) {
-                putAwayHeaderV2Repository.saveAll(savedPutAwayHeaders);
-                log.info("PutAwayHeader Saved Size: {} ", savedPutAwayHeaders.size());
+            try {
+                if (!savedPutAwayHeaders.isEmpty()) {
+                    putAwayHeaderV2Repository.saveAll(savedPutAwayHeaders);
+                    log.info("PutAwayHeader Saved Size: {} ", savedPutAwayHeaders.size());
+                }
+            } catch (Exception e) {
+                log.info("PutAwayHeader Saved Exception: {} ", e.getMessage());
             }
         String orderText = "PutAway Created";
         int updateCount =  inboundOrderV2Repository.updatePutawayHeader(groupByRefDocNo, orderText);
