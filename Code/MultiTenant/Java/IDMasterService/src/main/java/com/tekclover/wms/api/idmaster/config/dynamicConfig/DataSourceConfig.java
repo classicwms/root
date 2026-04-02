@@ -155,9 +155,9 @@ public class DataSourceConfig {
         Properties properties = new Properties();
         properties.put("hibernate.dialect", "org.hibernate.dialect.SQLServer2012Dialect");  // Adjust for your DB
         properties.put("hibernate.hbm2ddl.auto", "update");  // Or "validate" for production
-        properties.put("hibernate.show_sql", "true");  // Logs the generated SQL
-        properties.put("hibernate.format_sql", "true");  // Pretty formats the SQL
-        properties.put("hibernate.use_sql_comments", "true");  // Adds comments to SQL for better debugging
+        properties.put("hibernate.show_sql", "false");  // Logs the generated SQL
+        properties.put("hibernate.format_sql", "false");  // Pretty formats the SQL
+        properties.put("hibernate.use_sql_comments", "false");  // Adds comments to SQL for better debugging
         return properties;
     }
 
