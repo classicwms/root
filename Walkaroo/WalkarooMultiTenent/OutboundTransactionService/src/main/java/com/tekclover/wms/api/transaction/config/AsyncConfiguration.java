@@ -14,9 +14,9 @@ public class AsyncConfiguration {
     @Bean(name = "asyncExecutor")
     public Executor asyncExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(10);
-        executor.setMaxPoolSize(15);
-        executor.setQueueCapacity(100);
+        executor.setCorePoolSize(12);
+        executor.setMaxPoolSize(17);
+        executor.setQueueCapacity(120);
         executor.setTaskDecorator(new TenantAwareTaskDecorator());
         executor.setThreadNamePrefix("AsyncExecutor-");
         executor.initialize();
@@ -26,8 +26,8 @@ public class AsyncConfiguration {
     @Bean(name = "asyncExecutorPickup")
     public Executor asyncExecutorForGrLine() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(6);
-        executor.setMaxPoolSize(10);
+        executor.setCorePoolSize(7);
+        executor.setMaxPoolSize(11);
         executor.setQueueCapacity(200);
         executor.setTaskDecorator(new TenantAwareTaskDecorator());
         executor.setThreadNamePrefix("AsyncExecutorPickup-");

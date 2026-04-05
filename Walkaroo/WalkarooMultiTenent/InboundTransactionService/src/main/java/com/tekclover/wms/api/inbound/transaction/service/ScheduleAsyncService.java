@@ -74,23 +74,23 @@ public class ScheduleAsyncService {
 
     }
 
-    @Async("asyncExecutorGrLine")
-    public void createPutAwayHeaderAsynProcess(List<PutawayHeaderInt> putawayHeaders) {
-
-        try {
-            String currentDB = baseService.getDataBase(putawayHeaders.get(0).getSapDocumentNo());
-            DataBaseContextHolder.clear();
-            DataBaseContextHolder.setCurrentDb(currentDB);
-            log.info("Current DB " + currentDB);
-            log.info("PutAwayHeader AsynProcess Started ----------------> ");
-            putAwayHeaderService.createPutawayHeaderv3(putawayHeaders);
-            log.info("PutAwayHeader AsynProcess Completed ----------------> ");
-        } catch (Exception e){
-            throw e;
-        } finally {
-            DataBaseContextHolder.clear();
-        }
-    }
+//    @Async("asyncExecutorGrLine")
+//    public void createPutAwayHeaderAsynProcess(List<PutawayHeaderInt> putawayHeaders) {
+//
+//        try {
+//            String currentDB = baseService.getDataBase(putawayHeaders.get(0).getSapDocumentNo());
+//            DataBaseContextHolder.clear();
+//            DataBaseContextHolder.setCurrentDb(currentDB);
+//            log.info("Current DB " + currentDB);
+//            log.info("PutAwayHeader AsynProcess Started ----------------> ");
+//            putAwayHeaderService.createPutawayHeaderv3(putawayHeaders);
+//            log.info("PutAwayHeader AsynProcess Completed ----------------> ");
+//        } catch (Exception e){
+//            throw e;
+//        } finally {
+//            DataBaseContextHolder.clear();
+//        }
+//    }
 
 
 }

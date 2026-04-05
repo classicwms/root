@@ -13,24 +13,24 @@ public class AsyncConfiguration {
     @Bean(name = "asyncExecutor")
     public Executor asyncExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(10);
-        executor.setMaxPoolSize(15);
-        executor.setQueueCapacity(100);
+        executor.setCorePoolSize(15);
+        executor.setMaxPoolSize(20);
+        executor.setQueueCapacity(110);
         executor.setTaskDecorator(new TenantAwareTaskDecorator());
         executor.setThreadNamePrefix("AsyncExecutor-");
         executor.initialize();
         return executor;
     }
 
-    @Bean(name = "asyncExecutorGrLine")
-    public Executor asyncExecutorForGrLine() {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(6);
-        executor.setMaxPoolSize(10);
-        executor.setQueueCapacity(100);
-        executor.setTaskDecorator(new TenantAwareTaskDecorator());
-        executor.setThreadNamePrefix("AsyncExecutorGrLine-");
-        executor.initialize();
-        return executor;
-    }
+//    @Bean(name = "asyncExecutorGrLine")
+//    public Executor asyncExecutorForGrLine() {
+//        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+//        executor.setCorePoolSize(8);
+//        executor.setMaxPoolSize(12);
+//        executor.setQueueCapacity(100);
+//        executor.setTaskDecorator(new TenantAwareTaskDecorator());
+//        executor.setThreadNamePrefix("AsyncExecutorGrLine-");
+//        executor.initialize();
+//        return executor;
+//    }
 }
