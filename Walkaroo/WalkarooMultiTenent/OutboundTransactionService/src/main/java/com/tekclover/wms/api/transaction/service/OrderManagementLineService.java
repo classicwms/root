@@ -1971,7 +1971,7 @@ public class OrderManagementLineService extends BaseService {
      * @return
      */
     public List<OrderManagementLineV2> doAssignPickerV2(List<AssignPickerV2> assignPickers, String assignedPickerId,
-                                                        String loginUserID) throws java.text.ParseException, FirebaseMessagingException {
+                                                        String loginUserID) throws java.text.ParseException {
         String companyCodeId = null;
         String plantId = null;
         String languageId = null;

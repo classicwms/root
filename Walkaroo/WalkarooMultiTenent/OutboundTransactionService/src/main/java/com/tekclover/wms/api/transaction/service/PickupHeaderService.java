@@ -1172,7 +1172,7 @@ public class PickupHeaderService {
      * @throws InvocationTargetException
      */
     public PickupHeaderV2 createPickupHeaderV2(PickupHeaderV2 newPickupHeader, String loginUserID)
-            throws IllegalAccessException, InvocationTargetException, java.text.ParseException, FirebaseMessagingException {
+            throws IllegalAccessException, InvocationTargetException, java.text.ParseException {
         PickupHeaderV2 dbPickupHeader = new PickupHeaderV2();
         log.info("newPickupHeader : " + newPickupHeader);
         BeanUtils.copyProperties(newPickupHeader, dbPickupHeader, CommonUtils.getNullPropertyNames(newPickupHeader));
@@ -1302,7 +1302,7 @@ public class PickupHeaderService {
      */
     public PickupHeaderV2 updatePickupHeaderV2(String companyCodeId, String plantId, String languageId, String warehouseId, String preOutboundNo, String refDocNumber,
                                                String partnerCode, String pickupNumber, Long lineNumber, String itemCode, String loginUserID,
-                                               PickupHeaderV2 updatePickupHeader) throws IllegalAccessException, InvocationTargetException, java.text.ParseException, FirebaseMessagingException {
+                                               PickupHeaderV2 updatePickupHeader) throws IllegalAccessException, InvocationTargetException, java.text.ParseException {
         PickupHeaderV2 dbPickupHeader = getPickupHeaderForUpdateV3(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode,
                 pickupNumber, lineNumber, itemCode, updatePickupHeader.getBarcodeId());
         if (dbPickupHeader != null) {

@@ -315,7 +315,7 @@ public class OrderManagementLineController {
     @ApiOperation(response = OrderManagementLineV2.class, value = "Allocate") // label for swagger
     @PatchMapping("/v2/assignPicker")
     public ResponseEntity<?> assignPickerV2(@RequestBody List<AssignPickerV2> assignPicker, @RequestParam String assignedPickerId,
-                                            @RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException, ParseException, FirebaseMessagingException {
+                                            @RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
             String currentDB = baseService.getDataBase(assignPicker.get(0).getPlantId());
             DataBaseContextHolder.clear();
