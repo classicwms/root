@@ -3003,36 +3003,36 @@ public class OutboundOrderProcessingFTService extends BaseService {
      * @param refDocType
      * @param loginUserId
      */
-    private void fireBaseNotification(String companyCodeId, String plantId, String languageId, String warehouseId,
-                                      String preOutboundNo, String refDocNumber, String refDocType, String loginUserId) {
-        try {
-            List<String> deviceToken = pickupHeaderV2Repository.getDeviceToken(companyCodeId, plantId, languageId, warehouseId);
-            if (deviceToken != null && !deviceToken.isEmpty()) {
-                String title = "PICKING";
-                String message = refDocType + " ORDER - " + refDocNumber + " - IS RECEIVED";
-                NotificationSave notificationInput = new NotificationSave();
-                notificationInput.setUserId(Collections.singletonList(loginUserId));
-                notificationInput.setUserType(null);
-                notificationInput.setMessage(message);
-                notificationInput.setTopic(title);
-                notificationInput.setReferenceNumber(refDocNumber);
-                notificationInput.setDocumentNumber(preOutboundNo);
-                notificationInput.setCompanyCodeId(companyCodeId);
-                notificationInput.setPlantId(plantId);
-                notificationInput.setLanguageId(languageId);
-                notificationInput.setWarehouseId(warehouseId);
-                notificationInput.setCreatedOn(new Date());
-                notificationInput.setCreatedBy(loginUserId);
-                String response = pushNotificationService.sendPushNotification(deviceToken, notificationInput);
-                if (response.equals("OK")) {
-                    pickupHeaderV2Repository.updateNotificationStatus(refDocNumber, warehouseId);
-                    log.info("status update successfully");
-                }
-            }
-        } catch (Exception e) {
-            log.error("Outbound fireBase notification error " + e.toString());
-        }
-    }
+//    private void fireBaseNotification(String companyCodeId, String plantId, String languageId, String warehouseId,
+//                                      String preOutboundNo, String refDocNumber, String refDocType, String loginUserId) {
+//        try {
+//            List<String> deviceToken = pickupHeaderV2Repository.getDeviceToken(companyCodeId, plantId, languageId, warehouseId);
+//            if (deviceToken != null && !deviceToken.isEmpty()) {
+//                String title = "PICKING";
+//                String message = refDocType + " ORDER - " + refDocNumber + " - IS RECEIVED";
+//                NotificationSave notificationInput = new NotificationSave();
+//                notificationInput.setUserId(Collections.singletonList(loginUserId));
+//                notificationInput.setUserType(null);
+//                notificationInput.setMessage(message);
+//                notificationInput.setTopic(title);
+//                notificationInput.setReferenceNumber(refDocNumber);
+//                notificationInput.setDocumentNumber(preOutboundNo);
+//                notificationInput.setCompanyCodeId(companyCodeId);
+//                notificationInput.setPlantId(plantId);
+//                notificationInput.setLanguageId(languageId);
+//                notificationInput.setWarehouseId(warehouseId);
+//                notificationInput.setCreatedOn(new Date());
+//                notificationInput.setCreatedBy(loginUserId);
+////                String response = pushNotificationService.sendPushNotification(deviceToken, notificationInput);
+////                if (response.equals("OK")) {
+////                    pickupHeaderV2Repository.updateNotificationStatus(refDocNumber, warehouseId);
+////                    log.info("status update successfully");
+////                }
+//            }
+//        } catch (Exception e) {
+//            log.error("Outbound fireBase notification error " + e.toString());
+//        }
+//    }
 
 
     @Transactional

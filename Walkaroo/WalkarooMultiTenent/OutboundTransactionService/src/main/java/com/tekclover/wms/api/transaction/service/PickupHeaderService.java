@@ -1216,49 +1216,6 @@ public class PickupHeaderService {
 //        dbPickupHeader.setPickUpdatedOn(new Date());
         PickupHeaderV2 pickupHeaderV2 =  pickupHeaderV2Repository.save(dbPickupHeader);
 
-        // send Notification
-        if (pickupHeaderV2 != null) {
-            List<IKeyValuePair> notification =
-                    pickupHeaderV2Repository.findByStatusIdAndNotificationStatusAndDeletionIndicatorDistinctRefDocNo();
-
-            if (notification != null) {
-                for (IKeyValuePair pickup : notification) {
-
-                    List<String> deviceToken = pickupHeaderV2Repository.getDeviceToken(
-                            pickup.getAssignPicker(), pickup.getWarehouseId());
-
-                    if (deviceToken != null && !deviceToken.isEmpty()) {
-                        String title = "PICKING";
-                        String message = pickup.getRefDocType() + " ORDER - " + pickup.getRefDocNumber() + " - IS RECEIVED ";
-                        String response = pushNotificationService.sendPushNotification(deviceToken, title, message);
-                        if (response.equals("OK")) {
-                            pickupHeaderV2Repository.updateNotificationStatus(
-                                    pickup.getAssignPicker(), pickup.getRefDocNumber(), pickup.getWarehouseId());
-                            log.info("status update successfully");
-                        }
-                    }
-                }
-            }
-        }
-//        // Send Notification
-//        List<PickupHeaderV2> notification = pickupHeaderV2Repository.findByStatusIdAndNotificationStatusAndDeletionIndicator(48L, 0L, 0L);
-//        if(notification != null){
-//            for(PickupHeaderV2 picker : notification) {
-//
-//                List<String> deviceToken = pickupHeaderV2Repository.getDeviceToken(
-//                        picker.getAssignedPickerId(), picker.getWarehouseId());
-//
-//                if (deviceToken != null && !deviceToken.isEmpty()) {
-//                    String title = "PICKUP";
-//                    String message = "PickUpOrder - " + picker.getPickupNumber() + " Assigned TO " + picker.getAssignedPickerId();
-//                    String response = pushNotificationService.sendPushNotification(deviceToken, title, message);
-//                    if (response.equals("OK")) {
-//                        pickupHeaderV2Repository.updateNotificationStatus(picker.getAssignedPickerId(), picker.getPickupNumber());
-//                        log.info("status update successfully");
-//                    }
-//                }
-//            }
-//        }
         return pickupHeaderV2;
     }
 
@@ -1374,10 +1331,6 @@ public class PickupHeaderService {
             PickupHeaderV2 pickup = pickupHeaderV2Repository.save(dbPickupHeader);
 
             // send Notification
-           if(pickup != null) {
-               sendNotificationForUpdate(pickup.getRefDocNumber(),
-                       pickup.getAssignedPickerId(), pickup.getWarehouseId(), pickup.getReferenceDocumentType());
-           }
             return pickup;
         }
         return null;
@@ -1483,7 +1436,6 @@ public class PickupHeaderService {
                     PickupHeaderV2 pickupHeader = pickupHeaderV2Repository.save(dbPickupHeader);
 
                     //Send Notification
-                    sendNotificationForUpdate(data.getRefDocNumber(),data.getAssignedPickerId(), data.getWarehouseId(), data.getReferenceDocumentType());
                     pickupHeaderList.add(pickupHeader);
                 } else {
                     log.info("No record for PickupHeader object from db for data : " + data);
@@ -1497,45 +1449,6 @@ public class PickupHeaderService {
         }
     }
 
-    // SendNotification
-    public void sendNotificationForUpdate(String refDocNo, String assignPickerId, String warehouseId, String refDocType)
-            throws FirebaseMessagingException {
-
-        //withoutInput
-        List<IKeyValuePair> notification =
-                pickupHeaderV2Repository.findByStatusIdAndNotificationStatusAndDeletionIndicatorDistinctRefDocNo();
-
-        // withInput get token
-        List<String> deviceToken = pickupHeaderV2Repository.getDeviceToken(refDocNo, warehouseId);
-
-        if (deviceToken != null && !deviceToken.isEmpty()) {
-            String title = "PICKING";
-            String message = refDocType + " ORDER - " + refDocNo + " - IS RECEIVED ";
-            String response = pushNotificationService.sendPushNotification(deviceToken, title, message);
-            if (response.equals("OK")) {
-                pickupHeaderV2Repository.updateNotificationStatus(assignPickerId, refDocNo, warehouseId );
-                log.info("status update successfully");
-            }
-        }
-        if (notification != null) {
-            for (IKeyValuePair pickupHeaderV2 : notification) {
-
-                List<String> token = pickupHeaderV2Repository.getDeviceToken(
-                        pickupHeaderV2.getAssignPicker(), pickupHeaderV2.getWarehouseId());
-
-                if (token != null && !token.isEmpty()) {
-                    String title = "PICKING";
-                    String message = pickupHeaderV2.getRefDocType() + " ORDER - " + pickupHeaderV2.getRefDocNumber() + " - IS RECEIVED ";
-                    String response = pushNotificationService.sendPushNotification(token, title, message);
-                    if (response.equals("OK")) {
-                        pickupHeaderV2Repository.updateNotificationStatus(
-                                pickupHeaderV2.getAssignPicker(), pickupHeaderV2.getRefDocNumber(), pickupHeaderV2.getWarehouseId());
-                        log.info("status update successfully");
-                    }
-                }
-            }
-        }
-    }
     /**
      * @param warehouseId
      * @param preOutboundNo

@@ -862,37 +862,37 @@ public class InhouseTransferHeaderService extends BaseService {
     }
 
     /**
-     *
-     * @param inhouseTransferLine
-     */
-    private void fireBaseNotification(InhouseTransferLine inhouseTransferLine, String loginUserId) {
-        try {
-            List<String> deviceToken = pickupHeaderV2Repository.getDeviceToken(
-                    inhouseTransferLine.getCompanyCodeId(), inhouseTransferLine.getPlantId(), inhouseTransferLine.getLanguageId(), inhouseTransferLine.getWarehouseId());
-            if (deviceToken != null && !deviceToken.isEmpty()) {
-                String title = "Make & Change";
-                String message = "A new Make & Change- " + inhouseTransferLine.getTargetStorageBin() + " has been created on ";
-
-                NotificationSave notificationInput = new NotificationSave();
-                notificationInput.setUserId(Collections.singletonList(loginUserId));
-                notificationInput.setUserType(null);
-                notificationInput.setMessage(message);
-                notificationInput.setTopic(title);
-                notificationInput.setReferenceNumber(inhouseTransferLine.getTransferNumber());
-                notificationInput.setCompanyCodeId(inhouseTransferLine.getCompanyCodeId());
-                notificationInput.setPlantId(inhouseTransferLine.getPlantId());
-                notificationInput.setLanguageId(inhouseTransferLine.getLanguageId());
-                notificationInput.setWarehouseId(inhouseTransferLine.getWarehouseId());
-                notificationInput.setCreatedOn(inhouseTransferLine.getCreatedOn());
-                notificationInput.setCreatedBy(loginUserId);
-                notificationInput.setStorageBin(inhouseTransferLine.getTargetStorageBin());
-
-                pushNotificationService.sendPushNotification(deviceToken, notificationInput);
-            }
-        } catch (Exception e) {
-            log.error("Transfer firebase notification error " + e.toString());
-        }
-    }
+//     *
+//     * @param inhouseTransferLine
+//     */
+//    private void fireBaseNotification(InhouseTransferLine inhouseTransferLine, String loginUserId) {
+//        try {
+//            List<String> deviceToken = pickupHeaderV2Repository.getDeviceToken(
+//                    inhouseTransferLine.getCompanyCodeId(), inhouseTransferLine.getPlantId(), inhouseTransferLine.getLanguageId(), inhouseTransferLine.getWarehouseId());
+//            if (deviceToken != null && !deviceToken.isEmpty()) {
+//                String title = "Make & Change";
+//                String message = "A new Make & Change- " + inhouseTransferLine.getTargetStorageBin() + " has been created on ";
+//
+//                NotificationSave notificationInput = new NotificationSave();
+//                notificationInput.setUserId(Collections.singletonList(loginUserId));
+//                notificationInput.setUserType(null);
+//                notificationInput.setMessage(message);
+//                notificationInput.setTopic(title);
+//                notificationInput.setReferenceNumber(inhouseTransferLine.getTransferNumber());
+//                notificationInput.setCompanyCodeId(inhouseTransferLine.getCompanyCodeId());
+//                notificationInput.setPlantId(inhouseTransferLine.getPlantId());
+//                notificationInput.setLanguageId(inhouseTransferLine.getLanguageId());
+//                notificationInput.setWarehouseId(inhouseTransferLine.getWarehouseId());
+//                notificationInput.setCreatedOn(inhouseTransferLine.getCreatedOn());
+//                notificationInput.setCreatedBy(loginUserId);
+//                notificationInput.setStorageBin(inhouseTransferLine.getTargetStorageBin());
+//
+//                pushNotificationService.sendPushNotification(deviceToken, notificationInput);
+//            }
+//        } catch (Exception e) {
+//            log.error("Transfer firebase notification error " + e.toString());
+//        }
+//    }
 
     @Transactional
     public WarehouseApiResponse createInHouseTransferHeaderUploadV2(List<InhouseTransferUpload> inhouseTransferUploadList, String loginUserID)

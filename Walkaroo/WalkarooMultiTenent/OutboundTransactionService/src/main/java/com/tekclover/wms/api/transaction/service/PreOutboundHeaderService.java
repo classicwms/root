@@ -2166,9 +2166,6 @@ public class PreOutboundHeaderService extends BaseService {
                 }
             }
 
-            //push notification separated from pickup header and consolidated notification sent
-            orderManagementLineService.sendPushNotification(preOutboundNo, warehouseId);
-
             // OutboundHeader Update
 //        OutboundHeaderV2 outboundHeader = outboundHeaderService.getOutboundHeaderV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo,
 //                refDocNumber, partnerCode);
@@ -2466,8 +2463,6 @@ public class PreOutboundHeaderService extends BaseService {
                             48L, statusDescription, assignPickerId, PU_NO, new Date());
                 }
             }
-            //push notification separated from pickup header and consolidated notification sent
-            orderManagementLineService.sendPushNotification(preOutboundNo, warehouseId);
             outboundHeaderV2Repository.updateOutboundHeaderStatusV3(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, 48L, statusDescription);
             orderManagementHeaderV2Repository.updateOrderManagementHeaderStatusV3(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, 48L, statusDescription);
         } catch (Exception e) {
@@ -2911,8 +2906,6 @@ public class PreOutboundHeaderService extends BaseService {
             }
         }
 
-        //push notification separated from pickup header and consolidated notification sent
-        orderManagementLineService.sendPushNotification(preOutboundNo, warehouseId);
 
         // OutboundHeader Update
         OutboundHeaderV2 outboundHeader = outboundHeaderService.getOutboundHeaderV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo,
@@ -3643,8 +3636,6 @@ public class PreOutboundHeaderService extends BaseService {
             }
         }
 
-        //push notification separated from pickup header and consolidated notification sent
-        orderManagementLineService.sendPushNotification(preOutboundNo, warehouseId);
 
         // OutboundHeader Update
         OutboundHeaderV2 outboundHeader = outboundHeaderService.getOutboundHeaderV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo,
@@ -4150,9 +4141,6 @@ public class PreOutboundHeaderService extends BaseService {
                 log.info("outboundLine updated : " + outboundLine);
             }
         }
-
-        //push notification separated from pickup header and consolidated notification sent
-        orderManagementLineService.sendPushNotification(preOutboundNo, warehouseId);
 
         // OutboundHeader Update
         OutboundHeaderV2 outboundHeader = outboundHeaderService.getOutboundHeaderV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo,
