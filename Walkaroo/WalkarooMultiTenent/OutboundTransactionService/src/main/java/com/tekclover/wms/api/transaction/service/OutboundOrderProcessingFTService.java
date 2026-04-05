@@ -1,32 +1,10 @@
 package com.tekclover.wms.api.transaction.service;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import org.hibernate.exception.LockAcquisitionException;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.CannotAcquireLockException;
-import org.springframework.orm.ObjectOptimisticLockingFailureException;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Retryable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.UnexpectedRollbackException;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.DocumentNumber;
 import com.tekclover.wms.api.transaction.model.IKeyValuePair;
 import com.tekclover.wms.api.transaction.model.dto.ImBasicData1V2;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.InventoryV2;
-import com.tekclover.wms.api.transaction.model.notification.NotificationSave;
 import com.tekclover.wms.api.transaction.model.outbound.ordermangement.v2.OrderManagementHeaderV2;
 import com.tekclover.wms.api.transaction.model.outbound.ordermangement.v2.OrderManagementLineV2;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.AddPickupLine;
@@ -39,27 +17,24 @@ import com.tekclover.wms.api.transaction.model.outbound.preoutbound.v2.PreOutbou
 import com.tekclover.wms.api.transaction.model.outbound.quality.v2.AddQualityLineV2;
 import com.tekclover.wms.api.transaction.model.outbound.quality.v2.QualityHeaderV2;
 import com.tekclover.wms.api.transaction.model.outbound.quality.v2.QualityLineV2;
-import com.tekclover.wms.api.transaction.model.outbound.v2.OutboundHeaderV2;
-import com.tekclover.wms.api.transaction.model.outbound.v2.OutboundLineV2;
-import com.tekclover.wms.api.transaction.model.outbound.v2.OutboundOrderProcess;
-import com.tekclover.wms.api.transaction.model.outbound.v2.PickListCancellation;
-import com.tekclover.wms.api.transaction.model.outbound.v2.PickListHeader;
-import com.tekclover.wms.api.transaction.model.outbound.v2.PickListLine;
+import com.tekclover.wms.api.transaction.model.outbound.v2.*;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.v2.OutboundOrderV2;
-import com.tekclover.wms.api.transaction.repository.ImBasicData1V2Repository;
-import com.tekclover.wms.api.transaction.repository.InventoryV2Repository;
-import com.tekclover.wms.api.transaction.repository.OrderManagementHeaderV2Repository;
-import com.tekclover.wms.api.transaction.repository.OrderManagementLineV2Repository;
-import com.tekclover.wms.api.transaction.repository.OutboundHeaderV2Repository;
-import com.tekclover.wms.api.transaction.repository.OutboundLineV2Repository;
-import com.tekclover.wms.api.transaction.repository.OutboundOrderV2Repository;
-import com.tekclover.wms.api.transaction.repository.PickListHeaderRepository;
-import com.tekclover.wms.api.transaction.repository.PickupHeaderV2Repository;
-import com.tekclover.wms.api.transaction.repository.PreOutboundHeaderV2Repository;
-import com.tekclover.wms.api.transaction.repository.PreOutboundLineV2Repository;
+import com.tekclover.wms.api.transaction.repository.*;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
-
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.exception.LockAcquisitionException;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.CannotAcquireLockException;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -73,9 +48,6 @@ public class OutboundOrderProcessingFTService extends BaseService {
 
     @Autowired
     InventoryService inventoryService;
-
-    @Autowired
-    PushNotificationService pushNotificationService;
 
     @Autowired
     PreOutboundHeaderService preOutboundHeaderService;
@@ -2993,16 +2965,16 @@ public class OutboundOrderProcessingFTService extends BaseService {
         }
     }
 
-    /**
-     * @param companyCodeId
-     * @param plantId
-     * @param languageId
-     * @param warehouseId
-     * @param preOutboundNo
-     * @param refDocNumber
-     * @param refDocType
-     * @param loginUserId
-     */
+//    /**
+//     * @param companyCodeId
+//     * @param plantId
+//     * @param languageId
+//     * @param warehouseId
+//     * @param preOutboundNo
+//     * @param refDocNumber
+//     * @param refDocType
+//     * @param loginUserId
+//     */
 //    private void fireBaseNotification(String companyCodeId, String plantId, String languageId, String warehouseId,
 //                                      String preOutboundNo, String refDocNumber, String refDocType, String loginUserId) {
 //        try {

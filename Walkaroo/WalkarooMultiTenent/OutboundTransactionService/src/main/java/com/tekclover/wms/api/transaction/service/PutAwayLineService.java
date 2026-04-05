@@ -142,9 +142,6 @@ public class PutAwayLineService extends BaseService {
     StorageBinService storageBinService;
 
     @Autowired
-    PushNotificationService pushNotificationService;
-
-    @Autowired
     PutAwayLineAsyncProcess putAwayLineAsyncProcess;
 
     @Autowired

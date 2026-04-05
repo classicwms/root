@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
 import org.springframework.stereotype.Service;
 
-import com.google.firebase.messaging.FirebaseMessagingException;
+
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.IKeyValuePair;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.AddPickupHeader;
@@ -60,8 +60,6 @@ public class PickupHeaderService {
 
     String statusDescription = null;
 
-    @Autowired
-    PushNotificationService pushNotificationService;
     //------------------------------------------------------------------------------------------------------
 
     /**

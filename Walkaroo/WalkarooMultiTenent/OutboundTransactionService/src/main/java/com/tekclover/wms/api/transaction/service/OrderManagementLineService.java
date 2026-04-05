@@ -21,7 +21,6 @@ import org.springframework.transaction.UnexpectedRollbackException;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.google.firebase.messaging.FirebaseMessagingException;
 import com.tekclover.wms.api.transaction.config.PropertiesConfig;
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.IKeyValuePair;
@@ -143,9 +142,6 @@ public class OrderManagementLineService extends BaseService {
 
     @Autowired
     private ImBasicData1V2Repository imBasicData1V2Repository;
-
-    @Autowired
-    private PushNotificationService pushNotificationService;
 
     @Autowired
     PropertiesConfig propertiesConfig;

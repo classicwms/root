@@ -68,9 +68,6 @@ public class OutboundOrderProcessingService extends BaseService {
     InventoryService inventoryService;
 
     @Autowired
-    PushNotificationService pushNotificationService;
-
-    @Autowired
     PickupHeaderService pickupHeaderService;
 
     @Autowired

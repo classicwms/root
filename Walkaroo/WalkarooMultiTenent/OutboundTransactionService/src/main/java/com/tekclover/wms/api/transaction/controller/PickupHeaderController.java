@@ -1,45 +1,33 @@
 package com.tekclover.wms.api.transaction.controller;
 
-import java.lang.reflect.InvocationTargetException;
-import java.text.ParseException;
-import java.util.List;
-import java.util.stream.Stream;
-
-import javax.validation.Valid;
-
-import com.google.firebase.messaging.FirebaseMessagingException;
 import com.tekclover.wms.api.transaction.config.dynamicConfig.DataBaseContextHolder;
+import com.tekclover.wms.api.transaction.model.outbound.pickup.AddPickupHeader;
+import com.tekclover.wms.api.transaction.model.outbound.pickup.PickupHeader;
+import com.tekclover.wms.api.transaction.model.outbound.pickup.SearchPickupHeader;
+import com.tekclover.wms.api.transaction.model.outbound.pickup.UpdatePickupHeader;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.v2.FindPickUpHeader;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.v2.PickUpHeaderReport;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.v2.PickupHeaderV2;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.v2.SearchPickupHeaderV2;
 import com.tekclover.wms.api.transaction.repository.DbConfigRepository;
 import com.tekclover.wms.api.transaction.service.BaseService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.tekclover.wms.api.transaction.model.outbound.pickup.AddPickupHeader;
-import com.tekclover.wms.api.transaction.model.outbound.pickup.PickupHeader;
-import com.tekclover.wms.api.transaction.model.outbound.pickup.SearchPickupHeader;
-import com.tekclover.wms.api.transaction.model.outbound.pickup.UpdatePickupHeader;
 import com.tekclover.wms.api.transaction.service.PickupHeaderService;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
+import java.util.List;
+import java.util.stream.Stream;
 
 @Slf4j
 @Validated
@@ -227,7 +215,7 @@ public class PickupHeaderController extends BaseService {
     @ApiOperation(response = PickupHeaderV2.class, value = "Create PickupHeader") // label for swagger
     @PostMapping("/v2")
     public ResponseEntity<?> postPickupHeaderV2(@Valid @RequestBody PickupHeaderV2 newPickupHeader, @RequestParam String loginUserID)
-            throws IllegalAccessException, InvocationTargetException, ParseException, FirebaseMessagingException {
+            throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
             String db = getDataBase(newPickupHeader.getPlantId());
             DataBaseContextHolder.clear();
@@ -248,7 +236,7 @@ public class PickupHeaderController extends BaseService {
                                                  @RequestParam String preOutboundNo, @RequestParam String refDocNumber, @RequestParam String partnerCode,
                                                  @RequestParam Long lineNumber, @RequestParam String itemCode, @Valid @RequestBody PickupHeaderV2 updatePickupHeader,
                                                  @RequestParam String loginUserID)
-            throws IllegalAccessException, InvocationTargetException, ParseException, FirebaseMessagingException {
+            throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
             String db = getDataBase(plantId);
             DataBaseContextHolder.clear();

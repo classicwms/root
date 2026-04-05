@@ -73,8 +73,6 @@ public class InhouseTransferHeaderService extends BaseService {
     @Autowired
     PickupHeaderV2Repository pickupHeaderV2Repository;
 
-    @Autowired
-    PushNotificationService pushNotificationService;
 
     /**
      * getInHouseTransferHeaders

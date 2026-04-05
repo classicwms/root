@@ -179,8 +179,6 @@ public class PickupLineService extends BaseService {
     @Autowired
     IDMasterService idMasterService;
 
-    @Autowired
-    PushNotificationService pushNotificationService;
 
     //------------------------------------------------------------------------------------------------------
 
