@@ -48,6 +48,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -2784,6 +2785,19 @@ public class PickupLineService extends BaseService {
             for (AddPickupLine newPickupLine : newPickupLines) {
                 if (newPickupLine.getPickConfirmQty() < 0) {
                     throw new BadRequestException("Please Enter a Valid Qty! " + newPickupLine.getPickConfirmQty());
+                }
+
+                Set<String> duplicates = newPickupLines.stream()
+                        .map(AddPickupLine::getPickConfirmBarcodeId)
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+                        .entrySet().stream()
+                        .filter(e -> e.getValue() > 1)
+                        .map(Map.Entry::getKey)
+                        .collect(Collectors.toSet());
+
+                if (!duplicates.isEmpty()) {
+                    throw new BadRequestException("This request contains Duplicate pickConfirmBarcodeId(s): " + duplicates);
                 }
 
 //                statusDescription = stagingLineV2Repository.getStatusDescription(57L, languageId);

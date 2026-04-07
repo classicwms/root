@@ -2641,10 +2641,10 @@ public class InventoryService extends BaseService {
                                               String itemCode, String manufacturerName, String barcodeId, String storageBin, String alternateUom) {
         log.info(companyCodeId + "|" + plantId + "|" + languageId + "|" + warehouseId + "|" + itemCode + "|" + manufacturerName +
                 "|" + alternateUom + "|" + barcodeId + "|" + storageBin);
-        IInventoryImpl dbInventory = inventoryV2Repository.getOutboundInventoryV4(companyCodeId, plantId, languageId, warehouseId, barcodeId, null,
+        IInventoryImpl dbInventory = inventoryV2Repository.getOutboundInventoryV7(companyCodeId, plantId, languageId, warehouseId, barcodeId, null,
                 itemCode, manufacturerName, PACK_BARCODE, null, alternateUom);
         if (dbInventory == null) {
-            dbInventory = inventoryV2Repository.getOutboundInventoryV4(companyCodeId, plantId, languageId, warehouseId, barcodeId, null,
+            dbInventory = inventoryV2Repository.getOutboundInventoryV7(companyCodeId, plantId, languageId, warehouseId, barcodeId, null,
                     itemCode, manufacturerName, PACK_BARCODE, null, null);
         }
         if (dbInventory != null) {
