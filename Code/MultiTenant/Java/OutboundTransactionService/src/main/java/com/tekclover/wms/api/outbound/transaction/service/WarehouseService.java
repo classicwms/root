@@ -1492,7 +1492,7 @@ public class WarehouseService extends BaseService {
 		return null;
 	}
 
-    @Transactional
+//    @Transactional
     public List<FileUpdateUpload> updateInvByBarcode(List<FileUpdateUpload> inputs, String companyCodeId,
                                                      String plantId, String languageId,
                                                      String warehouseId, String loginUserID) {
@@ -1500,30 +1500,23 @@ public class WarehouseService extends BaseService {
         List<FileUpdateUpload> updatedList = new ArrayList<>();
 
         for (FileUpdateUpload input : inputs) {
+			if (input.getBarcodeId() != null && !input.getBarcodeId().isEmpty()) {
+				String barcodeId = input.getBarcodeId();
+				Double invQty = input.getInventoryQuantity();
+				Double refField4 = input.getReferenceField4();
+				InventoryV2 inventoryV2 = inventoryV2Repository.findByBarcode(companyCodeId, plantId, languageId, warehouseId, barcodeId);
 
-            String barcodeId = input.getBarcodeId();
-            Double invQty = input.getInventoryQuantity();
-            Double refField4 = input.getReferenceField4();
-
-            List<InventoryV2> inventoryList = inventoryV2Repository.findByBarcode(companyCodeId, plantId, languageId, warehouseId, barcodeId);
-
-            if (inventoryList != null && !inventoryList.isEmpty()) {
-
-                InventoryV2 latestInventory = inventoryList.get(0);
-                Long inventoryId = latestInventory.getInventoryId();
-
-                int updated = inventoryV2Repository.updateInventory(inventoryId, invQty,
-                        refField4, companyCodeId, plantId, languageId, warehouseId);
-
-                log.info("Barcode: {} ------------------------> Updated Rows: {}", barcodeId, updated);
-
-            } else {
-                log.info("No Inventory found for Barcode: {}", barcodeId);
-            }
-
-            updatedList.add(input);
-        }
-
+				if (inventoryV2 != null) {
+					Long inventoryId = inventoryV2.getInventoryId();
+					int updated = inventoryV2Repository.updateInventory(inventoryId, invQty,
+							refField4, companyCodeId, plantId, languageId, warehouseId);
+					log.info("Barcode: {} ------------------------> Updated Rows: {}", barcodeId, updated);
+				} else {
+					log.info("No Inventory found for Barcode: {}", barcodeId);
+				}
+				updatedList.add(input);
+			}
+		}
         return updatedList;
     }
 

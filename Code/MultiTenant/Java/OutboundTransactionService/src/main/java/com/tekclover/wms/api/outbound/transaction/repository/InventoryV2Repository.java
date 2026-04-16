@@ -2935,7 +2935,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "AND barcode_id = :barcodeId " +
             "ORDER BY inv_id DESC",
             nativeQuery = true)
-    List<InventoryV2> findByBarcode(@Param("companyId") String companyId,
+    InventoryV2 findByBarcode(@Param("companyId") String companyId,
                                     @Param("plantId") String plantId, @Param("languageId") String languageId,
                                     @Param("warehouseId") String warehouseId, @Param("barcodeId") String barcodeId);
 
