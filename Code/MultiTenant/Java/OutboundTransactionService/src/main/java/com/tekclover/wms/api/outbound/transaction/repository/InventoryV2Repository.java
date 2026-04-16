@@ -2926,7 +2926,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
                                                                 @Param("stockTypeId") Long stockTypeId,
                                                                 @Param("alternateUom") String alternateUom);
 
-    @Query(value = "SELECT * FROM tblinventory " +
+    @Query(value = "SELECT top 1 * FROM tblinventory " +
             "WHERE is_deleted = 0 " +
             "AND c_id = :companyId " +
             "AND plant_id = :plantId " +
