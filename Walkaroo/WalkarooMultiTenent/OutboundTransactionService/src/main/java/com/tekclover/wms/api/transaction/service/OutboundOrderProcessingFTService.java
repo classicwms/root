@@ -1059,6 +1059,7 @@ public class OutboundOrderProcessingFTService extends BaseService {
                 outboundIntegrationHeaderList.get(0).getWarehouseID(), getIDMasterAuthToken());
         log.info("SalesOrderNo is -----------------> {} ", salesOrderNo);
 
+        log.info("OrderManagementLine Process Started ---> SalesOrderNo: {} ", salesOrderNo);
         for(OutboundIntegrationHeaderV2 headerList : outboundIntegrationHeaderList) {
             try {
                 preOutboundHeaderV2Repository.updatePreOutboundHeaderStatusV3(companyCodeId, plantId, languageId, warehouseId, headerList.getRefDocumentNo(), 48L, "IN PICKING");
@@ -1071,10 +1072,11 @@ public class OutboundOrderProcessingFTService extends BaseService {
                 log.info("SalesOrder Number Update Process Completed ---------> RefDocNo is " + headerList.getRefDocumentNo());
 
             } catch (Exception e) {
-                e.printStackTrace();
+                log.info("Exception in OrderFullFillment: {} ", e.getMessage());
             }
         }
-        log.info("PickupHeader Validation Started-------------------->");
+        log.info("OrderManagementLine Process Completed ---> SalesOrderNo: {} ", salesOrderNo);
+        log.info("PickupHeader AsynProcess Started-------------------->");
 //        validatePickupHeaderCreationV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, outboundHeaderV2List.get(0), MW_AMS);
         pickupAsyncProcessService.pickupHeaderCreation(companyCodeId, plantId, languageId, warehouseId, salesOrderNo, MW_AMS);
         return outboundHeaderV2List;

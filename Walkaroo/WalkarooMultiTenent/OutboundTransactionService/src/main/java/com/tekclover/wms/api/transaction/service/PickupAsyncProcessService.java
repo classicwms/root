@@ -57,14 +57,15 @@ public class PickupAsyncProcessService extends BaseService{
     public void pickupHeaderCreation(String companyCodeId, String plantId, String languageId,
                                      String warehouseId, String salesOrderNumber, String loginUserId) throws Exception {
 
+        log.info("Async method triggered");
         try {
             String currentDB = getDataBase(plantId);
             DataBaseContextHolder.clear();
             DataBaseContextHolder.setCurrentDb(currentDB);
 
-            log.info("PickupHeader Validation Started ---> ");
+            log.info("PickupHeader Validation Started ---> SalesOrderNumber:{} ", salesOrderNumber);
             validatePickupHeaderCreationV2(companyCodeId, plantId, languageId, warehouseId, salesOrderNumber, loginUserId);
-            log.info("PickupHeader Validation Completed ---> ");
+            log.info("PickupHeader Validation Completed ---> SalesOrderNumber:{} ", salesOrderNumber);
         } finally {
             DataBaseContextHolder.clear();
         }
