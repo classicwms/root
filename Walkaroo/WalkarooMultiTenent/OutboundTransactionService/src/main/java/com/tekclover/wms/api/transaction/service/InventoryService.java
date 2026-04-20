@@ -4147,8 +4147,8 @@ public class InventoryService extends BaseService {
             List<InventoryV2> inventoryList = inventoryV2Repository.getInventoryFFM(
                     companyCodeId, plantId, languageId, warehouseId, null, null, itemCode, manufacturerName, PACK_BARCODE, binClassId, stockTypeId);
             if (inventoryList == null || inventoryList.isEmpty()) {
-                return inventoryV2Repository.getInventoryFFM(
-                        companyCodeId, plantId, languageId, warehouseId, null, null, itemCode, manufacturerName, PACK_BARCODE, Collections.singletonList(3L), stockTypeId);
+                return inventoryV2Repository.getInventoryOFFM(
+                        companyCodeId, plantId, languageId, warehouseId, null, null, itemCode, manufacturerName, PACK_BARCODE, Collections.singletonList(8L), stockTypeId);
             }
             return inventoryList;
         }

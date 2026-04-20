@@ -3213,7 +3213,7 @@ public class OutboundOrderProcessingFTService extends BaseService {
                         BIN_CLASS_ID.add(1L);
                         BIN_CLASS_ID.add(10L);
                         BIN_CLASS_ID.add(3L);
-                        BIN_CLASS_ID.add(8L);
+//                        BIN_CLASS_ID.add(8L);
                     }
 
                     OrderManagementLineV2 orderManagementLineV2 = orderManagementLineService.orderAllocationInOrderFFM(companyCodeId, plantId, languageId, warehouseId, preOutboundLine.getItemCode(),

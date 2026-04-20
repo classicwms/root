@@ -5714,7 +5714,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
 
     @Query(value = "SELECT * from tblinventory where inv_id in (select max(inv_id) inventoryId from tblinventory \n" +
             "WHERE (COALESCE(:itemCode, null) IS NULL OR (ITM_CODE IN (:itemCode))) and \n" +
-            "(COALESCE(:binClassId, null) IS NULL OR (BIN_CL_ID IN (:binClassId))) and\n" +
+//            "(COALESCE(:binClassId, null) IS NULL OR (BIN_CL_ID IN (:binClassId))) and\n" +
             "(COALESCE(:manufacturerName, null) IS NULL OR (MFR_NAME IN (:manufacturerName))) and \n" +
             "(COALESCE(:companyCodeId, null) IS NULL OR (c_id IN (:companyCodeId))) and \n" +
             "(COALESCE(:languageId, null) IS NULL OR (lang_id IN (:languageId))) and \n" +
@@ -5731,6 +5731,36 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "(COALESCE(:stockTypeId, null) IS NULL OR (STCK_TYP_ID IN (:stockTypeId))) and \n" +
             "is_deleted = 0 and (INV_QTY > 0) order by BIN_CL_ID, REF_FIELD_10 \n", nativeQuery = true)
     public List<InventoryV2> getInventoryFFM(@Param("companyCodeId") String companyCodeId,
+                                             @Param("plantId") String plantId,
+                                             @Param("languageId") String languageId,
+                                             @Param("warehouseId") String warehouseId,
+                                             @Param("barcodeId") String barcodeId,
+                                             @Param("batchSerialNumber") String batchSerialNumber,
+                                             @Param("itemCode") String itemCode,
+                                             @Param("manufacturerName") String manufacturerName,
+                                             @Param("packBarcodes") String packBarcodes,
+                                             @Param("binClassId") List<Long> binClassId,
+                                             @Param("stockTypeId") Long stockTypeId);
+
+    @Query(value = "SELECT * from tblinventory where inv_id in (select max(inv_id) inventoryId from tblinventory \n" +
+            "WHERE (COALESCE(:itemCode, null) IS NULL OR (ITM_CODE IN (:itemCode))) and \n" +
+            "(COALESCE(:binClassId, null) IS NULL OR (BIN_CL_ID IN (:binClassId))) and\n" +
+            "(COALESCE(:manufacturerName, null) IS NULL OR (MFR_NAME IN (:manufacturerName))) and \n" +
+            "(COALESCE(:companyCodeId, null) IS NULL OR (c_id IN (:companyCodeId))) and \n" +
+            "(COALESCE(:languageId, null) IS NULL OR (lang_id IN (:languageId))) and \n" +
+            "(COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) and \n" +
+            "(COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and \n" +
+            "is_deleted = 0 \n" +
+            "group by itm_code,barcode_id,mfr_name,pack_barcode,stck_typ_id,plant_id,wh_id,c_id,lang_id) and \n" +
+            "(COALESCE(:barcodeId, null) IS NULL OR (BARCODE_ID IN (:barcodeId))) and \n" +
+            "(COALESCE(:batchSerialNumber, null) IS NULL OR (STR_NO IN (:batchSerialNumber))) and \n" +
+            "(COALESCE(:manufacturerName, null) IS NULL OR (MFR_NAME IN (:manufacturerName))) and \n" +
+            "(COALESCE(:packBarcodes, null) IS NULL OR (PACK_BARCODE IN (:packBarcodes))) and \n" +
+            "(COALESCE(:itemCode, null) IS NULL OR (ITM_CODE IN (:itemCode))) and \n" +
+            "(COALESCE(:binClassId, null) IS NULL OR (BIN_CL_ID IN (:binClassId))) and\n" +
+            "(COALESCE(:stockTypeId, null) IS NULL OR (STCK_TYP_ID IN (:stockTypeId))) and \n" +
+            "is_deleted = 0 and (INV_QTY > 0) order by BIN_CL_ID, REF_FIELD_10 \n", nativeQuery = true)
+    public List<InventoryV2> getInventoryOFFM(@Param("companyCodeId") String companyCodeId,
                                              @Param("plantId") String plantId,
                                              @Param("languageId") String languageId,
                                              @Param("warehouseId") String warehouseId,
