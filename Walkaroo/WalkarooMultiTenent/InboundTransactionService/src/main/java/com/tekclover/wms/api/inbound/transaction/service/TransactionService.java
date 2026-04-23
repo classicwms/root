@@ -98,12 +98,9 @@ public class TransactionService extends BaseService {
             DataBaseContextHolder.setCurrentDb(profile);
             log.info("Current DB --------> " + profile);
             List<InboundIntegrationHeader> inboundList = new ArrayList<>();
-                List<InboundOrderV2> sqlInboundList = inboundOrderV2Repository.findByProcessedStatusIdOrderByOrderReceivedOn(0L);
+                List<InboundOrderV2> sqlInboundList = inboundOrderV2Repository.findTopInboundOrder();
                 log.info("ib sql header list: " + sqlInboundList.size());
 
-                if(sqlInboundList.isEmpty()) {
-                    return  warehouseApiResponse;
-                }
                 for(InboundOrderV2 ibOrder : sqlInboundList) {
                     log.info("InboundOrder StatusId 1 Updated --------> " + ibOrder);
                     inboundOrderV2Repository.updateProcessStatus(ibOrder.getInboundOrderHeaderId(), 1L);
@@ -213,8 +210,8 @@ public class TransactionService extends BaseService {
                                 updateProcessedInboundOrderV2(refDocNumber, inboundOrderTypeId, 100L);
                             }
 //                            inboundList.remove(inbound);
-                            sendMail(inbound.getCompanyCode(), inbound.getBranchCode(), inbound.getLanguageId(), inbound.getWarehouseID(),
-                                    refDocNumber, getInboundOrderTypeTable(inboundOrderTypeId), e.toString());
+//                            sendMail(inbound.getCompanyCode(), inbound.getBranchCode(), inbound.getLanguageId(), inbound.getWarehouseID(),
+//                                    refDocNumber, getInboundOrderTypeTable(inboundOrderTypeId), e.toString());
                             log.error("Exception while Inbound Processing! " + refDocNumber);
                             throw e;
                         }

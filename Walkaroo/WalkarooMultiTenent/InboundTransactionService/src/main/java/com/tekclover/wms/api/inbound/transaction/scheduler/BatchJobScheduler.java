@@ -1,5 +1,6 @@
 package com.tekclover.wms.api.inbound.transaction.scheduler;
 
+import com.tekclover.wms.api.inbound.transaction.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.inbound.transaction.model.warehouse.inbound.WarehouseApiResponse;
 import com.tekclover.wms.api.inbound.transaction.service.*;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +37,7 @@ public class BatchJobScheduler {
         scheduleAsyncService.processInboundOrderV5();
         //HYD
         scheduleAsyncService.processInboundOrderV6();
+        DataBaseContextHolder.clear();
 
 //        CompletableFuture<WarehouseApiResponse> inboundFailedOrder = scheduleAsyncService.processInboundFailedOrder();
 
