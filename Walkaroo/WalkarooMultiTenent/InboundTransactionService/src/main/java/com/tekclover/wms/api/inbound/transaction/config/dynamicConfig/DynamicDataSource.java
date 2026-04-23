@@ -26,7 +26,7 @@ public class DynamicDataSource extends AbstractRoutingDataSource {
             DataBaseContextHolder.setCurrentDb("WK");
         }
 
-        logger.info("Routing to database: " + db);
+//        logger.info("Routing to database: " + db);
         return db;  // ✅ Return correct key every time
     }
 

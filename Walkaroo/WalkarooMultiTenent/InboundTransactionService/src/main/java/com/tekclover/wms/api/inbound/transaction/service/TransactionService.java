@@ -209,7 +209,7 @@ public class TransactionService extends BaseService {
                             } else {
                                 updateProcessedInboundOrderV2(refDocNumber, inboundOrderTypeId, 100L);
                             }
-                            inboundList.remove(inbound);
+//                            inboundList.remove(inbound);
                             sendMail(inbound.getCompanyCode(), inbound.getBranchCode(), inbound.getLanguageId(), inbound.getWarehouseID(),
                                     refDocNumber, getInboundOrderTypeTable(inboundOrderTypeId), e.toString());
                             log.error("Exception while Inbound Processing! " + refDocNumber);
