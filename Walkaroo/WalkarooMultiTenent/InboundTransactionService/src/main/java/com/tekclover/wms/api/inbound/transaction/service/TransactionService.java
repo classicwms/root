@@ -101,6 +101,9 @@ public class TransactionService extends BaseService {
                 List<InboundOrderV2> sqlInboundList = inboundOrderV2Repository.findTopInboundOrder();
                 log.info("ib sql header list: " + sqlInboundList.size());
 
+                if(sqlInboundList.isEmpty()) {
+                    return  warehouseApiResponse;
+                }
                 for(InboundOrderV2 ibOrder : sqlInboundList) {
                     log.info("InboundOrder StatusId 1 Updated --------> " + ibOrder);
                     inboundOrderV2Repository.updateProcessStatus(ibOrder.getInboundOrderHeaderId(), 1L);
