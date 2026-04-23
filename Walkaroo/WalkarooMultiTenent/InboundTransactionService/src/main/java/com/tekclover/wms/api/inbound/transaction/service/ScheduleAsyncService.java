@@ -30,39 +30,33 @@ public class ScheduleAsyncService {
 
     //-------------------------------------------------------------------Inbound---------------------------------------------------------------
     @Async("asyncExecutor")
-    public CompletableFuture<WarehouseApiResponse> processInboundOrder() throws Exception{
+    public void processInboundOrder() throws Exception{
         WarehouseApiResponse inboundOrder = transactionService.processInboundOrder("MDU");
-        return CompletableFuture.completedFuture(inboundOrder);
     }
 
     @Async("asyncExecutor")
-    public CompletableFuture<WarehouseApiResponse> processInboundOrderV2() throws Exception{
-        WarehouseApiResponse inboundOrder = transactionService.processInboundOrder("CMP");
-        return CompletableFuture.completedFuture(inboundOrder);
+    public void processInboundOrderV2() throws Exception{
+        WarehouseApiResponse inboundOrder =  transactionService.processInboundOrder("CMP");
     }
 
     @Async("asyncExecutor")
-    public CompletableFuture<WarehouseApiResponse> processInboundOrderV3() throws Exception{
+    public void processInboundOrderV3() throws Exception{
         WarehouseApiResponse inboundOrder = transactionService.processInboundOrder("CHN");
-        return CompletableFuture.completedFuture(inboundOrder);
     }
 
     @Async("asyncExecutor")
-    public CompletableFuture<WarehouseApiResponse> processInboundOrderV4() throws Exception{
+    public void processInboundOrderV4() throws Exception{
         WarehouseApiResponse inboundOrder = transactionService.processInboundOrder("VGA");
-        return CompletableFuture.completedFuture(inboundOrder);
     }
 
     @Async("asyncExecutor")
-    public CompletableFuture<WarehouseApiResponse> processInboundOrderV5() throws Exception{
+    public void processInboundOrderV5() throws Exception{
         WarehouseApiResponse inboundOrder = transactionService.processInboundOrder("CCL");
-        return CompletableFuture.completedFuture(inboundOrder);
     }
 
     @Async("asyncExecutor")
-    public CompletableFuture<WarehouseApiResponse> processInboundOrderV6() throws Exception{
+    public void processInboundOrderV6() throws Exception{
         WarehouseApiResponse inboundOrder = transactionService.processInboundOrder("HYD");
-        return CompletableFuture.completedFuture(inboundOrder);
     }
 
     //-------------------------------------------------------------------Inbound-Failed-Order-------------------------------------------------------------

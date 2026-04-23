@@ -21,21 +21,21 @@ public class BatchJobScheduler {
 
     //-------------------------------------------------------------------------------------------
 
-    @Scheduled(fixedDelay = 20000)
+    @Scheduled(fixedDelay = 30000)
     public void scheduleJob() throws Exception {
 
         // MDU
-        CompletableFuture<WarehouseApiResponse> inboundOrder = scheduleAsyncService.processInboundOrder();
+        scheduleAsyncService.processInboundOrder();
         // CMP
-        CompletableFuture<WarehouseApiResponse> inboundOrderV2 = scheduleAsyncService.processInboundOrderV2();
+        scheduleAsyncService.processInboundOrderV2();
         // CHN
-        CompletableFuture<WarehouseApiResponse> inboundOrderV3 = scheduleAsyncService.processInboundOrderV3();
+        scheduleAsyncService.processInboundOrderV3();
         //VGA
-        CompletableFuture<WarehouseApiResponse> inboundOrderV4 = scheduleAsyncService.processInboundOrderV4();
+        scheduleAsyncService.processInboundOrderV4();
         //CCL
-        CompletableFuture<WarehouseApiResponse> inboundOrderV5 = scheduleAsyncService.processInboundOrderV5();
+        scheduleAsyncService.processInboundOrderV5();
         //HYD
-        CompletableFuture<WarehouseApiResponse> inboundOrderV6 = scheduleAsyncService.processInboundOrderV6();
+        scheduleAsyncService.processInboundOrderV6();
 
 //        CompletableFuture<WarehouseApiResponse> inboundFailedOrder = scheduleAsyncService.processInboundFailedOrder();
 
