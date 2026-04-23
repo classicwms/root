@@ -98,7 +98,7 @@ public class TransactionService extends BaseService {
             DataBaseContextHolder.setCurrentDb(profile);
             log.info("Current DB --------> " + profile);
             List<InboundIntegrationHeader> inboundList = new ArrayList<>();
-                List<InboundOrderV2> sqlInboundList = inboundOrderV2Repository.findTopInboundOrder();
+                List<InboundOrderV2> sqlInboundList = inboundOrderV2Repository.findByProcessedStatusIdOrderByOrderReceivedOn(0L);
                 log.info("ib sql header list: " + sqlInboundList.size());
 
                 if(sqlInboundList.isEmpty()) {

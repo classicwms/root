@@ -129,7 +129,7 @@ public class DataSourceConfig {
         config.setIdleTimeout(300000);
         config.setMaxLifetime(1800000);
 //        config.setAutoCommit(false);
-//        config.setLeakDetectionThreshold(30000); //
+        config.setLeakDetectionThreshold(30000); //
 
         // SQL Server recommended
         config.addDataSourceProperty("encrypt", "false");
