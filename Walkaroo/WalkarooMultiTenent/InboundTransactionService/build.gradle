@@ -68,7 +68,9 @@ dependencies {
 test {
 	useJUnitPlatform()
 }
-
+bootJar {
+	archiveName = 'InboundTransactionService.jar'
+}
 //bootJar {
 //   archiveName = 'InboundOrderService.jar'
 //}
