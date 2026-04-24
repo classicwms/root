@@ -18,7 +18,7 @@ public class AsyncConfiguration {
 //        executor.setQueueCapacity(110);
         executor.setCorePoolSize(8);
         executor.setMaxPoolSize(10);
-        executor.setQueueCapacity(100);
+        executor.setQueueCapacity(60);
         executor.setTaskDecorator(new TenantAwareTaskDecorator());
         executor.setThreadNamePrefix("AsyncExecutor-");
         executor.initialize();
