@@ -294,4 +294,36 @@ public class InventoryController {
 		}
 	}
 
+	@ApiOperation(response = InventoryV2.class, value = "Update Inventory V2") // label for swagger
+	@PostMapping("/update/inventory/v2")
+	public ResponseEntity<?> updateInventoryV2(@Valid @RequestBody List<InventoryV2> newInventory, @RequestParam String loginUserID)
+			throws IllegalAccessException, InvocationTargetException {
+		try {
+			String currentDB = baseService.getDataBase(newInventory.get(0).getPlantId());
+			DataBaseContextHolder.clear();
+			DataBaseContextHolder.setCurrentDb(currentDB);
+			log.info("Current DB " + currentDB);
+			List<InventoryV2> createdInventory = inventoryService.createInventoryV3(newInventory, loginUserID);
+			return new ResponseEntity<>(createdInventory , HttpStatus.OK);
+		}
+		finally {
+			DataBaseContextHolder.clear();
+		}
+	}
+
+	@ApiOperation(response = InventoryV2.class, value = "Upload Inventory") // label for swagger
+	@PostMapping("/upload/inventory/invMovement")
+	public ResponseEntity<?> uploadInventory(@Valid @RequestBody List<InventoryV2> inventoryV2 ,String loginUserID) throws InvocationTargetException, IllegalAccessException {
+		try {
+			String routingDb = baseService.getDataBase(inventoryV2.get(0).getPlantId());
+			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+			DataBaseContextHolder.clear();
+			DataBaseContextHolder.setCurrentDb(routingDb);
+			List<InventoryV2> inventory = inventoryService.postInventoryAndInvMovement(inventoryV2,loginUserID);
+			return new ResponseEntity<>(inventory, HttpStatus.OK);
+		} finally {
+			DataBaseContextHolder.clear();
+		}
+	}
+
 }

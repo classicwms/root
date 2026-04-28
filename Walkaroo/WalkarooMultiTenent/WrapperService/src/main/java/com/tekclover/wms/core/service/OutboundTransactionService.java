@@ -9482,6 +9482,45 @@ public class OutboundTransactionService {
         log.info("result : " + result.getStatusCode());
         return result.getBody();
     }
+
+    // POST
+    public InventoryV2[] createInventoryV3(List<InventoryV2> newInventory, String loginUserID, String authToken) {
+        AuthToken oAuth = authTokenService.getOutboundTransactionServiceAuthToken();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        headers.add("User-Agent", "ClassicWMS RestTemplate");
+        headers.add("Authorization", "Bearer " + oAuth.getAccess_token());
+
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getOutboundTransactionServiceApiUrl() + "inventory/update/inventory/v2")
+                .queryParam("loginUserID", loginUserID);
+        HttpEntity<?> entity = new HttpEntity<>(newInventory, headers);
+        ResponseEntity<InventoryV2[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity,
+                InventoryV2[].class);
+        log.info("result : " + result.getStatusCode());
+        return result.getBody();
+    }
+
+    public WarehouseApiResponse[] postInventoryAndInvMovement(List<InventoryV2> inventory, String authToken,String loginUserID) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            UriComponentsBuilder builder =
+                    UriComponentsBuilder.fromHttpUrl(getOutboundTransactionServiceApiUrl() + "inventory/upload/inventory/invMovement")
+                            .queryParam("loginUserID", loginUserID);
+            HttpEntity<?> entity = new HttpEntity<>(inventory, headers);
+            ResponseEntity<WarehouseApiResponse[]> result =
+                    getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, WarehouseApiResponse[].class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
 }
 
 

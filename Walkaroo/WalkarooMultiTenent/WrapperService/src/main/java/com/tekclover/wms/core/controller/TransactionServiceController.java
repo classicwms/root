@@ -4475,6 +4475,16 @@ public class TransactionServiceController {
         return new ResponseEntity<>(response,HttpStatus.OK);
     }
 
+    @ApiOperation(response = EMailDetails.class, value = "Inventory Upload") // label for swagger
+    @PostMapping("/upload/inventory/invMovement")
+    public ResponseEntity<?> postInventoryAndInvMovement(@RequestParam String companyCodeId, @RequestParam String plantId,
+                                                         @RequestParam String languageID, @RequestParam String warehouseId,
+                                                         @RequestParam String loginUserID,@RequestParam("file") MultipartFile file) throws Exception {
+
+        Map<String, String> response=null;
+        response = fileStorageService.postInventoryAndInvMovement(companyCodeId,plantId,languageID,warehouseId,loginUserID,file);
+        return new ResponseEntity<>(response,HttpStatus.OK);
+    }
 
         //Find InBoundOrder
         @ApiOperation(response = InboundOrderV2[].class, value = "Find InboundOrderV2")//label for swagger
@@ -4500,5 +4510,25 @@ public class TransactionServiceController {
                                                           @RequestParam String authToken) throws IllegalAccessException, InvocationTargetException {
         InhouseTransferHeader createdInHouseTransferHeader = outboundTransactionService.createInhouseTransferHeaderNewV2(newInHouseTransferHeader, loginUserID, authToken);
         return new ResponseEntity<>(createdInHouseTransferHeader, HttpStatus.OK);
+    }
+
+    //=====================================================File-Update-Upload==========================================
+
+    // File Upload - Update
+    @ApiOperation(response = Inventory.class, value = "Update Upload File") // label for swagger
+    @PostMapping("/update/Upload/file")
+    public ResponseEntity<?> fileUpdateUpload(@RequestParam String companyCodeId, @RequestParam String plantId,
+                                              @RequestParam String languageId, @RequestParam String warehouseId,
+                                              @RequestParam String loginUserID, @RequestParam("file") MultipartFile file,@RequestParam String authToken) throws Exception {
+        Map<String, String> response = fileStorageService.fileUpdateUpload(companyCodeId, plantId, languageId, warehouseId, loginUserID, file,authToken);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @ApiOperation(response = InventoryV2.class, value = "Update Inventory V2") // label for swagger
+    @PostMapping("/inventory/update/v2")
+    public ResponseEntity<?> postInventoryV3(@Valid @RequestBody List<InventoryV2> newInventory, @RequestParam String loginUserID,
+                                             @RequestParam String authToken) throws IllegalAccessException, InvocationTargetException {
+        InventoryV2[] createdInventory = outboundTransactionService.createInventoryV3(newInventory, loginUserID, authToken);
+        return new ResponseEntity<>(createdInventory, HttpStatus.OK);
     }
 }

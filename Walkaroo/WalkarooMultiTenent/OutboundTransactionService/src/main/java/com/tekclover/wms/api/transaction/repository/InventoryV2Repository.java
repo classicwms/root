@@ -3,6 +3,7 @@ package com.tekclover.wms.api.transaction.repository;
 import java.util.List;
 import java.util.Optional;
 
+import com.tekclover.wms.api.transaction.model.IKeyValuePair;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -5821,4 +5822,48 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
                                            @Param("languageId") String languageId,
                                            @Param("warehouseId") String warehouseId,
                                            @Param("barcodeId") String barcodeId);
+
+    @Query(value = "Select \n" +
+            "tc.c_text as companyDesc,\n" +
+            "tp.plant_text as plantDesc,\n" +
+            "tw.wh_text as warehouseDesc from \n" +
+            "tblcompanyid tc\n" +
+            "join tblplantid tp on tp.c_id = tc.c_id and tp.lang_id = tc.lang_id \n" +
+            "join tblwarehouseid tw on tw.c_id = tc.c_id and tw.lang_id = tc.lang_id and tw.plant_id = tp.plant_id \n" +
+            "where\n" +
+            "tc.lang_id IN (:languageId) and \n" +
+            "tc.c_id IN (:companyCodeId) and \n" +
+            "tp.plant_id IN(:plantId) and \n" +
+            "tw.wh_id IN (:warehouseId) and \n" +
+            "tc.is_deleted = 0 and \n" +
+            "tp.is_deleted = 0 and \n" +
+            "tw.is_deleted = 0 ", nativeQuery = true)
+    IKeyValuePair getDescription(@Param(value = "languageId") String languageId,
+                                 @Param(value = "companyCodeId") String companyCodeId,
+                                 @Param(value = "plantId") String plantId,
+                                 @Param(value = "warehouseId") String warehouseId);
+
+    @Query(value = "SELECT top 1 * from tblinventory \n" +
+            "where inv_id in (select max(inv_id) inventoryId from tblinventory \n" +
+            "WHERE \n" +
+            "(COALESCE(:itemCode, null) IS NULL OR (ITM_CODE IN (:itemCode))) and \n" +
+            "(COALESCE(:binClassId, null) IS NULL OR (BIN_CL_ID IN (:binClassId))) and\n" +
+            "(COALESCE(:companyCodeId, null) IS NULL OR (c_id IN (:companyCodeId))) and \n" +
+            "(COALESCE(:languageId, null) IS NULL OR (lang_id IN (:languageId))) and \n" +
+            "(COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) and \n" +
+            "(COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and \n" +
+            "is_deleted = 0 \n" +
+            "group by itm_code,barcode_id,plant_id,wh_id,c_id,lang_id) and \n" +
+            "(COALESCE(:barcodeId, null) IS NULL OR (BARCODE_ID IN (:barcodeId))) and \n" +
+            "(COALESCE(:itemCode, null) IS NULL OR (ITM_CODE IN (:itemCode))) and \n" +
+            "(COALESCE(:stockTypeId, null) IS NULL OR (STCK_TYP_ID IN (:stockTypeId))) and \n" +
+            "is_deleted = 0 and (INV_QTY > 0) ", nativeQuery = true)
+    public InventoryV2 getInventoryToUpdate(@Param("companyCodeId") String companyCodeId,
+                                            @Param("plantId") String plantId,
+                                            @Param("languageId") String languageId,
+                                            @Param("warehouseId") String warehouseId,
+                                            @Param("barcodeId") String barcodeId,
+                                            @Param("itemCode") String itemCode,
+                                            @Param("binClassId") Long binClassId,
+                                            @Param("stockTypeId") Long stockTypeId);
 }

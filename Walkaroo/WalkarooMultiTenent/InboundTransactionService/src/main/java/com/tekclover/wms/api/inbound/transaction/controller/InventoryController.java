@@ -12,6 +12,7 @@ import com.tekclover.wms.api.inbound.transaction.model.inbound.inventory.v2.IInv
 import com.tekclover.wms.api.inbound.transaction.model.inbound.inventory.v2.InventoryV2;
 import com.tekclover.wms.api.inbound.transaction.model.inbound.inventory.v2.SearchInventoryV2;
 import com.tekclover.wms.api.inbound.transaction.model.inbound.staging.v2.StagingLineEntityV2;
+import com.tekclover.wms.api.inbound.transaction.model.inbound.stock.v2.InventoryStockV2;
 import com.tekclover.wms.api.inbound.transaction.model.warehouse.inbound.WarehouseApiResponse;
 import com.tekclover.wms.api.inbound.transaction.repository.DbConfigRepository;
 import com.tekclover.wms.api.inbound.transaction.service.BaseService;
@@ -281,6 +282,20 @@ public class InventoryController {
 			DataBaseContextHolder.clear();
 			DataBaseContextHolder.setCurrentDb(routingDb);
 			List<InventoryV2> inventory = inventoryService.inventoryUpload(inventoryV2);
+			return new ResponseEntity<>(inventory, HttpStatus.OK);
+		} finally {
+			DataBaseContextHolder.clear();
+		}
+	}
+	@ApiOperation(response = InventoryStockV2.class, value = "Upload Inventory Stock") // label for swagger
+	@PostMapping("/upload/inventory/stock")
+	public ResponseEntity<?> uploadInventoryStock(@Valid @RequestBody List<InventoryStockV2> inventoryV2) {
+		try {
+			String routingDb = baseService.getDataBase(inventoryV2.get(0).getPlantId());
+			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+			DataBaseContextHolder.clear();
+			DataBaseContextHolder.setCurrentDb(routingDb);
+			List<InventoryStockV2> inventory = inventoryService.inventoryStockUpload(inventoryV2);
 			return new ResponseEntity<>(inventory, HttpStatus.OK);
 		} finally {
 			DataBaseContextHolder.clear();

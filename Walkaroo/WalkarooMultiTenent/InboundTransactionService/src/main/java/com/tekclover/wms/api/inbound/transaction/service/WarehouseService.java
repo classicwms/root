@@ -18,10 +18,15 @@ import java.util.stream.Collectors;
 import javax.validation.Valid;
 
 import com.tekclover.wms.api.inbound.transaction.config.dynamicConfig.DataBaseContextHolder;
-import com.tekclover.wms.api.inbound.transaction.repository.OutboundOrderV2Repository;
+import com.tekclover.wms.api.inbound.transaction.model.inbound.preinbound.v2.PreInboundLineEntityV2;
+import com.tekclover.wms.api.inbound.transaction.model.inbound.staging.v2.StagingLineEntityV2;
+import com.tekclover.wms.api.inbound.transaction.model.inbound.v2.InboundLineV2;
+import com.tekclover.wms.api.inbound.transaction.model.warehouse.FileUpdateUpload;
+import com.tekclover.wms.api.inbound.transaction.repository.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import com.tekclover.wms.api.inbound.transaction.controller.exception.BadRequestException;
@@ -69,9 +74,6 @@ import com.tekclover.wms.api.inbound.transaction.model.warehouse.inbound.v2.Sale
 import com.tekclover.wms.api.inbound.transaction.model.warehouse.inbound.v2.StockReceiptHeader;
 import com.tekclover.wms.api.inbound.transaction.model.warehouse.inbound.v2.StockReceiptLine;
 import com.tekclover.wms.api.inbound.transaction.model.warehouse.stockAdjustment.StockAdjustment;
-import com.tekclover.wms.api.inbound.transaction.repository.DeliveryConfirmationRepository;
-import com.tekclover.wms.api.inbound.transaction.repository.InboundOrderLinesV2Repository;
-import com.tekclover.wms.api.inbound.transaction.repository.WarehouseRepository;
 import com.tekclover.wms.api.inbound.transaction.util.CommonUtils;
 import com.tekclover.wms.api.inbound.transaction.util.DateUtils;
 
@@ -104,6 +106,12 @@ public class WarehouseService extends BaseService {
 
     @Autowired
     MastersService mastersService;
+
+    @Autowired
+    PutAwayHeaderV2Repository putAwayHeaderV2Repository;
+
+    @Autowired
+    InventoryV2Repository inventoryV2Repository;
 
     /**
      *
@@ -1934,6 +1942,101 @@ public class WarehouseService extends BaseService {
                 throw new BadRequestException("HU-SerialNo/BarcodeId already exists for this order number..! " + result + "|" + refDocNumber);
             }
         }
+    }
+
+    @Transactional
+    public List<FileUpdateUpload> updateInboundTables(List<FileUpdateUpload> inputs, String companyCodeId,
+                                                      String plantId, String languageId,
+                                                      String warehouseId, String loginUserID) {
+        List<FileUpdateUpload> updatedList = new ArrayList<>();
+
+        for (FileUpdateUpload input : inputs) {
+
+//            String barcodeId = input.getBarcodeId();
+            String barcodeId = input.getBarcodeId().trim();
+            log.info("Barcode: {}", barcodeId);
+
+            PreInboundLineEntityV2 preEntity = preInboundLineV2Repository.findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndBarcodeIdAndDeletionIndicator(
+                    languageId, companyCodeId, plantId, warehouseId, barcodeId, 0L);
+
+            log.info("PreInbound Record Found: {}", preEntity);
+
+            if (preEntity != null) {
+                preInboundLineV2Repository.delete(preEntity);
+
+                PreInboundLineEntityV2 newEntity = new PreInboundLineEntityV2();
+                BeanUtils.copyProperties(preEntity, newEntity, CommonUtils.getNullPropertyNames(preEntity));
+
+                newEntity.setMaterialNo(input.getMaterialNo());
+                newEntity.setPriceSegment(input.getPriceSegment());
+                newEntity.setItemCode(input.getItemCode());
+                newEntity.setBarcodeId(barcodeId);
+                newEntity.setUpdatedBy(loginUserID);
+                newEntity.setUpdatedOn(new Date());
+
+                preInboundLineV2Repository.save(newEntity);
+                log.info("PreInbound Updated for Barcode------>{}", barcodeId);
+            }
+
+            InboundLineV2 inboundEntity = inboundLineV2Repository.findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndBarcodeIdAndDeletionIndicator(
+                    languageId, companyCodeId, plantId, warehouseId, barcodeId, 0L);
+            log.info("Inbound Record Found: {}", inboundEntity);
+
+            if (inboundEntity != null) {
+                inboundLineV2Repository.delete(inboundEntity);
+
+                InboundLineV2 newEntity = new InboundLineV2();
+                BeanUtils.copyProperties(inboundEntity, newEntity, CommonUtils.getNullPropertyNames(inboundEntity));
+
+                newEntity.setMaterialNo(input.getMaterialNo());
+                newEntity.setPriceSegment(input.getPriceSegment());
+                newEntity.setItemCode(input.getItemCode());
+                newEntity.setBarcodeId(barcodeId);
+                newEntity.setUpdatedBy(loginUserID);
+                newEntity.setUpdatedOn(new Date());
+
+                inboundLineV2Repository.save(newEntity);
+                log.info("Inbound Updated for Barcode-------->{}", barcodeId);
+            }
+
+            StagingLineEntityV2 stagingEntity = stagingLineV2Repository.findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndBarcodeIdAndDeletionIndicator(languageId, companyCodeId,
+                    plantId, warehouseId, barcodeId, 0L);
+            log.info("Staging Record Found: {}", stagingEntity);
+
+            if (stagingEntity != null) {
+                stagingLineV2Repository.delete(stagingEntity);
+
+                StagingLineEntityV2 newEntity = new StagingLineEntityV2();
+                BeanUtils.copyProperties(stagingEntity, newEntity, CommonUtils.getNullPropertyNames(stagingEntity));
+
+                newEntity.setMaterialNo(input.getMaterialNo());
+                newEntity.setPriceSegment(input.getPriceSegment());
+                newEntity.setItemCode(input.getItemCode());
+                newEntity.setBarcodeId(barcodeId);
+
+                newEntity.setUpdatedBy(loginUserID);
+                newEntity.setUpdatedOn(new Date());
+
+                stagingLineV2Repository.save(newEntity);
+                log.info("Staging Updated for Barcode------------->{}", barcodeId);
+            }
+            int putawayUpdated = putAwayHeaderV2Repository.updatePutawayHeader(input.getMaterialNo(),
+                    input.getPriceSegment(), input.getItemCode(), languageId,
+                    companyCodeId, plantId, warehouseId, barcodeId);
+
+            int inventoryUpdated = inventoryV2Repository.updateInventory(input.getMaterialNo(),
+                    input.getPriceSegment(), input.getItemCode(), languageId,
+                    companyCodeId, plantId, warehouseId, barcodeId);
+
+            log.info("Putaway Updated Count ------> {}", putawayUpdated);
+            log.info("Inventory Updated Count ----> {}", inventoryUpdated);
+
+            log.info("Updated Barcodes successfully----------------> {} ", barcodeId);
+
+            updatedList.add(input);
+        }
+
+        return updatedList;
     }
 
 }

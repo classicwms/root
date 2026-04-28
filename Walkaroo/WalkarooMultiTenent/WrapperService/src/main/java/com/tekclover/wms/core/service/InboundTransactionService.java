@@ -11670,6 +11670,26 @@ public class InboundTransactionService {
             throw e;
         }
     }
+
+    //----------------------------------------------------FileUpdateUpload---------------------------------------//
+
+    public WarehouseApiResponse[] fileUpdateUpload(List<FileUpdateUpload> updateList, String companyCodeId, String plantId, String languageId, String warehouseId, String loginUserID, String authToken) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        headers.add("User-Agent", "RestTemplate");
+        headers.add("Authorization", "Bearer " + authToken);
+        UriComponentsBuilder builder =
+                UriComponentsBuilder.fromHttpUrl(getInboundTransactionServiceApiUrl() + "warehouse/update/upload")
+                        .queryParam("companyCodeId", companyCodeId)
+                        .queryParam("plantId", plantId)
+                        .queryParam("languageId", languageId)
+                        .queryParam("warehouseId", warehouseId)
+                        .queryParam("loginUserID", loginUserID);
+        HttpEntity<?> entity = new HttpEntity<>(updateList, headers);
+        ResponseEntity<WarehouseApiResponse[]> result =
+                getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, WarehouseApiResponse[].class);
+        return result.getBody();
+    }
 }
 
 

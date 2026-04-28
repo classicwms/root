@@ -7,6 +7,8 @@ import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
 
+import com.tekclover.wms.api.inbound.transaction.model.inbound.stock.v2.InventoryStockV2;
+import com.tekclover.wms.api.inbound.transaction.repository.*;
 import org.hibernate.exception.LockAcquisitionException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
@@ -47,11 +49,6 @@ import com.tekclover.wms.api.inbound.transaction.model.inbound.inventory.v2.Sear
 import com.tekclover.wms.api.inbound.transaction.model.inbound.putaway.v2.PutAwayLineV2;
 import com.tekclover.wms.api.inbound.transaction.model.inbound.staging.v2.StagingLineEntityV2;
 import com.tekclover.wms.api.inbound.transaction.model.trans.InventoryTrans;
-import com.tekclover.wms.api.inbound.transaction.repository.ErrorLogRepository;
-import com.tekclover.wms.api.inbound.transaction.repository.InventoryMovementRepository;
-import com.tekclover.wms.api.inbound.transaction.repository.InventoryRepository;
-import com.tekclover.wms.api.inbound.transaction.repository.InventoryTransRepository;
-import com.tekclover.wms.api.inbound.transaction.repository.InventoryV2Repository;
 import com.tekclover.wms.api.inbound.transaction.repository.specification.InventorySpecification;
 import com.tekclover.wms.api.inbound.transaction.repository.specification.InventoryV2Specification;
 import com.tekclover.wms.api.inbound.transaction.util.CommonUtils;
@@ -85,6 +82,8 @@ public class InventoryService extends BaseService {
     @Autowired
     ErrorLogRepository exceptionLogRepo;
 
+    @Autowired
+    InventoryStockRepository inventoryStockRepository;
 //    boolean alreadyExecuted = true;
     //================================================================================================
 
@@ -4128,6 +4127,23 @@ public class InventoryService extends BaseService {
             saveInventory.add(dbInventory);
         }
         inventoryV2Repository.saveAll(saveInventory);
+        return saveInventory;
+    }
+    //=========Inventory Stock Upload===================
+    public List<InventoryStockV2> inventoryStockUpload(List<InventoryStockV2> inventoryList) {
+
+        List<InventoryStockV2> saveInventory = new ArrayList<>();
+
+        for (InventoryStockV2 inventory : inventoryList) {
+            InventoryStockV2 dbInventory = new InventoryStockV2();
+            BeanUtils.copyProperties(inventory, dbInventory, CommonUtils.getNullPropertyNames(inventory));
+
+            dbInventory.setDeletionIndicator(0L);
+            dbInventory.setCreatedOn(new Date());
+            dbInventory.setUpdatedOn(new Date());
+            inventoryStockRepository.save(dbInventory);
+            saveInventory.add(dbInventory);
+        }
         return saveInventory;
     }
 }

@@ -10,6 +10,9 @@ import java.util.stream.Collectors;
 import javax.validation.Valid;
 
 import com.tekclover.wms.api.inbound.transaction.config.dynamicConfig.DataBaseContextHolder;
+import com.tekclover.wms.api.inbound.transaction.model.inbound.inventory.Inventory;
+import com.tekclover.wms.api.inbound.transaction.model.inbound.inventory.UpdateInventory;
+import com.tekclover.wms.api.inbound.transaction.model.warehouse.FileUpdateUpload;
 import com.tekclover.wms.api.inbound.transaction.model.warehouse.inbound.*;
 import com.tekclover.wms.api.inbound.transaction.repository.DbConfigRepository;
 import com.tekclover.wms.api.inbound.transaction.service.BaseService;
@@ -582,4 +585,20 @@ public class WarehouseController {
 
 	}
 
+    @ApiOperation(response = FileUpdateUpload.class, value = "Update Upload File") // label for swagger
+    @PostMapping("/update/upload")
+    public ResponseEntity<?> postUpdateUpload(@RequestBody List<FileUpdateUpload> updateUploads, @RequestParam String companyCodeId, @RequestParam String plantId,
+                                                 @RequestParam String languageId, @RequestParam String warehouseId, @RequestParam String loginUserID)
+            throws IllegalAccessException, InvocationTargetException {
+        try {
+            String currentDB = baseService.getDataBase(plantId);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(currentDB);
+            log.info("Current DB " + currentDB);
+            List<FileUpdateUpload> createdInventory = warehouseService.updateInboundTables(updateUploads, companyCodeId, plantId, languageId, warehouseId, loginUserID);
+            return new ResponseEntity<>(createdInventory, HttpStatus.OK);
+        } finally {
+            DataBaseContextHolder.clear();
+        }
+    }
 }

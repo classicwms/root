@@ -775,4 +775,8 @@ public interface StagingLineV2Repository extends JpaRepository<StagingLineEntity
             "WHERE REF_DOC_NO = :refDocNo AND is_deleted = 0", nativeQuery = true)
     int updateStagingLine(@Param("refDocNo") String refDocNo,
                           @Param("sapFlag") String sapFlag);
+
+    StagingLineEntityV2 findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndBarcodeIdAndDeletionIndicator(String languageId, String companyCode, String plantId,
+                                                                                                               String warehouseId, String barcodeId, Long deletionIndicator);
+
 }

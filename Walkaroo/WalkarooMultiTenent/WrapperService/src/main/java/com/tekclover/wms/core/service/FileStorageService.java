@@ -1893,4 +1893,193 @@ public class FileStorageService {
 			return cell.getStringCellValue().trim();
 		}
 	}
+
+	public Map<String, String> postInventoryAndInvMovement(String companyCodeId, String plantId, String languageID,
+														   String warehouseId, String loginUserId, MultipartFile file) throws Exception {
+		this.fileStorageLocation = Paths.get(propertiesConfig.getFileUploadDir()).toAbsolutePath().normalize();
+		if (!Files.exists(fileStorageLocation)) {
+			try {
+				Files.createDirectories(this.fileStorageLocation);
+			} catch (Exception ex) {
+				throw new BadRequestException(
+						"Could not create the directory where the uploaded files will be stored.");
+			}
+		}
+
+		List<String> validationErrors = validationInventory(file);
+		if (!validationErrors.isEmpty()) {
+			List<Error> errors = validationFormatInbound(validationErrors);
+			ObjectMapper objectMapper = new ObjectMapper();
+			String jsonResponse = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(errors);
+			Map<String, String> mapFileProps = new HashMap<>();
+			mapFileProps.put("errors", jsonResponse);
+			return mapFileProps;
+		}
+
+		log.info("loca : " + fileStorageLocation);
+
+		// Normalize file name
+		String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
+		log.info("filename before: " + fileName);
+		fileName = fileName.replace(" ", "_");
+		log.info("filename after: " + fileName);
+		try {
+			// Check if the file's name contains invalid characters
+			if (fileName.contains("..")) {
+				throw new BadRequestException("Sorry! Filename contains invalid path sequence " + fileName);
+			}
+
+			// Copy file to the target location (Replacing existing file with the same name)
+			Path targetLocation = this.fileStorageLocation.resolve(fileName);
+			Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+			log.info("Copied : " + targetLocation);
+
+			List<InventoryV2> allRowsList = inventoryReadExcelFile(companyCodeId, plantId, languageID, warehouseId, loginUserId, file);
+
+			if (allRowsList != null && !allRowsList.isEmpty()) {
+				// Uploading
+				WarehouseApiResponse[] dbWarehouseApiResponse = new WarehouseApiResponse[0];
+				List<InventoryV2> inventory = inventory(companyCodeId, plantId, languageID, warehouseId, loginUserId, allRowsList);
+				log.info("inventory size " + inventory.size());
+				AuthToken authToken = authTokenService.getOutboundTransactionServiceAuthToken();
+				dbWarehouseApiResponse = outboundTransactionService.postInventoryAndInvMovement(inventory, authToken.getAccess_token(),loginUserId);
+
+				if (dbWarehouseApiResponse != null) {
+					return uploadSuccessMessage(fileName);
+				}
+			}
+
+		} catch (IOException ex) {
+			ex.printStackTrace();
+			throw new BadRequestException("Could not store file " + fileName + ". Please try again!");
+		}
+		return null;
+	}
+
+
+	//--------------------------------------------------------FileupdateUpload----------------------------//
+
+	/**
+	 * @param file
+	 * @return
+	 * @throws Exception
+	 */
+	public Map<String, String> fileUpdateUpload(String companyCodeId, String plantId, String languageId,
+												String warehouseId, String loginUserId, MultipartFile file, String authTokens) throws Exception {
+		this.fileStorageLocation = Paths.get(propertiesConfig.getFileUploadDir()).toAbsolutePath().normalize();
+		if (!Files.exists(fileStorageLocation)) {
+			try {
+				Files.createDirectories(this.fileStorageLocation);
+			} catch (Exception ex) {
+				throw new BadRequestException(
+						"Could not create the directory where the uploaded files will be stored.");
+			}
+		}
+
+		log.info("loca : " + fileStorageLocation);
+
+		// Normalize file name
+		String fileName = StringUtils.cleanPath(file.getOriginalFilename());
+		log.info("filename before: " + fileName);
+		fileName = fileName.replace(" ", "_");
+		log.info("filename after: " + fileName);
+		try {
+			// Check if the file's name contains invalid characters
+			if (fileName.contains("..")) {
+				throw new BadRequestException("Sorry! Filename contains invalid path sequence " + fileName);
+			}
+
+			// Copy file to the target location (Replacing existing file with the same name)
+			Path targetLocation = this.fileStorageLocation.resolve(fileName);
+			Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+			log.info("Copied : " + targetLocation);
+
+			List<List<String>> allRowsList = readExcelDataUpdateUpload(targetLocation.toFile());
+			List<FileUpdateUpload> inventoryUpdate = uploadUpdate(allRowsList);
+			log.info("InventoryUpdate : " + inventoryUpdate);
+
+			// Uploading Orders
+			WarehouseApiResponse[] dbWarehouseApiResponse = new WarehouseApiResponse[0];
+			AuthToken authToken = authTokenService.getInboundTransactionServiceAuthToken();
+			dbWarehouseApiResponse = inboundTransactionService.fileUpdateUpload(inventoryUpdate, companyCodeId, plantId, languageId, warehouseId, loginUserId, authToken.getAccess_token());
+
+			if (dbWarehouseApiResponse != null) {
+				Map<String, String> mapFileProps = new HashMap<>();
+				mapFileProps.put("file", fileName);
+				mapFileProps.put("status", "UPLOADED SUCCESSFULLY");
+				return mapFileProps;
+			}
+		} catch (IOException ex) {
+			ex.printStackTrace();
+			throw new BadRequestException("Could not store file " + fileName + ". Please try again!");
+		}
+		return null;
+	}
+
+	//
+	private List<FileUpdateUpload> uploadUpdate(List<List<String>> allRowsList) {
+
+		List<FileUpdateUpload> fileList = new ArrayList<>();
+
+		for (List<String> row : allRowsList) {
+
+			if (row == null || row.size() < 4) {
+				continue;
+			}
+			FileUpdateUpload obj = new FileUpdateUpload();
+			obj.setBarcodeId(row.get(0));
+			obj.setItemCode(row.get(1));
+			obj.setMaterialNo(row.get(2));
+			obj.setPriceSegment(row.get(3));
+			fileList.add(obj);
+		}
+		return fileList;
+	}
+
+	private List<List<String>> readExcelDataUpdateUpload(File file) {
+
+		List<List<String>> allRowsList = new ArrayList<>();
+
+		try (Workbook workbook = new XSSFWorkbook(file)) {
+
+			Sheet sheet = workbook.getSheetAt(0);
+			Iterator<Row> iterator = sheet.iterator();
+
+			if (iterator.hasNext()) {
+				iterator.next();
+			}
+
+			while (iterator.hasNext()) {
+				Row currentRow = iterator.next();
+				List<String> rowData = new ArrayList<>();
+
+				for (int i = 0; i < 4; i++) {
+					Cell cell = currentRow.getCell(i, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+					switch (cell.getCellType()) {
+						case STRING:
+							rowData.add(cell.getStringCellValue().trim());
+							break;
+						case NUMERIC:
+							double numValue = cell.getNumericCellValue();
+							if (numValue == Math.floor(numValue)) {
+								rowData.add(String.valueOf((long) numValue));
+							} else {
+								rowData.add(String.valueOf(numValue));
+							}
+							break;
+
+						default:
+							rowData.add("");
+					}
+				}
+
+				allRowsList.add(rowData);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new BadRequestException("Error reading Excel file");
+		}
+		return allRowsList;
+	}
+
 }
