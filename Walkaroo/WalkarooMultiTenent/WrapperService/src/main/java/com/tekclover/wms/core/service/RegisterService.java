@@ -90,6 +90,7 @@ public class RegisterService {
 
 	public AuthToken getAuthToken(@Valid AuthTokenRequest authTokenRequest) {
 		if(authTokenRequest.getApiName().equalsIgnoreCase("wms-transaction-service")) {
+			log.info("Token Generation : ApiName : wms-transaction-service");
 			AuthToken newAuth = new AuthToken();
 			newAuth.setAccess_token("eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjE3NzczNjM1NDEsInVzZXJfbmFtZSI6IndtcyIsImF1dGhvcml0aWVzIjpbIlJPTEVfU1lTVEVNQURNSU4iXSwianRpIjoiVDNMQ002cDk1aWRvMzlxeW9ldnBZU01rY1BVIiwiY2xpZW50X2lkIjoicGl4ZWx0cmljZSIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSJdfQ.OYtvBCHePEX6r1An7O03Bsf35x0huGhWPTSxvJSlx48");
 			newAuth.setToken_type("bearer");
