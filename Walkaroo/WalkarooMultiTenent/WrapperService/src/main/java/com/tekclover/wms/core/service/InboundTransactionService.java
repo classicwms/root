@@ -11593,10 +11593,11 @@ public class InboundTransactionService {
 
     public GrHeaderV2[] updateVehicleNo(List<GrHeaderV2> grHeaderV2s, String loginUserID, String authToken) {
         try {
+            AuthToken oAuth = authTokenService.getInboundTransactionServiceAuthToken();
             HttpHeaders headers = new HttpHeaders();
             headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
             headers.add("User-Agent", "ClassicWMS-Almailem RestTemplate");
-            headers.add("Authorization", "Bearer " + authToken);
+            headers.add("Authorization", "Bearer " + oAuth.getAccess_token());
 
             HttpEntity<?> entity = new HttpEntity<>(grHeaderV2s, headers);
             HttpClient client = HttpClients.createDefault();
