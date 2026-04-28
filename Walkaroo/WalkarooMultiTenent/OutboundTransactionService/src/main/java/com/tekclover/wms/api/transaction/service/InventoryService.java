@@ -4167,7 +4167,11 @@ public class InventoryService extends BaseService {
             throws IllegalAccessException, InvocationTargetException {
         try {
             List<InventoryV2> updatedInventory = new ArrayList<>();
+            List<InventoryMovement> saveInvMovement = new ArrayList<>();
 
+            IKeyValuePair iKeyValuePair = inventoryV2Repository.getDescription(
+                    inventoryList.get(0).getLanguageId(), inventoryList.get(0).getCompanyCodeId(),
+                    inventoryList.get(0).getPlantId(), inventoryList.get(0).getWarehouseId());
             for (InventoryV2 newInventory : inventoryList) {
                 InventoryV2 dbInventory = new InventoryV2();
                 log.info("newInventory : {}" , newInventory);
@@ -4179,29 +4183,95 @@ public class InventoryService extends BaseService {
                     BeanUtils.copyProperties(newInventory, oldInventory, CommonUtils.getNullPropertyNames(newInventory));
                     oldInventory.setDeletionIndicator(0L);
                     oldInventory.setCreatedBy(loginUserID);
+                    oldInventory.setLevelId("1");
+                    oldInventory.setReferenceField10("A");
+                    oldInventory.setCompanyDescription(iKeyValuePair.getCompanyDesc());
+                    oldInventory.setPlantDescription(iKeyValuePair.getPlantDesc());
+                    oldInventory.setWarehouseDescription(iKeyValuePair.getWarehouseDesc());
                     oldInventory.setCreatedOn(new Date());
-//                    oldInventory.setInventoryId(null);
                     updatedInventory.add(oldInventory);
+
+                    InventoryMovement inventoryMovement = new InventoryMovement();
+                    inventoryMovement.setLanguageId(oldInventory.getLanguageId());
+                    inventoryMovement.setCompanyCodeId(oldInventory.getCompanyCodeId());
+                    inventoryMovement.setPlantId(oldInventory.getPlantId());
+                    inventoryMovement.setWarehouseId(oldInventory.getWarehouseId());
+                    inventoryMovement.setMovementType(1L);
+                    inventoryMovement.setSubmovementType(1L);
+                    inventoryMovement.setPalletCode("99999");
+                    inventoryMovement.setCaseCode("99999");
+                    inventoryMovement.setPackBarcodes("99999");
+                    inventoryMovement.setItemCode(oldInventory.getItemCode());
+                    inventoryMovement.setVariantCode(1L);
+                    inventoryMovement.setVariantSubCode("1");;
+                    inventoryMovement.setBatchSerialNumber("1");
+                    inventoryMovement.setMovementDocumentNo(String.valueOf(System.currentTimeMillis()));
+                    if (inventoryMovement.getMovementType() == 1L) {
+                        inventoryMovement.setReferenceField1("SALES RETURN");
+                    }
+                    inventoryMovement.setCompanyDescription(iKeyValuePair.getCompanyDesc());
+                    inventoryMovement.setPlantDescription(iKeyValuePair.getPlantDesc());
+                    inventoryMovement.setWarehouseDescription(iKeyValuePair.getWarehouseDesc());
+                    inventoryMovement.setDeletionIndicator(0L);
+                    inventoryMovement.setCreatedBy(loginUserID);
+                    inventoryMovement.setCreatedOn(new Date());
+                    saveInvMovement.add(inventoryMovement);
+
+
                 }else {
                     BeanUtils.copyProperties(newInventory, dbInventory, CommonUtils.getNullPropertyNames(newInventory));
                     if(dbInventory.getStorageSectionId() == null) {
                         dbInventory.setStorageSectionId(dbInventory.getReferenceField10());
                     }
                     dbInventory.setDeletionIndicator(0L);
+                    dbInventory.setLevelId("1");
+                    dbInventory.setReferenceField10("A");
+                    dbInventory.setCompanyDescription(iKeyValuePair.getCompanyDesc());
+                    dbInventory.setPlantDescription(iKeyValuePair.getPlantDesc());
+                    dbInventory.setWarehouseDescription(iKeyValuePair.getWarehouseDesc());
                     dbInventory.setCreatedBy(loginUserID);
                     dbInventory.setCreatedOn(new Date());
-//                    dbInventory.setInventoryId(null);
                     updatedInventory.add(dbInventory);
+
+                    InventoryMovement inventoryMovement = new InventoryMovement();
+                    inventoryMovement.setLanguageId(dbInventory.getLanguageId());
+                    inventoryMovement.setCompanyCodeId(dbInventory.getCompanyCodeId());
+                    inventoryMovement.setPlantId(dbInventory.getPlantId());
+                    inventoryMovement.setWarehouseId(dbInventory.getWarehouseId());
+                    inventoryMovement.setMovementType(1L);
+                    inventoryMovement.setSubmovementType(1L);
+                    inventoryMovement.setPalletCode("99999");
+                    inventoryMovement.setCaseCode("99999");
+                    inventoryMovement.setPackBarcodes("99999");
+                    inventoryMovement.setItemCode(dbInventory.getItemCode());
+                    inventoryMovement.setVariantCode(1L);
+                    inventoryMovement.setVariantSubCode("1");;
+                    inventoryMovement.setBatchSerialNumber("1");
+                    inventoryMovement.setMovementDocumentNo(String.valueOf(System.currentTimeMillis()));
+                    if (inventoryMovement.getMovementType() == 1L) {
+                        inventoryMovement.setReferenceField1("SALES RETURN");
+                    }
+                    inventoryMovement.setCompanyDescription(iKeyValuePair.getCompanyDesc());
+                    inventoryMovement.setPlantDescription(iKeyValuePair.getPlantDesc());
+                    inventoryMovement.setWarehouseDescription(iKeyValuePair.getWarehouseDesc());
+                    inventoryMovement.setDeletionIndicator(0L);
+                    inventoryMovement.setCreatedBy(loginUserID);
+                    inventoryMovement.setCreatedOn(new Date());
+                    saveInvMovement.add(inventoryMovement);
                 }
             }
+            inventoryMovementRepository.saveAll(saveInvMovement);
+            log.info("Inventory Movement {} ", saveInvMovement.size());
             inventoryV2Repository.saveAll(updatedInventory);
+            log.info("Inventory {} ", updatedInventory.size());
+
+
             return updatedInventory;
         } catch (Exception e) {
             e.printStackTrace();
             throw new BadRequestException("Exception : " + e);
         }
     }
-
     /**
      *
      * @param inventoryList

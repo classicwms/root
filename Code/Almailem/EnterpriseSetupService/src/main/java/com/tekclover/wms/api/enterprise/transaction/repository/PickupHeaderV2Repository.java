@@ -190,6 +190,33 @@ public interface PickupHeaderV2Repository extends JpaRepository<PickupHeaderV2, 
                                                        @Param("startDate") Date startDate,
                                                        @Param("endDate") Date endDate);
 
+    @Query(value =
+            "SELECT TOP 1 p.value AS assignPicker, " +
+                    "       COUNT(t.pre_ob_no) AS cnt " +
+                    "FROM STRING_SPLIT(:assignedPickerIds, ',') p " +
+                    "LEFT JOIN tblpickupheader t " +
+                    "    ON p.value = t.ass_picker_id " +
+                    "    AND t.c_id = :companyCodeId " +
+                    "    AND t.plant_id = :plantId " +
+                    "    AND t.lang_Id = :languageId " +
+                    "    AND t.wh_id = :warehouseId " +
+                    "    AND t.pick_ctd_on BETWEEN :startDate AND :endDate " +
+                    "    AND t.level_id = :levelId " +
+                    "    AND t.status_id = :statusId " +
+                    "GROUP BY p.value " +
+                    "ORDER BY COUNT(t.pre_ob_no) ASC",
+            nativeQuery = true)
+    IKeyValuePair findByAssignPickerId(
+            @Param("companyCodeId") String companyCodeId,
+            @Param("plantId") String plantId,
+            @Param("languageId") String languageId,
+            @Param("warehouseId") String warehouseId,
+            @Param("assignedPickerIds") String assignedPickerIds,
+            @Param("levelId") Long levelId,
+            @Param("statusId") Long statusId,
+            @Param("startDate") Date startDate,
+            @Param("endDate") Date endDate);
+
     @Query(value = "select ass_picker_id assignPicker \n" +
                     "from tblpickupheader \n" +
                     "where \n" +

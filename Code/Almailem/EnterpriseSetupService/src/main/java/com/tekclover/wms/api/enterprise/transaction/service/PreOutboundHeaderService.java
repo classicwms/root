@@ -2203,24 +2203,35 @@ public class PreOutboundHeaderService extends BaseService {
                                 }
                             }
 
-                            List<String> pickerCountList = pickupHeaderV2Repository
-                                            .getPickUpheaderAssignPickerList(companyCodeId, plantId, languageId, warehouseId, hhtUserList, LEVEL_ID, 48L, dates[0], dates[1]);
-                            log.info("assigned Picker status_48L: " + pickerCountList);
-                            if(pickerCountList != null && !pickerCountList.isEmpty()){
-                                assignPickerList.add(pickerCountList.get(0));
-                                log.info("assigned Picker: " + assignPickerList.get(0));
-                                if (assignPickerList.size() > 0) {
-                                    break outerLoop;
-                                }
+//                            List<String> pickerCountList = pickupHeaderV2Repository
+//                                            .getPickUpheaderAssignPickerList(companyCodeId, plantId, languageId, warehouseId, hhtUserList, LEVEL_ID, 48L, dates[0], dates[1]);
+//                            log.info("assigned Picker status_48L: " + pickerCountList);
+//                            if(pickerCountList != null && !pickerCountList.isEmpty()){
+//                                assignPickerList.add(pickerCountList.get(0));
+//                                log.info("assigned Picker: " + assignPickerList.get(0));
+//                                if (assignPickerList.size() > 0) {
+//                                    break outerLoop;
+//                                }
+//                            }
+
+                            String pickerIds = String.join(",", hhtUserList);
+                            log.info("48 Status Id Checking User Input's" + hhtUserList);
+                            IKeyValuePair pickerCountList = pickupHeaderV2Repository.findByAssignPickerId(companyCodeId, plantId, languageId, warehouseId, pickerIds, LEVEL_ID, 48L, dates[0], dates[1]);
+
+                            if(pickerCountList != null && pickerCountList.getAssignPicker() != null) {
+                                assignPickerId = pickerCountList.getAssignPicker();
+                                log.info("AssignPickerId from pickupHeader min count of picker " + assignPickerId);
                             }
                         }
-                        if (assignPickerList == null || assignPickerList.isEmpty() || assignPickerList.size() == 0) {
-                            assignPickerList.add(hhtUserList.get(0));
-                        }
-                        if(assignPickerList != null && !assignPickerList.isEmpty()) {
+                        if(assignPickerId == null) {
+                            if (assignPickerList == null || assignPickerList.isEmpty() || assignPickerList.size() == 0) {
+                                assignPickerList.add(hhtUserList.get(0));
+                            }
+                            if (assignPickerList != null && !assignPickerList.isEmpty()) {
                                 assignPickerId = assignPickerList.get(0);
+                            }
+                            log.info("assignPickerId: " + assignPickerId);
                         }
-                        log.info("assignPickerId: " + assignPickerId);
                     }
                 }
             }
