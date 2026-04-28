@@ -77,7 +77,9 @@ public class CommonService {
 		} else if (apiUrl.equalsIgnoreCase("wms-enterprise-service")) {
 			accessTokenUrl = propertiesConfig.getMastersAccessTokenUrl();
 		} else if (apiUrl.equalsIgnoreCase("wms-transaction-service")) {
-			accessTokenUrl = propertiesConfig.getInboundTransactionAccessTokenUrl();
+			accessTokenUrl = "eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjE3NzczNjE0NDYsInVzZXJfbmFtZSI6IndtcyIsImF1dGhvcml0aWVzIjpbIlJPTEVfU1lTVEVNQURNSU4iXSwianRpIjoiQThQTGhreC02UjgtMzU2RDJ" +
+					"VYkp4b2VGNm1NIiwiY2xpZW50X2lkIjoicGl4ZWx0cmljZSIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSJdfQ.uKW1_GFgHSCqUsjKEzBKvMhdWiFU8BdZPH8Z3gndamo" +
+					"FTUFETUlOIl0sImp0aSI6IldXS1h6SkowRVF6dTFKemgzU1dXOWtxa3N2SSIsImNsaWVudF9pZCI6InBpeGVsdHJpY2UifQ.K834BWrRgxkGkJww0PJN6M7drPxVIncF6X4ckvlkmbE";
 		}else if (apiUrl.equalsIgnoreCase("wms-inboundtransaction-service")) {
 			accessTokenUrl = propertiesConfig.getInboundTransactionAccessTokenUrl();
 		} else if (apiUrl.equalsIgnoreCase("wms-outboundtransaction-service")) {
