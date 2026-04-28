@@ -1581,47 +1581,35 @@ public class FileStorageService {
 					// Validate cell based on header and column index
 					if (cell != null) {
 						switch (header) {
-							case "palletcode":
-							case "casecode":
-							case "itemcode":
-							case "packbarcodes":
-							case "variantsubcode":
-							case "batchserialnumber":
-							case "storagebin":
-							case "storagemethod":
-							case "description":
-							case "inventoryuom":
-							case "manufacturercode":
-							case "barcodeid":
-							case "cbm":
-							case "cbmunit":
-							case "cbmperquantity":
-							case "manufacturername":
-							case "origin":
-							case "brand":
-							case "levelid":
-							case "stocktypedescription":
-							case "referencefield1":
-							case "referencefield2":
-							case "referencefield3":
-							case "referencefield5":
-							case "referencefield6":
-							case "referencefield7":
-							case "referencefield8":
-							case "referencefield9":
-							case "referencefield10":
 
+							case "itemcode":
+							case "huserialnumber":
+							case "materialno":
+							case "pricesegment":
+							case "articleno":
+							case "gender":
+							case "color":
+							case "size":
+							case "noofpairs":
+							case "binlocation":
+							case "mfrcode":
+							case "palcode":
+							case "invuom":
 								validateStringCell(cell, rowIndex, colIndex, header, errors);
 								break;
-							case "variantcode":
-							case "stocktypeid":
-							case "specialstockindicatorid":
-							case "binclassid":
-							case "allocatedquantity":
-							case "inventoryquantity":
-							case "deletionindicator":
-							case "referencefield4":
 
+							case "levelid":
+							case "zone":
+
+								nullValidateStringCell(cell, rowIndex, colIndex, header, errors);
+								break;
+
+							case "inventoryqty":
+							case "binclassid":
+							case "deletionindicator":
+							case "allocatedquantity":
+							case "total":
+							case "varid":
 								validateIntegerCell(cell, rowIndex, colIndex, header, errors);
 								break;
 							default:
@@ -1630,27 +1618,22 @@ public class FileStorageService {
 						}
 					} else
 						switch (header) {
-							case "palletcode":
-							case "casecode":
 							case "itemcode":
-							case "packbarcodes":
-							case "storagebin":
-							case "stocktypeid":
-							case "specialstockindicatorid":
+							case "huserialnumber":
+							case "materialno":
+							case "pricesegment":
+							case "articleno":
+							case "gender":
+							case "color":
+							case "size":
+							case "noofpairs":
+							case "binlocation":
+							case "mfrcode":
+							case "inventoryqty":
 							case "binclassid":
-							case "description":
-							case "allocatedquantity":
-							case "inventoryquantity":
-							case "inventoryuom":
-							case "manufacturercode":
-							case "manufacturername":
-							case "levelid":
-							case "stocktypedescription":
 							case "deletionindicator":
-							case "referencefield4":
-							case "referencefield8":
-							case "referencefield9":
-							case "referencefield10":
+							case "allocatedquantity":
+							case "total":
 								errors.add("Empty cell at row " + (rowIndex + 1) + ", column " + (colIndex + 1) + " (" + header + ") : : Mandatory Field cannot be empty.");
 								break;
 						}
@@ -1685,123 +1668,77 @@ public class FileStorageService {
 
 				switch (columnName) {
 
-					case "palletcode" :
-						invokeSetter(inventoryV2, "setPalletCode", cell != null ? getCellValueAsString(cell) : null);
-						break;
-					case "casecode" :
-						invokeSetter(inventoryV2, "setCaseCode", cell != null ? getCellValueAsString(cell) : null);
-						break;
-					case "itemcode" :
+					case "itemcode":
 						invokeSetter(inventoryV2, "setItemCode", cell != null ? getCellValueAsString(cell) : null);
-						break;
-					case "packbarcodes" :
-						invokeSetter(inventoryV2, "setPackBarcodes", cell != null ? getCellValueAsString(cell) : null);
-						break;
-					case "variantsubcode" :
-						invokeSetter(inventoryV2, "setVariantSubCode", cell != null ? getCellValueAsString(cell) : null);
-						break;
-					case "batchserialnumber" :
-						invokeSetter(inventoryV2, "setBatchSerialNumber", cell != null ? getCellValueAsString(cell) : null);
-						break;
-					case "storagebin" :
-						invokeSetter(inventoryV2, "setStorageBin", cell != null ? getCellValueAsString(cell) : null);
-						break;
-					case "storagemethod" :
-						invokeSetter(inventoryV2, "setStorageMethod", cell != null ? getCellValueAsString(cell) : null);
-						break;
-					case "description" :
 						invokeSetter(inventoryV2, "setDescription", cell != null ? getCellValueAsString(cell) : null);
+						invokeSetter(inventoryV2, "setReferenceField3", cell != null ? getCellValueAsString(cell) : null);
 						break;
-					case "inventoryuom" :
-						invokeSetter(inventoryV2, "setInventoryUom", cell != null ? getCellValueAsString(cell) : null);
-						break;
-					case "manufacturercode" :
-						invokeSetter(inventoryV2, "setManufacturerCode", cell != null ? getCellValueAsString(cell) : null);
-						break;
-					case "barcodeid" :
+					case "huserialnumber":
 						invokeSetter(inventoryV2, "setBarcodeId", cell != null ? getCellValueAsString(cell) : null);
 						break;
-					case "cbm" :
-						invokeSetter(inventoryV2, "setCbm", cell != null ? getCellValueAsString(cell) : null);
+					case "materialno":
+						invokeSetter(inventoryV2, "setMaterialNo", cell != null ? getCellValueAsString(cell) : null);
 						break;
-					case "cbmunit" :
-						invokeSetter(inventoryV2, "setCbmUnit", cell != null ? getCellValueAsString(cell) : null);
+					case "pricesegment":
+						invokeSetter(inventoryV2, "setPriceSegment", cell != null ? getCellValueAsString(cell) : null);
 						break;
-					case "cbmperquantity" :
-						invokeSetter(inventoryV2, "setCbmPerQuantity", cell != null ? getCellValueAsString(cell) : null);
+					case "articleno":
+						invokeSetter(inventoryV2, "setArticleNo", cell != null ? getCellValueAsString(cell) : null);
 						break;
-					case "manufacturername" :
+					case "gender":
+						invokeSetter(inventoryV2, "setGender", cell != null ? getCellValueAsString(cell) : null);
+						break;
+					case "color":
+						invokeSetter(inventoryV2, "setColor", cell != null ? getCellValueAsString(cell) : null);
+						break;
+					case "size":
+						invokeSetter(inventoryV2, "setSize", cell != null ? getCellValueAsString(cell) : null);
+						break;
+					case "noofpairs":
+						invokeSetter(inventoryV2, "setNoPairs", cell != null ? getCellValueAsString(cell) : null);
+						break;
+					case "binlocation":
+						invokeSetter(inventoryV2, "setStorageBin", cell != null ? getCellValueAsString(cell) : null);
+						break;
+					case "mfrcode" :
 						invokeSetter(inventoryV2, "setManufacturerName", cell != null ? getCellValueAsString(cell) : null);
+						invokeSetter(inventoryV2, "setManufacturerCode", cell != null ? getCellValueAsString(cell) : null);
+						invokeSetter(inventoryV2, "setReferenceField9", cell != null ? getCellValueAsString(cell) : null);
 						break;
-					case "origin" :
-						invokeSetter(inventoryV2, "setOrigin", cell != null ? getCellValueAsString(cell) : null);
-						break;
-					case "brand" :
-						invokeSetter(inventoryV2, "setBrand", cell != null ? getCellValueAsString(cell) : null);
-						break;
-					case "referencedocumentno" :
-						invokeSetter(inventoryV2, "setReferenceDocumentNo", cell != null ? getCellValueAsString(cell) : null);
+					case "zone" :
+						invokeSetter(inventoryV2, "setReferenceField10", cell != null ? getCellValueAsString(cell) : null);
 						break;
 					case "levelid" :
 						invokeSetter(inventoryV2, "setLevelId", cell != null ? getCellValueAsString(cell) : null);
 						break;
-					case "stocktypedescription" :
-						invokeSetter(inventoryV2, "setStockTypeDescription", cell != null ? getCellValueAsString(cell) : null);
-						break;
-					case "referencefield1" :
-						invokeSetter(inventoryV2, "setReferenceField1", cell != null ? getCellValueAsString(cell) : null);
-						break;
-					case "referencefield2" :
-						invokeSetter(inventoryV2, "setReferenceField2", cell != null ? getCellValueAsString(cell) : null);
-						break;
-					case "referencefield3" :
-						invokeSetter(inventoryV2, "setReferenceField3", cell != null ? getCellValueAsString(cell) : null);
-						break;
-					case "referencefield4" :
-						invokeSetter(inventoryV2, "setReferenceField4", cell != null ? getCellValueAsDouble(cell) : null);
-						break;
-					case "referencefield5" :
-						invokeSetter(inventoryV2, "setReferenceField5", cell != null ? getCellValueAsString(cell) : null);
-						break;
-					case "referencefield6" :
-						invokeSetter(inventoryV2, "setReferenceField6", cell != null ? getCellValueAsString(cell) : null);
-						break;
-					case "referencefield7" :
-						invokeSetter(inventoryV2, "setReferenceField7", cell != null ? getCellValueAsString(cell) : null);
-						break;
-					case "referencefield8" :
-						invokeSetter(inventoryV2, "setReferenceField8", cell != null ? getCellValueAsString(cell) : null);
-						break;
-					case "referencefield9" :
-						invokeSetter(inventoryV2, "setReferenceField9", cell != null ? getCellValueAsString(cell) : null);
-						break;
-					case "referencefield10" :
-						invokeSetter(inventoryV2, "setReferenceField10", cell != null ? getCellValueAsString(cell) : null);
-						break;
-
-					case "variantcode" :
-						invokeSetter(inventoryV2, "setVariantCode", cell != null ? getCellValueAsLong(cell) : null);
-						break;
-					case "specialstockindicatorid" :
-						invokeSetter(inventoryV2, "setSpecialStockIndicatorId", cell != null ? getCellValueAsLong(cell) : null);
-						break;
-					case "storagetypeid" :
-						invokeSetter(inventoryV2, "setStorageTypeId", cell != null ? getCellValueAsLong(cell) : null);
-						break;
 					case "binclassid" :
 						invokeSetter(inventoryV2, "setBinClassId", cell != null ? getCellValueAsLong(cell) : null);
-						break;
-					case "stocktypeid" :
-						invokeSetter(inventoryV2, "setStockTypeId", cell != null ? getCellValueAsLong(cell) : null);
 						break;
 					case "allocatedquantity" :
 						invokeSetter(inventoryV2, "setAllocatedQuantity", cell != null ? getCellValueAsDouble(cell) : null);
 						break;
-					case "inventoryquantity" :
+					case "inventoryqty" :
 						invokeSetter(inventoryV2, "setInventoryQuantity", cell != null ? getCellValueAsDouble(cell) : null);
+						break;
+					case "total":
+						invokeSetter(inventoryV2, "setReferenceField4", cell != null ? getCellValueAsDouble(cell) : null);
 						break;
 					case "deletionindicator" :
 						invokeSetter(inventoryV2, "setDeletionIndicator", cell != null ? getCellValueAsLong(cell) : null);
+						break;
+					case "palcode":
+						invokeSetter(inventoryV2, "setPalletCode", cell != null ? getCellValueAsString(cell) : null);
+						invokeSetter(inventoryV2, "setCaseCode", cell != null ? getCellValueAsString(cell) : null);
+						invokeSetter(inventoryV2, "setPackBarcodes", cell != null ? getCellValueAsString(cell) : null);
+						break;
+					case "invuom":
+						invokeSetter(inventoryV2, "setInventoryUom", cell != null ? getCellValueAsString(cell) : null);
+						break;
+					case "varid":
+						invokeSetter(inventoryV2, "setVariantSubCode", cell != null ? getCellValueAsString(cell) : null);
+						invokeSetter(inventoryV2, "setVariantCode", cell != null ? getCellValueAsLong(cell) : null);
+						invokeSetter(inventoryV2, "setStockTypeId", cell != null ? getCellValueAsLong(cell) : null);
+						invokeSetter(inventoryV2, "setSpecialStockIndicatorId", cell != null ? getCellValueAsLong(cell) : null);
 						break;
 				}
 			}
