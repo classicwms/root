@@ -30,4 +30,5 @@ public class FindContainerReceiptV2 {
     private List<String> refDocNumber;
     private List<String> origin;
     private List<String> invoiceNo;
+    private List<String> inventoryOwner;
 }

@@ -2179,4 +2179,13 @@ public class OutboundTransactionServiceController {
         Map<String, String> response = fileStorageService.fileUpdateUpload(companyCodeId, plantId, languageId, warehouseId, loginUserID, file,authToken);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+    //V2
+    @ApiOperation(response = InventoryV2.class, value = "Search Inventory V4") // label for swagger
+    @PostMapping("/inventory/findGroupByInventory")
+    public ResponseEntity<?> findInventoryV2(@RequestBody SearchInventoryV2 searchInventory,
+                                             @RequestParam String authToken) throws Exception {
+        InventoryV2[] response = outboundTransactionService.findInventoryV4(searchInventory, authToken);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 }

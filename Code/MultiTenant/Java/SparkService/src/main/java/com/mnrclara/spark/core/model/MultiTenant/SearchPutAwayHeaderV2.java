@@ -31,5 +31,5 @@ public class SearchPutAwayHeaderV2 {
     private List<String> approvalStatus;
     private List<String> customerId;
     private List<String> palletCode;
-
+    private List<String> inventoryOwner;
 }

@@ -76,4 +76,6 @@ public class InventoryV2 extends Inventory {
 	private String customerId;
 	private String customerName;
 
+	private Double totalBags;
+
 }

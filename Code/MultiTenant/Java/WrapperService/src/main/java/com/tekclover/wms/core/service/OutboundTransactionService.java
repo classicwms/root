@@ -6322,4 +6322,25 @@ public class OutboundTransactionService {
         return result.getBody();
     }
 
+    // POST - findInventory/v4
+    public InventoryV2[] findInventoryV4(SearchInventoryV2 searchInventory, String authToken) throws ParseException {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            UriComponentsBuilder builder =
+                    UriComponentsBuilder.fromHttpUrl(getOutboundTransactionServiceApiUrl() + "inventory/findInventoryNew/v4");
+            HttpEntity<?> entity = new HttpEntity<>(searchInventory, headers);
+            ResponseEntity<InventoryV2[]> result =
+                    getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, InventoryV2[].class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
 }

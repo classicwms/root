@@ -265,4 +265,24 @@ public class InventoryController {
 			DataBaseContextHolder.clear();
 		}
 	}
+
+	@ApiOperation(response = IInventoryImpl.class, value = "Search Inventory V4 Namratha") // label for swagger
+	@PostMapping("/findInventoryNew/v4")
+	public List<IInventoryImpl> findInventoryNewV4(@RequestBody SearchInventoryV2 searchInventory)
+			throws Exception {
+		try {
+			log.info("SearchInventoryV2 ------> {}", searchInventory);
+			String routingDb = null;
+			DataBaseContextHolder.setCurrentDb("MT");
+			Warehouse warehouseName = warehouseRepository.findTop1ByWarehouseIdAndDeletionIndicator(searchInventory.getWarehouseId().get(0), 0L);
+			routingDb = dbConfigRepository.getDbName(warehouseName.getCompanyCodeId(), warehouseName.getPlantId(), warehouseName.getWarehouseId());
+			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+			DataBaseContextHolder.clear();
+			DataBaseContextHolder.setCurrentDb(routingDb);
+			return inventoryService.getInventoryReportByBags(searchInventory);
+		}
+		finally {
+			DataBaseContextHolder.clear();
+		}
+	}
 }

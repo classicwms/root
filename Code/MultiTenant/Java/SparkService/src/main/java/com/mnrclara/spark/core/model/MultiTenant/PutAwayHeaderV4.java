@@ -98,4 +98,6 @@ public class PutAwayHeaderV4 {
 
     private String customerId;
     private String customerName;
+
+    private String materialNo;
 }

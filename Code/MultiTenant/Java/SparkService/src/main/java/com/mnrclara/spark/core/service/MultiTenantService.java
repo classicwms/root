@@ -289,6 +289,7 @@ public class MultiTenantService {
             ConditionUtils.addCondition(conditions, "LANG_ID", findContainerReceipt.getLanguageId());
             ConditionUtils.addCondition(conditions, "WH_ID", findContainerReceipt.getWarehouseId());
             ConditionUtils.addCondition(conditions, "CONT_REC_NO", findContainerReceipt.getContainerReceiptNo());
+            ConditionUtils.addCondition(conditions, "REF_FIELD_30", findContainerReceipt.getInventoryOwner());
             ConditionUtils.addCondition(conditions, "CONT_NO", findContainerReceipt.getContainerNo());
             ConditionUtils.addCondition(conditions, "PARTNER_CODE", findContainerReceipt.getPartnerCode());
             ConditionUtils.addCondition(conditions, "REF_FIELD_1", findContainerReceipt.getUnloadedBy());
@@ -991,6 +992,7 @@ public class MultiTenantService {
             ConditionUtils.addCondition(conditions, "GR_NO", searchGrHeader.getGoodsReceiptNo());
             ConditionUtils.addCondition(conditions, "PRE_IB_NO", searchGrHeader.getPreInboundNo());
             ConditionUtils.addCondition(conditions, "REF_DOC_NO", searchGrHeader.getRefDocNumber());
+            ConditionUtils.addCondition(conditions, "REF_FIELD_6", searchGrHeader.getInventoryOwner());
             ConditionUtils.addCondition(conditions, "CASE_CODE", searchGrHeader.getCaseCode());
             ConditionUtils.addCondition(conditions, "GR_CTD_BY", searchGrHeader.getCreatedBy());
 
@@ -1168,6 +1170,7 @@ public class MultiTenantService {
             ConditionUtils.addCondition(conditions, "WH_ID", findPreInboundHeader.getWarehouseId());
             ConditionUtils.addCondition(conditions, "PRE_IB_NO", findPreInboundHeader.getPreInboundNo());
             ConditionUtils.addCondition(conditions, "REF_DOC_NO", findPreInboundHeader.getRefDocNumber());
+            ConditionUtils.addCondition(conditions, "REF_FIELD_6", findPreInboundHeader.getInventoryOwner());
 
             ConditionUtils.numericConditions(conditions, "IB_ORD_TYP_ID", findPreInboundHeader.getInboundOrderTypeId());
             ConditionUtils.numericConditions(conditions, "STATUS_ID", findPreInboundHeader.getStatusId());
@@ -1374,6 +1377,7 @@ public class MultiTenantService {
                     + "MRP AS mrp, "
                     + "ITM_TYP AS itemType, "
                     + "ITM_GRP AS itemGroup, "
+                    + "QTY_IN_PIECE AS qtyInPiece, "
                     + "STCK_TYP_TXT AS stockTypeDescription "
                     + "FROM tblpreinboundline";
 
@@ -1386,6 +1390,7 @@ public class MultiTenantService {
             ConditionUtils.addCondition(conditions, "WH_ID", findPreInboundLine.getWarehouseId());
             ConditionUtils.addCondition(conditions, "PRE_IB_NO", findPreInboundLine.getPreInboundNo());
             ConditionUtils.addCondition(conditions, "REF_DOC_NO", findPreInboundLine.getRefDocNumber());
+            ConditionUtils.addCondition(conditions, "SUPPLIER_NAME", findPreInboundLine.getSupplierName());
 
             ConditionUtils.numericConditions(conditions, "IB_ORD_TYP_ID", findPreInboundLine.getInboundOrderTypeId());
             ConditionUtils.numericConditions(conditions, "STATUS_ID", findPreInboundLine.getStatusId());
@@ -1588,6 +1593,7 @@ public class MultiTenantService {
                     + "QTY_IN_PIECE as qtyInPiece, "
                     + "QTY_IN_CREATE as qtyInCreate, "
                     + "VEHICLE_NO as vehicleNo, "
+                    + "MATERIAL_NO as materialNo, "
                     + "VEHICLE_REPORTING_DATE as vehicleReportingDate, "
                     + "VEHICLE_UNLOADING_DATE as vehicleUnloadingDate, "
                     + "RECEIVINGVARIANCE as receivingVariance,"
@@ -1604,12 +1610,13 @@ public class MultiTenantService {
             ConditionUtils.addCondition(conditions, "PACK_BARCODE", searchPutAwayHeader.getPackBarcodes());
             ConditionUtils.addCondition(conditions, "PA_NO", searchPutAwayHeader.getPutAwayNumber());
             ConditionUtils.addCondition(conditions, "REF_DOC_NO", searchPutAwayHeader.getRefDocNumber());
+//            ConditionUtils.addCondition(conditions, "REF_FIELD_6", searchPutAwayHeader.getInventoryOwner());
             ConditionUtils.addCondition(conditions, "PROP_ST_BIN", searchPutAwayHeader.getProposedStorageBin());
             ConditionUtils.addCondition(conditions, "PROP_HE_NO", searchPutAwayHeader.getProposedHandlingEquipment());
             ConditionUtils.addCondition(conditions, "BARCODE_ID", searchPutAwayHeader.getBarcodeId());
             ConditionUtils.addCondition(conditions, "PA_CTD_BY", searchPutAwayHeader.getCreatedBy());
             ConditionUtils.addCondition(conditions, "PAL_CODE", searchPutAwayHeader.getPalletCode());
-
+            ConditionUtils.addCondition(conditions, "MATERIAL_NO", searchPutAwayHeader.getInventoryOwner());
             ConditionUtils.numericConditions(conditions, "STATUS_ID", searchPutAwayHeader.getStatusId());
             ConditionUtils.addCondition(conditions, "CUSTOMER_ID", searchPutAwayHeader.getCustomerId());
 
@@ -2141,6 +2148,7 @@ public class MultiTenantService {
                     + "MFR_NAME as manufacturerName, "
                     + "ORIGIN as origin, "
                     + "BRAND as brand, "
+                    + "ST_SEC_ID as storageSectionId, "
                     + "PARTNER_ITEM_BARCODE as partner_item_barcode, "
                     + "REC_ACCEPT_QTY as rec_accept_qty, "
                     + "REC_DAMAGE_QTY as rec_damage_qty, "
@@ -2169,6 +2177,7 @@ public class MultiTenantService {
                     + "QTY_IN_CREATE as qtyInCreate, "
                     + "BARCODE_ID as barcodeId, "
                     + "VEHICLE_NO as vehicleNo, "
+                    + "MATERIAL_NO as materialNo, "
                     + "VEHICLE_REPORTING_DATE as vehicleReportingDate, "
                     + "VEHICLE_UNLOADING_DATE as vehicleUnloadingDate, "
                     + "PRINT_LABEL as printLabel, "
@@ -2554,8 +2563,8 @@ public class MultiTenantService {
             DataBaseContextHolder.setCurrentDb(routingDb);
 
             String sqlQuery = "SELECT C_TEXT, PLANT_TEXT, WH_TEXT, STATUS_TEXT, MFR_NAME, ITM_CODE, REF_DOC_NO, REF_DOC_TYPE, " +
-                    "PROP_ST_BIN, CNF_ST_BIN, BARCODE_ID, PA_QTY, PA_CNF_QTY, PA_CNF_BY, PA_CTD_ON, PA_UTD_ON as PA_CNF_ON, " +
-                    "REF_FIELD_1, REF_FIELD_10, ALT_UOM, NO_BAGS, BAG_SIZE, MRP, itm_typ, itm_grp, QTY_IN_PIECE, QTY_IN_CREATE, QTY_IN_CASE FROM tblputawayline";
+                    "PROP_ST_BIN, CNF_ST_BIN, BARCODE_ID, PA_QTY, PA_CNF_QTY, PA_CNF_BY, PA_CTD_ON, PA_UTD_ON as PA_CNF_ON, text, ref_field_2, " +
+                    "REF_FIELD_1, REF_FIELD_10, ALT_UOM, NO_BAGS, BAG_SIZE, MRP, itm_typ, itm_grp, QTY_IN_PIECE, QTY_IN_CREATE,PAL_ID, QTY_IN_CASE FROM tblputawayline";
 
             List<String> conditions = new ArrayList<>();
             ConditionUtils.addCondition(conditions, "PA_NO", findPutAwayLineV2.getPutAwayNumber());
@@ -2569,6 +2578,7 @@ public class MultiTenantService {
             ConditionUtils.addCondition(conditions, "BARCODE_ID", findPutAwayLineV2.getBarcodeId());
             ConditionUtils.addCondition(conditions, "CNF_ST_BIN", findPutAwayLineV2.getConfirmedStorageBin());
             ConditionUtils.addCondition(conditions, "REF_DOC_NO", findPutAwayLineV2.getRefDocNumber());
+            ConditionUtils.addCondition(conditions, "PAL_ID", findPutAwayLineV2.getPalletId());
             ConditionUtils.addCondition(conditions, "GR_NO", findPutAwayLineV2.getGoodsReceiptNo());
             ConditionUtils.addCondition(conditions, "PRE_IB_NO", findPutAwayLineV2.getPreInboundNo());
             ConditionUtils.addCondition(conditions, "PROP_ST_BIN", findPutAwayLineV2.getProposedStorageBin());
@@ -3366,6 +3376,7 @@ public class MultiTenantService {
                     + "REF_FIELD_8 as referenceField8, "
                     + "REF_FIELD_9 as referenceField9, "
                     + "REF_FIELD_10 as referenceField10, "
+                    + "MATERIAL_NO as materialNo, "
                     + "RE_ALLOC_BY as reAllocatedBy, "
                     + "RE_ALLOC_ON as reAllocatedOn, "
                     + "PICK_UP_CTD_BY as pickupCreatedBy, "
@@ -3407,6 +3418,7 @@ public class MultiTenantService {
                     + "NO_BAGS as noBags, "
                     + "BAG_SIZE as bagSize, "
                     + "mrp as mrp, "
+                    + "PRICE_SEGMENT as priceSegment, "
                     + "itm_typ as itemType, "
                     + "itm_grp as itemGroup, "
                     + "CUSTOMER_NAME as customerName, "
@@ -3426,6 +3438,7 @@ public class MultiTenantService {
             ConditionUtils.addCondition(conditions, "LANG_ID", findOrderManagementLine.getLanguageId());
             ConditionUtils.addCondition(conditions, "PRE_OB_NO", findOrderManagementLine.getPreOutboundNo());
             ConditionUtils.addCondition(conditions, "REF_DOC_NO", findOrderManagementLine.getRefDocNumber());
+            ConditionUtils.addCondition(conditions, "MATERIAL_NO", findOrderManagementLine.getInventoryOwner());
             ConditionUtils.addCondition(conditions, "REF_FIELD_1", findOrderManagementLine.getSoType());
             ConditionUtils.addCondition(conditions, "PARTNER_CODE", findOrderManagementLine.getPartnerCode());
             ConditionUtils.addCondition(conditions, "ITM_CODE", findOrderManagementLine.getItemCode());
@@ -3580,6 +3593,7 @@ public class MultiTenantService {
                     + "REF_FIELD_8 as referenceField8, "
                     + "REF_FIELD_9 as referenceField9, "
                     + "REF_FIELD_10 as referenceField10, "
+                    + "MATERIAL_NO as materialNo, "
                     + "IS_DELETED as deletionIndicator, "
                     + "REMARK as remarks, "
                     + "PICK_CTD_BY as pickupCreatedBy, "
@@ -3632,6 +3646,7 @@ public class MultiTenantService {
                     + "QTY_IN_CRATE as qtyInCrate,"
                     + "MFR_DATE as manufacturerDate,"
                     + "EXP_DATE as expiryDate,"
+                    + "size as size,"
                     + "REMAINING_DAYS as remainingDays,"
                     + "TFR_REQ_TYP as TransferRequestType, "
                     + "CUSTOMER_NAME as customerName "
@@ -3644,6 +3659,7 @@ public class MultiTenantService {
             ConditionUtils.addCondition(conditions, "LANG_ID", findPickupHeader.getLanguageId());
             ConditionUtils.addCondition(conditions, "REF_DOC_NO", findPickupHeader.getRefDocNumber());
             ConditionUtils.addCondition(conditions, "REF_FIELD_1", findPickupHeader.getSoType());
+            ConditionUtils.addCondition(conditions, "MATERIAL_NO", findPickupHeader.getInventoryOwner());
             ConditionUtils.addCondition(conditions, "PARTNER_CODE", findPickupHeader.getPartnerCode());
             ConditionUtils.addCondition(conditions, "ITM_CODE", findPickupHeader.getItemCode());
             ConditionUtils.addCondition(conditions, "PU_NO", findPickupHeader.getPickupNumber());
@@ -3841,6 +3857,7 @@ public class MultiTenantService {
                     + "MANUFACTURER_FULL_NAME as manufacturerFullName, "
                     + "TARGET_BRANCH_CODE as targetBranchCode, "
                     + "VAR_QTY as varianceQuantity, "
+                    + "MATERIAL_NO as materialNo, "
                     + "PICK_CBM as pickCbm, "
                     + "ALT_UOM as alternateUom, "
                     + "NO_BAGS as noBags, "
@@ -3864,6 +3881,8 @@ public class MultiTenantService {
             ConditionUtils.addCondition(conditions, "WH_ID", searchPickupLine.getWarehouseId());
             ConditionUtils.addCondition(conditions, "LANG_ID", searchPickupLine.getLanguageId());
             ConditionUtils.addCondition(conditions, "REF_DOC_NO", searchPickupLine.getRefDocNumber());
+            ConditionUtils.addCondition(conditions, "PARTNER_ITEM_BARCODE", searchPickupLine.getBarcodeId());
+            ConditionUtils.addCondition(conditions, "MATERIAL_NO", searchPickupLine.getInventoryOwner());
             ConditionUtils.addCondition(conditions, "PARTNER_CODE", searchPickupLine.getPartnerCode());
             ConditionUtils.addCondition(conditions, "ITM_CODE", searchPickupLine.getItemCode());
             ConditionUtils.addCondition(conditions, "PU_NO", searchPickupLine.getPickupNumber());
@@ -3872,6 +3891,7 @@ public class MultiTenantService {
             ConditionUtils.addCondition(conditions, "PICK_ST_BIN", searchPickupLine.getPickedStorageBin());
             ConditionUtils.addCondition(conditions, "PICK_PACK_BARCODE", searchPickupLine.getPickedPackCode());
             ConditionUtils.addCondition(conditions, "ASS_PICKER_ID", searchPickupLine.getAssignedPickerId());
+            ConditionUtils.addCondition(conditions, "REF_FIELD_2", searchPickupLine.getPalletId());
 
             ConditionUtils.numericConditions(conditions, "STATUS_ID", searchPickupLine.getStatusId());
             ConditionUtils.numericConditions(conditions, "OB_LINE_NO", searchPickupLine.getLineNumber());
@@ -4017,6 +4037,7 @@ public class MultiTenantService {
                     + "REF_FIELD_8 as referenceField8, "
                     + "REF_FIELD_9 as referenceField9, "
                     + "REF_FIELD_10 as referenceField10, "
+                    + "MATERIAL_NO as materialNo, "
                     + "IS_DELETED as deletionIndicator, "
                     + "REMARK as remarks, "
                     + "QC_CTD_BY as qualityCreatedBy, "
@@ -4063,6 +4084,7 @@ public class MultiTenantService {
             ConditionUtils.addCondition(conditions, "LANG_ID", findQualityHeader.getLanguageId());
             ConditionUtils.addCondition(conditions, "REF_DOC_NO", findQualityHeader.getRefDocNumber());
             ConditionUtils.addCondition(conditions, "REF_FIELD_1", findQualityHeader.getSoType());
+            ConditionUtils.addCondition(conditions, "MATERIAL_NO", findQualityHeader.getInventoryOwner());
             ConditionUtils.addCondition(conditions, "PARTNER_CODE", findQualityHeader.getPartnerCode());
             ConditionUtils.addCondition(conditions, "QC_NO", findQualityHeader.getQualityInspectionNo());
             ConditionUtils.addCondition(conditions, "PICK_HE_NO", findQualityHeader.getActualHeNo());

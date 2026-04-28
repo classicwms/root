@@ -26,5 +26,9 @@ public class SearchPickupLineV2 {
     private List<Long> statusId;
     private Date fromPickConfirmedOn;
     private Date toPickConfirmedOn;
+    private List<String> palletId;
+    private List<String> inventoryOwner;
+    private List<String> barcodeId;
+
 
 }

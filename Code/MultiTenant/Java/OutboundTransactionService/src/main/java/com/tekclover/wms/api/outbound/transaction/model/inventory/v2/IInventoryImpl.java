@@ -83,4 +83,5 @@ public interface IInventoryImpl {
 	//----------------------Namratha------------------------//
 	Double getCaseQty();
 	Boolean getLoosePack();
+	Double getTotalBags();
 }

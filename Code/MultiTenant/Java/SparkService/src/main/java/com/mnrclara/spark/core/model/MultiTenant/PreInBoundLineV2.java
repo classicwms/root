@@ -100,5 +100,5 @@ public class PreInBoundLineV2 {
     private String itemType;
     private String itemGroup;
     private String stockTypeDescription;
-
+    private Double qtyInPiece;
 }

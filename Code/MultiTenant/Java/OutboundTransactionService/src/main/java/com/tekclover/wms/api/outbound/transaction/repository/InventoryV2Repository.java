@@ -2956,5 +2956,52 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
                         @Param("languageId") String languageId,
                         @Param("warehouseId") String warehouseId);
 
+    @Query(value = "SELECT \n" +
+            "    lang_id as languageId , \n" +
+            "    c_text as companyDescription, \n" +
+            "    plant_text as plantDescription, \n" +
+            "    wh_text as warehouseDescription, \n" +
+            "    itm_code as itemCode, \n" +
+            "    text as description,  \n" +
+            "    COUNT(itm_code) AS totalBags\n" +
+            "FROM tblinventory\n" +
+            "WHERE \n" +
+            "    IS_DELETED = 0 \n" +
+            "    AND REF_FIELD_4 > 0 \n" +
+            "    AND inv_id IN (\n" +
+            "        SELECT MAX(inv_id) \n" +
+            "        FROM tblinventory \n" +
+            "        WHERE is_deleted = 0\n" +
+            "        GROUP BY \n" +
+            "            itm_code,\n" +
+            "            barcode_id,\n" +
+            "            mfr_name,\n" +
+            "            pack_barcode,\n" +
+            "            st_bin,\n" +
+            "            plant_id,\n" +
+            "            wh_id,\n" +
+            "            c_id,\n" +
+            "            lang_id\n" +
+            "    )\n" +
+            "    AND bin_cl_id = 1 \n" +
+            "    AND ref_field_4 > 0\n" +
+            "    AND (COALESCE(:itemCode, null) IS NULL OR (itm_code IN (:itemCode))) \n" +
+            "    AND (COALESCE(:languageId, null) IS NULL OR (lang_id IN (:languageId))) \n" +
+            "    AND (COALESCE(:companyCodeId, null) IS NULL OR (c_id IN (:companyCodeId))) \n" +
+            "    AND (COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) \n" +
+            "    AND (COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) \n" +
+            "GROUP BY \n" +
+            "    lang_id, \n" +
+            "    c_text, \n" +
+            "    plant_text, \n" +
+            "    wh_text, \n" +
+            "    itm_code, \n" +
+            "    text;", nativeQuery = true)
+    List<IInventoryImpl> getInventoryTotalBagsV4(@Param("companyCodeId") List<String> companyCodeId,
+                                                 @Param("plantId") List<String> plantId,
+                                                 @Param("languageId") List<String> languageId,
+                                                 @Param("warehouseId") List<String> warehouseId,
+                                                 @Param("itemCode") List<String> itemCode);
+
 
 }

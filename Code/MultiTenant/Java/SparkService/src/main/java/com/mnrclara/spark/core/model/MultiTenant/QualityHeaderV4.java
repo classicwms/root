@@ -69,4 +69,5 @@ public class QualityHeaderV4 {
     private String itemGroup;
     private Integer imsSaleTypeCode;
     private String brand;
+    private String materialNo;
 }

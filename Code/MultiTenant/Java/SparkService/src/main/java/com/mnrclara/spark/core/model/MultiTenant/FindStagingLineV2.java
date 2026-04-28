@@ -26,4 +26,6 @@ public class FindStagingLineV2 {
     private List<Long> lineNo;
     private List<String> itemCode;
     private List<Long> statusId;
+
+    private List<String> referenceField1;
 }

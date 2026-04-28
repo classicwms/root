@@ -106,4 +106,8 @@ public class StagingLineV5 {
     private Boolean crossDock;
     private String goodsReceiptNo;
     private String parentProductionOrderNo;
+
+    private String storageSectionId;
+
+    private String materialNo;
 }

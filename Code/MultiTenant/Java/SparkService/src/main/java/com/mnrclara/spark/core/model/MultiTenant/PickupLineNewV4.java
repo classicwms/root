@@ -92,4 +92,5 @@ public class PickupLineNewV4 {
     private String customerId;
     private String customerName;
     private String pickConfirmBarcodeId;
+    private String materialNo;
 }

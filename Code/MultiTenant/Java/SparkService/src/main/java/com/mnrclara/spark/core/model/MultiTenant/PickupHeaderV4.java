@@ -92,4 +92,7 @@ public class PickupHeaderV4 {
     private Double qtyInPiece;
     private Double qtyInCrate;
     private String remainingDays;
+    private String materialNo;
+
+    private String size;
 }

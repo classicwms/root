@@ -3097,4 +3097,17 @@ public class InventoryService extends BaseService {
         return inventoryList;
     }
 
+    /**
+     * Aakash Vinayak S 28-04-2026
+     *
+     * @param searchInventoryV2
+     * @return
+     */
+    public List<IInventoryImpl> getInventoryReportByBags(SearchInventoryV2 searchInventoryV2) {
+        List<IInventoryImpl> result = inventoryV2Repository.getInventoryTotalBagsV4(searchInventoryV2.getCompanyCodeId(),
+                searchInventoryV2.getPlantId(), searchInventoryV2.getLanguageId(), searchInventoryV2.getWarehouseId(), searchInventoryV2.getItemCode());
+
+        return result;
+    }
+
 }
