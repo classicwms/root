@@ -664,6 +664,32 @@ public class OutboundHeaderService {
 	/**
 	 * 
 	 * @param warehouseId
+	 * @param preOutboundNo
+	 * @param refDocNumber
+	 * @param partnerCode
+	 * @param updateOutboundHeader
+	 * @param loginUserID
+	 * @return
+	 * @throws IllegalAccessException
+	 * @throws InvocationTargetException
+	 */
+	public OutboundHeader updateOutboundHeaderForQualityLine (String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode, 
+			UpdateOutboundHeader updateOutboundHeader, String loginUserID) 
+			throws IllegalAccessException, InvocationTargetException {
+		OutboundHeader dbOutboundHeader = getOutboundHeaderForUpdate(warehouseId, preOutboundNo, refDocNumber, partnerCode);
+		log.info("------------updateOutboundHeaderForQualityLine----dbOutboundHeader--1--> " + dbOutboundHeader);
+		if (dbOutboundHeader != null && dbOutboundHeader.getStatusId() != 59L) {
+			BeanUtils.copyProperties(updateOutboundHeader, dbOutboundHeader, CommonUtils.getNullPropertyNames(updateOutboundHeader));
+			dbOutboundHeader.setUpdatedBy(loginUserID);
+			dbOutboundHeader.setUpdatedOn(new Date());
+			return outboundHeaderRepository.save(dbOutboundHeader);
+		}
+		return null;
+	}
+	
+	/**
+	 * 
+	 * @param warehouseId
 	 * @param refDocNumber
 	 * @param preOutboundNo
 	 * @param partnerCode
