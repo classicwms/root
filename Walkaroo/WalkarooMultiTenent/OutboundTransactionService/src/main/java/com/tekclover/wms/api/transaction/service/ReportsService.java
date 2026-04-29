@@ -2698,46 +2698,46 @@ public class ReportsService extends BaseService {
         inboundCount.setReversals(putAwayHeaderReversals);
 
         /*--------------Outbound--------------------------------*/
-        MobileDashboard.OutboundCount outboundCount = mobileDashboard.new OutboundCount();
+//        MobileDashboard.OutboundCount outboundCount = mobileDashboard.new OutboundCount();
 
         //Get LevelId from User HHtUser
 //        String levelId = pickupLineRepository.getLevelIdForUserId(companyCode, plantId, languageId, warehouseId, userId);
 
         // --------------Picking---------------------------------------------------------------------------
-        orderTypeId = Arrays.asList(0L, 1L, 3L);
+//        orderTypeId = Arrays.asList(0L, 1L, 3L);
 //        List<PickupHeaderV2> pickupHeaderList =
 //                pickupHeaderService.getPickupHeaderCount(companyCode, plantId, languageId, warehouseId, levelId, orderTypeId);
-        Long pickupHeaderList = pickupHeaderRepository.getPickupHeaderCount(companyCode, plantId, warehouseId, languageId, userId, 48L, orderTypeId);
-        outboundCount.setPicking(pickupHeaderList);
+//        Long pickupHeaderList = pickupHeaderRepository.getPickupHeaderCount(companyCode, plantId, warehouseId, languageId, userId, 48L, orderTypeId);
+//        outboundCount.setPicking(pickupHeaderList);
 
         // -------------Reversals-------------------------------------------------------------------------
-        orderTypeId = Arrays.asList(2L);                //Returns
-        Long pickupHeaderListReversal = pickupHeaderRepository.getPickupHeaderCount(companyCode, plantId, warehouseId, languageId, userId, 48L, orderTypeId);
-        outboundCount.setReversals(pickupHeaderListReversal);
+//        orderTypeId = Arrays.asList(2L);                //Returns
+//        Long pickupHeaderListReversal = pickupHeaderRepository.getPickupHeaderCount(companyCode, plantId, warehouseId, languageId, userId, 48L, orderTypeId);
+//        outboundCount.setReversals(pickupHeaderListReversal);
 
         // -----------Quality-----------------------------------------------------------------------------
-        Long qualityHeaderCount = qualityHeaderRepository.getQualityCount(companyCode, plantId, languageId, warehouseId, 54L);
+//        Long qualityHeaderCount = qualityHeaderRepository.getQualityCount(companyCode, plantId, languageId, warehouseId, 54L);
 //        Long quality = qualityHeaderCount.stream().count();
-        outboundCount.setQuality(qualityHeaderCount);
+//        outboundCount.setQuality(qualityHeaderCount);
 
         // -----------Tracking-----------------------------------------------------------------------------
-        List<Long> statusId = Arrays.asList(48L, 50L, 57L);
-        Long tracking = outboundLineV2Repository.gettrackingCount(companyCode, plantId, languageId, warehouseId, statusId);
-        outboundCount.setTracking(tracking);
+//        List<Long> statusId = Arrays.asList(48L, 50L, 57L);
+//        Long tracking = outboundLineV2Repository.gettrackingCount(companyCode, plantId, languageId, warehouseId, statusId);
+//        outboundCount.setTracking(tracking);
         /*--------------StockCount--------------------------------*/
-        MobileDashboard.StockCount stockCount = mobileDashboard.new StockCount();
+//        MobileDashboard.StockCount stockCount = mobileDashboard.new StockCount();
 
-        List<Long> status2 = Arrays.asList(72L, 75L);
+//        List<Long> status2 = Arrays.asList(72L, 75L);
 
-        Long perpetualLines = perpetualLineRepository.getPerpetualLineCount(companyCode, plantId, warehouseId, languageId, status2, userId);
-        Long periodicLines = periodicLineRepository.getPeriodicLineCount(companyCode, plantId, warehouseId, languageId, status2, userId);
+//        Long perpetualLines = perpetualLineRepository.getPerpetualLineCount(companyCode, plantId, warehouseId, languageId, status2, userId);
+//        Long periodicLines = periodicLineRepository.getPeriodicLineCount(companyCode, plantId, warehouseId, languageId, status2, userId);
 
-        stockCount.setPerpertual(perpetualLines);
-        stockCount.setPeriodic(periodicLines);
+//        stockCount.setPerpertual(perpetualLines);
+//        stockCount.setPeriodic(periodicLines);
 
         mobileDashboard.setInboundCount(inboundCount);
-        mobileDashboard.setOutboundCount(outboundCount);
-        mobileDashboard.setStockCount(stockCount);
+//        mobileDashboard.setOutboundCount(outboundCount);
+//        mobileDashboard.setStockCount(stockCount);
         return mobileDashboard;
 
     }
