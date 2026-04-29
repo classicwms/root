@@ -25,6 +25,18 @@ public class WarehouseInterceptor implements HandlerInterceptor {
 		log.info("Request-ContentLengthLong: " + request.getContentLengthLong());
 		log.info("Request-ContentLength: " + request.getContentLength());
 
+		// Actual Client IP
+		String xForwardedFor = request.getHeader("X-Forwarded-For");
+		log.info("X-Forwarded-For Raw: {}", xForwardedFor);
+
+		String clientIp;
+		if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
+			clientIp = xForwardedFor.split(",")[0].trim();
+		} else {
+			clientIp = request.getRemoteAddr();
+		}
+		log.info("Actual Client IP: {}", clientIp);
+
 		try {
 			if ("POST".equalsIgnoreCase(request.getMethod())) {
 				log.info("Request URI: " + request.getRequestURI());
@@ -48,6 +60,7 @@ public class WarehouseInterceptor implements HandlerInterceptor {
 		log.info("Request-ContentLength: " + request.getContentLength());
 		log.info("------------Post Handle method End-----------");
 	}
+
 
 	@Override
 	public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler,
