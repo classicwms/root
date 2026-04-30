@@ -4325,6 +4325,10 @@ public class InventoryService extends BaseService {
             inventoryMovement.setCompanyDescription(dbInventory.getCompanyDescription());
             inventoryMovement.setPlantDescription(dbInventory.getPlantDescription());
             inventoryMovement.setWarehouseDescription(dbInventory.getWarehouseDescription());
+            inventoryMovement.setStorageBin(dbInventory.getStorageBin());
+            inventoryMovement.setBarcodeId(dbInventory.getBarcodeId());
+            inventoryMovement.setBalanceOHQty(dbInventory.getInventoryQuantity());
+            inventoryMovement.setManufacturerName(dbInventory.getManufacturerName());
             inventoryMovement.setDeletionIndicator(0L);
             inventoryMovement.setCreatedBy(loginUserID);
             inventoryMovement.setCreatedOn(new Date());
