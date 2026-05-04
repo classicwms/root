@@ -1970,7 +1970,7 @@ public class MultiTenantService {
             ConditionUtils.addCondition(conditions, "CUSTOMER_ID", findInboundHeader.getCustomerId());
 
             ConditionUtils.addDateCondition(conditions, "CTD_ON", findInboundHeader.getStartCreatedOn(), findInboundHeader.getEndCreatedOn());
-
+            ConditionUtils.addCondition(conditions, "REF_FIELD_6", findInboundHeader.getInventoryOwner());
             if (!conditions.isEmpty()) {
                 sqlQuery += " WHERE IS_DELETED = 0  AND " + String.join(" AND ", conditions);
             } else {
