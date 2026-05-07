@@ -150,7 +150,15 @@ public interface OutboundHeaderRepository extends JpaRepository<OutboundHeader, 
                                            @Param("refDocNumber") String refDocNumber,
                                            @Param("statusId") Long statusId,
                                            @Param("deliveryConfirmedOn") Date deliveryConfirmedOn);
-	
+
+	@Modifying
+	@Query(value = "update tbloutboundheader SET status_id = :statusId, DLV_CNF_ON = :deliveryConfirmedOn \r\n "
+			+ " WHERE WH_ID = :warehouseId AND REF_DOC_NO = :refDocNumber", nativeQuery = true)
+	public int oBHeaderStatusUpdate(@Param("warehouseId") String warehouseId,
+									@Param("refDocNumber") String refDocNumber,
+									@Param("statusId") Long statusId,
+									@Param("deliveryConfirmedOn") Date deliveryConfirmedOn);
+
 	/**
 	 * @param warehouseId
 	 * @param refDocNumber

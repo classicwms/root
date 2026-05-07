@@ -1185,7 +1185,8 @@ public class OutboundLineService extends BaseService {
             log.info("OutboundLine updated ");
 
             //----------------Outbound Header update----------------------------------------------------------------------------------------
-            outboundHeaderRepository.updateOutboundHeaderStatus (warehouseId, refDocNumber, STATUS_ID_59, new Date());
+            int obHeader = outboundHeaderRepository.oBHeaderStatusUpdate (warehouseId, refDocNumber, STATUS_ID_59, new Date());
+			log.info("OutboundHeader updated RefDocNo is {} AffectedRow is {} ", refDocNumber, obHeader);
             OutboundHeader isOrderConfirmedOutboundHeader = outboundHeaderService.getOutboundHeader(warehouseId, preOutboundNo, refDocNumber);
             log.info("OutboundHeader updated----1---> : " + isOrderConfirmedOutboundHeader.getRefDocNumber() + "---" + isOrderConfirmedOutboundHeader.getStatusId());
             if (isOrderConfirmedOutboundHeader.getStatusId() != 59L) {
