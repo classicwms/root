@@ -336,8 +336,10 @@ public class QualityLineService extends BaseService {
 	 * @throws ParseException
 	 */
 	public List<QualityLine> findQualityLine(SearchQualityLine searchQualityLine) throws ParseException {
+		log.info("Find QualityLine Input's {} ", searchQualityLine);
 		QualityLineSpecification spec = new QualityLineSpecification(searchQualityLine);
 		List<QualityLine> results = qualityLineRepository.findAll(spec);
+		log.info("Return Response Value size: {}", results.size());
 		return results;
 	}
 	
