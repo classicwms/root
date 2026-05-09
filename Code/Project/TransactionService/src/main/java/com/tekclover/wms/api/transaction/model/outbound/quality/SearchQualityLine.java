@@ -15,7 +15,7 @@ public class SearchQualityLine {
 	private List<String> refDocNumber;
 	private List<String> partnerCode;
 	private List<Long> lineNumber;
-	private List<String> qualityInspectionNo;
+	private List<String> qualityinspectionNo;
 	private List<String> itemCode;
 
 	private List<Long> statusId;

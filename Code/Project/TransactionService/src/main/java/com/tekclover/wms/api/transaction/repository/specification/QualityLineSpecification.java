@@ -55,9 +55,9 @@ public class QualityLineSpecification implements Specification<QualityLine> {
         	 predicates.add(group.in(searchQualityLine.getLineNumber()));
          }
 		 		 
-         if (searchQualityLine.getQualityInspectionNo() != null && !searchQualityLine.getQualityInspectionNo().isEmpty()) {
+         if (searchQualityLine.getQualityinspectionNo() != null && !searchQualityLine.getQualityinspectionNo().isEmpty()) {
         	 final Path<Group> group = root.<Group> get("qualityInspectionNo");
-        	 predicates.add(group.in(searchQualityLine.getQualityInspectionNo()));
+        	 predicates.add(group.in(searchQualityLine.getQualityinspectionNo()));
          }
         
 		 if (searchQualityLine.getItemCode() != null && !searchQualityLine.getItemCode().isEmpty()) {	
