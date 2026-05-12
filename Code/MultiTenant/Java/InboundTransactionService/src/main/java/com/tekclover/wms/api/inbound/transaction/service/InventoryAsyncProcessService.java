@@ -115,7 +115,7 @@ public class InventoryAsyncProcessService extends BaseService{
 
                     inventory2.setBusinessPartnerCode(putAwayLine.getBusinessPartnerCode());
                     inventory2.setBatchSerialNumber(putAwayLine.getBatchSerialNumber());
-                    inventory2.setPackBarcodes(putAwayLine.getPackBarcodes());
+                    inventory2.setPackBarcodes(PACK_BARCODE);
 //                    if (putAwayLine.getBatchSerialNumber() != null) {
 //                        inventory2.setPackBarcodes(putAwayLine.getBatchSerialNumber());
 //                    } else {
