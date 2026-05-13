@@ -65,7 +65,7 @@ public class BatchJobScheduler {
             log.info("Inventory Schedule for TNG -- PartnerCode: {}, StorerKey: {} ", partnerCode, storerKey);
             List<String> sqlInventory = imBasicData1V2Repository.findByItemCode(0L, partnerCode);
 
-            if (sqlInventory != null && !sqlInventory.isEmpty()) {
+            if (sqlInventory != null && !sqlInventory.isEmpty() && storerKey != null) {
                 Fetch fetch = new Fetch();
 //                fetch.setStorerKey("987654");
                 fetch.setStorerKey(storerKey);
@@ -73,6 +73,7 @@ public class BatchJobScheduler {
 
                 List<FetchStock> response = idMasterService.fetchStock(fetch);
 
+                log.info("Fetch Stock Response for TNG -- PartnerCode: {}, StorerKey: {}, ResponseValue: {} ", partnerCode, storerKey, response);
                 for (FetchStock fetchStock : response) {
                     InventoryV2 inventory = new InventoryV2();
                     inventory.setBarcodeId("88888");
