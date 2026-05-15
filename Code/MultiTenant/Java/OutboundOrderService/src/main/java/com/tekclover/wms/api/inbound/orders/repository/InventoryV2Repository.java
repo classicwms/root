@@ -2236,4 +2236,18 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
                                              @Param("warehouseId") String warehouseId,
                                              @Param("itemCode") String itemCode);
 
+    @Query(value = "select * from tblinventory where ref_field_4 > 0 and inv_id in (select max(inv_id) from tblinventory where is_deleted = 0 group by " +
+            "itm_code,barcode_id,mfr_name,pack_barcode,alt_uom,bag_size,stck_typ_id,st_bin,plant_id,wh_id,c_id,lang_id) and " +
+            "ITM_CODE =:itemCode and " +
+            "MFR_NAME = :manufacturerName and " +
+            "c_id = :companyCodeId and " +
+            "plant_id = :plantId and " +
+            "wh_id = :warehouseId and " +
+            "bin_cl_id = :binClassId order by inv_qty", nativeQuery = true)
+    List<InventoryV2> getInventoryForAllocationV4(@Param("companyCodeId") String companyCodeId,
+                                                  @Param("plantId") String plantId,
+                                                  @Param("warehouseId") String warehouseId,
+                                                  @Param("itemCode") String itemCode,
+                                                  @Param("manufacturerName") String manufacturerName,
+                                                  @Param("binClassId") Long binClassId);
 }
