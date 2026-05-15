@@ -1298,8 +1298,8 @@ public class OrderManagementLineService extends BaseService {
                 newOrderManagementLine.setProposedPackBarCode(stBinInventory.getPackBarcodes());
                 newOrderManagementLine.setProposedBatchSerialNumber(stBinInventory.getBatchSerialNumber());
                 newOrderManagementLine.setMrp(stBinInventory.getMrp());
-                log.info("LoosePack Inventory is -----------------------> " + stBinInventory.isLoosePack());
-                if (stBinInventory.isLoosePack()) {
+                log.info("LoosePack Inventory is -----------------------> " + stBinInventory.getLoosePack());
+                if (stBinInventory.getLoosePack() != null && stBinInventory.getLoosePack()) {
                     newOrderManagementLine.setLoosePack(1L);
                 } else {
                     newOrderManagementLine.setLoosePack(0L);
@@ -1483,8 +1483,8 @@ public class OrderManagementLineService extends BaseService {
             if (stBinInventory.getLevelId() != null) {
                 newOrderManagementLine.setLevelId(stBinInventory.getLevelId());
             }
-            log.info("LoosePack is inventory ---------> " + stBinInventory.isLoosePack());
-            if (stBinInventory.isLoosePack()) {
+            log.info("LoosePack is inventory ---------> " + stBinInventory.getLoosePack());
+            if (stBinInventory.getLoosePack()) {
                 newOrderManagementLine.setLoosePack(1L);
             } else {
                 newOrderManagementLine.setLoosePack(0L);
@@ -2964,8 +2964,8 @@ public class OrderManagementLineService extends BaseService {
             if (stBinInventory.getLevelId() != null) {
                 newOrderManagementLine.setLevelId(stBinInventory.getLevelId());
             }
-            log.info("LoosePack is inventory ---------> " + stBinInventory.isLoosePack());
-            if (stBinInventory.isLoosePack()) {
+            log.info("LoosePack is inventory ---------> " + stBinInventory.getLoosePack());
+            if (stBinInventory.getLoosePack()) {
                 newOrderManagementLine.setLoosePack(1L);
             } else {
                 newOrderManagementLine.setLoosePack(0L);
