@@ -243,4 +243,9 @@ PutAwayLineV2 findTopByCompanyCodeAndPlantIdAndWarehouseIdAndLanguageIdAndItemCo
                                       @Param("refDocNumber") String refDocNumber,
                                       @Param("preInboundNo") String preInboundNo);
 
+    Optional<PutAwayLineV2> findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndGoodsReceiptNoAndPreInboundNoAndRefDocNumberAndPutAwayNumberAndLineNoAndItemCodeAndDeletionIndicator(
+            String languageId, String companyCode, String plantId, String warehouseId,
+            String goodsReceiptNo, String preInboundNo, String refDocNumber,
+            String putAwayNumber, Long lineNo, String itemCode, Long deletionIndicator);
+
 }

@@ -3358,9 +3358,17 @@ public class PutAwayLineService extends BaseService {
      */
     public List<PutAwayLineV2> putAwayLineConfirmNonCBMV4(@Valid List<PutAwayLineV2> newPutAwayLines, String loginUserID) {
         List<PutAwayLineV2> putAwayLineV2List = new ArrayList<>();
-        for(PutAwayLineV2 putAwayLineV2 : newPutAwayLines) {
+        for(PutAwayLineV2 newPutAwayLine : newPutAwayLines) {
             log.info("PutAwayLine Created Started ---------------->");
-            putAwayLineV2List.add(createPutAwayLineProcessV4(putAwayLineV2, loginUserID));
+
+            Optional<PutAwayLineV2> existingPutAwayLine = putAwayLineV2Repository.findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndGoodsReceiptNoAndPreInboundNoAndRefDocNumberAndPutAwayNumberAndLineNoAndItemCodeAndDeletionIndicator(
+                    newPutAwayLine.getLanguageId(), newPutAwayLine.getCompanyCode(), newPutAwayLine.getPlantId(), newPutAwayLine.getWarehouseId(), newPutAwayLine.getGoodsReceiptNo(), newPutAwayLine.getPreInboundNo(), newPutAwayLine.getRefDocNumber(),
+                    newPutAwayLine.getPutAwayNumber(), newPutAwayLine.getLineNo(), newPutAwayLine.getItemCode(), 0L);
+            log.info("Existing putawayline already created : " + existingPutAwayLine);
+
+            if (existingPutAwayLine.isEmpty()) {
+                putAwayLineV2List.add(createPutAwayLineProcessV4(newPutAwayLine, loginUserID));
+            }
         }
 
         try {
