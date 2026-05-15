@@ -43,41 +43,52 @@ public class AsyncService {
     @Autowired
     OrderManagementLineService ordermangementlineService;
 
+//    @Async("asyncTaskExecutor")
+//    public void processPickupLineAsync(List<AddPickupLine> newPickupLine, String loginUserID) throws Exception {
+//        if (newPickupLine == null || newPickupLine.isEmpty()) {
+//            log.info("There are no PickupLines to be Processed");
+//            return;
+//        }
+//
+//        try {
+//            log.info("AddPickupLine -----> {}", newPickupLine);
+//            DataBaseContextHolder.setCurrentDb("MT");
+//            String routingDb = dbConfigRepository.getDbName(String.valueOf(newPickupLine.get(0).getCompanyCodeId()), newPickupLine.get(0).getPlantId(), newPickupLine.get(0).getWarehouseId());
+//            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+//            DataBaseContextHolder.clear();
+//            DataBaseContextHolder.setCurrentDb(routingDb);
+//
+//            List<PickupLineV2> createdPickupLine = null;
+//            if (routingDb != null) {
+//                switch (routingDb) {
+//                    case "FAHAHEEL":
+//                    case "AUTO_LAP":
+//                        createdPickupLine = pickuplineService.createPickupLineNonCBMV2(newPickupLine, loginUserID);
+//                        break;
+//                    case "NAMRATHA":
+//                        createdPickupLine = pickuplineService.createPickupLineNonCBMV4(newPickupLine, loginUserID);
+//                        break;
+//                    case "REEFERON":
+//                        createdPickupLine = pickuplineService.createPickupLineV5(newPickupLine, loginUserID);
+//                        break;
+//                    case "KNOWELL":
+//                        createdPickupLine = pickuplineService.createPickupLineNonCBMV7(newPickupLine, loginUserID);
+//                        break;
+//                }
+//            }
+//            log.info("CreatedPickupLine through Async ------> {}", createdPickupLine);
+//
+//        } finally {
+//            DataBaseContextHolder.clear();
+//        }
+//    }
     @Async("asyncTaskExecutor")
     public void processPickupLineAsync(List<AddPickupLine> newPickupLine, String loginUserID) throws Exception {
-        if (newPickupLine == null || newPickupLine.isEmpty()) {
-            log.info("There are no PickupLines to be Processed");
-            return;
-        }
 
         try {
-            log.info("AddPickupLine -----> {}", newPickupLine);
-            DataBaseContextHolder.setCurrentDb("MT");
-            String routingDb = dbConfigRepository.getDbName(String.valueOf(newPickupLine.get(0).getCompanyCodeId()), newPickupLine.get(0).getPlantId(), newPickupLine.get(0).getWarehouseId());
-            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
-            DataBaseContextHolder.setCurrentDb(routingDb);
-
-            List<PickupLineV2> createdPickupLine = null;
-            if (routingDb != null) {
-                switch (routingDb) {
-                    case "FAHAHEEL":
-                    case "AUTO_LAP":
-                        createdPickupLine = pickuplineService.createPickupLineNonCBMV2(newPickupLine, loginUserID);
-                        break;
-                    case "NAMRATHA":
-                        createdPickupLine = pickuplineService.createPickupLineNonCBMV4(newPickupLine, loginUserID);
-                        break;
-                    case "REEFERON":
-                        createdPickupLine = pickuplineService.createPickupLineV5(newPickupLine, loginUserID);
-                        break;
-                    case "KNOWELL":
-                        createdPickupLine = pickuplineService.createPickupLineNonCBMV7(newPickupLine, loginUserID);
-                        break;
-                }
-            }
-            log.info("CreatedPickupLine through Async ------> {}", createdPickupLine);
-
+            DataBaseContextHolder.setCurrentDb("NAMRATHA");
+            List<PickupLineV2> createdPickupLine = pickuplineService.createPickupLineNonCBMV4(newPickupLine, loginUserID);
         } finally {
             DataBaseContextHolder.clear();
         }
