@@ -1321,4 +1321,27 @@ public interface OutboundLineV2Repository extends JpaRepository<OutboundLineV2, 
     IKeyValuePair getOutboundLineValue(@Param("refDocNo") String refDocNo,
                                        @Param("itemCode") String itemCode);
 
+    @Modifying
+    @Query(value = "update tbloutboundline set status_id = :statusId , status_text = :statusDescription , dlv_utd_on = :updatedOn ," +
+            " he_no = :handlingEquipment , ass_picker_id = :assignedPickerId , bag_size = :bagSize , no_bags = :noBags \n" +
+            " where c_id = :companyCodeId and plant_id = :plantId and lang_id = :languageId and wh_id = :warehouseId and " +
+            " ref_doc_no = :refDocNumber and pre_ob_no = :preOutboundNo and itm_code = :itmCode and mfr_name = :manufacturerName " +
+            " and ob_line_no = :lineNumber and partner_code = :partnerCode and is_deleted = 0\n",nativeQuery = true)
+    void updateOutboundLineStatusV4(@Param("companyCodeId") String companyCodeId,
+                                    @Param("plantId") String plantId,
+                                    @Param("languageId") String languageId,
+                                    @Param("warehouseId") String warehouseId,
+                                    @Param("refDocNumber") String refDocNumber,
+                                    @Param("preOutboundNo") String preOutboundNo,
+                                    @Param("itmCode") String itmCode,
+                                    @Param("manufacturerName") String manufacturerName,
+                                    @Param("partnerCode") String partnerCode,
+                                    @Param("handlingEquipment") String handlingEquipment,
+                                    @Param("assignedPickerId") String assignedPickerId,
+                                    @Param("lineNumber") Long lineNumber,
+                                    @Param("statusId") Long statusId,
+                                    @Param("statusDescription") String statusDescription,
+                                    @Param("updatedOn") Date updatedOn,
+                                    @Param("bagSize") Double bagSize,
+                                    @Param("noBags") Double noBags);
 }
