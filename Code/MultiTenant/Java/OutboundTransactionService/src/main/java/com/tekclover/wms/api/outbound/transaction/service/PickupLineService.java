@@ -2317,15 +2317,18 @@ public class PickupLineService extends BaseService {
                     isQtyAvail = true;
                 }
 
+                Long headerStatusId = 51L;
                 if (isQtyAvail) {
-                    STATUS_ID = 57L;
-                } else {
-                    STATUS_ID = 51L;
+                    headerStatusId = 57L;
                 }
+//                else {
+//                    STATUS_ID = 51L;
+//                }
 
-                log.info("newPickupLine STATUS: " + STATUS_ID);
-                statusDescription = getStatusDescription(STATUS_ID, languageId);
-                dbPickupLine.setStatusId(STATUS_ID);
+                STATUS_ID = headerStatusId;
+                log.info("newPickupLine STATUS: " + headerStatusId);
+                statusDescription = getStatusDescription(headerStatusId, languageId);
+                dbPickupLine.setStatusId(headerStatusId);
                 dbPickupLine.setStatusDescription(statusDescription);
 
                 OrderManagementLineV2 dbOrderManagementLine =
@@ -2451,14 +2454,24 @@ public class PickupLineService extends BaseService {
                     dbPickupLine.setReferenceField1(leadTime);
                     log.info("LeadTime: " + leadTime);
 
-                    PickupLineV2 createdPickupLine = pickupLineV2Repository.save(dbPickupLine);
-                    log.info("dbPickupLine created: " + createdPickupLine);
-                    createdPickupLineList.add(createdPickupLine);
+//                    PickupLineV2 createdPickupLine = pickupLineV2Repository.save(dbPickupLine);
+//                    log.info("dbPickupLine created: " + createdPickupLine);
+
+                    int pickupHeader = pickupHeaderV2Repository.updatePickupHeaderStatusUpdateV4(dbPickupLine.getCompanyCodeId(), dbPickupLine.getPlantId(), dbPickupLine.getLanguageId(),
+                            dbPickupLine.getWarehouseId(), dbPickupLine.getRefDocNumber(), dbPickupLine.getPreOutboundNo(), dbPickupLine.getItemCode(),
+                            dbPickupLine.getManufacturerName(), dbPickupLine.getPartnerCode(), dbPickupLine.getPickupNumber(), dbPickupLine.getLineNumber(), headerStatusId,
+                            dbPickupLine.getStatusDescription(), loginUserID, new Date());
+                    log.info("PickupHeader Updated Affected Row's : {} ", pickupHeader);
+                    createdPickupLineList.add(dbPickupLine);
                 } else {
                     throw new BadRequestException("PickupLine Record is getting duplicated. Given data already exists in the Database. : " + existingPickupLine);
                 }
             }
 
+            if(!createdPickupLineList.isEmpty()) {
+                pickupLineV2Repository.saveAll(createdPickupLineList);
+                log.info("PickupLine Saved Size :{} ", createdPickupLineList.size());
+            }
 
             /*---------------------------------------------PickupHeader Updates---------------------------------------*/
             // -----------------logic for checking all records as 51 then only it should go to update header-----------*/

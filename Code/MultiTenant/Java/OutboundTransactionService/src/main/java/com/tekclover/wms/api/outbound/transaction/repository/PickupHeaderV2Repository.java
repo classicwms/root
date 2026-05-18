@@ -701,4 +701,43 @@ public interface PickupHeaderV2Repository extends JpaRepository<PickupHeaderV2, 
                                     @Param("statusDescription") String statusDescription,
                                     @Param("barcodeId") String barcodeId);
 
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query(value = "UPDATE tblpickupheader \n" +
+            "    SET \n" +
+            "    STATUS_ID = :statusId, \n" +
+            "    STATUS_TEXT = :statusDescription, \n" +
+            "    PICK_UTD_ON = :updatedOn, \n" +
+            "    PICK_CNF_ON = :updatedOn, \n" +
+            "    PICK_UTD_BY = :updatedBy, \n" +
+            "    PICK_CNF_BY = :updatedBy \n" +
+            "    WHERE \n" +
+            "    C_ID = :companyCodeId \n" +
+            "    AND PLANT_ID = :plantId \n" +
+            "    AND LANG_ID = :languageId \n" +
+            "    AND WH_ID = :warehouseId \n" +
+            "    AND REF_DOC_NO = :refDocNumber \n" +
+            "    AND PRE_OB_NO = :preOutboundNo \n" +
+            "    AND ITM_CODE = :itmCode \n" +
+            "    AND MFR_NAME = :manufacturerName \n" +
+            "    AND PU_NO = :pickupNumber \n" +
+            "    AND PARTNER_CODE = :partnerCode \n" +
+            "    AND OB_LINE_NO = :lineNumber \n" +
+            "    AND IS_DELETED = 0 \n",nativeQuery = true)
+    int updatePickupHeaderStatusUpdateV4(
+            @Param("companyCodeId") String companyCodeId,
+            @Param("plantId") String plantId,
+            @Param("languageId") String languageId,
+            @Param("warehouseId") String warehouseId,
+            @Param("refDocNumber") String refDocNumber,
+            @Param("preOutboundNo") String preOutboundNo,
+            @Param("itmCode") String itmCode,
+            @Param("manufacturerName") String manufacturerName,
+            @Param("partnerCode") String partnerCode,
+            @Param("pickupNumber") String pickupNumber,
+            @Param("lineNumber") Long lineNumber,
+            @Param("statusId") Long statusId,
+            @Param("statusDescription") String statusDescription,
+            @Param("updatedBy") String updatedBy,
+            @Param("updatedOn") Date updatedOn
+    );
 }
