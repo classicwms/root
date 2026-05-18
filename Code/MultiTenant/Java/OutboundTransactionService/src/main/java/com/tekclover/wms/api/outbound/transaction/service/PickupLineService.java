@@ -2449,6 +2449,21 @@ public class PickupLineService extends BaseService {
                             dbPickupLine.getWarehouseId(), dbPickupLine.getRefDocNumber(), dbPickupLine.getPreOutboundNo(), dbPickupLine.getItemCode(),
                             dbPickupLine.getManufacturerName(), dbPickupLine.getPartnerCode(), dbPickupLine.getPickupNumber(), dbPickupLine.getLineNumber(), STATUS_ID,
                             dbPickupLine.getStatusDescription(), loginUserID, new Date());
+
+                    log.info("Outbound line update started");
+                    outboundLineV2Repository.updateOutboundLineStatusV4(companyCodeId, plantId, languageId, warehouseId, dbPickupLine.getRefDocNumber(), dbPickupLine.getPreOutboundNo(),
+                            dbPickupLine.getItemCode(), dbPickupLine.getManufacturerName(), dbPickupLine.getPartnerCode(), dbPickupLine.getActualHeNo(), dbPickupLine.getAssignedPickerId(),
+                            dbPickupLine.getLineNumber(), STATUS_ID, statusDescription, new Date(), dbPickupLine.getBagSize(), dbPickupLine.getNoBags());
+                    log.info("Outbound line updated");
+
+
+                    if (dbPickupLine.getReferenceField6() != null) {
+                        log.info("outboundline update ref_field_6 for Reasons");
+                        outboundLineV2Repository.updateOutboundLineV6(companyCodeId, plantId, warehouseId, refDocNumber, preOutboundNo,
+                                itemCode, dbPickupLine.getLineNumber(), dbPickupLine.getReferenceField6());
+                        log.info("outboundline update ref_field_6 for Reasons completed");
+                    }
+
                     log.info("PickupHeader Updated Affected Row's : {} ", pickupHeader);
                     createdPickupLineList.add(dbPickupLine);
                 } else {
@@ -2474,6 +2489,7 @@ public class PickupLineService extends BaseService {
                 pickupLineV2Repository.saveAll(createdPickupLineList);
                 log.info("PickupLine Saved Size :{} ", createdPickupLineList.size());
             }
+
             /*---------------------------------------------Inventory Updates-------------------------------------------*/
 
 //            List<OrderManagementLineV2> dbOrderManagementLineList = orderManagementLineV2Repository.getOrderManagementForPickup(companyCodeId, plantId, warehouseId, languageId, refDocNumber, preOutboundNo);
