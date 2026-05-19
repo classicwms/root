@@ -35,10 +35,7 @@ import org.springframework.web.client.RestClientException;
 import javax.persistence.EntityNotFoundException;
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -666,5 +663,79 @@ public class ImBasicData1Service extends BaseService {
         exceptionLog.setCreatedOn(new Date());
         exceptionLogRepo.save(exceptionLog);
     }
+
+
+    public List<ImBasicData1V2> imBasicData1Upload(List<ImBasicData1V2> imBasicDataList) {
+
+        List<ImBasicData1V2> saveImBasicData1 = new ArrayList<>();
+        for (ImBasicData1V2 imData1 : imBasicDataList) {
+            ImBasicData1V2 dbImBasicData1 = new ImBasicData1V2();
+            Optional<ImBasicData1V2> duplicateImBasicData1 = imBasicData1V2Repository.findByCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndUomIdAndManufacturerPartNoAndLanguageIdAndDeletionIndicator(imData1.getCompanyCodeId(),
+                    imData1.getPlantId(), imData1.getWarehouseId(), imData1.getItemCode(),
+                    imData1.getUomId(), imData1.getManufacturerPartNo(), imData1.getLanguageId(), 0L);
+
+            if (duplicateImBasicData1.isEmpty()) {
+                BeanUtils.copyProperties(imData1, dbImBasicData1, CommonUtils.getNullPropertyNames(imData1));
+                dbImBasicData1.setDeletionIndicator(0L);
+                dbImBasicData1.setCompanyDescription("Alrai 3PL Company");
+                dbImBasicData1.setPlantDescription("Alrai 3PL Branch");
+                dbImBasicData1.setWarehouseDescription("Alrai 3PL Warehouse");
+                dbImBasicData1.setCreatedOn(new Date());
+                dbImBasicData1.setUpdatedOn(new Date());
+                saveImBasicData1.add(dbImBasicData1);
+
+                Long webhookStatus = 0L;
+
+                String storerKey = businessPartnerV2Repository.getPartnerCode(dbImBasicData1.getCompanyCodeId(),
+                        dbImBasicData1.getPlantId(), dbImBasicData1.getLanguageId(),
+                        dbImBasicData1.getWarehouseId(), dbImBasicData1.getSupplierPartNumber());
+
+                log.info("TNG Upload PartnerCode:{}, StorerKey: {} ", dbImBasicData1.getSupplierPartNumber(), storerKey);
+
+                if (storerKey != null && !storerKey.isEmpty()) {
+
+                    //-----------------------TNG --------------------------------//
+
+                    ItemSku itemSku = new ItemSku();
+                    Items items = new Items();
+
+                    itemSku.setStorerKey(storerKey);
+                    itemSku.setWarehouseKey("INFOR_SCPRD_wmwhse1");
+
+                    items.setSku(dbImBasicData1.getItemCode());
+                    items.setDescription(dbImBasicData1.getDescription());
+                    items.setGrossWeight(1D);
+                    items.setNetWeight(1D);
+                    items.setHeight(1D);
+                    items.setLength(1D);
+                    items.setWidth(1D);
+                    items.setShelfLife(0L);
+                    items.setNote(dbImBasicData1.getRemarks());
+
+                    itemSku.setItems(Collections.singletonList(items));
+
+                    try {
+                        SKUResponse response = masterService.createItemSku(itemSku);
+                        log.info("TNG Upload Response --------> {}", response);
+
+                        if (response.getSuccess()) {
+                            webhookStatus = 200L;
+                        } else {
+                            webhookStatus = 500L;
+                        }
+                    } catch (RestClientException e) {
+                        log.error("WebHook Error while pushing ItemSku ----> ", e);
+                    }
+                }
+                dbImBasicData1.setWebHookStatus(webhookStatus);
+            }
+
+            if (!saveImBasicData1.isEmpty()){
+                imBasicData1V2Repository.saveAll(saveImBasicData1);
+            }
+        }
+        return saveImBasicData1;
+    }
+
 
 }

@@ -1,6 +1,7 @@
 package com.tekclover.wms.core.service;
 
 import com.tekclover.wms.core.model.warehouse.inbound.almailem.InboundOrderProcessV4;
+import com.tekclover.wms.core.model.warehouse.mastersorder.ImBasicData1V2;
 import com.tekclover.wms.core.model.warehouse.outbound.almailem.OutboundOrderProcessV4;
 import com.tekclover.wms.core.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -512,5 +513,241 @@ public class ExcelDataProcessService {
 
         // Match the input date against the pattern
         return pattern.matcher(date).matches();
+    }
+
+    public List<ImBasicData1V2> readExcelFile(String companyCodeId, String plantId, String languageId, String warehouseId, String loginUserID, MultipartFile file) throws IOException {
+        List<ImBasicData1V2> imBasicDataList = new ArrayList<>();
+        // Create Workbook for Excel file
+        Workbook workbook = new XSSFWorkbook(file.getInputStream());
+        Sheet sheet = workbook.getSheetAt(0);
+        //Get the header row first row
+        Row headerRow = sheet.getRow(0);
+        // Map column names their corresponding index
+        Map<String, Integer> columnIndexMap = new HashMap<>();
+        for (Cell cell : headerRow) {
+            columnIndexMap.put(cell.getStringCellValue().toLowerCase().trim(), cell.getColumnIndex());
+        }
+
+        // Iterate through rows (skip the header row)
+        for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+            Row row = sheet.getRow(i);
+            if (row != null) {
+                ImBasicData1V2 imBasicData1 = new ImBasicData1V2();
+
+                // Set the fields dynamically based on column name
+                setFieldByColumn(imBasicData1, row, columnIndexMap);
+                imBasicData1.setCompanyCodeId(companyCodeId);
+                imBasicData1.setPlantId(plantId);
+                imBasicData1.setWarehouseId(warehouseId);
+                imBasicData1.setLanguageId(languageId);
+                imBasicData1.setCreatedBy(loginUserID);
+                imBasicDataList.add(imBasicData1);
+            }
+        }
+
+        // Close the workbook to free resource
+        workbook.close();
+        return imBasicDataList;
+    }
+
+    public void setFieldByColumn(ImBasicData1V2 imBasicData1, Row row, Map<String, Integer> columnIntexMap) {
+        try {
+            for (Map.Entry<String, Integer> entry : columnIntexMap.entrySet()) {
+
+                String columnName = entry.getKey().replaceAll("\\s+", "");
+                Integer columnIndex = entry.getValue();
+                Cell cell = row.getCell(columnIndex);
+
+                switch (columnName) {
+
+                    case "uomid":
+                        invokeSetter(imBasicData1, "setUomId", cell != null ? getCellValueAsString(cell) : null);
+                        break;
+                    case "itemcode":
+                        invokeSetter(imBasicData1, "setItemCode", cell != null ? getCellValueAsString(cell) : null);
+                        break;
+                    case "description":
+                        invokeSetter(imBasicData1, "setDescription", cell != null ? getCellValueAsString(cell) : null);
+                        break;
+                    case "manufacturerpartno":
+                        invokeSetter(imBasicData1, "setManufacturerPartNo", cell != null ? getCellValueAsString(cell) : null);
+                        break;
+                    case "hsncode":
+                        invokeSetter(imBasicData1, "setHsnCode", cell != null ? getCellValueAsString(cell) : null);
+                        break;
+                    case "storagesectionid":
+                        invokeSetter(imBasicData1, "setStorageSectionId", cell != null ? getCellValueAsString(cell) : null);
+                        break;
+                    case "capacitycheck":
+                        invokeSetter(imBasicData1, "setCapacityCheck", cell != null ? getCellValueAsBoolean(cell) : null);
+                        break;
+                    case "capacityunit":
+                        invokeSetter(imBasicData1, "setCapacityUnit", cell != null ? getCellValueAsString(cell) : null);
+                        break;
+                    case "capacityuom":
+                        invokeSetter(imBasicData1, "setCapacityUom", cell != null ? getCellValueAsString(cell) : null);
+                        break;
+                    case "quantity":
+                        invokeSetter(imBasicData1, "setQuantity", cell != null ? getCellValueAsString(cell) : null);
+                        break;
+                    case "manufacturername":
+                        invokeSetter(imBasicData1, "setManufacturerName", cell != null ? getCellValueAsString(cell) : null);
+                        break;
+                    case "manufacturercode":
+                        invokeSetter(imBasicData1, "setManufacturerCode", cell != null ? getCellValueAsString(cell) : null);
+                        break;
+                    case "manufacturerfullname":
+                        invokeSetter(imBasicData1, "setManufacturerFullName", cell != null ? getCellValueAsString(cell) : null);
+                        break;
+                    case "supplierpartnumber":
+                        invokeSetter(imBasicData1, "setSupplierPartNumber", cell != null ? getCellValueAsString(cell) : null);
+                        break;
+                    case "dimensionuom":
+                        invokeSetter(imBasicData1, "setDimensionUom", cell != null ? getCellValueAsString(cell) : null);
+                        break;
+                    case "model":
+                        invokeSetter(imBasicData1, "setModel",  cell != null ? getCellValueAsString(cell) : null);
+                        break;
+                    case "specifications1":
+                        invokeSetter(imBasicData1, "setSpecifications1",  cell != null ? getCellValueAsString(cell) : null);
+                        break;
+                    case "specifications2":
+                        invokeSetter(imBasicData1, "setSpecifications2",  cell != null ? getCellValueAsString(cell) : null);
+                        break;
+                    case "quality":
+                        invokeSetter(imBasicData1, "setQuality", cell != null ? getCellValueAsBoolean(cell) : null);
+                        break;
+                    case "referencefield9":
+                        invokeSetter(imBasicData1, "setReferenceField9", cell != null ? getCellValueAsString(cell) : null);
+                        break;
+                    case "barcodeid":
+                        invokeSetter(imBasicData1, "setBarcodeId", cell != null ? getCellValueAsString(cell) : null);
+                        break;
+                    case "pallettypes":
+                        invokeSetter(imBasicData1, "setPalletTypes", cell != null ? getCellValueAsString(cell) : null);
+                        break;
+                    case "storagesection":
+                        invokeSetter(imBasicData1, "setStorageSection", cell != null ? getCellValueAsString(cell) : null);
+                        break;
+                    case "storagetype":
+                        invokeSetter(imBasicData1, "setStorageType", cell != null ? getCellValueAsString(cell) : null);
+                        break;
+                    case "eanupcno":
+                        invokeSetter(imBasicData1, "setEanUpcNo",  cell != null ? getCellValueAsString(cell) : null);
+                        break;
+                    case "shelflifeindicator":
+                        invokeSetter(imBasicData1, "setShelfLifeIndicator",  cell != null ? getCellValueAsBoolean(cell) : null);
+                        break;
+                    case "referencefield7":
+                        invokeSetter(imBasicData1, "setReferenceField7",  cell != null ? getCellValueAsBoolean(cell) : null);
+                        break;
+                    case "isbarcodeid":
+                        invokeSetter(imBasicData1, "setIsBarcodeId", cell != null ? getCellValueAsBoolean(cell) : null);
+                        break;
+                    case "brand":
+                        invokeSetter(imBasicData1, "setBrand",  cell != null ? getCellValueAsString(cell) : null);
+                        break;
+                    case "remarks":
+                        invokeSetter(imBasicData1, "setRemarks",  cell != null ? getCellValueAsString(cell) : null);
+                        break;
+                    case "itemtype":
+                        invokeSetter(imBasicData1, "setItemType",  cell != null ? getCellValueAsLong(cell) : null);
+                        break;
+                    case "itemgroup":
+                        invokeSetter(imBasicData1, "setItemGroup",  cell != null ? getCellValueAsLong(cell) : null);
+                        break;
+                    case "noofcount":
+                        invokeSetter(imBasicData1, "setNoOfCount", cell != null ? getCellValueAsLong(cell) : null);
+                        break;
+                    case "subitemgroup":
+                        invokeSetter(imBasicData1, "setSubItemGroup",  cell != null ? getCellValueAsLong(cell) : null);
+                        break;
+                    case "minimumstock":
+                        invokeSetter(imBasicData1, "setMinimumStock",  cell != null ? getCellValueAsDouble(cell) : null);
+                        break;
+                    case "maximumstock":
+                        invokeSetter(imBasicData1, "setMaximumStock", cell != null ? getCellValueAsDouble(cell) : null);
+                        break;
+                    case "reorderlevel":
+                        invokeSetter(imBasicData1, "setReorderLevel", cell != null ? getCellValueAsDouble(cell) : null);
+                        break;
+                    case "replenishmentqty":
+                        invokeSetter(imBasicData1, "setReplenishmentQty", cell != null ? getCellValueAsDouble(cell) : null);
+                        break;
+                    case "safetystock":
+                        invokeSetter(imBasicData1, "setSafetyStock", cell != null ? getCellValueAsDouble(cell) : null);
+                        break;
+                    case "weight":
+                        invokeSetter(imBasicData1, "setWeight",  cell != null ? getCellValueAsDouble(cell) : null);
+                        break;
+                    case "statusid":
+                        invokeSetter(imBasicData1, "setStatusId",   cell != null ? getCellValueAsLong(cell) : null);;
+                        break;
+                    case "length":
+                        invokeSetter(imBasicData1, "setLength",  cell != null ? getCellValueAsDouble(cell) : null);
+                        break;
+                    case "width":
+                        invokeSetter(imBasicData1, "setWidth",  cell != null ? getCellValueAsDouble(cell) : null);
+                        break;
+                    case "height":
+                        invokeSetter(imBasicData1, "setHeight",  cell != null ? getCellValueAsDouble(cell) : null);
+                        break;
+                    case "volume":
+                        invokeSetter(imBasicData1, "setVolume",   cell != null ? getCellValueAsDouble(cell) : null);
+                        break;
+                    case "cbm":
+                        invokeSetter(imBasicData1, "setCbm",  cell != null ? getCellValueAsDouble(cell) : null);
+                        break;
+                    case "type":
+                        invokeSetter(imBasicData1, "setReferenceField1",  cell != null ? getCellValueAsString(cell) : null);
+                        break;
+                    case "category":
+                        invokeSetter(imBasicData1, "setReferenceField2",  cell != null ? getCellValueAsString(cell) : null);
+                        break;
+                    case "subcategory1":
+                        invokeSetter(imBasicData1, "setReferenceField3",  cell != null ? getCellValueAsString(cell) : null);
+                        break;
+                    case "subcategory2":
+                        invokeSetter(imBasicData1, "setReferenceField4",  cell != null ? getCellValueAsString(cell) : null);
+                        break;
+                    case "brandname":
+                        invokeSetter(imBasicData1, "setReferenceField5",  cell != null ? getCellValueAsString(cell) : null);
+                        break;
+                    case "weightwithoutbarcode":
+                        invokeSetter(imBasicData1, "setWeightWithoutBarcode",  cell != null ? getCellValueAsBoolean(cell) : null);
+                        break;
+                    case "inventoryuom":
+                        invokeSetter(imBasicData1, "setReferenceField6",  cell != null ? getCellValueAsBoolean(cell) : null);
+                        break;
+
+                }
+            }
+        } catch (Exception e) {
+            log.info("imBasicData1 Upload Field Set Failed <----------------------------->" + e.getMessage());
+        }
+    }
+
+    private Boolean getCellValueAsBoolean(Cell cell) {
+        if (cell == null) return null;
+
+        switch (cell.getCellType()) {
+            case BOOLEAN:
+                return cell.getBooleanCellValue();
+
+            case STRING:
+                String strVal = cell.getStringCellValue().trim().toLowerCase();
+                if ("true".equals(strVal) || "1".equals(strVal)) return true;
+                if ("false".equals(strVal) || "0".equals(strVal)) return false;
+                return null;
+
+            case NUMERIC:
+                double numVal = cell.getNumericCellValue();
+                if (numVal == 1.0) return true;
+                if (numVal == 0.0) return false;
+                return null;
+
+            default:
+                return null;
+        }
     }
 }

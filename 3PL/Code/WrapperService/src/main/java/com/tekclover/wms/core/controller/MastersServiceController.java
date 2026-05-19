@@ -8,6 +8,7 @@ import com.tekclover.wms.core.model.warehouse.inbound.WarehouseApiResponse;
 import com.tekclover.wms.core.model.warehouse.mastersorder.Customer;
 import com.tekclover.wms.core.model.warehouse.mastersorder.ImBasicData1V2;
 import com.tekclover.wms.core.model.warehouse.mastersorder.Item;
+import com.tekclover.wms.core.service.FileStorageService;
 import com.tekclover.wms.core.service.MastersService;
 import com.tekclover.wms.core.service.RegisterService;
 import io.swagger.annotations.Api;
@@ -19,10 +20,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
@@ -38,6 +41,9 @@ public class MastersServiceController {
 
     @Autowired
     RegisterService registerService;
+
+    @Autowired
+    FileStorageService fileStorageService;
 
     /* -----------------------------MASTERS---BomHeader---------------------------------------------------------------*/
 
@@ -2446,4 +2452,14 @@ public class MastersServiceController {
         return mastersService.findEMailDetails(findEmailDetails, authToken);
     }
 
+
+    //----------------------------------------- File Upload ----------------------------------------------------
+    @ApiOperation(response = ImBasicData1V2.class, value = "ImBasicData Upload")
+    @PostMapping("/imbasicdata1/Upload")
+    public ResponseEntity<?> postImBasicData1(@RequestParam String companyCodeId, @RequestParam String plantId,
+                                              @RequestParam String languageId, @RequestParam String warehouseId,
+                                              @RequestParam String loginUserID, @RequestParam("file") MultipartFile file) throws Exception {
+        Map<String, String> response = fileStorageService.processImBasicData1(companyCodeId, plantId, languageId, warehouseId, loginUserID, file);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 }

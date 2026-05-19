@@ -8,7 +8,10 @@ import com.tekclover.wms.api.masters.model.imbasicdata1.UpdateImBasicData1;
 import com.tekclover.wms.api.masters.model.imbasicdata1.v2.ImBasicData;
 import com.tekclover.wms.api.masters.model.imbasicdata1.v2.ImBasicData1V2;
 import com.tekclover.wms.api.masters.model.impl.ItemListImpl;
+import com.tekclover.wms.api.masters.model.tng.ItemSku;
+import com.tekclover.wms.api.masters.model.tng.SKUResponse;
 import com.tekclover.wms.api.masters.service.ImBasicData1Service;
+import com.tekclover.wms.api.masters.service.MasterService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.SwaggerDefinition;
@@ -37,6 +40,9 @@ public class ImBasicData1Controller {
 
     @Autowired
     ImBasicData1Service imbasicdata1Service;
+
+    @Autowired
+    MasterService masterService;
 
     @ApiOperation(response = ImBasicData1.class, value = "Get all ImBasicData1 details") // label for swagger
     @GetMapping("")
@@ -190,5 +196,20 @@ public class ImBasicData1Controller {
         imbasicdata1Service.deleteImBasicData1V2(itemCode, companyCodeId, plantId, languageId, uomId,
                 manufacturerPartNo, warehouseId, loginUserID);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @ApiOperation(response = ItemSku.class, value = "Create ItemSku TNG") // label for swagger
+    @PostMapping("/tng")
+    public ResponseEntity<?> postTNGItem(@Valid @RequestBody ItemSku newImBasicData1, @RequestParam String loginUserID)
+            throws IllegalAccessException, InvocationTargetException, ParseException {
+        SKUResponse createdImBasicData1 = masterService.createItemSku(newImBasicData1);
+        return new ResponseEntity<>(createdImBasicData1, HttpStatus.OK);
+    }
+    @ApiOperation(response = ImBasicData1V2.class, value = "Upload ImBasicData") // label for swagger
+    @PostMapping("/upload/imbasicdata/")
+    public ResponseEntity<?> uploadStorageBin(@Valid @RequestBody List<ImBasicData1V2> imBasicDataList) {
+        log.info("imBasicData" + imBasicDataList);
+        List<ImBasicData1V2> imBasicData = imbasicdata1Service.imBasicData1Upload(imBasicDataList);
+        return new ResponseEntity<>(imBasicData, HttpStatus.OK);
     }
 }
