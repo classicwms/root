@@ -378,6 +378,13 @@ public class PutAwayLineService extends BaseService {
 				if(existingPutAwayLine.isEmpty()) {
 					PutAwayLine createdPutAwayLine = putAwayLineRepository.save(dbPutAwayLine);
 					log.info("---------->createdPutAwayLine created: " + createdPutAwayLine);
+					List<PutAwayHeader> headers = putAwayHeaderService.getPutAwayHeader(createdPutAwayLine.getWarehouseId(),
+							createdPutAwayLine.getPreInboundNo(), createdPutAwayLine.getRefDocNumber(), createdPutAwayLine.getPutAwayNumber());
+					for (PutAwayHeader putAwayHeader : headers) {
+						putAwayHeader.setStatusId(20L);
+						putAwayHeader = putAwayHeaderRepository.save(putAwayHeader);
+						log.info("putAwayHeader updated: " + putAwayHeader);
+					}
 					createdPutAwayLines.add(createdPutAwayLine);
 					boolean isInventoryCreated = false;
 					boolean isInventoryMovemoentCreated = false;
@@ -433,13 +440,13 @@ public class PutAwayLineService extends BaseService {
 						mastersService.updateStorageBin(dbPutAwayLine.getConfirmedStorageBin(), dbStorageBin, loginUserID, authTokenForMastersService.getAccess_token());
 						
 //						if (isInventoryCreated && isInventoryMovemoentCreated) {
-							List<PutAwayHeader> headers = putAwayHeaderService.getPutAwayHeader(createdPutAwayLine.getWarehouseId(), 
-									createdPutAwayLine.getPreInboundNo(), createdPutAwayLine.getRefDocNumber(), createdPutAwayLine.getPutAwayNumber());
-							for (PutAwayHeader putAwayHeader : headers) {
-								putAwayHeader.setStatusId(20L);
-								putAwayHeader = putAwayHeaderRepository.save(putAwayHeader);
-								log.info("putAwayHeader updated: " + putAwayHeader);
-							}
+//							List<PutAwayHeader> headers = putAwayHeaderService.getPutAwayHeader(createdPutAwayLine.getWarehouseId(),
+//									createdPutAwayLine.getPreInboundNo(), createdPutAwayLine.getRefDocNumber(), createdPutAwayLine.getPutAwayNumber());
+//							for (PutAwayHeader putAwayHeader : headers) {
+//								putAwayHeader.setStatusId(20L);
+//								putAwayHeader = putAwayHeaderRepository.save(putAwayHeader);
+//								log.info("putAwayHeader updated: " + putAwayHeader);
+//							}
 						
 							/*--------------------- INBOUNDTABLE Updates ------------------------------------------*/
 							// Pass WH_ID/PRE_IB_NO/REF_DOC_NO/IB_LINE_NO/ITM_CODE values in PUTAWAYLINE table and 
