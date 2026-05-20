@@ -270,7 +270,7 @@ public class OrderProcessingService extends BaseService {
 
             createInboundIntegrationLogV2(inboundOrderProcess.getPreInboundHeader());
             log.info("Inbound Order Save Process Completed ------> " + refDocNumber + ", " + inboundOrderTypeId);
-            stagingLineV2Repository.updateStagingLineInvQtyUpdateProc(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preInboundNo);
+//            stagingLineV2Repository.updateStagingLineInvQtyUpdateProc(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preInboundNo);
             log.info("StagingLine InvQty Update using Stored Procedure Finished");
 
             return createdInboundHeader;

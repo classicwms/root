@@ -22,7 +22,7 @@ public class ScheduleAsyncService {
     @Async("asyncExecutor")
     public CompletableFuture<WarehouseApiResponse> processInboundOrderV4() throws InterruptedException, InvocationTargetException, IllegalAccessException, ParseException{
 
-        WarehouseApiResponse inboundOrder = transactionService.processInboundOrder("NAMRATHA");
+        WarehouseApiResponse inboundOrder = transactionService.processInboundOrderV4("NAMRATHA");
         return CompletableFuture.completedFuture(inboundOrder);
     }
 
