@@ -1315,12 +1315,15 @@ public class ReportsService extends BaseService {
                 shipmentDelivery.setReasons(pl.getReferenceField6());
                 shipmentDelivery.setDescription(pl.getDescription());
 
-                IKeyValuePair ol = outboundLineV2Repository.getOutboundLineValue(pl.getRefDocNumber(), pl.getItemCode());
+                IKeyValuePair ol = outboundLineV2Repository.getOutboundLineValueV4(pl.getRefDocNumber(), pl.getItemCode());
                 if (ol != null && ol.getOrderQty() != null) {
                     shipmentDelivery.setOrderQty(ol.getOrderQty());
 //                    shipmentDelivery.setQuantity(ol.getOrderQty());
-                    shipmentDelivery.setQuantity(ol.getRxdQty());
                 }
+                if(ol != null && ol.getDeliveryQty() != null) {
+                    shipmentDelivery.setQuantity(ol.getDeliveryQty());
+                }
+
                 if (ol != null && ol.getRemarks() != null) {
                     shipmentDelivery.setRemarks(ol.getRemarks());
                 }

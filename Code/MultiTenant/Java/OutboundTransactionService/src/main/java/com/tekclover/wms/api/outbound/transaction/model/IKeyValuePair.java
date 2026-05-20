@@ -46,4 +46,5 @@ public interface IKeyValuePair {
 
     String getItemText();
 
+    Double getDeliveryQty();
 }
