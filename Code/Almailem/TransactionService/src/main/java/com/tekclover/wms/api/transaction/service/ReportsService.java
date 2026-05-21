@@ -2672,18 +2672,18 @@ public class ReportsService extends BaseService {
         /*--------------Inbound--------------------------------*/
         MobileDashboard.InboundCount inboundCount = mobileDashboard.new InboundCount();
 
-//        Long grHeaders = grHeaderRepository.grHeaderCount(companyCode,plantId,languageId, warehouseId, 16L);
-//        inboundCount.setCases(grHeaders);
+        Long grHeaders = grHeaderRepository.grHeaderCount(companyCode,plantId,languageId, warehouseId, 16L);
+        inboundCount.setCases(grHeaders);
 
         // -------------Putaway----------------------------------
-//        List<Long> orderTypeId = Arrays.asList(1L, 3L, 4L, 5L);
-//        Long putAwayHeaderList = putAwayHeaderRepository.getPutAwayHeaderCount(companyCode, plantId, warehouseId, languageId, 19L, orderTypeId);
-//        inboundCount.setPutaway(putAwayHeaderList);
+        List<Long> orderTypeId = Arrays.asList(1L, 3L, 4L, 5L);
+        Long putAwayHeaderList = putAwayHeaderRepository.getPutAwayHeaderCount(companyCode, plantId, warehouseId, languageId, 19L, orderTypeId);
+        inboundCount.setPutaway(putAwayHeaderList);
 
         // -------------Reversals-------------------------------
-//        orderTypeId = Arrays.asList(2L);
-//        Long  putAwayHeaderReversals = putAwayHeaderRepository.getPutAwayHeaderCount(companyCode, plantId, warehouseId, languageId, 19L, orderTypeId);
-//        inboundCount.setReversals(putAwayHeaderReversals);
+        orderTypeId = Arrays.asList(2L);
+        Long  putAwayHeaderReversals = putAwayHeaderRepository.getPutAwayHeaderCount(companyCode, plantId, warehouseId, languageId, 19L, orderTypeId);
+        inboundCount.setReversals(putAwayHeaderReversals);
 
         /*--------------Outbound--------------------------------*/
         MobileDashboard.OutboundCount outboundCount = mobileDashboard.new OutboundCount();
@@ -2724,7 +2724,6 @@ public class ReportsService extends BaseService {
         outboundCount.setQuality(0L);
         outboundCount.setReversals(0L);
         outboundCount.setPicking(0L);
-        inboundCount.setCases(0L);
         stockCount.setPerpertual(0L);
         stockCount.setPeriodic(0L);
 
