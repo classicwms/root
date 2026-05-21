@@ -2778,7 +2778,7 @@ public class PickupLineService extends BaseService {
             e.printStackTrace();
             throw new BadRequestException("Exception while creating Pickupline: " + refDocNumber);
         }
-        fireBaseNotificationV5(createdPickupLineList.get(0), loginUserID);
+        //fireBaseNotificationV5(createdPickupLineList.get(0), loginUserID);
         return createdPickupLineList;
     }
 

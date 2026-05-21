@@ -103,7 +103,7 @@ public class AsyncService extends BaseService {
 //            DataBaseContextHolder.clear();
 //        }
 //    }
-//    @Async("asyncTaskExecutor")
+    @Async("asyncTaskExecutor")
     public void processPickupLineAsync(List<AddPickupLine> newPickupLine, String loginUserID) throws Exception {
 
         try {
@@ -117,7 +117,7 @@ public class AsyncService extends BaseService {
         }
     }
 
-    @Async("asyncTaskExecutor")
+//    @Async("asyncTaskExecutor")
     public void getInventoryForMatchingBarcodeIdV4(List<PickupLineV2> dbPickupLineList, String loginUserID) throws Exception {
         DataBaseContextHolder.clear();
         DataBaseContextHolder.setCurrentDb("NAMRATHA");
