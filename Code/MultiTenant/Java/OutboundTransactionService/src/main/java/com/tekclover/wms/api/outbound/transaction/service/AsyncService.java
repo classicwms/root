@@ -11,10 +11,7 @@ import com.tekclover.wms.api.outbound.transaction.model.outbound.pickup.AddPicku
 import com.tekclover.wms.api.outbound.transaction.model.outbound.pickup.v2.PickupHeaderV2;
 import com.tekclover.wms.api.outbound.transaction.model.outbound.pickup.v2.PickupLineV2;
 import com.tekclover.wms.api.outbound.transaction.model.trans.InventoryTrans;
-import com.tekclover.wms.api.outbound.transaction.repository.DbConfigRepository;
-import com.tekclover.wms.api.outbound.transaction.repository.InventoryTransRepository;
-import com.tekclover.wms.api.outbound.transaction.repository.InventoryV2Repository;
-import com.tekclover.wms.api.outbound.transaction.repository.PickupLineV2Repository;
+import com.tekclover.wms.api.outbound.transaction.repository.*;
 import com.tekclover.wms.api.outbound.transaction.util.CommonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -64,6 +61,9 @@ public class AsyncService extends BaseService {
     @Autowired
     InventoryTransRepository inventoryTransRepository;
 
+    @Autowired
+    PickupHeaderV2Repository pickupHeaderV2Repository;
+
 //    @Async("asyncTaskExecutor")
 //    public void processPickupLineAsync(List<AddPickupLine> newPickupLine, String loginUserID) throws Exception {
 //        if (newPickupLine == null || newPickupLine.isEmpty()) {
@@ -103,12 +103,45 @@ public class AsyncService extends BaseService {
 //            DataBaseContextHolder.clear();
 //        }
 //    }
-    @Async("asyncTaskExecutor")
+//    @Async("asyncTaskExecutor")
     public void processPickupLineAsync(List<AddPickupLine> newPickupLine, String loginUserID) throws Exception {
 
         try {
             DataBaseContextHolder.clear();
             DataBaseContextHolder.setCurrentDb("NAMRATHA");
+
+            try {
+                for (AddPickupLine pickupLineV2 : newPickupLine) {
+                    statusDescription = getStatusDescription(57L, "EN");
+                    int pickupHeader = pickupHeaderV2Repository.updatePickupHeaderStatusUpdateV4(pickupLineV2.getCompanyCodeId(), pickupLineV2.getPlantId(), pickupLineV2.getLanguageId(),
+                            pickupLineV2.getWarehouseId(), pickupLineV2.getRefDocNumber(), pickupLineV2.getPreOutboundNo(), pickupLineV2.getItemCode(),
+                            pickupLineV2.getManufacturerName(), pickupLineV2.getPartnerCode(), pickupLineV2.getPickupNumber(), pickupLineV2.getLineNumber(), 57L,
+                            statusDescription, loginUserID, new Date());
+                    log.info("PickupHeader Status Updated to 57 for PickupLineV2 through Async ------> {}", pickupHeader);
+                }
+            } catch (Exception e) {
+                log.error("Error while updating PickupHeader status to 57 for PickupLineV2 through Async ------> {}", e.toString());
+                e.printStackTrace();
+            }
+            processPickupLine(newPickupLine, loginUserID);
+        } finally {
+            DataBaseContextHolder.clear();
+        }
+    }
+
+    /**
+     *
+     * @param newPickupLine pickupLine
+     * @param loginUserID userID
+     * @throws Exception
+     */
+    @Async("asyncTaskExecutor")
+    public void processPickupLine(List<AddPickupLine> newPickupLine, String loginUserID) throws Exception {
+
+        try {
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb("NAMRATHA");
+
             List<PickupLineV2> createdPickupLine = pickuplineService.createPickupLineNonCBMV4(newPickupLine, loginUserID);
             log.info("createdPickupLine through ASYNC -----> {}", createdPickupLine);
             getInventoryForMatchingBarcodeIdV4(createdPickupLine, loginUserID);
