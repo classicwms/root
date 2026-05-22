@@ -14,10 +14,14 @@ import com.tekclover.wms.api.outbound.transaction.model.trans.InventoryTrans;
 import com.tekclover.wms.api.outbound.transaction.repository.*;
 import com.tekclover.wms.api.outbound.transaction.util.CommonUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.exception.LockAcquisitionException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -103,7 +107,7 @@ public class AsyncService extends BaseService {
 //            DataBaseContextHolder.clear();
 //        }
 //    }
-//    @Async("asyncTaskExecutor")
+    @Async("asyncTaskExecutor")
     public void processPickupLineAsync(List<AddPickupLine> newPickupLine, String loginUserID) throws Exception {
 
         try {
@@ -112,13 +116,15 @@ public class AsyncService extends BaseService {
 
             try {
                 for (AddPickupLine pickupLineV2 : newPickupLine) {
-                    statusDescription = getStatusDescription(57L, "EN");
-                    int pickupHeader = pickupHeaderV2Repository.updatePickupHeaderStatusUpdateV4(pickupLineV2.getCompanyCodeId(), pickupLineV2.getPlantId(), pickupLineV2.getLanguageId(),
-                            pickupLineV2.getWarehouseId(), pickupLineV2.getRefDocNumber(), pickupLineV2.getPreOutboundNo(), pickupLineV2.getItemCode(),
-                            pickupLineV2.getManufacturerName(), pickupLineV2.getPartnerCode(), pickupLineV2.getPickupNumber(), pickupLineV2.getLineNumber(), 57L,
-                            statusDescription, loginUserID, new Date());
-                    log.info("PickupHeader Status Updated to 57 for PickupLineV2 through Async ------> {}", pickupHeader);
+//                    statusDescription = getStatusDescription(57L, "EN");
+//                    int pickupHeader = pickupHeaderV2Repository.updatePickupHeaderStatusUpdateV4(pickupLineV2.getCompanyCodeId(), pickupLineV2.getPlantId(), pickupLineV2.getLanguageId(),
+//                            pickupLineV2.getWarehouseId(), pickupLineV2.getRefDocNumber(), pickupLineV2.getPreOutboundNo(), pickupLineV2.getItemCode(),
+//                            pickupLineV2.getManufacturerName(), pickupLineV2.getPartnerCode(), pickupLineV2.getPickupNumber(), pickupLineV2.getLineNumber(), 57L,
+//                            statusDescription, loginUserID, new Date());
+//                    log.info("PickupHeader Status Updated to 57 for PickupLineV2 through Async ------> {}", pickupHeader);
+                    updatePickupHeaderWithRetry(pickupLineV2, getStatusDescription(57L, "EN"), loginUserID);
                 }
+
             } catch (Exception e) {
                 log.error("Error while updating PickupHeader status to 57 for PickupLineV2 through Async ------> {}", e.toString());
                 e.printStackTrace();
@@ -129,13 +135,42 @@ public class AsyncService extends BaseService {
         }
     }
 
+    @Retryable(
+            value = {CannotAcquireLockException.class, LockAcquisitionException.class},
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 500)
+    )
+    public void updatePickupHeaderWithRetry(AddPickupLine pickupLineV2,
+                                            String statusDescription,
+                                            String loginUserID) {
+
+        int pickupHeader = pickupHeaderV2Repository.updatePickupHeaderStatusUpdateV4(
+                pickupLineV2.getCompanyCodeId(),
+                pickupLineV2.getPlantId(),
+                pickupLineV2.getLanguageId(),
+                pickupLineV2.getWarehouseId(),
+                pickupLineV2.getRefDocNumber(),
+                pickupLineV2.getPreOutboundNo(),
+                pickupLineV2.getItemCode(),
+                pickupLineV2.getManufacturerName(),
+                pickupLineV2.getPartnerCode(),
+                pickupLineV2.getPickupNumber(),
+                pickupLineV2.getLineNumber(),
+                57L,
+                statusDescription,
+                loginUserID,
+                new Date());
+
+        log.info("PickupHeader Status Updated to 57 through Async ------> {}", pickupHeader);
+    }
+
     /**
      *
      * @param newPickupLine pickupLine
      * @param loginUserID userID
      * @throws Exception
      */
-    @Async("asyncTaskExecutor")
+//    @Async("asyncTaskExecutor")
     public void processPickupLine(List<AddPickupLine> newPickupLine, String loginUserID) throws Exception {
 
         try {

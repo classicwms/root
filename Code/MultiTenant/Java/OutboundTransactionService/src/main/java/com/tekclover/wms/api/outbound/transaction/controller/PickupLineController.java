@@ -237,7 +237,9 @@ public class PickupLineController {
                     createdPickupLine = pickuplineService.createPickupLineNonCBMV2(newPickupLine, loginUserID);
                     break;
                 case "NAMRATHA":
+                    log.info("Starting async process for NAMRATHA");
                     asyncService.processPickupLineAsync(newPickupLine, loginUserID);
+                    log.info("Return Response for NAMRATHA without waiting for the process to complete");
                     break;
                 case "REEFERON":
                     createdPickupLine = pickuplineService.createPickupLineV5(newPickupLine, loginUserID);

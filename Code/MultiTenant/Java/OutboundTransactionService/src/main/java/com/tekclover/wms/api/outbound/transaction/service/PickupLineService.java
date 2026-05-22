@@ -2445,10 +2445,10 @@ public class PickupLineService extends BaseService {
                             pickupNumber, dbPickupLine.getBarcodeId(), new Date());
                     dbPickupLine.setReferenceField1(leadTime);
                     log.info("LeadTime: " + leadTime);
-                    int pickupHeader = pickupHeaderV2Repository.updatePickupHeaderStatusUpdateV4(dbPickupLine.getCompanyCodeId(), dbPickupLine.getPlantId(), dbPickupLine.getLanguageId(),
-                            dbPickupLine.getWarehouseId(), dbPickupLine.getRefDocNumber(), dbPickupLine.getPreOutboundNo(), dbPickupLine.getItemCode(),
-                            dbPickupLine.getManufacturerName(), dbPickupLine.getPartnerCode(), dbPickupLine.getPickupNumber(), dbPickupLine.getLineNumber(), STATUS_ID,
-                            dbPickupLine.getStatusDescription(), loginUserID, new Date());
+//                    int pickupHeader = pickupHeaderV2Repository.updatePickupHeaderStatusUpdateV4(dbPickupLine.getCompanyCodeId(), dbPickupLine.getPlantId(), dbPickupLine.getLanguageId(),
+//                            dbPickupLine.getWarehouseId(), dbPickupLine.getRefDocNumber(), dbPickupLine.getPreOutboundNo(), dbPickupLine.getItemCode(),
+//                            dbPickupLine.getManufacturerName(), dbPickupLine.getPartnerCode(), dbPickupLine.getPickupNumber(), dbPickupLine.getLineNumber(), STATUS_ID,
+//                            dbPickupLine.getStatusDescription(), loginUserID, new Date());
 
                     log.info("Outbound line update started");
                     outboundLineV2Repository.updateOutboundLineStatusV4(companyCodeId, plantId, languageId, warehouseId, dbPickupLine.getRefDocNumber(), dbPickupLine.getPreOutboundNo(),
@@ -2464,7 +2464,7 @@ public class PickupLineService extends BaseService {
                         log.info("outboundline update ref_field_6 for Reasons completed");
                     }
 
-                    log.info("PickupHeader Updated Affected Row's : {} ", pickupHeader);
+//                    log.info("PickupHeader Updated Affected Row's : {} ", pickupHeader);
                     createdPickupLineList.add(dbPickupLine);
                 } else {
 //                    throw new BadRequestException("PickupLine Record is getting duplicated. Given data already exists in the Database. : " + existingPickupLine);
