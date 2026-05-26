@@ -2822,9 +2822,9 @@ public class PickupLineService extends BaseService {
 //            log.info("PickupHeader Status Updated successfully --------------------------> 57");
 
             for (AddPickupLine newPickupLine : newPickupLines) {
-                if (newPickupLine.getPickConfirmQty() < 0) {
-                    throw new BadRequestException("Please Enter a Valid Qty! " + newPickupLine.getPickConfirmQty());
-                }
+//                if (newPickupLine.getPickConfirmQty() < 0) {
+//                    throw new BadRequestException("Please Enter a Valid Qty! " + newPickupLine.getPickConfirmQty());
+//                }
 
                 Set<String> duplicates = newPickupLines.stream()
                         .map(AddPickupLine::getPickConfirmBarcodeId)
