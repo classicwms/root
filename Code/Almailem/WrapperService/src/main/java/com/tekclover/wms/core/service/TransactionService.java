@@ -5412,6 +5412,69 @@ public class TransactionService {
         }
     }
 
+    //SEARCH
+    public MobileDashboard findInboundCountMobileDashBoard(FindMobileDashBoard findMobileDashBoard, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            UriComponentsBuilder builder =
+                    UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "reports/dashboard/mobile/inboundCount/find");
+            HttpEntity<?> entity = new HttpEntity<>(findMobileDashBoard, headers);
+            ResponseEntity<MobileDashboard> result =
+                    getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, MobileDashboard.class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    //SEARCH
+    public MobileDashboard findOutboundCountMobileDashBoard(FindMobileDashBoard findMobileDashBoard, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            UriComponentsBuilder builder =
+                    UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "reports/dashboard/mobile/outboundCount/find");
+            HttpEntity<?> entity = new HttpEntity<>(findMobileDashBoard, headers);
+            ResponseEntity<MobileDashboard> result =
+                    getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, MobileDashboard.class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    //SEARCH
+    public MobileDashboard findStockCountMobileDashBoard(FindMobileDashBoard findMobileDashBoard, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            UriComponentsBuilder builder =
+                    UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "reports/dashboard/mobile/stockCount/find");
+            HttpEntity<?> entity = new HttpEntity<>(findMobileDashBoard, headers);
+            ResponseEntity<MobileDashboard> result =
+                    getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, MobileDashboard.class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
     //// GET - MpbileDashboard
     //    public MobileDashboard getMobileDashboard(String warehouseId, String authToken) {
     //        try {

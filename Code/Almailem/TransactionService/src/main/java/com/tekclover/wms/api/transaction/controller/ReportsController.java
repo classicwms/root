@@ -49,6 +49,33 @@ public class ReportsController {
         return new ResponseEntity<>(dashboard, HttpStatus.OK);
     }
 
+    // Search InboundCount mobile dashboard
+    @ApiOperation(response = MobileDashboard.class, value = "Find MobileDashBoard") // label for swagger
+    @PostMapping("/dashboard/mobile/inboundCount/find")
+    public ResponseEntity<?> findInboundCountMobileDashBoard(@Valid @RequestBody FindMobileDashBoard findMobileDashBoard) throws Exception {
+
+        MobileDashboard dashboard = reportsService.findInboundCountMobileDashBoard(findMobileDashBoard);
+        return new ResponseEntity<>(dashboard, HttpStatus.OK);
+    }
+
+    // Search OutboundCount mobile dashboard
+    @ApiOperation(response = MobileDashboard.class, value = "Find MobileDashBoard") // label for swagger
+    @PostMapping("/dashboard/mobile/outboundCount/find")
+    public ResponseEntity<?> findOutboundCountMobileDashBoard(@Valid @RequestBody FindMobileDashBoard findMobileDashBoard) throws Exception {
+
+        MobileDashboard dashboard = reportsService.findOutboundCountMobileDashBoard(findMobileDashBoard);
+        return new ResponseEntity<>(dashboard, HttpStatus.OK);
+    }
+
+    // Search StockCount mobile dashboard
+    @ApiOperation(response = MobileDashboard.class, value = "Find MobileDashBoard") // label for swagger
+    @PostMapping("/dashboard/mobile/stockCount/find")
+    public ResponseEntity<?> findStockCountMobileDashBoard(@Valid @RequestBody FindMobileDashBoard findMobileDashBoard) throws Exception {
+
+        MobileDashboard dashboard = reportsService.findStockCountMobileDashBoard(findMobileDashBoard);
+        return new ResponseEntity<>(dashboard, HttpStatus.OK);
+    }
+
     //@ApiOperation(response = MobileDashboard.class, value = "Get Dashboard Report") // label for swagger
     //   	@GetMapping("/dashboard/mobile")
     //   	public ResponseEntity<?> getMobileDashboard(@RequestParam String warehouseId) throws Exception {

@@ -2731,6 +2731,129 @@ public class ReportsService extends BaseService {
     }
 
     /**
+     * Aakash Vinayak S - 25/05/2026
+     * Spliting MobileDashboard api.
+     *
+     * @param findMobileDashBoard
+     * @return
+     * @throws Exception
+     */
+    public MobileDashboard findInboundCountMobileDashBoard(FindMobileDashBoard findMobileDashBoard)throws Exception {
+
+        MobileDashboard mobileDashboard = new MobileDashboard();
+
+        List<String> companyCode = findMobileDashBoard.getCompanyCode();
+        List<String> plantId = findMobileDashBoard.getPlantId();
+        List<String> warehouseId = findMobileDashBoard.getWarehouseId();
+        List<String> languageId = findMobileDashBoard.getLanguageId();
+
+        /*--------------Inbound--------------------------------*/
+        MobileDashboard.InboundCount inboundCount = mobileDashboard.new InboundCount();
+
+        Long grHeaders = grHeaderRepository.grHeaderCount(companyCode,plantId,languageId, warehouseId, 16L);
+        inboundCount.setCases(grHeaders);
+
+        // -------------Putaway----------------------------------
+        List<Long> orderTypeId = Arrays.asList(1L, 3L, 4L, 5L);
+        Long putAwayHeaderList = putAwayHeaderRepository.getPutAwayHeaderCount(companyCode, plantId, warehouseId, languageId, 19L, orderTypeId);
+        inboundCount.setPutaway(putAwayHeaderList);
+
+        // -------------Reversals-------------------------------
+        orderTypeId = Arrays.asList(2L);
+        Long  putAwayHeaderReversals = putAwayHeaderRepository.getPutAwayHeaderCount(companyCode, plantId, warehouseId, languageId, 19L, orderTypeId);
+        inboundCount.setReversals(putAwayHeaderReversals);
+
+
+        mobileDashboard.setInboundCount(inboundCount);
+        return mobileDashboard;
+
+    }
+
+    /**
+     * Aakash Vinayak S - 25/05/2026
+     * Spliting MobileDashboard api.
+     *
+     * @param findMobileDashBoard
+     * @return
+     * @throws Exception
+     */
+    public MobileDashboard findOutboundCountMobileDashBoard(FindMobileDashBoard findMobileDashBoard)throws Exception {
+
+        MobileDashboard mobileDashboard = new MobileDashboard();
+
+        List<String> companyCode = findMobileDashBoard.getCompanyCode();
+        List<String> plantId = findMobileDashBoard.getPlantId();
+        List<String> warehouseId = findMobileDashBoard.getWarehouseId();
+        List<String> languageId = findMobileDashBoard.getLanguageId();
+        List<String> userId = findMobileDashBoard.getUserID();
+
+        List<Long> orderTypeId = Arrays.asList(1L, 3L, 4L, 5L);
+
+
+        /*--------------Outbound--------------------------------*/
+        MobileDashboard.OutboundCount outboundCount = mobileDashboard.new OutboundCount();
+
+        // --------------Picking---------------------------------------------------------------------------
+        orderTypeId = Arrays.asList(0L, 1L, 3L);
+        Long pickupHeaderList = pickupHeaderRepository.getPickupHeaderCount(companyCode, plantId, warehouseId, languageId, userId, 48L,  orderTypeId);
+        outboundCount.setPicking(pickupHeaderList);
+
+        // -------------Reversals-------------------------------------------------------------------------
+        orderTypeId = Arrays.asList(2L);                //Returns
+        Long pickupHeaderListReversal = pickupHeaderRepository.getPickupHeaderCount(companyCode, plantId, warehouseId, languageId, userId, 48L, orderTypeId);
+        outboundCount.setReversals(pickupHeaderListReversal);
+
+        // -----------Quality-----------------------------------------------------------------------------
+        Long qualityHeaderCount = qualityHeaderRepository.getQualityCount(companyCode, plantId, languageId, warehouseId,54L);
+        outboundCount.setQuality(qualityHeaderCount);
+
+        // -----------Tracking-----------------------------------------------------------------------------
+        List<Long> statusId = Arrays.asList(48L, 50L, 57L);
+        Long tracking = outboundLineV2Repository.gettrackingCount(companyCode, plantId, languageId, warehouseId, statusId);
+        outboundCount.setTracking(tracking);
+
+        mobileDashboard.setOutboundCount(outboundCount);
+        return mobileDashboard;
+
+    }
+
+
+    /**
+     * Aakash Vinayak S - 25/05/2026
+     * Spliting MobileDashboard api.
+     *
+     * @param findMobileDashBoard
+     * @return
+     * @throws Exception
+     */
+    public MobileDashboard findStockCountMobileDashBoard(FindMobileDashBoard findMobileDashBoard)throws Exception {
+
+        MobileDashboard mobileDashboard = new MobileDashboard();
+
+        List<String> companyCode = findMobileDashBoard.getCompanyCode();
+        List<String> plantId = findMobileDashBoard.getPlantId();
+        List<String> warehouseId = findMobileDashBoard.getWarehouseId();
+        List<String> languageId = findMobileDashBoard.getLanguageId();
+        List<String> userId = findMobileDashBoard.getUserID();
+
+        /*--------------StockCount--------------------------------*/
+        MobileDashboard.StockCount stockCount = mobileDashboard.new StockCount();
+
+        List<Long> status2 = Arrays.asList(72L, 75L);
+
+        Long perpetualLines = perpetualLineRepository.getPerpetualLineCount(companyCode, plantId, warehouseId, languageId, status2, userId);
+        Long periodicLines = periodicLineRepository.getPeriodicLineCount(companyCode, plantId, warehouseId, languageId, status2, userId);
+
+        stockCount.setPerpertual(perpetualLines);
+        stockCount.setPeriodic(periodicLines);
+
+        mobileDashboard.setStockCount(stockCount);
+        return mobileDashboard;
+
+    }
+
+
+    /**
      * AwaitingASN Count
      *
      * @param warehouseId
