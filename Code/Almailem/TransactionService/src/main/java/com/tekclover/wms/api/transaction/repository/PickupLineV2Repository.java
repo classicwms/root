@@ -152,6 +152,18 @@ public interface PickupLineV2Repository extends JpaRepository<PickupLineV2, Long
             String languageId, String companyCodeId, String plantId, String warehouseId, String itemCode, String manufacturerName,
             String storageBin, Long statusId, Date stockCountDate, Date date, Long deletionIndicator);
 
+//    @Query(value = "select sum(PICK_CNF_QTY) from tblpickupline where C_ID = :companyCodeId and plant_id = :plantId and WH_ID = :warehouseId and " +
+//            "ITM_CODE = :itemCode and MFR_NAME = :mfrName and PICK_ST_BIN = :storageBin and status_id = :statusId and is_deleted = 0 and PICK_CNF_ON between :fromDate and :toDate ", nativeQuery = true)
+//    Long getPickQty(@Param("companyCodeId") String companyCodeId,
+//                    @Param("plantId") String plantId,
+//                    @Param("warehouseId") String warehouseId,
+//                    @Param("itemCode") String itemCode,
+//                    @Param("mfrName") String mfrName,
+//                    @Param("storageBin") String storageBin,
+//                    @Param("statusId") Long statusId,
+//                    @Param("fromDate") Date fromDate,
+//                    @Param("toDate") Date toDate);
+
     @Query(value = "SELECT DATEDIFF(MINUTE, ib.PICK_CTD_ON, :lDate) from tblpickupheader ib \n"
             + "where ib.pu_no = :pickupNumber and ib.wh_id = :warehouseId and ib.c_id = :companyCodeId and ib.plant_Id = :plantId and ib.lang_Id = :languageId and ib.is_deleted = 0", nativeQuery = true)
     public String getleadtime(@Param("companyCodeId") String companyCodeId,
