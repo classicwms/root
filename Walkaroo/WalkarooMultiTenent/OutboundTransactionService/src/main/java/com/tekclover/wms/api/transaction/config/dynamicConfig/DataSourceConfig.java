@@ -33,6 +33,8 @@ public class DataSourceConfig {
         DataSource vga = vgaDataSource();
         DataSource ccl = cclDataSource();
         DataSource hyd = hydDataSource();
+        DataSource ahm = ahmDataSource();
+
 
         Map<Object, Object> targetDataSources = new HashMap<>();
         targetDataSources.put("WK", wk);
@@ -42,6 +44,8 @@ public class DataSourceConfig {
         targetDataSources.put("VGA", vga);
         targetDataSources.put("CCL", ccl);
         targetDataSources.put("HYD", hyd);
+        targetDataSources.put("AHM", ahm);
+
 
         DynamicDataSource ds = new DynamicDataSource();
         ds.setTargetDataSources(targetDataSources);
@@ -118,6 +122,15 @@ public class DataSourceConfig {
         return buildDataSource(
                 "HYD",
                 "jdbc:sqlserver://10.10.10.61;databaseName=WMS_HYD",
+                "sa",
+                "4V7lOXaxgAi3i6mgJL7qBUSPM"
+        );
+    }
+
+    private DataSource ahmDataSource() {
+        return buildDataSource(
+                "AHM",
+                "jdbc:sqlserver://10.10.10.61;databaseName=WMS_AHM",
                 "sa",
                 "4V7lOXaxgAi3i6mgJL7qBUSPM"
         );
