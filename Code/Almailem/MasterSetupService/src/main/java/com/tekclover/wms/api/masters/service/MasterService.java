@@ -28,6 +28,11 @@ public class MasterService {
     public Item processItemMaster(Item item) throws IllegalAccessException, InvocationTargetException {
         try {
             log.info("Item Master Received : " + item);
+            Item duplicate = itemMasterRepository.findTopByCompanyCodeAndBranchCodeAndSkuAndManufacturerName(item.getCompanyCode(), item.getBranchCode(), item.getSku(), item.getManufacturerName());
+            if(duplicate != null) {
+                log.info("Item is getting duplicate " + item.getSku());
+                return duplicate;
+            }
             Item inboundItemMaster = itemMasterRepository.save(item);
             if (inboundItemMaster != null) {
                 // Updating the Processed Status
