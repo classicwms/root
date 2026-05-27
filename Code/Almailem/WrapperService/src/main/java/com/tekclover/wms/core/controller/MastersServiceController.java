@@ -2384,6 +2384,7 @@ public class MastersServiceController {
     @PostMapping("/warehouse/master/item")
     public ResponseEntity<?> postItem(@Valid @RequestBody Item item, @RequestParam String authToken)
             throws IllegalAccessException, InvocationTargetException {
+        log.info("Item Master Create ---->");
         WarehouseApiResponse createdItem = mastersService.postItem(item, authToken);
         return new ResponseEntity<>(createdItem, HttpStatus.OK);
     }
