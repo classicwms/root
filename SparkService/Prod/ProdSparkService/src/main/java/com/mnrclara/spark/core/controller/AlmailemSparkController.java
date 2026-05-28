@@ -178,7 +178,7 @@ public class AlmailemSparkController {
     @ApiOperation(response = InboundHeaderV2.class, value = "Spark InboundHeader")
     @PostMapping("/inboundHeader")
     public ResponseEntity<?> findInboundHeader(@RequestBody FindInboundHeaderV2 findInboundHeader) throws Exception {
-        List<InboundHeaderV2> inboundHeaderList = sparkInboundHeaderService.findInboundHeader(findInboundHeader);
+        List<InboundHeaderV4> inboundHeaderList = sparkInboundHeaderService.findInboundHeader(findInboundHeader);
         return new ResponseEntity<>(inboundHeaderList, HttpStatus.OK);
     }
 

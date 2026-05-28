@@ -2,202 +2,135 @@ package com.mnrclara.spark.core.service.almailem;
 
 
 import com.mnrclara.spark.core.model.Almailem.FindInboundHeaderV2;
-import com.mnrclara.spark.core.model.Almailem.InboundHeaderV2;
-import com.mnrclara.spark.core.model.Almailem.PreInboundHeaderV2;
-import com.mnrclara.spark.core.model.FindInboundHeader;
-import com.mnrclara.spark.core.model.InboundHeader;
-import com.mnrclara.spark.core.model.PreInboundHeader;
+import com.mnrclara.spark.core.model.Almailem.InboundHeaderV4;
+import com.mnrclara.spark.core.util.ConditionUtils;
+import com.mnrclara.spark.core.util.DatabaseConnectionUtil;
+import com.mnrclara.spark.core.util.SparkSessionUtil;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import org.apache.spark.sql.*;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import java.util.stream.Collectors;
-
-import static org.apache.spark.sql.functions.col;
 
 @Service
 @Slf4j
 public class SparkInboundHeaderService {
 
-    Properties connProp = new Properties();
-    SparkSession sparkSession = null;
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
-    public SparkInboundHeaderService() throws ParseException {
-        //connection properties
-        connProp.setProperty("driver", "com.microsoft.sqlserver.jdbc.SQLServerDriver");
-        connProp.put("user", "sa");
-        connProp.put("password", "SuHcHQR72nxvyJx6EPpoOsK4V");
-        sparkSession = SparkSession.builder().master("local[*]").appName("SparkByExample.com").config("spark.executor.memory", "4g")
-                .config("spark.executor.cores", "4").getOrCreate();
-
-        //Read from Sql Table
-        val df2 = sparkSession.read().option("fetchSize", "10000").jdbc("jdbc:sqlserver://10.10.6.30;databaseName=WMS_ALMPRD", "tblinboundheader", connProp)
-                .repartition(16);
-        df2.createOrReplaceTempView("tblinboundheaderv2");
-
-        val df3 = sparkSession.read().option("fetchSize", "10000").jdbc("jdbc:sqlserver://10.10.6.30;databaseName=WMS_ALMPRD", "tblinboundline", connProp)
-                .repartition(16);
-        df2.createOrReplaceTempView("tblinboundlinev2");
-
-    }
+    // SparkSession
+    SparkSession spark = SparkSessionUtil.createSparkSession();
 
     /**
      * @param findInboundHeader
      * @return
-     * @throws ParseException
      */
-    public List<InboundHeaderV2> findInboundHeader(FindInboundHeaderV2 findInboundHeader) throws ParseException {
+    public List<InboundHeaderV4> findInboundHeader(FindInboundHeaderV2 findInboundHeader) throws ParseException {
+        String sqlQuery =
+                "SELECT " +
+                        "h.LANG_ID as languageId, " +
+                        "h.C_ID as companyCode, " +
+                        "h.PLANT_ID as plantId, " +
+                        "h.WH_ID as warehouseId, " +
+                        "h.REF_DOC_NO as refDocNumber, " +
+                        "h.PRE_IB_NO as preInboundNo, " +
+                        "h.STATUS_ID as statusId, " +
+                        "h.IB_ORD_TYP_ID as inboundOrderTypeId, " +
+                        "h.CONT_NO as containerNo, " +
+                        "h.VEH_NO as vechicleNo, " +
+                        "h.IB_TEXT as headerText, " +
+                        "h.IS_DELETED as deletionIndicator, " +
+                        "h.REF_FIELD_1 as referenceField1, " +
+                        "h.REF_FIELD_2 as referenceField2, " +
+                        "h.REF_FIELD_3 as referenceField3, " +
+                        "h.REF_FIELD_4 as referenceField4, " +
+                        "h.REF_FIELD_5 as referenceField5, " +
+                        "h.REF_FIELD_6 as referenceField6, " +
+                        "h.REF_FIELD_7 as referenceField7, " +
+                        "h.REF_FIELD_8 as referenceField8, " +
+                        "h.REF_FIELD_9 as referenceField9, " +
+                        "h.REF_FIELD_10 as referenceField10, " +
+                        "h.CTD_BY as createdBy, " +
+                        "h.CTD_ON as createdOn, " +
+                        "h.UTD_BY as updatedBy, " +
+                        "h.UTD_ON as updatedOn, " +
+                        "h.IB_CNF_BY as confirmedBy, " +
+                        "h.IB_CNF_ON as confirmedOn, " +
+                        "h.C_TEXT as companyDescription, " +
+                        "h.PLANT_TEXT as plantDescription, " +
+                        "h.WH_TEXT as warehouseDescription, " +
+                        "h.STATUS_TEXT as statusDescription, " +
+                        "h.PURCHASE_ORDER_NUMBER as purchaseOrderNumber, " +
+                        "h.MIDDLEWARE_ID as middlewareId, " +
+                        "h.MIDDLEWARE_TABLE as middlewareTable, " +
+                        "h.MANUFACTURER_FULL_NAME as manufacturerFullName, " +
+                        "h.REF_DOC_TYPE as referenceDocumentType, " +
+                        "h.CSTR_COD as customerCode, " +
+                        "h.TFR_REQ_TYP as TransferRequestType, " +
+                        "h.AMS_SUP_INV as AMSSupplierInvoiceNo, " +
+                        "h.count_of_ord_lines as countOfOrderLines, " +
+                        "h.received_lines as receivedLines " +
+//                        "COUNT(DISTINCT l.ref_doc_no) as countOfOrderLines, " +
+//                        "SUM(CASE WHEN p.STATUS_ID IN (20,24) THEN 1 ELSE 0 END) as receivedLines " +
+                        "FROM tblinboundheader h " +
+//                        "LEFT JOIN tblinboundline l ON h.REF_DOC_NO = l.ref_doc_no " +
+//                        "  AND h.PRE_IB_NO = l.PRE_IB_NO " +
+//                        "  AND h.C_ID = l.C_ID " +
+//                        "  AND h.PLANT_ID = l.PLANT_ID " +
+//                        "  AND h.LANG_ID = l.LANG_ID " +
+//                        "  AND h.WH_ID = l.WH_ID " +
+//                        "  AND l.is_deleted = 0 " +
+//                        "LEFT JOIN tblputawayline p ON h.REF_DOC_NO = p.ref_doc_no " +
+//                        "  AND h.PRE_IB_NO = p.PRE_IB_NO " +
+//                        "  AND h.C_ID = p.C_ID " +
+//                        "  AND h.PLANT_ID = p.PLANT_ID " +
+//                        "  AND h.LANG_ID = p.LANG_ID " +
+//                        "  AND h.WH_ID = p.WH_ID " +
+//                        "  AND p.is_deleted = 0 " +
+                        "WHERE h.IS_DELETED = 0 ";
+//                        "GROUP BY " +
+//                        "h.LANG_ID, h.C_ID, h.PLANT_ID, h.WH_ID, h.REF_DOC_NO, h.PRE_IB_NO, h.STATUS_ID, " +
+//                        "h.IB_ORD_TYP_ID, h.CONT_NO, h.VEH_NO, h.IB_TEXT, h.IS_DELETED, " +
+//                        "h.REF_FIELD_1, h.REF_FIELD_2, h.REF_FIELD_3, h.REF_FIELD_4, h.REF_FIELD_5, " +
+//                        "h.REF_FIELD_6, h.REF_FIELD_7, h.REF_FIELD_8, h.REF_FIELD_9, h.REF_FIELD_10, " +
+//                        "h.CTD_BY, h.CTD_ON, h.UTD_BY, h.UTD_ON, h.IB_CNF_BY, h.IB_CNF_ON, " +
+//                        "h.C_TEXT, h.PLANT_TEXT, h.WH_TEXT, h.STATUS_TEXT, h.PURCHASE_ORDER_NUMBER, " +
+//                        "h.MIDDLEWARE_ID, h.MIDDLEWARE_TABLE, h.MANUFACTURER_FULL_NAME, h.REF_DOC_TYPE, " +
+//                        "h.CSTR_COD, h.TFR_REQ_TYP, h.AMS_SUP_INV";
 
 
-        Dataset<Row> imPreInboundHeaderQuery = sparkSession.sql("SELECT "
-                + "LANG_ID as languageId, "
-                + "C_ID as companyCode, "
-                + "PLANT_ID as plantId, "
-                + "WH_ID as warehouseId, "
-                + "REF_DOC_NO as refDocNumber, "
-                + "PRE_IB_NO as preInboundNo, "
-                + "STATUS_ID as statusId, "
-                + "IB_ORD_TYP_ID as inboundOrderTypeId, "
-                + "CONT_NO as containerNo, "
-                + "VEH_NO as vechicleNo, "
-                + "IB_TEXT as headerText, "
-                + "IS_DELETED as deletionIndicator, "
-                + "REF_FIELD_1 as referenceField1, "
-                + "REF_FIELD_2 as referenceField2, "
-                + "REF_FIELD_3 as referenceField3, "
-                + "REF_FIELD_4 as referenceField4, "
-                + "REF_FIELD_5 as referenceField5, "
-                + "REF_FIELD_6 as referenceField6, "
-                + "REF_FIELD_7 as referenceField7, "
-                + "REF_FIELD_8 as referenceField8, "
-                + "REF_FIELD_9 as referenceField9, "
-                + "REF_FIELD_10 as referenceField10, "
-                + "CTD_BY as createdBy, "
-                + "CTD_ON as createdOn, "
-                + "UTD_BY as updatedBy, "
-                + "UTD_ON as updatedOn, "
-                + "IB_CNF_BY as confirmedBy, "
-                + "IB_CNF_ON as confirmedOn, "
-                + "C_TEXT as companyDescription, "
-                + "PLANT_TEXT as plantDescription, "
-                + "WH_TEXT as warehouseDescription, "
-                + "STATUS_TEXT as statusDescription, "
-                + "PURCHASE_ORDER_NUMBER as purchaseOrderNumber, "
-                + "MIDDLEWARE_ID as middlewareId, "
-                + "MIDDLEWARE_TABLE as middlewareTable, "
-                + "MANUFACTURER_FULL_NAME as manufacturerFullName, "
-                + "REF_DOC_TYPE as referenceDocumentType, "
-				+ "CSTR_COD as customerCode, "
-				+ "TFR_REQ_TYP as TransferRequestType, "
-				+ "AMS_SUP_INV as AMSSupplierInvoiceNo, "
-                + "COUNT_OF_ORD_LINES as countOfOrderLines, "
-                + "RECEIVED_LINES as receivedLines "
-                + "FROM tblinboundheaderv2 WHERE IS_DELETED =0 ");
+        List<String> conditions = new ArrayList<>();
+        ConditionUtils.addCondition(conditions, "h.WH_ID", findInboundHeader.getWarehouseId());
+        ConditionUtils.addCondition(conditions, "h.CONT_NO", findInboundHeader.getContainerNo());
+        ConditionUtils.addCondition(conditions, "h.C_ID", findInboundHeader.getCompanyCodeId());
+        ConditionUtils.addCondition(conditions, "h.PLANT_ID", findInboundHeader.getPlantId());
+        ConditionUtils.addCondition(conditions, "h.LANG_ID", findInboundHeader.getLanguageId());
+        ConditionUtils.addCondition(conditions, "h.REF_DOC_NO", findInboundHeader.getRefDocNumber());
 
-        //  + "COUNT(tblinboundlinev2.ref_doc_no) as countOfOrderLines, "
-        //                + "RECEIVED_LINES as receivedLines "
-        //                + "FROM tblinboundheaderv2 "
-        //                + "LEFT JOIN tblinboundlinev2 ON tblinboundlinev2.ref_doc_no = tblinboundheaderv2.REF_DOC_NO AND tblinboundlinev2.is_deleted = 0 "
-        //                + "WHERE IS_DELETED = 0 ");
+        ConditionUtils.numericConditions(conditions, "h.STATUS_ID", findInboundHeader.getStatusId());
+        ConditionUtils.numericConditions(conditions, "h.IB_ORD_TYP_ID", findInboundHeader.getInboundOrderTypeId());
+        ConditionUtils.addDateCondition(conditions, "h.CTD_ON", findInboundHeader.getStartCreatedOn(), findInboundHeader.getEndCreatedOn());
+        ConditionUtils.addDateCondition(conditions, "h.IB_CNF_ON", findInboundHeader.getStartConfirmedOn(), findInboundHeader.getEndConfirmedOn());
 
-        if (findInboundHeader.getWarehouseId() != null && !findInboundHeader.getWarehouseId().isEmpty()) {
-            imPreInboundHeaderQuery = imPreInboundHeaderQuery.filter(col("WH_ID").isin(findInboundHeader.getWarehouseId().toArray()));
+        if (!conditions.isEmpty()) {
+            sqlQuery = sqlQuery.replace(
+                    "WHERE h.IS_DELETED = 0",
+                    "WHERE h.IS_DELETED = 0 AND " + String.join(" AND ", conditions)
+            );
         }
-        if (findInboundHeader.getContainerNo() != null && !findInboundHeader.getContainerNo().isEmpty()) {
-            imPreInboundHeaderQuery = imPreInboundHeaderQuery.filter(col("CONT_NO").isin(findInboundHeader.getContainerNo().toArray()));
-        }
-        if (findInboundHeader.getStatusId() != null && !findInboundHeader.getStatusId().isEmpty()) {
-            List<String> statusIdStrings = findInboundHeader.getStatusId().stream().map(String::valueOf).collect(Collectors.toList());
-            imPreInboundHeaderQuery = imPreInboundHeaderQuery.filter(col("STATUS_ID").isin(statusIdStrings.toArray()));
-        }
-        if (findInboundHeader.getInboundOrderTypeId() != null && !findInboundHeader.getInboundOrderTypeId().isEmpty()) {
-            List<String> inboundIdStrings = findInboundHeader.getInboundOrderTypeId().stream().map(String::valueOf).collect(Collectors.toList());
-            imPreInboundHeaderQuery = imPreInboundHeaderQuery.filter(col("IB_ORD_TYP_ID").isin(inboundIdStrings.toArray()));
-        }
-        if (findInboundHeader.getRefDocNumber() != null && !findInboundHeader.getRefDocNumber().isEmpty()) {
-            imPreInboundHeaderQuery = imPreInboundHeaderQuery.filter(col("REF_DOC_NO").isin(findInboundHeader.getRefDocNumber().toArray()));
-        }
-        //v2 fields
-        if (findInboundHeader.getCompanyCodeId() != null && !findInboundHeader.getCompanyCodeId().isEmpty()) {
-            imPreInboundHeaderQuery = imPreInboundHeaderQuery.filter(col("C_ID").isin(findInboundHeader.getCompanyCodeId().toArray()));
-        }
-        if (findInboundHeader.getPlantId() != null && !findInboundHeader.getPlantId().isEmpty()) {
-            imPreInboundHeaderQuery = imPreInboundHeaderQuery.filter(col("PLANT_ID").isin(findInboundHeader.getPlantId().toArray()));
-        }
-        if (findInboundHeader.getLanguageId() != null && !findInboundHeader.getLanguageId().isEmpty()) {
-            imPreInboundHeaderQuery = imPreInboundHeaderQuery.filter(col("LANG_ID").isin(findInboundHeader.getLanguageId().toArray()));
-        }
 
-        if (findInboundHeader.getStartCreatedOn() != null) {
-            Date startDate = findInboundHeader.getStartCreatedOn();
-            startDate = org.apache.commons.lang3.time.DateUtils.truncate(startDate, Calendar.DAY_OF_MONTH);
-            imPreInboundHeaderQuery = imPreInboundHeaderQuery.filter(col("CTD_ON").$greater$eq(dateFormat.format(startDate)));
-        }
-        if (findInboundHeader.getEndCreatedOn() != null) {
-            Date endDate = findInboundHeader.getEndCreatedOn();
-            endDate = org.apache.commons.lang3.time.DateUtils.ceiling(endDate, Calendar.DAY_OF_MONTH);
-            imPreInboundHeaderQuery = imPreInboundHeaderQuery.filter(col("CTD_ON").$less$eq(dateFormat.format(endDate)));
-        }
+        Properties connProp = DatabaseConnectionUtil.getDatabaseConnectionProperties();
+        String jdbcUrl = DatabaseConnectionUtil.getJdbcUrl();
 
-//        String refDocNumber = findInboundHeader.getRefDocNumber().get(0);
-//        Long countOfOrderLines = getCountOfTheOrderLinesByRefDocNumber(refDocNumber);
-//
-//        Long countOfReceiveLine = getReceivedLinesByRefDocNumber(refDocNumber);
+        Dataset<Row> data = spark.read()
+                .option("fetchSize", "10000")
+                .option("pushDownloadPredicate", true)
+                .jdbc(jdbcUrl, "(" + sqlQuery + ") as tmp", connProp);
 
-
-        Encoder<InboundHeaderV2> inboundHeaderV2Encoder = Encoders.bean(InboundHeaderV2.class);
-        Dataset<InboundHeaderV2> dataSetControlGroup = imPreInboundHeaderQuery.as(inboundHeaderV2Encoder);
-        List<InboundHeaderV2> result = dataSetControlGroup.collectAsList();
-
-//        //Set Count Of OrderLine
-//        result.forEach(inboundHeaderV2 -> inboundHeaderV2.setCountOfOrderLines(countOfOrderLines));
-//        result.forEach(inboundHeaderV2 -> inboundHeaderV2.setReceivedLines(countOfReceiveLine));
-        return result;
-    }
-
-    //OrderLine
-    public Long getCountOfTheOrderLinesByRefDocNumber(String refDocNumber) {
-        String sqlQuery = "SELECT " +
-                "CASE " +
-                "WHEN OrderLinesCount IS NOT NULL THEN OrderLinesCount " +
-                "ELSE 0 " +
-                "END AS countOfOrderLines " +
-                "FROM " +
-                "(SELECT COUNT(*) AS OrderLinesCount " +
-                "FROM tblinboundlinev2 " +
-                "WHERE ref_doc_no IN ('" + refDocNumber + "') AND is_deleted = 0) AS CountsSubquery";
-
-        Dataset<Row> orderLinesCountDF = sparkSession.sql(sqlQuery);
-        Long countOfOrderLines = orderLinesCountDF.head().getLong(0);
-
-        return countOfOrderLines;
-    }
-
-    //Received Line
-    public Long getReceivedLinesByRefDocNumber(String refDocNumber) {
-
-        // Define the Spark SQL query to calculate receivedLines
-        String sqlQuery = "SELECT " +
-                "CASE WHEN SUM(accept_qty + damage_qty) > 0 " +
-                "THEN (SELECT COUNT(*) FROM inboundline " +
-                "WHERE ref_doc_no IN ('" + refDocNumber + "') AND is_deleted = 0) " +
-                "ELSE 0 END as receivedLines";
-
-        // Execute the Spark SQL query
-        Dataset<Row> resultDF = sparkSession.sql(sqlQuery);
-
-        // Extract the result as Long
-        Long receivedLines = resultDF.head().getLong(0);
-
-        return receivedLines;
+        Encoder<InboundHeaderV4> putAwayLineEncoder = Encoders.bean(InboundHeaderV4.class);
+        Dataset<InboundHeaderV4> dataset = data.as(putAwayLineEncoder);
+        return dataset.collectAsList();
     }
 
 }
