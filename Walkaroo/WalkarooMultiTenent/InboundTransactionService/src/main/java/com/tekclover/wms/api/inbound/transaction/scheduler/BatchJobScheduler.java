@@ -38,7 +38,7 @@ public class BatchJobScheduler {
         //HYD
         scheduleAsyncService.processInboundOrderV6();
         //AHM
-        scheduleAsyncService.processInboundOrderV6();
+        scheduleAsyncService.processInboundOrderV7();
 
 //        CompletableFuture<WarehouseApiResponse> inboundFailedOrder = scheduleAsyncService.processInboundFailedOrder();
 
