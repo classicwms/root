@@ -2213,13 +2213,13 @@ public class PickupLineService extends BaseService {
         String manufacturerName = null;
         boolean isQtyAvail = false;
 
-        List<AddPickupLine> dupPickupLines = getDuplicatesV2(newPickupLines);
-        log.info("-------dupPickupLines--------> " + dupPickupLines);
-        if (dupPickupLines != null && !dupPickupLines.isEmpty()) {
-            newPickupLines.removeAll(dupPickupLines);
-            newPickupLines.add(dupPickupLines.get(0));
-            log.info("-------PickupLines---removed-dupPickupLines-----> " + newPickupLines);
-        }
+//        List<AddPickupLine> dupPickupLines = getDuplicatesV2(newPickupLines);
+//        log.info("-------dupPickupLines--------> " + dupPickupLines);
+//        if (dupPickupLines != null && !dupPickupLines.isEmpty()) {
+//            newPickupLines.removeAll(dupPickupLines);
+//            newPickupLines.add(dupPickupLines.get(0));
+//            log.info("-------PickupLines---removed-dupPickupLines-----> " + newPickupLines);
+//        }
 		PickupHeaderV2 dbPickupHeader = null;
         // Create PickUpLine
         List<PickupLineV2> createdPickupLineList = new ArrayList<>();
@@ -2368,20 +2368,20 @@ public class PickupLineService extends BaseService {
 		// -----------------logic for checking all records as 51 then only it should go
 		// to update header-----------*/
 		try {
-			boolean isStatus51 = false;
-			List<Long> statusList = createdPickupLineList.stream().map(PickupLine::getStatusId)
-					.collect(Collectors.toList());
-			long statusIdCount = statusList.stream().filter(a -> a == 51L).count();
-			log.info("status count : " + (statusIdCount == statusList.size()));
-			isStatus51 = (statusIdCount == statusList.size());
-			if (!statusList.isEmpty() && isStatus51) {
-				STATUS_ID = 51L;
-			} else {
-				STATUS_ID = 50L;
-			}
+//			boolean isStatus51 = false;
+//			List<Long> statusList = createdPickupLineList.stream().map(PickupLine::getStatusId)
+//					.collect(Collectors.toList());
+//			long statusIdCount = statusList.stream().filter(a -> a == 51L).count();
+//			log.info("status count : " + (statusIdCount == statusList.size()));
+//			isStatus51 = (statusIdCount == statusList.size());
+//			if (!statusList.isEmpty() && isStatus51) {
+//				STATUS_ID = 51L;
+//			} else {
+//				STATUS_ID = 50L;
+//			}
 
 			// Prod Issue @Amghara
-			log.info("PickupNumber: " + pickupNumber);
+			log.info("PickupNumber :{}, StatusId: {} ", pickupNumber, STATUS_ID);
 			pickupHeaderV2Repository.updatePickupheader(refDocNumber, pickupNumber, STATUS_ID, statusDescription,
 					loginUserID, new Date());
 			log.info("PickUpHeader status updated....");
