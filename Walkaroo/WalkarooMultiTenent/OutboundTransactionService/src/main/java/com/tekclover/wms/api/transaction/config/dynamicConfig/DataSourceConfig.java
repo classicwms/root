@@ -103,9 +103,9 @@ public class DataSourceConfig {
     private DataSource vgaDataSource() {
         return buildDataSource(
                 "VGA",
-                "jdbc:sqlserver://10.10.6.30;databaseName=WMS_VGA",
+                "jdbc:sqlserver://10.10.10.61;databaseName=WMS_VGA",
                 "sa",
-                "SuHcHQR72nxvyJx6EPpoOsK4V"
+                "4V7lOXaxgAi3i6mgJL7qBUSPM"
         );
     }
 
