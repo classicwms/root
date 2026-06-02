@@ -153,6 +153,7 @@ public class BusinessPartnerService {
         BeanUtils.copyProperties(updateBusinessPartner, dbBusinessPartner, CommonUtils.getNullPropertyNames(updateBusinessPartner));
         dbBusinessPartner.setUpdatedBy(loginUserID);
         dbBusinessPartner.setUpdatedOn(new Date());
+        businesspartnerRepository.delete(dbBusinessPartner);            // Delete insert due to MT throw duplicate in update
         return businesspartnerRepository.save(dbBusinessPartner);
     }
 
@@ -172,6 +173,7 @@ public class BusinessPartnerService {
             businesspartner.setDeletionIndicator(1L);
             businesspartner.setUpdatedBy(loginUserID);
             businesspartner.setUpdatedOn(new Date());
+            businesspartnerRepository.delete(businesspartner);            // Delete insert due to MT throw duplicate in update
             businesspartnerRepository.save(businesspartner);
         } else {
             throw new EntityNotFoundException("Error in deleting Id:" + partnerCode);

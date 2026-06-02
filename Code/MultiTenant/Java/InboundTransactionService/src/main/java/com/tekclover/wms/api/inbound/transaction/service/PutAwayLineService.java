@@ -3571,7 +3571,7 @@ public class PutAwayLineService extends BaseService {
      * @param loginUserID
      * @return
      */
-//    @Transactional(rollbackFor = {Exception.class, Throwable.class})
+    @Transactional(rollbackFor = {Exception.class, Throwable.class})
     public List<PutAwayLineV2> putAwayLineConfirmNonCBMV7(@Valid List<PutAwayLineV2> newPutAwayLines, String loginUserID) {
         List<PutAwayLineV2> createdPutAwayLines = new ArrayList<>();
         log.info("newPutAwayLines to confirm : " + newPutAwayLines);
