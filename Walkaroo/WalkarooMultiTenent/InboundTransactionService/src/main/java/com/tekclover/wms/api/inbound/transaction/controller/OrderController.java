@@ -120,4 +120,61 @@ public class OrderController {
         List<InboundOrderLinesV2> inboundOrderLinesV2List = orderService.findInboundOrderLineV2(findInboundOrderLineV2);
         return new ResponseEntity<>(inboundOrderLinesV2List, HttpStatus.OK);
     }
+
+    // ======================================== Grafana ================================= //
+
+    @ApiOperation(response = Integer.class, value = "Get Inbound Order Count")
+    @GetMapping("/grafana/orderCount")
+    public ResponseEntity<?> getPreInboundOrderCount(@RequestParam String warehouseId,
+                                                     @RequestParam String companyCode,
+                                                     @RequestParam String plantId,
+                                                     @RequestParam String languageId) throws ParseException {
+
+        int count = orderService.getInboundOrderCount(warehouseId, companyCode, plantId, languageId);
+
+        return new ResponseEntity<>(count, HttpStatus.OK);
+
+    }
+
+    @ApiOperation(response = Integer.class, value = "Get Inbound Order Line Count")
+    @GetMapping("/grafana/orderLineCount")
+    public ResponseEntity<?> getPreInboundLineOrderCount(@RequestParam String warehouseId,
+                                                         @RequestParam String companyCode,
+                                                         @RequestParam String plantId,
+                                                         @RequestParam String languageId) throws ParseException {
+
+
+        int count = orderService.getInboundOrderLineCount(warehouseId, companyCode, plantId, languageId);
+
+        return new ResponseEntity<>(count, HttpStatus.OK);
+
+    }
+
+    @ApiOperation(response = Integer.class, value = "Get Putaway Line Count")
+    @GetMapping("/grafana/putawayLineCount")
+    public ResponseEntity<?> getPutawayLineOrderCount(@RequestParam String warehouseId,
+                                                      @RequestParam String companyCode,
+                                                      @RequestParam String plantId,
+                                                      @RequestParam String languageId) throws ParseException {
+
+
+        int count = orderService.getPutawayLineCount(warehouseId, companyCode, plantId, languageId);
+
+        return new ResponseEntity<>(count, HttpStatus.OK);
+
+    }
+
+    @ApiOperation(response = Integer.class, value = "Get Confirmed Inbound Order Count")
+    @GetMapping("/grafana/inboundorderCount")
+    public ResponseEntity<?> getPreInboundOrderConfirmedCount(@RequestParam String warehouseId,
+                                                              @RequestParam String companyCode,
+                                                              @RequestParam String plantId,
+                                                              @RequestParam String languageId) throws ParseException {
+
+
+        int count = orderService.getInboundHeaderConfirmCount(warehouseId, companyCode, plantId, languageId);
+
+        return new ResponseEntity<>(count, HttpStatus.OK);
+
+    }
 }

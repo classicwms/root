@@ -69,6 +69,9 @@ public class InboundTransactionService {
         @Autowired
         AuthTokenService authTokenService;
 
+        @Autowired
+        MetricsService metricsService;
+
 
         @Autowired
         private NamedParameterJdbcTemplate jdbcParamTemplate;
@@ -11690,6 +11693,132 @@ public class InboundTransactionService {
         ResponseEntity<WarehouseApiResponse[]> result =
                 getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, WarehouseApiResponse[].class);
         return result.getBody();
+    }
+
+    // ==================================Grafana ====================================//
+
+    public Integer getPreInboundOrderCount(String warehouseId, String companyCode,
+                                           String plantId, String languageId, String authToken) throws ParseException {
+        try {
+            AuthToken oAuth = authTokenService.getTransactionServiceAuthToken();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS RestTemplate");
+            headers.add("Authorization", "Bearer " + oAuth.getAccess_token());
+
+            UriComponentsBuilder builder =
+                    UriComponentsBuilder.fromHttpUrl(getInboundTransactionServiceApiUrl() + "orders/grafana/orderCount")
+                            .queryParam("warehouseId", warehouseId)
+                            .queryParam("companyCode", companyCode)
+                            .queryParam("plantId", plantId)
+                            .queryParam("languageId", languageId);
+            HttpEntity<?> entity = new HttpEntity<>(headers);
+            ResponseEntity<Integer> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, Integer.class);
+            log.info("result : " + result.getStatusCode());
+            Integer count = result.getBody() != null ? result.getBody() : 0;
+
+            metricsService.updateInboundOrderCount(count);
+            log.info("count : " + count);
+
+            return count;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    public Integer getPreInboundOrderLineCount(String warehouseId, String companyCode,
+                                               String plantId, String languageId, String authToken) throws ParseException {
+        try {
+            AuthToken oAuth = authTokenService.getTransactionServiceAuthToken();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS RestTemplate");
+            headers.add("Authorization", "Bearer " + oAuth.getAccess_token());
+
+            UriComponentsBuilder builder =
+                    UriComponentsBuilder.fromHttpUrl(getInboundTransactionServiceApiUrl() + "orders/grafana/orderLineCount")
+                            .queryParam("warehouseId", warehouseId)
+                            .queryParam("companyCode", companyCode)
+                            .queryParam("plantId", plantId)
+                            .queryParam("languageId", languageId);
+            HttpEntity<?> entity = new HttpEntity<>(headers);
+            ResponseEntity<Integer> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, Integer.class);
+            log.info("result : " + result.getStatusCode());
+            Integer count = result.getBody() != null ? result.getBody() : 0;
+            metricsService.updateInboundLineCount(count);
+
+            log.info("count : " + count);
+
+            return count;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    // GET
+    public Integer getPutawayLineCount(String warehouseId, String companyCode,
+                                       String plantId, String languageId, String authToken) throws ParseException {
+        try {
+            AuthToken oAuth = authTokenService.getTransactionServiceAuthToken();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS RestTemplate");
+            headers.add("Authorization", "Bearer " +oAuth.getAccess_token());
+
+            UriComponentsBuilder builder =
+                    UriComponentsBuilder.fromHttpUrl(getInboundTransactionServiceApiUrl() + "orders/grafana/putawayLineCount")
+                            .queryParam("warehouseId", warehouseId)
+                            .queryParam("companyCode", companyCode)
+                            .queryParam("plantId", plantId)
+                            .queryParam("languageId", languageId);
+            HttpEntity<?> entity = new HttpEntity<>(headers);
+            ResponseEntity<Integer> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, Integer.class);
+            log.info("result : " + result.getStatusCode());
+            Integer count = result.getBody() != null ? result.getBody() : 0;
+            metricsService.updatePutawayLineCount(count);
+
+            log.info("count : " + count);
+
+            return count;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    public Integer getConfirmedInboundOrderCount(String warehouseId, String companyCode,
+                                                 String plantId, String languageId, String authToken) throws ParseException {
+        try {
+            AuthToken oAuth = authTokenService.getTransactionServiceAuthToken();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS RestTemplate");
+            headers.add("Authorization", "Bearer " + oAuth.getAccess_token());
+
+            UriComponentsBuilder builder =
+                    UriComponentsBuilder.fromHttpUrl(getInboundTransactionServiceApiUrl() + "orders/grafana/inboundorderCount")
+                            .queryParam("warehouseId", warehouseId)
+                            .queryParam("companyCode", companyCode)
+                            .queryParam("plantId", plantId)
+                            .queryParam("languageId", languageId);
+            HttpEntity<?> entity = new HttpEntity<>(headers);
+            ResponseEntity<Integer> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, Integer.class);
+            log.info("result : " + result.getStatusCode());
+            Integer count = result.getBody() != null ? result.getBody() : 0;
+            metricsService.updateConfirmedCount(count);
+            log.info("count : " + count);
+
+            return count;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
     }
 }
 

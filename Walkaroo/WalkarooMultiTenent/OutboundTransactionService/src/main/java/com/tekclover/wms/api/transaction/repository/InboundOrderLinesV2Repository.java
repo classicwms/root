@@ -36,4 +36,28 @@ public interface InboundOrderLinesV2Repository extends JpaRepository<InboundOrde
 
     @Query(value = "SELECT b.barcode_id FROM tbliborderlines2 b WHERE b.barcode_id IN :barcodeIds", nativeQuery = true)
     List<String> findAllByBarcodeIdIn(@Param("barcodeIds") List<String> barcodeIds);
+
+    @Query(value = "SELECT COUNT(*) FROM tblpreoutboundline " +
+            "WHERE c_id = :companyCode " +
+            "AND plant_id = :plantId " +
+            "AND ctd_on >= CAST(GETDATE() AS DATE) " +
+            "AND ctd_on < DATEADD(DAY, 1, CAST(GETDATE() AS DATE))",
+            nativeQuery = true)
+    Long getOutboundOrderCount(
+            @Param("companyCode") String companyId,
+            @Param("plantId") String plantId
+    );
+
+    @Query(value = "SELECT COUNT(*) FROM tblpickupheader " +
+            "WHERE c_id = :companyCode " +
+            "AND plant_id = :plantId " +
+            "AND wh_id = :warehouseId " +
+            "AND pa_ctd_on >= CAST(GETDATE() AS DATE) " +
+            "AND pa_ctd_on < DATEADD(DAY, 1, CAST(GETDATE() AS DATE))",
+            nativeQuery = true)
+    Long getPickupHeaderCount(
+            @Param("companyCode") String companyId,
+            @Param("plantId") String plantId,
+            @Param("warehouseId") String warehouseId
+    );
 }

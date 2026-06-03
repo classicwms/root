@@ -4531,4 +4531,124 @@ public class TransactionServiceController {
         InventoryV2[] createdInventory = outboundTransactionService.createInventoryV3(newInventory, loginUserID, authToken);
         return new ResponseEntity<>(createdInventory, HttpStatus.OK);
     }
+
+    //===================================Grafana =======================================//
+
+    @ApiOperation(response = InventoryV2.class, value = "Inbound Order Count") // label for swagger
+    @GetMapping("/grafana/orderCount")
+    public ResponseEntity<?> getPreInboundOrderCount(@RequestParam String warehouseId, @RequestParam String companyCode,
+                                                     @RequestParam String plantId, @RequestParam String languageId, @RequestParam String authToken) throws java.text.ParseException {
+        int count =
+                inboundTransactionService.getPreInboundOrderCount(warehouseId, companyCode, plantId, languageId, authToken);
+
+        return new ResponseEntity<>(count, HttpStatus.OK);
+    }
+
+    @ApiOperation(response = InventoryV2.class, value = "Inbound OrderLine Count") // label for swagger
+    @GetMapping("/grafana/orderlineCount")
+    public ResponseEntity<?> getPreInboundOrderLineCount(@RequestParam String warehouseId, @RequestParam String companyCode,
+                                                         @RequestParam String plantId, @RequestParam String languageId, @RequestParam String authToken) throws java.text.ParseException {
+        int count =
+                inboundTransactionService.getPreInboundOrderLineCount(warehouseId, companyCode, plantId, languageId, authToken);
+
+
+        return new ResponseEntity<>(count, HttpStatus.OK);
+    }
+
+    @ApiOperation(response = InventoryV2.class, value = "Putaway Line Count") // label for swagger
+    @GetMapping("/grafana/putawayLineCount")
+    public ResponseEntity<?> getPutawayLineCount(@RequestParam String warehouseId, @RequestParam String companyCode,
+                                                 @RequestParam String plantId, @RequestParam String languageId, @RequestParam String authToken) throws java.text.ParseException {
+        int count =
+                inboundTransactionService.getPutawayLineCount(warehouseId, companyCode, plantId, languageId, authToken);
+
+        return new ResponseEntity<>(count, HttpStatus.OK);
+    }
+
+
+    @ApiOperation(response = InventoryV2.class, value = "Confirmed Inbound Order Count") // label for swagger
+    @GetMapping("/grafana/inboundorderCount")
+    public ResponseEntity<?> getConfirmedInboundOrderCount(@RequestParam String warehouseId, @RequestParam String companyCode,
+                                                           @RequestParam String plantId, @RequestParam String languageId, @RequestParam String authToken) throws java.text.ParseException {
+        int count =
+                inboundTransactionService.getConfirmedInboundOrderCount(warehouseId, companyCode, plantId, languageId, authToken);
+
+        return new ResponseEntity<>(count, HttpStatus.OK);
+    }
+
+    // ====================================Grafana ==================================== //
+    @ApiOperation(response = InventoryV2.class, value = "Outbound Order Count") // label for swagger
+    @GetMapping("/grafana/obOrderCount")
+    public ResponseEntity<?> getPreOutboundOrderCount(@RequestParam String warehouseId, @RequestParam String companyCode,
+                                                      @RequestParam String plantId, @RequestParam String languageId, @RequestParam String authToken) throws java.text.ParseException {
+        int count = outboundTransactionService.getPreOutboundOrderCount(warehouseId, companyCode, plantId, languageId, authToken);
+
+        return new ResponseEntity<>(count, HttpStatus.OK);
+    }
+
+    @ApiOperation(response = InventoryV2.class, value = "Outbound OrderLine Count") // label for swagger
+    @GetMapping("/grafana/obOrderLineCount")
+    public ResponseEntity<?> getPreOutboundOrderLineCount(@RequestParam String warehouseId, @RequestParam String companyCode,
+                                                          @RequestParam String plantId, @RequestParam String languageId, @RequestParam String authToken) throws java.text.ParseException {
+        int count = outboundTransactionService.getPreOutboundOrderLineCount(warehouseId, companyCode, plantId, languageId, authToken);
+
+        return new ResponseEntity<>(count, HttpStatus.OK);
+    }
+
+    @ApiOperation(response = InventoryV2.class, value = "Putaway Line Count") // label for swagger
+    @GetMapping("/grafana/obPutawayLineCount")
+    public ResponseEntity<?> getObPutawayLineCount(@RequestParam String warehouseId, @RequestParam String companyCode,
+                                                   @RequestParam String plantId, @RequestParam String languageId, @RequestParam String authToken) throws java.text.ParseException {
+        int count = outboundTransactionService.getObPutawayLineCount(warehouseId, companyCode, plantId, languageId, authToken);
+
+        return new ResponseEntity<>(count, HttpStatus.OK);
+    }
+
+
+    @ApiOperation(response = InventoryV2.class, value = "Confirmed Outbound Order Count") // label for swagger
+    @GetMapping("/grafana/outboundorderCount")
+    public ResponseEntity<?> getConfirmedOutboundOrderCount(@RequestParam String warehouseId, @RequestParam String companyCode,
+                                                            @RequestParam String plantId, @RequestParam String languageId, @RequestParam String authToken) throws java.text.ParseException {
+        Integer count = outboundTransactionService.getConfirmedOutboundOrderCount(warehouseId, companyCode, plantId, languageId, authToken);
+
+        return new ResponseEntity<>(count, HttpStatus.OK);
+    }
+
+    @ApiOperation(response = Integer.class, value = "Queued Orders Count")
+    @GetMapping("/grafana/queuedOrdersCount")
+    public ResponseEntity<?> getQueuedOrdersCount(
+            @RequestParam String warehouseId,
+            @RequestParam String companyCode,
+            @RequestParam String plantId,
+            @RequestParam String languageId,
+            @RequestParam String authToken) throws java.text.ParseException {
+
+        int count = outboundTransactionService.getQueuedOrdersCount(
+                        warehouseId,
+                        companyCode,
+                        plantId,
+                        languageId,
+                        authToken);
+
+        return new ResponseEntity<>(count, HttpStatus.OK);
+    }
+
+    @ApiOperation(response = Integer.class, value = "Failed Orders Count")
+    @GetMapping("/grafana/failedOrdersCount")
+    public ResponseEntity<?> getFailedOrdersCount(
+            @RequestParam String warehouseId,
+            @RequestParam String companyCode,
+            @RequestParam String plantId,
+            @RequestParam String languageId,
+            @RequestParam String authToken) throws java.text.ParseException {
+
+        int count = outboundTransactionService.getFailedOrdersCount(
+                        warehouseId,
+                        companyCode,
+                        plantId,
+                        languageId,
+                        authToken);
+
+        return new ResponseEntity<>(count, HttpStatus.OK);
+    }
 }

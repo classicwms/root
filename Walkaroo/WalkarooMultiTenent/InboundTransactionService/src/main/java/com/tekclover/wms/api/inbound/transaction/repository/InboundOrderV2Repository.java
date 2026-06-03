@@ -103,4 +103,14 @@ public interface InboundOrderV2Repository extends JpaRepository<InboundOrderV2, 
     int updatePutawayHeader(@Param("refDocNos") Set<String> refDocNo,
                              @Param("text") String text);
 
+    @Query(value = "SELECT COUNT(*) FROM tbliborder2 " +
+            "WHERE company_code = :companyCode " +
+            "AND branch_code = :plantId " +
+            "AND warehouseid = :warehouseId " +
+            "AND order_received_on >= CAST(GETDATE() AS DATE) " +
+            "AND order_received_on < DATEADD(DAY, 1, CAST(GETDATE() AS DATE))", nativeQuery = true)
+    Integer getInboundOrderCount(@Param("companyCode") String companyId,
+                                 @Param("plantId") String plantId,
+                                 @Param("warehouseId") String warehouseId);
+
 }

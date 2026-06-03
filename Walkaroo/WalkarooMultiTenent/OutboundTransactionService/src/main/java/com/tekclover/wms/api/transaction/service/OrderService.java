@@ -668,4 +668,51 @@ public class OrderService extends BaseService {
 		List<OutboundOrderLineV2> results = outboundOrderLinesV2Repository.findAll(spec);
 		return results;
 	}
+
+	// ======================================== Grafana =============================== //
+
+	public Integer getOutboundOrderCount(String warehouseId,String companyCode,String plantId,String languageId)
+	{
+		return inboundOrderV2Repository.getOutboundOrderCount(companyCode, plantId, warehouseId);
+	}
+
+	public Integer getOutboundOrderLineCount(String warehouseId,String companyCode,String plantId,String languageId)
+	{
+		return inboundOrderLinesV2Repository.getOutboundOrderCount(companyCode, plantId)
+				.intValue();
+	}
+
+	public Integer getObPutawayLineCount(String warehouseId,String companyCode,String plantId,String languageId)
+	{
+		return inboundOrderLinesV2Repository.getPickupHeaderCount(companyCode, plantId, warehouseId)
+				.intValue();
+	}
+
+	public Integer getPreOutboundOrderConfirmedCount(String warehouseId,String companyCode,String plantId,String languageId)
+	{
+		return inboundHeaderV2Repository.getOutboundHeaderCount(companyCode, plantId, warehouseId)
+				.intValue();
+	}
+
+	public Integer getQueuedOrdersCount(String warehouseId,
+										String companyCode,
+										String plantId,
+										String languageId) {
+
+		return outboundOrderV2Repository.getQueuedOrdersCount(
+				companyCode,
+				plantId,
+				warehouseId);
+	}
+
+	public Integer getFailedOrdersCount(String warehouseId,
+										String companyCode,
+										String plantId,
+										String languageId) {
+
+		return outboundOrderV2Repository.getFailedOrdersCount(
+				companyCode,
+				plantId,
+				warehouseId);
+	}
 }

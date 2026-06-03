@@ -191,5 +191,19 @@ public interface InboundHeaderV2Repository extends JpaRepository<InboundHeaderV2
                                    @Param("refDocNumber") String refDocNumber,
                                    @Param("statusId") Long statusId,
                                    @Param("statusDescription") String statusDescription);
+
+    @Query(value = "SELECT COUNT(*) FROM tblinboundheader " +
+            "WHERE c_id = :companyCode " +
+            "AND plant_id = :plantId " +
+            "AND wh_id = :warehouseId " +
+            "AND status_id = 24 " +
+            "AND ctd_on >= CAST(GETDATE() AS DATE) " +
+            "AND ctd_on < DATEADD(DAY, 1, CAST(GETDATE() AS DATE))",
+            nativeQuery = true)
+    Long getInboundHeaderCnfCount(
+            @Param("companyCode") String companyId,
+            @Param("plantId") String plantId,
+            @Param("warehouseId") String warehouseId
+    );
     
 }

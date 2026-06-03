@@ -112,4 +112,35 @@ public interface OutboundOrderV2Repository extends JpaRepository<OutboundOrderV2
     @Query(value = "update tbloborder2 set processed_status_id = :statusId where ref_document_no = :refDocNumber", nativeQuery = true)
     void updateStatusId(@Param("refDocNumber") String refDocNumber,
                         @Param("statusId") Long statusId);
+
+
+    @Query(value =
+            "SELECT COUNT(*) " +
+                    "FROM tbloborder2 " +
+                    "WHERE processed_status_id IN ('0','1','99') " +
+                    "AND company_code = :companyCode " +
+                    "AND branch_code = :plantId " +
+                    "AND warehouseid = :warehouseId " +
+                    "AND order_received_on >= CAST(GETDATE() AS DATE) " +
+                    "AND order_received_on < DATEADD(DAY,1,CAST(GETDATE() AS DATE))",
+            nativeQuery = true)
+    Integer getQueuedOrdersCount(
+            @Param("companyCode") String companyCode,
+            @Param("plantId") String plantId,
+            @Param("warehouseId") String warehouseId);
+
+    @Query(value =
+            "SELECT COUNT(*) " +
+                    "FROM tbloborder2 " +
+                    "WHERE processed_status_id = '100' " +
+                    "AND company_code = :companyCode " +
+                    "AND branch_code = :plantId " +
+                    "AND warehouseid = :warehouseId " +
+                    "AND order_received_on >= CAST(GETDATE() AS DATE) " +
+                    "AND order_received_on < DATEADD(DAY,1,CAST(GETDATE() AS DATE))",
+            nativeQuery = true)
+    Integer getFailedOrdersCount(
+            @Param("companyCode") String companyCode,
+            @Param("plantId") String plantId,
+            @Param("warehouseId") String warehouseId);
 }

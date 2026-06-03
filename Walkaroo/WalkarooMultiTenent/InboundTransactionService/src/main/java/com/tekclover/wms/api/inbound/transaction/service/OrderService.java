@@ -54,6 +54,9 @@ public class OrderService extends BaseService {
     private InboundOrderLinesV2Repository inboundOrderLinesV2Repository;
 
     @Autowired
+    PutAwayLineV2Repository putAwayLineV2Repository;
+
+    @Autowired
     private DbConfigRepository dbConfigRepository;
 
     //------------------------------------------------------------------------------------------------
@@ -300,5 +303,28 @@ public class OrderService extends BaseService {
         InboundOrderLineV2Specification spec = new InboundOrderLineV2Specification(findInboundOrderLineV2);
         List<InboundOrderLinesV2> results = inboundOrderLinesV2Repository.findAll(spec);
         return results;
+    }
+
+    // ==================================== Grafana ==================================== //
+
+    public Integer getInboundOrderCount(String warehouseId,String companyCode,String plantId,String languageId)
+    {
+        return inboundOrderV2Repository.getInboundOrderCount(companyCode, plantId, warehouseId);
+    }
+
+    public Integer getInboundOrderLineCount(String warehouseId,String companyCode,String plantId,String languageId)
+    {
+        return inboundOrderLinesV2Repository.getInboundOrderLineCount(companyCode, plantId)
+                .intValue();
+    }
+    public Integer getPutawayLineCount(String warehouseId,String companyCode,String plantId,String languageId)
+    {
+        return putAwayLineV2Repository.getPutawayLineCount(companyCode, plantId, warehouseId)
+                .intValue();
+    }
+    public Integer getInboundHeaderConfirmCount(String warehouseId,String companyCode,String plantId,String languageId)
+    {
+        return inboundHeaderV2Repository.getInboundHeaderCnfCount(companyCode, plantId, warehouseId)
+                .intValue();
     }
 }

@@ -345,4 +345,17 @@ public interface PutAwayLineV2Repository extends JpaRepository<PutAwayLineV2, Lo
             "(COALESCE(:itemCode, null) IS NULL OR (ITM_CODE IN (:itemCode))) ", nativeQuery = true)
     List<PutAwayLineV2> findByItemCodeAndBarcodeId(@Param("itemCode") String itemCode,
                                                             @Param("barcodeId") String barcodeId);
+
+    @Query(value = "SELECT COUNT(*) FROM tblputawayline " +
+            "WHERE c_id = :companyCode " +
+            "AND plant_id = :plantId " +
+            "AND wh_id = :warehouseId " +
+            "AND pa_ctd_on >= CAST(GETDATE() AS DATE) " +
+            "AND pa_ctd_on < DATEADD(DAY, 1, CAST(GETDATE() AS DATE))",
+            nativeQuery = true)
+    Long getPutawayLineCount(
+            @Param("companyCode") String companyId,
+            @Param("plantId") String plantId,
+            @Param("warehouseId") String warehouseId
+    );
 }
