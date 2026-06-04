@@ -24,6 +24,8 @@ public interface OutboundOrderV2Repository extends JpaRepository<OutboundOrderV2
     OutboundOrderV2 findByRefDocumentNoAndOutboundOrderTypeID(String orderId, Long outboundOrderTypeID);
     OutboundOrderV2 findByRefDocumentNoAndProcessedStatusIdOrderByOrderReceivedOn(String orderId, Long deletionIndicator);
 
+    OutboundOrderV2 findByRefDocumentNoAndOutboundOrderTypeIDAndBranchCodeAndCompanyCode(String orderId, Long outboundOrderTypeID, String branchCode, String companyCode);
+
     List<OutboundOrderV2> findTopByProcessedStatusIdOrderByOrderReceivedOn(long l);
 
     @Query(value = "select \n"
