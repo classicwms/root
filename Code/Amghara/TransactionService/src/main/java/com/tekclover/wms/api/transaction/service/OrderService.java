@@ -364,21 +364,6 @@ public class OrderService {
 
 	//===================================================================V2========================================================================
 
-	public OutboundOrderV2 updateProcessedOrderV2(String orderId, Long outboundOrderTypeID, Long processStatusId) throws ParseException {
-		OutboundOrderV2 dbOutboundOrder = getOBOrderByIdV2(orderId, outboundOrderTypeID);
-		log.info("orderId : " + orderId);
-		log.info("dbOutboundOrder : " + dbOutboundOrder);
-		if (dbOutboundOrder != null) {
-			dbOutboundOrder.setProcessedStatusId(processStatusId);
-			dbOutboundOrder.setOrderProcessedOn(new Date());
-			if(dbOutboundOrder.getNumberOfAttempts() != null && dbOutboundOrder.getNumberOfAttempts().equals(3L)) {
-				dbOutboundOrder.setProcessedStatusId(100L);
-			}
-			OutboundOrderV2 outboundOrder = outboundOrderV2Repository.save(dbOutboundOrder);
-			return outboundOrder;
-		}
-		return dbOutboundOrder;
-	}
 
 	/**
 	 * re run procedure
@@ -446,7 +431,7 @@ public class OrderService {
 	public OutboundOrderV2 getOBOrderByIdV2(String orderId, Long outboundOrderTypeID) {
 //		return outboundOrderRepository.findByOrderId(orderId);
 //		OutboundOrderV2 dbOutboundOrder = outboundOrderV2Repository.findByRefDocumentNo (orderId);
-		OutboundOrderV2 dbOutboundOrder = outboundOrderV2Repository.findByRefDocumentNoAndOutboundOrderTypeID (orderId, outboundOrderTypeID);
+		OutboundOrderV2 dbOutboundOrder = outboundOrderV2Repository.findByRefDocumentNoAndOutboundOrderTypeID(orderId, outboundOrderTypeID);
 
 		if(dbOutboundOrder!= null) {
 			return dbOutboundOrder;
@@ -469,7 +454,7 @@ public class OrderService {
 //		OutboundOrderV2 dbOutboundOrder = outboundOrderV2Repository.findByRefDocumentNoAndProcessedStatusIdOrderByOrderReceivedOn(newOutboundOrder.getOrderId(), 0L);
 //		OutboundOrderV2 dbOutboundOrder = getOBOrderByIdV2(newOutboundOrder.getOrderId());
 		OutboundOrderV2 dbOutboundOrder = outboundOrderV2Repository.
-				findByRefDocumentNoAndOutboundOrderTypeID(newOutboundOrder.getOrderId(), newOutboundOrder.getOutboundOrderTypeID());
+				findByRefDocumentNoAndOutboundOrderTypeIDAndBranchCodeAndCompanyCode(newOutboundOrder.getOrderId(), newOutboundOrder.getOutboundOrderTypeID(), newOutboundOrder.getBranchCode(), newOutboundOrder.getCompanyCode());
 		if(dbOutboundOrder != null) {
 			throw new BadRequestException("Order is getting Duplicated");
 		}
