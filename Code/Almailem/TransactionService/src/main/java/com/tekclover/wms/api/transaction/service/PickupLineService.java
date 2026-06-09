@@ -1,12 +1,7 @@
 package com.tekclover.wms.api.transaction.service;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -2354,15 +2349,15 @@ public class PickupLineService extends BaseService {
 		 * Update OutboundHeader & Preoutbound Header STATUS_ID as 51 only if all
 		 * OutboundLines are STATUS_ID is 51
 		 */
-		String statusDescription50 = stagingLineV2Repository.getStatusDescription(50L, languageId);
-		String statusDescription51 = stagingLineV2Repository.getStatusDescription(51L, languageId);
+//		String statusDescription50 = stagingLineV2Repository.getStatusDescription(50L, languageId);
+//		String statusDescription51 = stagingLineV2Repository.getStatusDescription(51L, languageId);
 //		outboundHeaderV2Repository.updateObheaderPreobheaderUpdateProc(companyCodeId, plantId, languageId, warehouseId,
 //				refDocNumber, preOutboundNo, new Date(), loginUserID, 47L, 50L, 51L, statusDescription50,
 //				statusDescription51);
-		outboundHeaderV2Repository.updateOutboundAndPreOutboundHeaders(companyCodeId, plantId, languageId, warehouseId,
-				refDocNumber, preOutboundNo, new Date(), loginUserID, 47L, 50L, 51L, statusDescription50,
-				statusDescription51);
-		log.info("outboundHeader, preOutboundHeader updated as 50 / 51 when respective condition met");
+//		outboundHeaderV2Repository.updateOutboundAndPreOutboundHeaders(companyCodeId, plantId, languageId, warehouseId,
+//				refDocNumber, preOutboundNo, new Date(), loginUserID, 47L, 50L, 51L, statusDescription50,
+//				statusDescription51);
+//		log.info("outboundHeader, preOutboundHeader updated as 50 / 51 when respective condition met");
 
 		/*---------------------------------------------PickupHeader Updates---------------------------------------*/
 		// -----------------logic for checking all records as 51 then only it should go
@@ -2617,6 +2612,23 @@ public class PickupLineService extends BaseService {
                 e.printStackTrace();
             }
 
+            try {
+                // Update OutboundHeader
+                IKeyValuePair ikey = outboundHeaderV2Repository.findOutboundLine(companyCode, plantId, languageId, warehouseId, refDocNumber, dbPickupLine.getPreOutboundNo(), 47L, 50L, 51L);
+
+                if (ikey != null) {
+                    if (ikey.getTotalCount().equals(ikey.getCountStatus50())) {
+                        statusDescription = stagingLineV2Repository.getStatusDescription(50L, languageId);
+                        outboundHeaderV2Repository.updateOutboundHeaderStatus(companyCode, plantId, languageId, warehouseId, refDocNumber, dbPickupLine.getPreOutboundNo(), 50L, statusDescription, new Date(), loginUserID);
+                    } else if (ikey.getTotalCount().equals(ikey.getCountStatus51())) {
+                        statusDescription = stagingLineV2Repository.getStatusDescription(51L, languageId);
+                        outboundHeaderV2Repository.updateOutboundHeaderStatus(companyCode, plantId, languageId, warehouseId, refDocNumber, dbPickupLine.getPreOutboundNo(), 51L, statusDescription, new Date(), loginUserID);
+                    }
+                }
+            } catch (Exception e) {
+                log.error("outboundHeader update Error :" + e.toString());
+                e.printStackTrace();
+            }
             /*
 				 * ------------------Record insertion in
 				 * QUALITYHEADER-table------------------------- ---------- Allow to create

@@ -1,5 +1,6 @@
 package com.tekclover.wms.api.transaction.repository;
 
+import com.tekclover.wms.api.transaction.model.IKeyValuePair;
 import com.tekclover.wms.api.transaction.model.outbound.v2.OutboundHeaderV2;
 import com.tekclover.wms.api.transaction.model.outbound.v2.OutboundHeaderV2Stream;
 import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
@@ -822,7 +823,45 @@ public interface OutboundHeaderV2Repository extends JpaRepository<OutboundHeader
             @Param("statusDescription50") String statusDescription50,
             @Param("statusDescription51") String statusDescription51);
 
+    @Query(value ="SELECT " +
+                    "       COUNT(*) AS totalCount, " +
+                    "       SUM(CASE WHEN STATUS_ID = :statusId50 THEN 1 ELSE 0 END) AS countStatus50, " +
+                    "       SUM(CASE WHEN STATUS_ID IN (:statusId47, :statusId51) THEN 1 ELSE 0 END) AS countStatus51 " +
+                    "   FROM tbloutboundline " +
+                    "   WHERE C_ID = :companyCodeId " +
+                    "     AND PLANT_ID = :plantId " +
+                    "     AND LANG_ID = :languageId " +
+                    "     AND WH_ID = :warehouseId " +
+                    "     AND REF_DOC_NO = :refDocNumber " +
+                    "     AND PRE_OB_NO = :preOutboundNo " +
+                    "     AND IS_DELETED = 0 " , nativeQuery = true)
+    IKeyValuePair findOutboundLine(
+            @Param("companyCodeId") String companyCodeId,
+            @Param("plantId") String plantId,
+            @Param("languageId") String languageId,
+            @Param("warehouseId") String warehouseId,
+            @Param("refDocNumber") String refDocNumber,
+            @Param("preOutboundNo") String preOutboundNo,
+            @Param("statusId47") Long statusId47,
+            @Param("statusId50") Long statusId50,
+            @Param("statusId51") Long statusId51);
 
+
+    @Modifying
+    @Query(value = "update tbloutboundheader set status_id = :statusId, status_text = :statusDescription, dlv_utd_on = :updatedOn, dlv_utd_by = :updatedBy \n" +
+            "where c_id = :companyCodeId and plant_id = :plantId and lang_id = :languageId and wh_id = :warehouseId \n" +
+            "and ref_doc_no = :refDocNumber and pre_ob_no = :preOutboundNo and is_deleted = 0", nativeQuery = true)
+    int updateOutboundHeaderStatus(
+            @Param("companyCodeId") String companyCodeId,
+            @Param("plantId") String plantId,
+            @Param("languageId") String languageId,
+            @Param("warehouseId") String warehouseId,
+            @Param("refDocNumber") String refDocNumber,
+            @Param("preOutboundNo") String preOutboundNo,
+            @Param("statusId") Long statusId,
+            @Param("statusDescription") String statusDescription,
+            @Param("updatedOn") Date updatedOn,
+            @Param("updatedBy") String updatedBy);
 
 
 

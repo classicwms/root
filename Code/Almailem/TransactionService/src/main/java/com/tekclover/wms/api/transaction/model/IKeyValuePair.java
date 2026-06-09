@@ -27,4 +27,9 @@ public interface IKeyValuePair {
     Long getPickerCount();
     Long getLineNumber();
 
+    Long getTotalCount();
+
+    Long getCountStatus50();
+
+    Long getCountStatus51();
 }
