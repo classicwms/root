@@ -121,7 +121,7 @@ public class TransactionService extends BaseService {
             log.info("Current DB ------->" + profile);
             WarehouseApiResponse warehouseApiResponse = new WarehouseApiResponse();
             List<OutboundIntegrationHeaderV2> outboundList = new ArrayList<>();
-            List<OutboundOrderV2> sqlOutboundList = outboundOrderV2Repository.findByProcessedStatusIdOrderByOrderReceivedOn(0L);
+            List<OutboundOrderV2> sqlOutboundList = outboundOrderV2Repository.findOutboundOrder(0L);
                 log.info("ob header list: " + sqlOutboundList.size());
 
                 for(OutboundOrderV2 order : sqlOutboundList) {
