@@ -24,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
@@ -1224,14 +1225,6 @@ public class QualityLineService extends BaseService {
             throws IllegalAccessException, InvocationTargetException, java.text.ParseException {
         try {
             log.info("-------createQualityLine--------called-------> " + newQualityLines);
-
-            List<AddQualityLineV2> dupQualityLines = getDuplicatesV2(newQualityLines);
-            log.info("-------dupQualityLines--------> " + dupQualityLines);
-            if (dupQualityLines != null && !dupQualityLines.isEmpty()) {
-                newQualityLines.removeAll(dupQualityLines);
-                newQualityLines.add(dupQualityLines.get(0));
-                log.info("-------newQualityLines---removed-dupQualityLines-----> " + newQualityLines);
-            }
             String DLV_ORD_NO = null;
             /*
              * The below flag helps to avoid duplicate request and updating of outboundline
@@ -1337,30 +1330,6 @@ public class QualityLineService extends BaseService {
 //            AuthToken authTokenForIDService = authTokenService.getIDMasterServiceAuthToken();
             for (QualityLineV2 dbQualityLine : createdQualityLineList) {
 
-                //Code from TV Dev
-//                Optional<QualityHeaderV2> qualityHeaderOpt =
-//                        qualityHeaderV2Repository.findByQualityInspectionNo(dbQualityLine.getQualityInspectionNo());
-//                QualityHeaderV2 dbQualityHeader = qualityHeaderOpt.get();
-
-                /*-----------------STATUS updates in QualityHeader-----------------------*/
-//                try {
-//                    QualityHeaderV2 updateQualityHeader = new QualityHeaderV2();
-//                    updateQualityHeader.setStatusId(55L);
-////                    StatusId idStatus = idmasterService.getStatus(55L, dbQualityLine.getWarehouseId(), authTokenForIDService.getAccess_token());
-//                    statusDescription = stagingLineV2Repository.getStatusDescription(55L, dbQualityLine.getLanguageId());
-//                    updateQualityHeader.setReferenceField10(statusDescription);
-//                    updateQualityHeader.setStatusDescription(statusDescription);
-//                    QualityHeaderV2 qualityHeader = qualityHeaderService.updateQualityHeaderV2(
-//                            dbQualityLine.getCompanyCodeId(), dbQualityLine.getPlantId(),
-//                            dbQualityLine.getLanguageId(),
-//                            dbQualityLine.getWarehouseId(), dbQualityLine.getPreOutboundNo(),
-//                            dbQualityLine.getRefDocNumber(), dbQualityLine.getQualityInspectionNo(),
-//                            dbQualityLine.getActualHeNo(), loginUserID, updateQualityHeader);
-//                    log.info("qualityHeader updated : " + qualityHeader);
-//                } catch (Exception e1) {
-//                    e1.printStackTrace();
-//                    log.info("qualityHeader updated Error : " + e1.toString());
-//                }
 
                 /*-------------------OUTBOUNDLINE------Update---------------------------*/
                 /*
@@ -1409,162 +1378,6 @@ public class QualityLineService extends BaseService {
                     log.info("outboundHeader updated error: " + e1.toString());
                 }
 
-                /*-----------------Inventory Updates--------------------------------------*/
-                // Pass WH_ID/ITM_CODE/ST_BIN/PACK_BARCODE in INVENTORY table
-//                AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
-//                Long BIN_CLASS_ID = 4L;
-//                StorageBinV2 storageBin = mastersService.getStorageBin(dbQualityLine.getCompanyCodeId(), dbQualityLine.getPlantId(),
-//                        dbQualityLine.getLanguageId(), dbQualityLine.getWarehouseId(), BIN_CLASS_ID,
-//                        authTokenForMastersService.getAccess_token());
-////                Warehouse warehouse = getWarehouse(dbQualityLine.getWarehouseId());
-//                InventoryV2 inventory = null;
-//                try {
-//                    inventory = inventoryService.getInventoryV2(dbQualityLine.getCompanyCodeId(), dbQualityLine.getPlantId(),
-//                            dbQualityLine.getLanguageId(), dbQualityLine.getWarehouseId(),
-//                            dbQualityLine.getPickPackBarCode(), dbQualityLine.getItemCode(),
-//                            storageBin.getStorageBin());
-//                    log.info("inventory---BIN_CLASS_ID-4----> : " + inventory);
-//
-//                    if (inventory != null) {
-//                        Double INV_QTY = inventory.getInventoryQuantity() - dbQualityLine.getQualityQty();
-//                        log.info("Calculated inventory INV_QTY: " + INV_QTY);
-//                        inventory.setInventoryQuantity(INV_QTY);
-//
-//                        // INV_QTY > 0 then, update Inventory Table
-//                        inventory = inventoryV2Repository.save(inventory);
-//                        log.info("inventory updated : " + inventory);
-//
-//                        if (INV_QTY == 0) {
-//                            log.info("inventory INV_QTY: " + INV_QTY);
-//                        }
-//                    }
-//                } catch (Exception e1) {
-//                    e1.printStackTrace();
-//                }
-
-                /*-------------------Inserting record in InventoryMovement-------------------------------------*/
-//                Long subMvtTypeId = 2L;
-//                String movementDocumentNo = dbQualityLine.getQualityInspectionNo();
-//                String stBin = storageBin.getStorageBin();
-//                String movementQtyValue = "N";
-//                InventoryMovement inventoryMovement = createInventoryMovementV2(dbQualityLine, subMvtTypeId,
-//                        movementDocumentNo, stBin, movementQtyValue, loginUserID);
-//                log.info("InventoryMovement created : " + inventoryMovement);
-
-                /*--------------------------------------------------------------------------*/
-                // 2.Insert a new record in INVENTORY table as below
-                // Fetch from QUALITYLINE table and insert WH_ID/ITM_CODE/ST_BIN= (ST_BIN value
-                // of BIN_CLASS_ID=5
-                // from STORAGEBIN table)/PACK_BARCODE/INV_QTY = QC_QTY - INVENTORY UPDATE 2
-//                BIN_CLASS_ID = 5L;
-//                storageBin = mastersService.getStorageBin(dbQualityLine.getCompanyCodeId(), dbQualityLine.getPlantId(),
-//                        dbQualityLine.getLanguageId(), dbQualityLine.getWarehouseId(), BIN_CLASS_ID,
-//                        authTokenForMastersService.getAccess_token());
-////                warehouse = getWarehouse(dbQualityLine.getWarehouseId());
-//
-//                /*
-//                 * Checking Inventory table before creating new record inventory
-//                 */
-//                // Pass WH_ID/ITM_CODE/ST_BIN = (ST_BIN value of BIN_CLASS_ID=5 /PACK_BARCODE
-//                InventoryV2 existingInventory = inventoryService.getInventoryV2(dbQualityLine.getCompanyCodeId(), dbQualityLine.getPlantId(),
-//                        dbQualityLine.getLanguageId(), dbQualityLine.getWarehouseId(),
-//                        dbQualityLine.getPickPackBarCode(), dbQualityLine.getItemCode(), storageBin.getStorageBin());
-//                log.info("existingInventory : " + existingInventory);
-//                if (existingInventory != null) {
-//                    Double INV_QTY = existingInventory.getInventoryQuantity() + dbQualityLine.getQualityQty();
-//                    InventoryV2 updateInventory = new InventoryV2();
-//                    updateInventory.setInventoryQuantity(INV_QTY);
-//                    try {
-//                        InventoryV2 updatedInventory = inventoryService.updateInventoryV2(dbQualityLine.getCompanyCodeId(), dbQualityLine.getPlantId(),
-//                                dbQualityLine.getLanguageId(), dbQualityLine.getWarehouseId(),
-//                                dbQualityLine.getPickPackBarCode(), dbQualityLine.getItemCode(),
-//                                storageBin.getStorageBin(), 1L, 1L, updateInventory, loginUserID);
-//                        log.info("updatedInventory----------> : " + updatedInventory);
-//                    } catch (Exception e) {
-//                        e.printStackTrace();
-//                        log.info("updatedInventory error----------> : " + e.toString());
-//                    }
-//                } else {
-//                    log.info("AddInventory========>");
-//                    InventoryV2 newInventory = new InventoryV2();
-//                    newInventory.setLanguageId(dbQualityLine.getLanguageId());
-//                    newInventory.setCompanyCodeId(dbQualityLine.getCompanyCodeId());
-//                    newInventory.setPlantId(dbQualityLine.getPlantId());
-//                    if (inventory != null) {
-//                        newInventory.setStockTypeId(inventory.getStockTypeId());
-//                    }
-//                    newInventory.setBinClassId(BIN_CLASS_ID);
-//                    newInventory.setWarehouseId(dbQualityLine.getWarehouseId());
-//                    newInventory.setPackBarcodes(dbQualityLine.getPickPackBarCode());
-//                    newInventory.setItemCode(dbQualityLine.getItemCode());
-//                    newInventory.setStorageBin(storageBin.getStorageBin());
-//                    newInventory.setInventoryQuantity(dbQualityLine.getQualityQty());
-//                    newInventory.setSpecialStockIndicatorId(1L);
-//                    newInventory.setManufacturerName(dbQualityLine.getManufacturerName());
-//
-//                    if (dbQualityLine.getManufacturerPartNo() != null) {
-//                        newInventory.setManufacturerCode(dbQualityLine.getManufacturerPartNo());
-//                        log.info("QL Mfr PartNo: " + dbQualityLine.getManufacturerPartNo());
-//                    }
-//                    if (dbQualityLine.getManufacturerName() != null) {
-//                        newInventory.setManufacturerCode(dbQualityLine.getManufacturerName());
-//                        log.info("QL Mfr Name: " + dbQualityLine.getManufacturerName());
-//                    }
-//
-//                    if (dbQualityLine.getManufacturerName() == null) {
-//                        OrderManagementLineV2 orderManagementLine = orderManagementLineService.getOrderManagementLineForQualityLineV2(
-//                                dbQualityLine.getCompanyCodeId(),
-//                                dbQualityLine.getPlantId(),
-//                                dbQualityLine.getLanguageId(),
-//                                dbQualityLine.getWarehouseId(),
-//                                dbQualityLine.getPreOutboundNo(),
-//                                dbQualityLine.getRefDocNumber(),
-//                                dbQualityLine.getLineNumber(),
-//                                dbQualityLine.getItemCode());
-//                        log.info("OrderManagementLine: " + orderManagementLine);
-//                        if (orderManagementLine != null) {
-//                            newInventory.setManufacturerName(orderManagementLine.getManufacturerName());
-//                            newInventory.setManufacturerCode(orderManagementLine.getManufacturerName());
-//                        }
-//                    }
-//                    ImBasicData1 imbasicdata1 = mastersService.getImBasicData1ByItemCodeV2(newInventory.getItemCode(),
-//                            newInventory.getLanguageId(), newInventory.getCompanyCodeId(),
-//                            newInventory.getPlantId(), newInventory.getWarehouseId(),
-//                            newInventory.getManufacturerName(), authTokenForMastersService.getAccess_token());
-//                    log.info("ImbasicData1: " + imbasicdata1);
-//
-////                    List<IImbasicData1> imbasicdata1 = imbasicdata1Repository
-////                            .findByItemCode(newInventory.getItemCode());
-//
-//                    if (imbasicdata1 != null) {
-//                        newInventory.setManufacturerCode(imbasicdata1.getManufacturerPartNo());
-//                        newInventory.setManufacturerName(imbasicdata1.getManufacturerPartNo());
-//                        log.info("ImbasicData1 Mfr PartNo: " + imbasicdata1.getManufacturerPartNo());
-//                        newInventory.setReferenceField8(imbasicdata1.getDescription());
-//                        newInventory.setReferenceField9(imbasicdata1.getManufacturerPartNo());
-//                    }
-//                    if (storageBin != null) {
-//                        newInventory.setReferenceField10(storageBin.getStorageSectionId());
-//                        newInventory.setReferenceField5(storageBin.getAisleNumber());
-//                        newInventory.setReferenceField6(storageBin.getShelfId());
-//                        newInventory.setReferenceField7(storageBin.getRowId());
-//                        newInventory.setLevelId(String.valueOf(storageBin.getFloorId()));
-//                    }
-//
-//                    InventoryV2 createdInventory = inventoryService.createInventoryV2(newInventory, loginUserID);
-//                    log.info("newInventory created : " + createdInventory);
-//                }
-
-                /*-----------------------InventoryMovement----------------------------------*/
-                // Inserting record in InventoryMovement
-//                subMvtTypeId = 2L;
-//                movementDocumentNo = DLV_ORD_NO;
-//                stBin = storageBin.getStorageBin();
-//                movementQtyValue = "P";
-//                inventoryMovement = createInventoryMovementV2(dbQualityLine, subMvtTypeId, movementDocumentNo, stBin,
-//                        movementQtyValue, loginUserID);
-//                log.info("InventoryMovement created for update2: " + inventoryMovement);
-
                 boolean qtyEqual = dbQualityLine.getQualityQty().equals(dbQualityLine.getPickConfirmQty());
                 log.info("getQualityQty, getPickConfirmQty: " + dbQualityLine.getQualityQty() + "," + dbQualityLine.getPickConfirmQty());
                 log.info("Qty Equal: " + qtyEqual);
@@ -1572,120 +1385,6 @@ public class QualityLineService extends BaseService {
                 if (!qtyEqual) {
                     throw new BadRequestException("Quality Qty and Picking Confirm Qty Must be same");
                 }
-                //New Code from Current TV Prod
-//                PickupLineV2 pickupLine = pickupLineV2Repository.findByPickupNumber(dbQualityHeader.getPickupNumber());
-
-                // Creating new Inventory for Rejection of Material
-//                if (dbQualityLine.getQualityQty() < dbQualityLine.getPickConfirmQty()) {
-//                    try {
-//
-//                        InventoryV2 inventory = inventoryService.getInventoryForQualityConfirmV2(
-//                                dbQualityLine.getCompanyCodeId(),
-//                                dbQualityLine.getPlantId(),
-//                                dbQualityLine.getLanguageId(),
-//                                dbQualityLine.getWarehouseId(),
-//                                dbQualityLine.getPickPackBarCode(),
-//                                dbQualityLine.getItemCode(),
-//                                pickupLine.getPickedStorageBin(),
-//                                dbQualityLine.getManufacturerName());
-//                        if (inventory != null) {
-//                            InventoryV2 newInventory = new InventoryV2();
-//                            BeanUtils.copyProperties(inventory, newInventory, CommonUtils.getNullPropertyNames(inventory));
-//                            newInventory.setInventoryQuantity((pickupLine.getPickConfirmQty() - dbQualityLine.getQualityQty()));
-//                            newInventory.setInventoryId(System.currentTimeMillis());
-//                            InventoryV2 createdInventory = inventoryService.createInventoryV2(newInventory, loginUserID);
-//                            log.info("newInventory created : " + createdInventory);
-//                        }
-//                        if(inventory == null) {
-//                            InventoryV2 newInventory = new InventoryV2();
-//                            newInventory.setLanguageId(dbQualityLine.getLanguageId());
-//                            newInventory.setCompanyCodeId(dbQualityLine.getCompanyCodeId());
-//                            newInventory.setPlantId(dbQualityLine.getPlantId());
-//                            newInventory.setBinClassId(BIN_CLASS_ID);
-//                            newInventory.setStockTypeId(1L);                // Hardcoding as 1L for Stock Tyope ID
-//                            newInventory.setWarehouseId(dbQualityLine.getWarehouseId());
-//                            /*
-//                             * Hardcoding Packbarcode as 99999
-//                             */
-//                            newInventory.setPackBarcodes("99999");
-//                            newInventory.setReferenceField1(dbQualityLine.getPickPackBarCode());
-//                            newInventory.setItemCode(dbQualityLine.getItemCode());
-//                            newInventory.setStorageBin(storageBin.getStorageBin());
-//                            newInventory.setInventoryQuantity((pickupLine.getPickConfirmQty() - dbQualityLine.getQualityQty()));
-//                            newInventory.setSpecialStockIndicatorId(1L);    // Hardcoding as 1L for Stock Tyope ID
-//                            newInventory.setCreatedOn(new Date());
-//                            newInventory.setCreatedBy(loginUserID);
-//                            newInventory.setReferenceDocumentNo(dbQualityLine.getRefDocNumber());
-//
-//                            ImBasicData1 imbasicdata1 = mastersService.getImBasicData1ByItemCodeV2(newInventory.getItemCode(),
-//                                    newInventory.getLanguageId(), newInventory.getCompanyCodeId(),
-//                                    newInventory.getPlantId(), newInventory.getWarehouseId(),
-//                                    newInventory.getManufacturerName(), authTokenForMastersService.getAccess_token());
-//
-////                        List<IImbasicData1> imbasicdata1 = imbasicdata1Repository.findByItemCode(newInventory.getItemCode());
-//                            if (imbasicdata1 != null) {
-//                                newInventory.setReferenceField8(imbasicdata1.getDescription());
-//                                newInventory.setReferenceField9(imbasicdata1.getManufacturerPartNo());
-//                                newInventory.setDescription(imbasicdata1.getDescription());
-//                            }
-//                            if (storageBin != null) {
-//                                newInventory.setReferenceField10(storageBin.getStorageSectionId());
-//                                newInventory.setReferenceField5(storageBin.getAisleNumber());
-//                                newInventory.setReferenceField6(storageBin.getShelfId());
-//                                newInventory.setReferenceField7(storageBin.getRowId());
-//                            }
-//
-//                            newInventory.setInventoryId(System.currentTimeMillis());
-//                            InventoryV2 createdInventory = inventoryService.createInventoryV2(newInventory, loginUserID);
-//                            log.info("newInventory created : " + createdInventory);
-//                        }
-//                    } catch (Exception e) {
-//                        log.error("newInventory create Error :" + e.toString());
-//                        e.printStackTrace();
-//                    }
-//
-//                    /*
-//                     * Inventory Update
-//                     */
-//                    InventoryV2 inventory = inventoryService.getInventoryV2(
-//                            dbQualityLine.getCompanyCodeId(),
-//                            dbQualityLine.getPlantId(),
-//                            dbQualityLine.getLanguageId(),
-//                            dbQualityLine.getWarehouseId(),
-//                            dbQualityLine.getPickPackBarCode(),
-//                            dbQualityLine.getItemCode(),
-//                            pickupLine.getPickedStorageBin(),
-//                            dbQualityLine.getManufacturerName());
-//                    log.info("inventory record queried: " + inventory);
-//                    if (inventory != null) {
-//                        if (pickupLine.getAllocatedQty() > 0D) {
-//                            try {
-//                                Double ALLOC_QTY = inventory.getAllocatedQuantity() - (pickupLine.getPickConfirmQty() - dbQualityLine.getQualityQty());
-//                                log.info("inventory ALLOC_QTY: " + ALLOC_QTY);
-//                                log.info("Inventory: inventory.getAllocatedQuantity() ---> " + inventory.getAllocatedQuantity());
-//                                log.info("inventory: (pickupLine.getPickConfirmQty() - dbQualityLine.getQualityQty())--->: " +
-//                                        (pickupLine.getPickConfirmQty() - dbQualityLine.getQualityQty()));
-//
-//                                if (ALLOC_QTY < 0D) {
-//                                    ALLOC_QTY = 0D;
-//                                }
-//
-//                                inventory.setAllocatedQuantity(ALLOC_QTY);
-//
-//                                InventoryV2 existingInventory = new InventoryV2();
-//                                BeanUtils.copyProperties(inventory, existingInventory, CommonUtils.getNullPropertyNames(inventory));
-//                                existingInventory.setInventoryId(System.currentTimeMillis());
-//
-//                                // INV_QTY > 0 then, update Inventory Table
-//                                inventory = inventoryV2Repository.save(existingInventory);
-//                                log.info("inventory updated : " + inventory);
-//                            } catch (Exception e) {
-//                                log.error("Inventory Update Error:" + e.toString());
-//                                e.printStackTrace();
-//                            }
-//                        }
-//                    } // End of Inventory Update
-//                }
             }
 
             postDeliveryConfirm(createdQualityLineList, loginUserID);
@@ -1815,6 +1514,7 @@ public class QualityLineService extends BaseService {
     /**
      * @param dbQualityLines
      */
+    @Async("asyncTaskExecutor")
     private void postDeliveryConfirm(List<QualityLineV2> dbQualityLines, String loginUserID ) {
         try {
             log.info("Delivery Confirm check: -------> started");

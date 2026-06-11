@@ -2601,11 +2601,18 @@ public class PickupLineService extends BaseService {
 					Long STATUS_ID = dbPickupLine.getStatusId();
 					statusDescription = stagingLineV2Repository.getStatusDescription(STATUS_ID,
 							dbPickupLine.getLanguageId());
-					outboundLineV2Repository.updateOutboundlineStatusUpdateProc(companyCode, plantId, languageId,
-							warehouseId, refDocNumber, dbPickupLine.getPreOutboundNo(), dbPickupLine.getItemCode(),
-							dbPickupLine.getManufacturerName(), dbPickupLine.getPartnerCode(),
-                        dbPickupLine.getActualHeNo(), dbPickupLine.getAssignedPickerId(),
-                        dbPickupLine.getLineNumber(), STATUS_ID, statusDescription, new Date());
+//					outboundLineV2Repository.updateOutboundlineStatusUpdateProc(companyCode, plantId, languageId,
+//							warehouseId, refDocNumber, dbPickupLine.getPreOutboundNo(), dbPickupLine.getItemCode(),
+//							dbPickupLine.getManufacturerName(), dbPickupLine.getPartnerCode(),
+//                        dbPickupLine.getActualHeNo(), dbPickupLine.getAssignedPickerId(),
+//                        dbPickupLine.getLineNumber(), STATUS_ID, statusDescription, new Date());
+
+                outboundLineV2Repository.updateOutboundLineV2(companyCode, plantId,
+                        languageId, warehouseId, dbPickupLine.getPreOutboundNo(),
+                        refDocNumber, dbPickupLine.getPartnerCode(), dbPickupLine.getLineNumber(),
+                        dbPickupLine.getItemCode(), STATUS_ID, statusDescription, dbPickupLine.getAssignedPickerId(),
+                        dbPickupLine.getManufacturerName(), loginUserID, new Date());
+
                 log.info("outboundLine updated using Stored Procedure: ");
             } catch (Exception e) {
                 log.error("outboundLine update Error :" + e.toString());
@@ -3083,13 +3090,19 @@ public class PickupLineService extends BaseService {
                 }
 
                 statusDescription = stagingLineV2Repository.getStatusDescription(STATUS_ID, dbPickupLine.getLanguageId());
-                outboundLineV2Repository.updateOutboundlineStatusUpdateProc(
-                        dbPickupLine.getCompanyCodeId(), dbPickupLine.getPlantId(), dbPickupLine.getLanguageId(),
-                        dbPickupLine.getWarehouseId(), dbPickupLine.getRefDocNumber(), dbPickupLine.getPreOutboundNo(),
-                        dbPickupLine.getItemCode(), dbPickupLine.getManufacturerName(), dbPickupLine.getPartnerCode(),
-                        dbPickupLine.getActualHeNo(), dbPickupLine.getAssignedPickerId(),
-                        dbPickupLine.getLineNumber(), STATUS_ID, statusDescription, new Date());
+                outboundLineV2Repository.updateOutboundLineV2(dbPickupLine.getCompanyCodeId(), plantId,
+                        dbPickupLine.getLanguageId(), warehouseId, dbPickupLine.getPreOutboundNo(),
+                        refDocNumber, dbPickupLine.getPartnerCode(), dbPickupLine.getLineNumber(),
+                        dbPickupLine.getItemCode(), STATUS_ID, statusDescription, dbPickupLine.getAssignedPickerId(),
+                        dbPickupLine.getManufacturerName(), loginUserID, new Date());
+//                outboundLineV2Repository.updateOutboundlineStatusUpdateProc(
+//                        dbPickupLine.getCompanyCodeId(), dbPickupLine.getPlantId(), dbPickupLine.getLanguageId(),
+//                        dbPickupLine.getWarehouseId(), dbPickupLine.getRefDocNumber(), dbPickupLine.getPreOutboundNo(),
+//                        dbPickupLine.getItemCode(), dbPickupLine.getManufacturerName(), dbPickupLine.getPartnerCode(),
+//                        dbPickupLine.getActualHeNo(), dbPickupLine.getAssignedPickerId(),
+//                        dbPickupLine.getLineNumber(), STATUS_ID, statusDescription, new Date());
                 log.info("outboundLine updated using Stored Procedure: ");
+
 //                updateOutboundLine.setStatusDescription(statusDescription);
 //                updateOutboundLine.setHandlingEquipment(dbPickupLine.getActualHeNo());
 

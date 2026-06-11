@@ -32,4 +32,5 @@ public interface IKeyValuePair {
     Long getCountStatus50();
 
     Long getCountStatus51();
+
 }
