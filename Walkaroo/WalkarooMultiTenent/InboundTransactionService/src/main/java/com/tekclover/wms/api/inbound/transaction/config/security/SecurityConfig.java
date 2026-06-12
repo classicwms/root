@@ -33,16 +33,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		auth.userDetailsService(userLoginService).passwordEncoder(encoder());
 	}
 	
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
-		 http.cors().and()
-	      	.authorizeRequests()
-			.anyRequest()
-			.authenticated()
-			.and()
-			.sessionManagement()
-			.sessionCreationPolicy(SessionCreationPolicy.NEVER);
-	}
+//	@Override
+//	protected void configure(HttpSecurity http) throws Exception {
+//		 http.cors().and()
+//	      	.authorizeRequests()
+//			.anyRequest()
+//			.authenticated()
+//			.and()
+//			.sessionManagement()
+//			.sessionCreationPolicy(SessionCreationPolicy.NEVER);
+//	}
 	
    @Override
    public void configure(WebSecurity web) throws Exception {
@@ -53,7 +53,25 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                "/webjars/**"
     		   );
    }
-	
+
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		http.cors().and()
+				.authorizeRequests()
+				.antMatchers("/actuator/**").permitAll()
+				.antMatchers("/**/actuator/**").permitAll()
+				.antMatchers("/grafana/**").permitAll()
+				// optional (swagger)
+				.antMatchers("/v2/api-docs", "/swagger-resources/**", "/swagger-ui.html", "/webjars/**").permitAll()
+				.anyRequest().authenticated()
+				.and()
+
+				.sessionManagement()
+				.sessionCreationPolicy(SessionCreationPolicy.NEVER)
+				.and()
+				.csrf().disable();
+	}
+
 	@Override
 	@Bean
 	public AuthenticationManager authenticationManagerBean() throws Exception {
