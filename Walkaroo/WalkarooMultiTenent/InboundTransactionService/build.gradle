@@ -64,6 +64,9 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	implementation 'com.google.firebase:firebase-admin:7.2.0'
 
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'io.micrometer:micrometer-registry-prometheus'
+
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
 }
 
