@@ -1,6 +1,8 @@
 package com.tekclover.wms.core.controller;
 
+import com.google.common.collect.Lists;
 import com.tekclover.wms.core.batch.scheduler.BatchJobScheduler;
+import com.tekclover.wms.core.model.kafka.PickupLineEvent;
 import com.tekclover.wms.core.model.masters.ImPartner;
 import com.tekclover.wms.core.model.transaction.*;
 import com.tekclover.wms.core.model.warehouse.cyclecount.periodic.Periodic;
@@ -12,6 +14,7 @@ import com.tekclover.wms.core.model.warehouse.outbound.almailem.*;
 import com.tekclover.wms.core.service.FileStorageService;
 import com.tekclover.wms.core.service.ReportService;
 import com.tekclover.wms.core.service.TransactionService;
+import com.tekclover.wms.core.service.kafka.ProducerService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.SwaggerDefinition;
@@ -50,6 +53,9 @@ public class TransactionServiceController {
 
     @Autowired
     BatchJobScheduler batchJobScheduler;
+
+    @Autowired
+    ProducerService producerService;
 
     /*
      * Process the ASN Integraion data
@@ -3636,8 +3642,14 @@ public class TransactionServiceController {
     public ResponseEntity<?> postPickupLineV2(@Valid @RequestBody List<AddPickupLine> newPickupLine,
                                               @RequestParam String loginUserID, @RequestParam String authToken)
             throws IllegalAccessException, InvocationTargetException {
-        PickupLineV2[] createdPickupLine = transactionService.createPickupLineV2(newPickupLine, loginUserID, authToken);
-        return new ResponseEntity<>(createdPickupLine, HttpStatus.OK);
+//        PickupLineV2[] createdPickupLine = transactionService.createPickupLineV2(newPickupLine, loginUserID, authToken);
+
+        boolean isValid = transactionService.validateToken(authToken);
+        if (!isValid) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid Token");
+        }
+        producerService.publish("pickupline-topic-v1", new PickupLineEvent(newPickupLine, loginUserID));
+        return new ResponseEntity<>(newPickupLine, HttpStatus.OK);
     }
 
     @ApiOperation(response = PickupLineV2.class, value = "Search PickupLine V2") // label for swagger

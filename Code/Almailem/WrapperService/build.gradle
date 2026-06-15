@@ -66,6 +66,8 @@ dependencies {
 	implementation group: 'com.opencsv', name: 'opencsv', version: '5.7.1'
 	runtimeOnly 'mysql:mysql-connector-java'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	implementation 'org.springframework.kafka:spring-kafka'
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
 }
 

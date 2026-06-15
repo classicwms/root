@@ -145,5 +145,8 @@ public class PropertiesConfig {
 
 	@Value("${email.from.address}")
 	private String emailFromAddress;
-	
+
+	//-----------------Kafka------------------------
+	@Value("${spring.kafka.bootstrap-servers}")
+	private String bootstrapServers;
 }

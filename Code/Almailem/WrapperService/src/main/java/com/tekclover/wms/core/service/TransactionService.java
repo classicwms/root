@@ -78,6 +78,21 @@ public class TransactionService {
         return propertiesConfig.getTransactionServiceUrl();
     }
 
+    public boolean validateToken(String authToken) {
+        String url = getInboundTransactionServiceApiUrl() + "auth/validate";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        headers.add("User-Agent", "ClassicWMS RestTemplate");
+        headers.add("Authorization", "Bearer " + authToken);
+        HttpEntity<?> entity = new HttpEntity<>(headers);
+//        try {
+        ResponseEntity<String> response = getRestTemplate().exchange(url, HttpMethod.GET, entity, String.class);
+        return response.getStatusCode().is2xxSuccessful();
+//        } catch (Exception e) {
+//            return false;
+//        }
+    }
+
     /*------------------------------ProcessInboundReceived-----------------------------------------------------------------*/
     // POST
 //    public PreInboundHeader processInboundReceived(String authToken) {
