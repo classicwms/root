@@ -1460,60 +1460,41 @@ public class OrderManagementLineService extends BaseService {
         return orderManagementLineV2Repository.save(dbOrderManagementLine);
     }
 
-    /**
-     *
-     * @param outboundIntegrationHeader
-     */
-    @Transactional(rollbackFor = {Exception.class, Throwable.class})
-    @Retryable(value = Exception.class, maxAttempts = 3, backoff = @Backoff(delay = 3000))
-    public void doUnAllocationV2(OutboundIntegrationHeaderV2 outboundIntegrationHeader) throws Exception {
-        try {
-            String companyCodeId = outboundIntegrationHeader.getCompanyCode();
-            String plantId = outboundIntegrationHeader.getBranchCode();
-            String languageId = outboundIntegrationHeader.getLanguageId() != null ? outboundIntegrationHeader.getLanguageId() : "EN";
-            String warehouseId = outboundIntegrationHeader.getWarehouseID();
-            Long outboundOrderTypeId = outboundIntegrationHeader.getOutboundOrderTypeID();
-            String refDocNo = outboundIntegrationHeader.getRefDocumentNo();
+//    /**
+//     *
+//     * @param outboundIntegrationHeader
+//     */
+//    @Transactional(rollbackFor = {Exception.class, Throwable.class})
+//    @Retryable(value = Exception.class, maxAttempts = 3, backoff = @Backoff(delay = 3000))
+//    public void doUnAllocationV2(OutboundIntegrationHeaderV2 outboundIntegrationHeader) throws Exception {
+//        try {
+//            String companyCodeId = outboundIntegrationHeader.getCompanyCode();
+//            String plantId = outboundIntegrationHeader.getBranchCode();
+//            String languageId = outboundIntegrationHeader.getLanguageId() != null ? outboundIntegrationHeader.getLanguageId() : "EN";
+//            String warehouseId = outboundIntegrationHeader.getWarehouseID();
+//            Long outboundOrderTypeId = outboundIntegrationHeader.getOutboundOrderTypeID();
+//            String refDocNo = outboundIntegrationHeader.getRefDocumentNo();
+//
+//            List<OrderManagementLineV2> orderManagementLineV2List = orderManagementLineV2Repository.findAllByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndOutboundOrderTypeIdAndDeletionIndicator(
+//                    companyCodeId, plantId, languageId, warehouseId, refDocNo, outboundOrderTypeId, 0L);
+//
+//            log.info("Rollback---> 1. unAllocation ----> " + refDocNo + ", " + outboundOrderTypeId);
+//            //if order management line present do un allocation
+//            if (orderManagementLineV2List != null && !orderManagementLineV2List.isEmpty()) {
+//                doUnAllocationV2(orderManagementLineV2List, "MW_AMS");
+//                log.info("Rollback---> 1.Unallocation Finished ----> " + refDocNo + ", " + outboundOrderTypeId);
+//            }
+//
+//            //delete all records from respective tables
+//            log.info("Rollback---> 2. delete all record initiated ----> " + refDocNo + ", " + outboundOrderTypeId);
+//            orderManagementLineV2Repository.deleteOutboundProcessingProc(companyCodeId, plantId, languageId, warehouseId, refDocNo, outboundOrderTypeId);
+//            log.info("Rollback---> 2. delete all record finished ----> " + refDocNo + ", " + outboundOrderTypeId);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            throw e;
+//        }
+//    }
 
-            List<OrderManagementLineV2> orderManagementLineV2List = orderManagementLineV2Repository.findAllByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndOutboundOrderTypeIdAndDeletionIndicator(
-                    companyCodeId, plantId, languageId, warehouseId, refDocNo, outboundOrderTypeId, 0L);
-
-            log.info("Rollback---> 1. unAllocation ----> " + refDocNo + ", " + outboundOrderTypeId);
-            //if order management line present do un allocation
-            if (orderManagementLineV2List != null && !orderManagementLineV2List.isEmpty()) {
-                doUnAllocationV2(orderManagementLineV2List, "MW_AMS");
-                log.info("Rollback---> 1.Unallocation Finished ----> " + refDocNo + ", " + outboundOrderTypeId);
-            }
-
-            //delete all records from respective tables
-            log.info("Rollback---> 2. delete all record initiated ----> " + refDocNo + ", " + outboundOrderTypeId);
-            orderManagementLineV2Repository.deleteOutboundProcessingProc(companyCodeId, plantId, languageId, warehouseId, refDocNo, outboundOrderTypeId);
-            log.info("Rollback---> 2. delete all record finished ----> " + refDocNo + ", " + outboundOrderTypeId);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
-        }
-    }
-
-    /**
-     *
-     * @param outboundIntegrationHeader
-     * @throws Exception
-     */
-    public void rollback(OutboundIntegrationHeaderV2 outboundIntegrationHeader) throws Exception {
-        try {
-            String companyCodeId = outboundIntegrationHeader.getCompanyCode();
-            String plantId = outboundIntegrationHeader.getBranchCode();
-            String languageId = outboundIntegrationHeader.getLanguageId() != null ? outboundIntegrationHeader.getLanguageId() : "EN";
-            String warehouseId = outboundIntegrationHeader.getWarehouseID();
-            Long outboundOrderTypeId = outboundIntegrationHeader.getOutboundOrderTypeID();
-            String refDocNo = outboundIntegrationHeader.getRefDocumentNo();
-            initiateRollBack(companyCodeId, plantId, languageId, warehouseId, refDocNo, outboundOrderTypeId);
-        } catch (Exception e) {
-            log.error("Exception occurred : " + e.toString());
-            throw e;
-        }
-    }
 
     /**
      *
@@ -1599,8 +1580,22 @@ public class OrderManagementLineService extends BaseService {
             }
 
             //delete all records from respective tables
-            log.info("Rollback---> 2. delete all record initiated ----> " + refDocNo + ", " + outboundOrderTypeId);
-            orderManagementLineV2Repository.deleteOutboundProcessingProc(companyCodeId, plantId, languageId, warehouseId, refDocNo, outboundOrderTypeId);
+//            log.info("Rollback---> 2. delete all record initiated ----> " + refDocNo + ", " + outboundOrderTypeId);
+//            orderManagementLineV2Repository.deleteOutboundProcessingProc(companyCodeId, plantId, languageId, warehouseId, refDocNo, outboundOrderTypeId);
+            int preoutboundLine = orderManagementLineV2Repository.deletePreOutboundLine(companyCodeId, plantId, languageId, warehouseId, refDocNo, outboundOrderTypeId);
+            log.info("preOutboundLine record deleted count: " + preoutboundLine);
+            int preoutboundHeader = orderManagementLineV2Repository.deletePreOutboundHeader(companyCodeId, plantId, languageId, warehouseId, refDocNo, outboundOrderTypeId);
+            log.info("preOutboundHeader record deleted count: " + preoutboundHeader);
+            int orderManagementLine = orderManagementLineV2Repository.deleteOrderManagementLine(companyCodeId, plantId, languageId, warehouseId, refDocNo, outboundOrderTypeId);
+            log.info("OrderManagementLine record deleted count: " + orderManagementLine);
+            int orderManagementHeader = orderManagementLineV2Repository.deleteOrderManagementHeader(companyCodeId, plantId, languageId, warehouseId, refDocNo, outboundOrderTypeId);
+            log.info("OrderManagementHeader record deleted count: " + orderManagementHeader);
+            int outboundLine = orderManagementLineV2Repository.deleteOutboundLine(companyCodeId, plantId, languageId, warehouseId, refDocNo, outboundOrderTypeId);
+            log.info("OutboundLine record deleted count: " + outboundLine);
+            int outboundHeader = orderManagementLineV2Repository.deleteOutboundHeader(companyCodeId, plantId, languageId, warehouseId, refDocNo, outboundOrderTypeId);
+            log.info("OutboundHeader record deleted count: " + outboundHeader);
+            int pikcupHeader = orderManagementLineV2Repository.deletePickupHeader(companyCodeId, plantId, languageId, warehouseId, refDocNo, outboundOrderTypeId);
+            log.info("PickupHeader record deleted count: " + pikcupHeader);
             log.info("Rollback---> 2. delete all record finished ----> " + refDocNo + ", " + outboundOrderTypeId);
         } catch (Exception e) {
             e.printStackTrace();

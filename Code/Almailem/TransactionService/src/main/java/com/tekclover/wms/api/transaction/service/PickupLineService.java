@@ -8,6 +8,11 @@ import java.util.stream.Stream;
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 
+import com.tekclover.wms.api.transaction.model.DescriptionDTO;
+import com.tekclover.wms.api.transaction.model.kafka.PickupLineCreateEvent;
+import com.tekclover.wms.api.transaction.model.kafka.UpdatePickupHeaderEvent;
+import com.tekclover.wms.api.transaction.service.kafka.ProducerService;
+import com.tekclover.wms.api.transaction.service.redis.RedisService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
@@ -160,6 +165,11 @@ public class PickupLineService extends BaseService {
  	private InventoryTransRepository inventoryTransRepository;
 
     String statusDescription = null;
+
+    @Autowired
+    ProducerService producerService;
+    @Autowired
+    RedisService redisService;
     //------------------------------------------------------------------------------------------------------
 
     /**
@@ -2194,28 +2204,13 @@ public class PickupLineService extends BaseService {
      */
     public List<PickupLineV2> createPickupLineNonCBMV2(@Valid List<AddPickupLine> newPickupLines, String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, Exception {
-		log.info("login UserId : {}", loginUserID);
+        log.info("login UserId : {}", loginUserID);
         Long STATUS_ID = 0L;
-        String companyCodeId = null;
-        String plantId = null;
-        String languageId = null;
-        String warehouseId = null;
-        String preOutboundNo = null;
         String refDocNumber = null;
-        String partnerCode = null;
         String pickupNumber = null;
-        String itemCode = null;
-        String manufacturerName = null;
         boolean isQtyAvail = false;
 
-//        List<AddPickupLine> dupPickupLines = getDuplicatesV2(newPickupLines);
-//        log.info("-------dupPickupLines--------> " + dupPickupLines);
-//        if (dupPickupLines != null && !dupPickupLines.isEmpty()) {
-//            newPickupLines.removeAll(dupPickupLines);
-//            newPickupLines.add(dupPickupLines.get(0));
-//            log.info("-------PickupLines---removed-dupPickupLines-----> " + newPickupLines);
-//        }
-		PickupHeaderV2 dbPickupHeader = null;
+        PickupHeaderV2 dbPickupHeader = null;
         // Create PickUpLine
         List<PickupLineV2> createdPickupLineList = new ArrayList<>();
         for (AddPickupLine newPickupLine : newPickupLines) {
@@ -2240,23 +2235,23 @@ public class PickupLineService extends BaseService {
             log.info("newPickupLine STATUS: " + STATUS_ID);
             dbPickupLine.setStatusId(STATUS_ID);
 
-            statusDescription = stagingLineV2Repository.getStatusDescription(STATUS_ID, newPickupLine.getLanguageId());
+            statusDescription = redisService.getStatusDescription(STATUS_ID, newPickupLine.getLanguageId());
             dbPickupLine.setStatusDescription(statusDescription);
 
-			// V2 Code
-			IKeyValuePair description = stagingLineV2Repository.getDescription(
-					String.valueOf(newPickupLine.getCompanyCodeId()), newPickupLine.getLanguageId(),
-					newPickupLine.getPlantId(), newPickupLine.getWarehouseId());
-			if (description != null) {
+            // V2 Code
+            DescriptionDTO description = redisService.getDescription(
+                    String.valueOf(newPickupLine.getCompanyCodeId()), newPickupLine.getLanguageId(),
+                    newPickupLine.getPlantId(), newPickupLine.getWarehouseId());
+            if (description != null) {
                 dbPickupLine.setCompanyDescription(description.getCompanyDesc());
                 dbPickupLine.setPlantDescription(description.getPlantDesc());
                 dbPickupLine.setWarehouseDescription(description.getWarehouseDesc());
             }
-			OrderManagementLineV2 dbOrderManagementLine = orderManagementLineService
-					.getOrderManagementLineForLineUpdateV2(String.valueOf(newPickupLine.getCompanyCodeId()),
-							newPickupLine.getPlantId(), newPickupLine.getLanguageId(), newPickupLine.getWarehouseId(),
-							newPickupLine.getPreOutboundNo(), newPickupLine.getRefDocNumber(),
-							newPickupLine.getLineNumber(), newPickupLine.getItemCode());
+            OrderManagementLineV2 dbOrderManagementLine = orderManagementLineService
+                    .getOrderManagementLineForLineUpdateV2(String.valueOf(newPickupLine.getCompanyCodeId()),
+                            newPickupLine.getPlantId(), newPickupLine.getLanguageId(), newPickupLine.getWarehouseId(),
+                            newPickupLine.getPreOutboundNo(), newPickupLine.getRefDocNumber(),
+                            newPickupLine.getLineNumber(), newPickupLine.getItemCode());
             log.info("OrderManagementLine: " + dbOrderManagementLine);
 
             if (dbOrderManagementLine != null) {
@@ -2280,21 +2275,21 @@ public class PickupLineService extends BaseService {
                 dbPickupLine.setImsSaleTypeCode(dbOrderManagementLine.getImsSaleTypeCode());
             }
 
-			dbPickupHeader = pickupHeaderService.getPickupHeaderV2(dbPickupLine.getCompanyCodeId(),
-					dbPickupLine.getPlantId(), dbPickupLine.getLanguageId(), dbPickupLine.getWarehouseId(),
-					dbPickupLine.getPreOutboundNo(), dbPickupLine.getRefDocNumber(), dbPickupLine.getPartnerCode(),
-					dbPickupLine.getPickupNumber());
+            dbPickupHeader = pickupHeaderService.getPickupHeaderV2(dbPickupLine.getCompanyCodeId(),
+                    dbPickupLine.getPlantId(), dbPickupLine.getLanguageId(), dbPickupLine.getWarehouseId(),
+                    dbPickupLine.getPreOutboundNo(), dbPickupLine.getRefDocNumber(), dbPickupLine.getPartnerCode(),
+                    dbPickupLine.getPickupNumber());
             if (dbPickupHeader != null) {
                 dbPickupLine.setPickupCreatedOn(dbPickupHeader.getPickupCreatedOn());
-				if (dbPickupHeader.getPickupCreatedBy() != null) {
+                if (dbPickupHeader.getPickupCreatedBy() != null) {
                     dbPickupLine.setPickupCreatedBy(dbPickupHeader.getPickupCreatedBy());
                 } else {
                     dbPickupLine.setPickupCreatedBy(dbPickupHeader.getPickUpdatedBy());
                 }
             }
 
-			Double VAR_QTY = (dbPickupLine.getAllocatedQty() != null ? dbPickupLine.getAllocatedQty() : 0)
-					- (dbPickupLine.getPickConfirmQty() != null ? dbPickupLine.getPickConfirmQty() : 0);
+            Double VAR_QTY = (dbPickupLine.getAllocatedQty() != null ? dbPickupLine.getAllocatedQty() : 0)
+                    - (dbPickupLine.getPickConfirmQty() != null ? dbPickupLine.getPickConfirmQty() : 0);
             dbPickupLine.setVarianceQuantity(VAR_QTY);
             log.info("Var_Qty: " + VAR_QTY);
 
@@ -2304,90 +2299,60 @@ public class PickupLineService extends BaseService {
             dbPickupLine.setPickupConfirmedBy(loginUserID);
             dbPickupLine.setPickupUpdatedOn(new Date());
             dbPickupLine.setPickupConfirmedOn(new Date());
-			dbPickupLine.setIsPickupLineCreated(9L);
+            dbPickupLine.setIsPickupLineCreated(9L);
 
             // Checking for Duplicates
-			List<PickupLineV2> existingPickupLine = pickupLineV2Repository
-					.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndPickupNumberAndItemCodeAndPickedStorageBinAndPickedPackCodeAndDeletionIndicator(
-							dbPickupLine.getLanguageId(), dbPickupLine.getCompanyCodeId(), dbPickupLine.getPlantId(),
-							dbPickupLine.getWarehouseId(), dbPickupLine.getPreOutboundNo(),
-							dbPickupLine.getRefDocNumber(), dbPickupLine.getPartnerCode(), dbPickupLine.getLineNumber(),
-							dbPickupLine.getPickupNumber(), dbPickupLine.getItemCode(),
-							dbPickupLine.getPickedStorageBin(), dbPickupLine.getPickedPackCode(), 0L);
+            List<PickupLineV2> existingPickupLine = pickupLineV2Repository
+                    .findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndPickupNumberAndItemCodeAndPickedStorageBinAndPickedPackCodeAndDeletionIndicator(
+                            dbPickupLine.getLanguageId(), dbPickupLine.getCompanyCodeId(), dbPickupLine.getPlantId(),
+                            dbPickupLine.getWarehouseId(), dbPickupLine.getPreOutboundNo(),
+                            dbPickupLine.getRefDocNumber(), dbPickupLine.getPartnerCode(), dbPickupLine.getLineNumber(),
+                            dbPickupLine.getPickupNumber(), dbPickupLine.getItemCode(),
+                            dbPickupLine.getPickedStorageBin(), dbPickupLine.getPickedPackCode(), 0L);
 
+            // Properties needed for updating PickupHeader
+            refDocNumber = dbPickupLine.getRefDocNumber();
+            pickupNumber = dbPickupLine.getPickupNumber();
             log.info("existingPickupLine : " + existingPickupLine);
             if (existingPickupLine == null || existingPickupLine.isEmpty()) {
-				String leadTime = pickupLineV2Repository.getleadtime(dbPickupLine.getCompanyCodeId(),
-						dbPickupLine.getPlantId(), dbPickupLine.getLanguageId(), dbPickupLine.getWarehouseId(),
-						dbPickupLine.getPickupNumber(), new Date());
+                String leadTime = pickupLineV2Repository.getleadtime(dbPickupLine.getCompanyCodeId(),
+                        dbPickupLine.getPlantId(), dbPickupLine.getLanguageId(), dbPickupLine.getWarehouseId(),
+                        dbPickupLine.getPickupNumber(), new Date());
                 dbPickupLine.setReferenceField1(leadTime);
                 log.info("LeadTime: " + leadTime);
-
-                PickupLineV2 createdPickupLine = pickupLineV2Repository.save(dbPickupLine);
-                log.info("dbPickupLine created: " + createdPickupLine);
-                createdPickupLineList.add(createdPickupLine);
+//                PickupLineV2 createdPickupLine = pickupLineV2Repository.save(dbPickupLine);
+//                log.info("dbPickupLine created: " + createdPickupLine);
+                createdPickupLineList.add(dbPickupLine);
             } else {
-				throw new BadRequestException(
-						"PickupLine Record is getting duplicated. Given data already exists in the Database. : "
-								+ existingPickupLine);
-			}
-
-			// Properties needed for updating PickupHeader
-			warehouseId = dbPickupLine.getWarehouseId();
-			preOutboundNo = dbPickupLine.getPreOutboundNo();
-			refDocNumber = dbPickupLine.getRefDocNumber();
-			partnerCode = dbPickupLine.getPartnerCode();
-			pickupNumber = dbPickupLine.getPickupNumber();
-			companyCodeId = dbPickupLine.getCompanyCodeId();
-			plantId = dbPickupLine.getPlantId();
-			languageId = dbPickupLine.getLanguageId();
-			itemCode = dbPickupLine.getItemCode();
-			manufacturerName = dbPickupLine.getManufacturerName();
-		}
-
-		/*
-		 * Update OutboundHeader & Preoutbound Header STATUS_ID as 51 only if all
-		 * OutboundLines are STATUS_ID is 51
-		 */
-//		String statusDescription50 = stagingLineV2Repository.getStatusDescription(50L, languageId);
-//		String statusDescription51 = stagingLineV2Repository.getStatusDescription(51L, languageId);
-//		outboundHeaderV2Repository.updateObheaderPreobheaderUpdateProc(companyCodeId, plantId, languageId, warehouseId,
-//				refDocNumber, preOutboundNo, new Date(), loginUserID, 47L, 50L, 51L, statusDescription50,
-//				statusDescription51);
-//		outboundHeaderV2Repository.updateOutboundAndPreOutboundHeaders(companyCodeId, plantId, languageId, warehouseId,
-//				refDocNumber, preOutboundNo, new Date(), loginUserID, 47L, 50L, 51L, statusDescription50,
-//				statusDescription51);
-//		log.info("outboundHeader, preOutboundHeader updated as 50 / 51 when respective condition met");
-
-		/*---------------------------------------------PickupHeader Updates---------------------------------------*/
-		// -----------------logic for checking all records as 51 then only it should go
-		// to update header-----------*/
-		try {
-//			boolean isStatus51 = false;
-//			List<Long> statusList = createdPickupLineList.stream().map(PickupLine::getStatusId)
-//					.collect(Collectors.toList());
-//			long statusIdCount = statusList.stream().filter(a -> a == 51L).count();
-//			log.info("status count : " + (statusIdCount == statusList.size()));
-//			isStatus51 = (statusIdCount == statusList.size());
-//			if (!statusList.isEmpty() && isStatus51) {
-//				STATUS_ID = 51L;
-//			} else {
-//				STATUS_ID = 50L;
-//			}
-
-			// Prod Issue @Amghara
-			log.info("PickupNumber :{}, StatusId: {} ", pickupNumber, STATUS_ID);
-			pickupHeaderV2Repository.updatePickupheader(refDocNumber, pickupNumber, STATUS_ID, statusDescription,
-					loginUserID, new Date());
-			log.info("PickUpHeader status updated....");
-		} catch (Exception e) {
-			pickupHeaderV2Repository.updatePickupheader(refDocNumber, pickupNumber, STATUS_ID, statusDescription,
-					loginUserID, new Date());
-			log.info("PickupHeader update error: " + e.toString());
-			e.printStackTrace();
+                log.error("PickupLine Record is getting duplicated. Given data already exists in the Database. : " + existingPickupLine);
+                log.info("Kafka PickupHeader Update Event is being published to Kafka for RefDocNo : {} ", refDocNumber);
+                UpdatePickupHeaderEvent pickupHeaderEvent = new UpdatePickupHeaderEvent(refDocNumber, pickupNumber, STATUS_ID, statusDescription, loginUserID);
+                producerService.updatePickupHeader(pickupHeaderEvent);
             }
-		return createdPickupLineList;
+
         }
+        log.info("Publishing PickupLine Save Event to Kafka RefDocNo is -------------------> {} ", refDocNumber);
+        PickupLineCreateEvent event = new PickupLineCreateEvent(createdPickupLineList);
+        producerService.savePickupLine(event);
+        log.info("Published PickupLine Save Event to Kafka RefDOcNo is -------------------> {}", refDocNumber);
+
+        try {
+            log.info("PickupNumber :{}, StatusId: {} ", pickupNumber, STATUS_ID);
+            log.info("Kafka PickupHeader Update Event is being published to Kafka for RefDocNo : {} ", refDocNumber);
+            UpdatePickupHeaderEvent pickupHeaderEvent = new UpdatePickupHeaderEvent(refDocNumber, pickupNumber, STATUS_ID, statusDescription, loginUserID);
+            producerService.updatePickupHeader(pickupHeaderEvent);
+            log.info("Kafka PickupHeader Update Event published to Kafka for RefDocNo : {} ", refDocNumber);
+//            pickupHeaderV2Repository.updatePickupheader(refDocNumber, pickupNumber, STATUS_ID, statusDescription,
+//                    loginUserID, new Date());
+        } catch (Exception e) {
+            log.info("Kafka PickupHeader Update Event is being published to Kafka for RefDocNo : {} ", refDocNumber);
+            UpdatePickupHeaderEvent pickupHeaderEvent = new UpdatePickupHeaderEvent(refDocNumber, pickupNumber, STATUS_ID, statusDescription, loginUserID);
+            producerService.updatePickupHeader(pickupHeaderEvent);
+            log.info("Kafka PickupHeader Update Event published to Kafka for RefDocNo : {} ", refDocNumber);
+            e.printStackTrace();
+        }
+        return createdPickupLineList;
+    }
 
 
   /**

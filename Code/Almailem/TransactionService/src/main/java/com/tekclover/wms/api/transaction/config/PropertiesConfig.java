@@ -114,4 +114,8 @@ public class PropertiesConfig {
 	// #------SB_CTD_ON,SB_LEVEL_ID
 	@Value("${order.allocation.strategy.choice}")
 	private String orderAllocationStrategyCoice;
+
+	//-----------------KAFKA-CONF-----------------------------------------------------
+	@Value("${spring.kafka.bootstrap-servers}")
+	private String bootstrapServers;
 }

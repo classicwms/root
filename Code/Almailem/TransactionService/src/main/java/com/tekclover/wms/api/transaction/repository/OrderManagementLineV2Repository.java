@@ -177,4 +177,67 @@ public interface OrderManagementLineV2Repository extends JpaRepository<OrderMana
             @Param("warehouseId") String warehouseId,
             @Param("refDocNumber") String refDocNumber,
             @Param("outboundOrderTypeId") Long outboundOrderTypeId);
+
+    @Modifying
+    @Query(value = "DELETE FROM tblpreoutboundline WHERE C_ID = :companyCodeId AND PLANT_ID = :plantId AND LANG_ID = :languageId AND WH_ID = :warehouseId AND REF_DOC_NO = :refDocNumber AND OB_ORD_TYP_ID = :outboundOrderTypeId", nativeQuery = true)
+    int deletePreOutboundLine(@Param("companyCodeId") String companyCodeId,
+                              @Param("plantId") String plantId,
+                              @Param("languageId") String languageId,
+                              @Param("warehouseId") String warehouseId,
+                              @Param("refDocNumber") String refDocNumber,
+                              @Param("outboundOrderTypeId") Long outboundOrderTypeId);
+
+    @Modifying
+    @Query(value = "DELETE FROM tblpreoutboundheader WHERE C_ID = :companyCodeId AND PLANT_ID = :plantId AND LANG_ID = :languageId AND WH_ID = :warehouseId AND REF_DOC_NO = :refDocNumber AND OB_ORD_TYP_ID = :outboundOrderTypeId", nativeQuery = true)
+    int deletePreOutboundHeader(@Param("companyCodeId") String companyCodeId,
+                                @Param("plantId") String plantId,
+                                @Param("languageId") String languageId,
+                                @Param("warehouseId") String warehouseId,
+                                @Param("refDocNumber") String refDocNumber,
+                                @Param("outboundOrderTypeId") Long outboundOrderTypeId);
+
+    @Modifying
+    @Query(value = "DELETE FROM tblordermangementline WHERE C_ID = :companyCodeId AND PLANT_ID = :plantId AND LANG_ID = :languageId AND WH_ID = :warehouseId AND REF_DOC_NO = :refDocNumber AND OB_ORD_TYP_ID = :outboundOrderTypeId", nativeQuery = true)
+    int deleteOrderManagementLine(@Param("companyCodeId") String companyCodeId,
+                                  @Param("plantId") String plantId,
+                                  @Param("languageId") String languageId,
+                                  @Param("warehouseId") String warehouseId,
+                                  @Param("refDocNumber") String refDocNumber,
+                                  @Param("outboundOrderTypeId") Long outboundOrderTypeId);
+
+    @Modifying
+    @Query(value = "DELETE FROM tblordermangementheader WHERE C_ID = :companyCodeId AND PLANT_ID = :plantId AND LANG_ID = :languageId AND WH_ID = :warehouseId AND REF_DOC_NO = :refDocNumber AND OB_ORD_TYP_ID = :outboundOrderTypeId", nativeQuery = true)
+    int deleteOrderManagementHeader(@Param("companyCodeId") String companyCodeId,
+                                    @Param("plantId") String plantId,
+                                    @Param("languageId") String languageId,
+                                    @Param("warehouseId") String warehouseId,
+                                    @Param("refDocNumber") String refDocNumber,
+                                    @Param("outboundOrderTypeId") Long outboundOrderTypeId);
+
+    @Modifying
+    @Query(value = "DELETE FROM tbloutboundline WHERE C_ID = :companyCodeId AND PLANT_ID = :plantId AND LANG_ID = :languageId AND WH_ID = :warehouseId AND REF_DOC_NO = :refDocNumber AND OB_ORD_TYP_ID = :outboundOrderTypeId", nativeQuery = true)
+    int deleteOutboundLine(@Param("companyCodeId") String companyCodeId,
+                           @Param("plantId") String plantId,
+                           @Param("languageId") String languageId,
+                           @Param("warehouseId") String warehouseId,
+                           @Param("refDocNumber") String refDocNumber,
+                           @Param("outboundOrderTypeId") Long outboundOrderTypeId);
+
+    @Modifying
+    @Query(value = "DELETE FROM tbloutboundheader WHERE C_ID = :companyCodeId AND PLANT_ID = :plantId AND LANG_ID = :languageId AND WH_ID = :warehouseId AND REF_DOC_NO = :refDocNumber AND OB_ORD_TYP_ID = :outboundOrderTypeId", nativeQuery = true)
+    int deleteOutboundHeader(@Param("companyCodeId") String companyCodeId,
+                             @Param("plantId") String plantId,
+                             @Param("languageId") String languageId,
+                             @Param("warehouseId") String warehouseId,
+                             @Param("refDocNumber") String refDocNumber,
+                             @Param("outboundOrderTypeId") Long outboundOrderTypeId);
+
+    @Modifying
+    @Query(value = "DELETE FROM tblpickupheader WHERE C_ID = :companyCodeId AND PLANT_ID = :plantId AND LANG_ID = :languageId AND WH_ID = :warehouseId AND REF_DOC_NO = :refDocNumber AND OB_ORD_TYP_ID = :outboundOrderTypeId", nativeQuery = true)
+    int deletePickupHeader(@Param("companyCodeId") String companyCodeId,
+                           @Param("plantId") String plantId,
+                           @Param("languageId") String languageId,
+                           @Param("warehouseId") String warehouseId,
+                           @Param("refDocNumber") String refDocNumber,
+                           @Param("outboundOrderTypeId") Long outboundOrderTypeId);
 }
