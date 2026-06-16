@@ -1563,8 +1563,23 @@ public class OrderManagementLineService extends BaseService {
             }
 
             //delete all records from respective tables
-            log.info("Rollback---> 2. delete all record initiated ----> " + refDocNo + ", " + outboundOrderTypeId);
-            orderManagementLineV2Repository.deleteOutboundProcessingProc(companyCodeId, plantId, languageId, warehouseId, refDocNo, outboundOrderTypeId);
+//            log.info("Rollback---> 2. delete all record initiated ----> " + refDocNo + ", " + outboundOrderTypeId);
+//            orderManagementLineV2Repository.deleteOutboundProcessingProc(companyCodeId, plantId, languageId, warehouseId, refDocNo, outboundOrderTypeId);
+//            log.info("Rollback---> 2. delete all record finished ----> " + refDocNo + ", " + outboundOrderTypeId);
+            int preoutboundLine = orderManagementLineV2Repository.deletePreOutboundLine(companyCodeId, plantId, languageId, warehouseId, refDocNo, outboundOrderTypeId);
+            log.info("preOutboundLine record deleted count: " + preoutboundLine);
+            int preoutboundHeader = orderManagementLineV2Repository.deletePreOutboundHeader(companyCodeId, plantId, languageId, warehouseId, refDocNo, outboundOrderTypeId);
+            log.info("preOutboundHeader record deleted count: " + preoutboundHeader);
+            int orderManagementLine = orderManagementLineV2Repository.deleteOrderManagementLine(companyCodeId, plantId, languageId, warehouseId, refDocNo, outboundOrderTypeId);
+            log.info("OrderManagementLine record deleted count: " + orderManagementLine);
+            int orderManagementHeader = orderManagementLineV2Repository.deleteOrderManagementHeader(companyCodeId, plantId, languageId, warehouseId, refDocNo, outboundOrderTypeId);
+            log.info("OrderManagementHeader record deleted count: " + orderManagementHeader);
+            int outboundLine = orderManagementLineV2Repository.deleteOutboundLine(companyCodeId, plantId, languageId, warehouseId, refDocNo, outboundOrderTypeId);
+            log.info("OutboundLine record deleted count: " + outboundLine);
+            int outboundHeader = orderManagementLineV2Repository.deleteOutboundHeader(companyCodeId, plantId, languageId, warehouseId, refDocNo, outboundOrderTypeId);
+            log.info("OutboundHeader record deleted count: " + outboundHeader);
+            int pikcupHeader = orderManagementLineV2Repository.deletePickupHeader(companyCodeId, plantId, languageId, warehouseId, refDocNo, outboundOrderTypeId);
+            log.info("PickupHeader record deleted count: " + pikcupHeader);
             log.info("Rollback---> 2. delete all record finished ----> " + refDocNo + ", " + outboundOrderTypeId);
         } catch (Exception e) {
             e.printStackTrace();

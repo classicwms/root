@@ -728,22 +728,6 @@ public class PickupHeaderService {
         return header;
     }
 
-    /**
-     *
-     * @param companyCodeId
-     * @param plantId
-     * @param languageId
-     * @param warehouseId
-     * @param assignedPickerId
-     * @return
-     */
-    public List<PickupHeaderV2> getPickupHeaderAutomationWithOutStatusIdV2(String companyCodeId, String plantId, String languageId,
-                                                                           String warehouseId, String assignedPickerId) {
-        List<PickupHeaderV2> header =
-                pickupHeaderV2Repository.findAllByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndAssignedPickerIdAndDeletionIndicator(
-                        companyCodeId, plantId, languageId, warehouseId, assignedPickerId, 0L);
-        return header;
-    }
 
     /**
      * @param companyCodeId
@@ -975,21 +959,7 @@ public class PickupHeaderService {
         return header;
     }
 
-    /**
-     *
-     * @param companyCodeId
-     * @param plantId
-     * @param languageId
-     * @param warehouseId
-     * @param assignedPickerId
-     * @return
-     */
-    public List<PickupHeaderV2> getPickupHeaderAutomationWithoutStatusId(String companyCodeId, String plantId, String languageId, String warehouseId, List<String> assignedPickerId) {
-        List<PickupHeaderV2> header =
-                pickupHeaderV2Repository.findAllByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndAssignedPickerIdInAndDeletionIndicator(
-                        companyCodeId, plantId, languageId, warehouseId, assignedPickerId,  0L);
-        return header;
-    }
+
 
     /**
      * createPickupHeader

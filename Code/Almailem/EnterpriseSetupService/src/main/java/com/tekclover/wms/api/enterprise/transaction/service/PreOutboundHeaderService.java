@@ -3820,9 +3820,9 @@ public class PreOutboundHeaderService extends BaseService {
         try {
             String preOutboundNo = outboundHeaderV2.getPreOutboundNo() != null ? outboundHeaderV2.getPreOutboundNo() : null;
             String salesOrderNo = outboundHeaderV2.getSalesOrderNumber() != null ? outboundHeaderV2.getSalesOrderNumber() : null;
-            log.info("Stored procedure call to update cnf_by in pickup line, qc header and line : " + oldPickListNumber + ", " + preOutboundNo + ", " + newPickListNumber + ", " + newPreOutboundNo + ", " + salesOrderNo);
-            pickListHeaderRepository.updatePickupLineQualityHeaderLineCnfByUpdateProc(companyCodeId, plantId, languageId, warehouseId, oldPickListNumber, outboundHeaderV2.getPreOutboundNo(), newPickListNumber, newPreOutboundNo, outboundHeaderV2.getSalesOrderNumber());
-            log.info("SP update done");
+//            log.info("Stored procedure call to update cnf_by in pickup line, qc header and line : " + oldPickListNumber + ", " + preOutboundNo + ", " + newPickListNumber + ", " + newPreOutboundNo + ", " + salesOrderNo);
+//            pickListHeaderRepository.updatePickupLineQualityHeaderLineCnfByUpdateProc(companyCodeId, plantId, languageId, warehouseId, oldPickListNumber, outboundHeaderV2.getPreOutboundNo(), newPickListNumber, newPreOutboundNo, outboundHeaderV2.getSalesOrderNumber());
+//            log.info("SP update done");
         } catch (Exception e) {
             log.info("PickupLine & QualityLine Update Exception Throwing ----> " + e.getMessage());
         }
@@ -4011,8 +4011,34 @@ public class PreOutboundHeaderService extends BaseService {
             pickListCancellation.setNewPickListNumber(newPickListNumber);
 
             //stored procedure to update deletionIndicator Flag
-            pickListHeaderRepository.updateDeletionIndicatorPickListCancellationProc(
-                    companyCodeId, plantId, languageId, warehouseId, oldPickListNumber, oldPreOutboundNo, loginUserID, new Date());
+//            pickListHeaderRepository.updateDeletionIndicatorPickListCancellationProc(
+//                    companyCodeId, plantId, languageId, warehouseId, oldPickListNumber, oldPreOutboundNo, loginUserID, new Date());
+//            log.info("Pick List cancellation - stored procedure update - deletion indicator finished processing");
+
+            int preOutboundline = pickListHeaderRepository.deletePreOutboundLine(companyCodeId, plantId, languageId, warehouseId, oldPickListNumber, oldPreOutboundNo, loginUserID, new Date());
+            log.info("No of records deleted in PreOutboundLine: " + preOutboundline);
+            int preoutboundHeader = pickListHeaderRepository.deletePreOutboundHeader(companyCodeId, plantId, languageId, warehouseId, oldPickListNumber, oldPreOutboundNo, loginUserID, new Date());
+            log.info("No of records deleted in PreOutboundHeader: " + preoutboundHeader);
+            int orderLine = pickListHeaderRepository.deleteOrderManagementLine(companyCodeId, plantId, languageId, warehouseId, oldPickListNumber, oldPreOutboundNo, loginUserID, new Date());
+            log.info("No of records deleted in OrderManagementLine: " + orderLine);
+            int OrderManagementHeader = pickListHeaderRepository.deleteOrderManagementHeader(companyCodeId, plantId, languageId, warehouseId, oldPickListNumber, oldPreOutboundNo, loginUserID, new Date());
+            log.info("No of records deleted in OrderManagementHeader: " + OrderManagementHeader);
+            int outboundLineDuplicate = pickListHeaderRepository.deleteOutboundLineDup(companyCodeId, plantId, languageId, warehouseId, oldPickListNumber, oldPreOutboundNo, loginUserID, new Date());
+            log.info("No of records deleted in OutboundLineDup: " + outboundLineDuplicate);
+            int outboundLine = pickListHeaderRepository.deleteOutboundLine(companyCodeId, plantId, languageId, warehouseId, oldPickListNumber, oldPreOutboundNo, loginUserID, new Date());
+            log.info("No of records deleted in OutboundLine: " + outboundLine);
+            int outboundHeader = pickListHeaderRepository.deleteOutboundHeader(companyCodeId, plantId, languageId, warehouseId, oldPickListNumber, oldPreOutboundNo, loginUserID, new Date());
+            log.info("No of records deleted in OutboundHeader: " + outboundHeader);
+            int pickupLine = pickListHeaderRepository.deletePickupLine(companyCodeId, plantId, languageId, warehouseId, oldPickListNumber, oldPreOutboundNo, loginUserID, new Date());
+            log.info("No of records deleted in PickupLine: " + pickupLine);
+            int pickupHeader = pickListHeaderRepository.deletePickupHeader(companyCodeId, plantId, languageId, warehouseId, oldPickListNumber, oldPreOutboundNo, loginUserID, new Date());
+            log.info("No of records deleted in PickupHeader: " + pickupHeader);
+            int qualityLine = pickListHeaderRepository.deleteQualityLine(companyCodeId, plantId, languageId, warehouseId, oldPickListNumber, oldPreOutboundNo, loginUserID, new Date());
+            log.info("No of records deleted in QualityLine: " + qualityLine);
+            int qualityHeader = pickListHeaderRepository.deleteQualityHeader(companyCodeId, plantId, languageId, warehouseId, oldPickListNumber, oldPreOutboundNo, loginUserID, new Date());
+            log.info("No of records deleted in QualityHeader: " + qualityHeader);
+            int inventoryMovement = pickListHeaderRepository.deleteInventoryMovement(companyCodeId, plantId, languageId, warehouseId, oldPickListNumber, oldPreOutboundNo);
+            log.info("No of records deleted in InventoryMovement: " + inventoryMovement);
             log.info("Pick List cancellation - stored procedure update - deletion indicator finished processing");
 
             return pickListCancellation;
