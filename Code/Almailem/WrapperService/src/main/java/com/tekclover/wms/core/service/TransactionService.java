@@ -79,7 +79,7 @@ public class TransactionService {
     }
 
     public boolean validateToken(String authToken) {
-        String url = getInboundTransactionServiceApiUrl() + "auth/validate";
+        String url = getTransactionServiceApiUrl() + "auth/validate";
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         headers.add("User-Agent", "ClassicWMS RestTemplate");
