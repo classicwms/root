@@ -1,6 +1,7 @@
 package com.tekclover.wms.api.transaction.service.kafka;
 
 import com.tekclover.wms.api.transaction.model.kafka.PickupLineCreateEvent;
+import com.tekclover.wms.api.transaction.model.kafka.PickupLineEvent;
 import com.tekclover.wms.api.transaction.model.kafka.UpdatePickupHeaderEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -13,6 +14,10 @@ public class ProducerService {
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
     //
+    public void pickupLineProcess(PickupLineEvent event) {
+        kafkaTemplate.send("pickupline-topic-v1", event);
+    }
+
     // PutAwayLine Save
     public void savePickupLine(PickupLineCreateEvent event) {
         kafkaTemplate.send("pickupline-save-topic-v1", event);

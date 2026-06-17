@@ -10,6 +10,7 @@ import javax.validation.Valid;
 
 import com.tekclover.wms.api.transaction.model.DescriptionDTO;
 import com.tekclover.wms.api.transaction.model.kafka.PickupLineCreateEvent;
+import com.tekclover.wms.api.transaction.model.kafka.PickupLineEvent;
 import com.tekclover.wms.api.transaction.model.kafka.UpdatePickupHeaderEvent;
 import com.tekclover.wms.api.transaction.service.kafka.ProducerService;
 import com.tekclover.wms.api.transaction.service.redis.RedisService;
@@ -2192,7 +2193,26 @@ public class PickupLineService extends BaseService {
 //        }
 //        return createdPickupLineList;
 //    }
-    
+
+    public List<AddPickupLine> createPickupLineInKafka(List<AddPickupLine> newPickupLines, String loginUserID) {
+        for(AddPickupLine pickupLine : newPickupLines) {
+           Long STATUS_ID = 0L;
+            if (pickupLine.getPickConfirmQty() > 0) {
+                STATUS_ID = 50L;
+            } else {
+                STATUS_ID = 51L;
+            }
+            String refDocNumber = pickupLine.getRefDocNumber();
+            String pickupNumber = pickupLine.getPickupNumber();
+            log.info("Kafka PickupHeader Update Event is being published to Kafka for RefDocNo : {} ", refDocNumber);
+            UpdatePickupHeaderEvent pickupHeaderEvent = new UpdatePickupHeaderEvent(refDocNumber, pickupNumber, STATUS_ID, statusDescription, loginUserID);
+            producerService.updatePickupHeader(pickupHeaderEvent);
+        }
+        log.info("PickupLine Values added in Kafka Producer ");
+        producerService.pickupLineProcess(new PickupLineEvent(newPickupLines, loginUserID));
+        return newPickupLines;
+    }
+
     /**
      * 
      * @param newPickupLines
@@ -2336,21 +2356,21 @@ public class PickupLineService extends BaseService {
         producerService.savePickupLine(event);
         log.info("Published PickupLine Save Event to Kafka RefDOcNo is -------------------> {}", refDocNumber);
 
-        try {
-            log.info("PickupNumber :{}, StatusId: {} ", pickupNumber, STATUS_ID);
-            log.info("Kafka PickupHeader Update Event is being published to Kafka for RefDocNo : {} ", refDocNumber);
-            UpdatePickupHeaderEvent pickupHeaderEvent = new UpdatePickupHeaderEvent(refDocNumber, pickupNumber, STATUS_ID, statusDescription, loginUserID);
-            producerService.updatePickupHeader(pickupHeaderEvent);
-            log.info("Kafka PickupHeader Update Event published to Kafka for RefDocNo : {} ", refDocNumber);
+//        try {
+//            log.info("PickupNumber :{}, StatusId: {} ", pickupNumber, STATUS_ID);
+//            log.info("Kafka PickupHeader Update Event is being published to Kafka for RefDocNo : {} ", refDocNumber);
+//            UpdatePickupHeaderEvent pickupHeaderEvent = new UpdatePickupHeaderEvent(refDocNumber, pickupNumber, STATUS_ID, statusDescription, loginUserID);
+//            producerService.updatePickupHeader(pickupHeaderEvent);
+//            log.info("Kafka PickupHeader Update Event published to Kafka for RefDocNo : {} ", refDocNumber);
 //            pickupHeaderV2Repository.updatePickupheader(refDocNumber, pickupNumber, STATUS_ID, statusDescription,
 //                    loginUserID, new Date());
-        } catch (Exception e) {
-            log.info("Kafka PickupHeader Update Event is being published to Kafka for RefDocNo : {} ", refDocNumber);
-            UpdatePickupHeaderEvent pickupHeaderEvent = new UpdatePickupHeaderEvent(refDocNumber, pickupNumber, STATUS_ID, statusDescription, loginUserID);
-            producerService.updatePickupHeader(pickupHeaderEvent);
-            log.info("Kafka PickupHeader Update Event published to Kafka for RefDocNo : {} ", refDocNumber);
-            e.printStackTrace();
-        }
+//        } catch (Exception e) {
+//            log.info("Kafka PickupHeader Update Event is being published to Kafka for RefDocNo : {} ", refDocNumber);
+//            UpdatePickupHeaderEvent pickupHeaderEvent = new UpdatePickupHeaderEvent(refDocNumber, pickupNumber, STATUS_ID, statusDescription, loginUserID);
+//            producerService.updatePickupHeader(pickupHeaderEvent);
+//            log.info("Kafka PickupHeader Update Event published to Kafka for RefDocNo : {} ", refDocNumber);
+//            e.printStackTrace();
+//        }
         return createdPickupLineList;
     }
 

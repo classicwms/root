@@ -3642,13 +3642,13 @@ public class TransactionServiceController {
     public ResponseEntity<?> postPickupLineV2(@Valid @RequestBody List<AddPickupLine> newPickupLine,
                                               @RequestParam String loginUserID, @RequestParam String authToken)
             throws IllegalAccessException, InvocationTargetException {
-//        PickupLineV2[] createdPickupLine = transactionService.createPickupLineV2(newPickupLine, loginUserID, authToken);
+        PickupLineV2[] createdPickupLine = transactionService.createPickupLineV2(newPickupLine, loginUserID, authToken);
 
-        boolean isValid = transactionService.validateToken(authToken);
-        if (!isValid) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid Token");
-        }
-        producerService.publish("pickupline-topic-v1", new PickupLineEvent(newPickupLine, loginUserID));
+//        boolean isValid = transactionService.validateToken(authToken);
+//        if (!isValid) {
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid Token");
+//        }
+//        producerService.publish("pickupline-topic-v1", new PickupLineEvent(newPickupLine, loginUserID));
         return new ResponseEntity<>(newPickupLine, HttpStatus.OK);
     }
 
