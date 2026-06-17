@@ -2208,8 +2208,9 @@ public class PickupLineService extends BaseService {
             UpdatePickupHeaderEvent pickupHeaderEvent = new UpdatePickupHeaderEvent(refDocNumber, pickupNumber, STATUS_ID, statusDescription, loginUserID);
             producerService.updatePickupHeader(pickupHeaderEvent);
         }
-        log.info("PickupLine Values added in Kafka Producer ");
+        log.info("PickupLine Values add in Kafka Producer Started ");
         producerService.pickupLineProcess(new PickupLineEvent(newPickupLines, loginUserID));
+        log.info("PickupLine Values add in Kafka Producer Completed");
         return newPickupLines;
     }
 
