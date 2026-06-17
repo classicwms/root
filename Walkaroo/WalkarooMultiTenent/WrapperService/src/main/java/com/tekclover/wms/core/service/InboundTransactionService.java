@@ -11717,8 +11717,9 @@ public class InboundTransactionService {
             log.info("result : " + result.getStatusCode());
             Integer count = result.getBody() != null ? result.getBody() : 0;
 
-            metricsService.updateInboundOrderCount(count);
             log.info("count : " + count);
+            metricsService.updateInboundOrderCount(count);
+
 
             return count;
 
@@ -11810,7 +11811,7 @@ public class InboundTransactionService {
             ResponseEntity<Integer> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, Integer.class);
             log.info("result : " + result.getStatusCode());
             Integer count = result.getBody() != null ? result.getBody() : 0;
-            metricsService.updateConfirmedCount(count);
+            metricsService.updateInboundConfirmedCount(count);
             log.info("count : " + count);
 
             return count;
@@ -11819,6 +11820,82 @@ public class InboundTransactionService {
             e.printStackTrace();
             throw e;
         }
+    }
+    public Integer getIbQueuedOrdersCount(
+            String warehouseId,
+            String companyCode,
+            String plantId,
+            String languageId,
+            String authToken) throws ParseException {
+
+        AuthToken oAuth = authTokenService.getTransactionServiceAuthToken();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        headers.add("User-Agent", "ClassicWMS RestTemplate");
+        headers.add("Authorization", "Bearer " + oAuth.getAccess_token());
+
+        UriComponentsBuilder builder =
+                UriComponentsBuilder.fromHttpUrl(
+                                getInboundTransactionServiceApiUrl()
+                                        + "orders/grafana/ibqueuedOrdersCount")
+                        .queryParam("warehouseId", warehouseId)
+                        .queryParam("companyCode", companyCode)
+                        .queryParam("plantId", plantId)
+                        .queryParam("languageId", languageId);
+
+        HttpEntity<?> entity = new HttpEntity<>(headers);
+
+        ResponseEntity<Integer> result =
+                getRestTemplate().exchange(
+                        builder.toUriString(),
+                        HttpMethod.GET,
+                        entity,
+                        Integer.class);
+
+        Integer count = result.getBody() != null ? result.getBody() : 0;
+
+        metricsService.updateQueuedOrdersCount(count);
+
+        return count;
+    }
+    public Integer getIbFailedOrdersCount(
+            String warehouseId,
+            String companyCode,
+            String plantId,
+            String languageId,
+            String authToken) throws ParseException {
+
+        AuthToken oAuth = authTokenService.getTransactionServiceAuthToken();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        headers.add("User-Agent", "ClassicWMS RestTemplate");
+        headers.add("Authorization", "Bearer " + oAuth.getAccess_token());
+
+        UriComponentsBuilder builder =
+                UriComponentsBuilder.fromHttpUrl(
+                                getInboundTransactionServiceApiUrl()
+                                        + "orders/grafana/ibfailedOrdersCount")
+                        .queryParam("warehouseId", warehouseId)
+                        .queryParam("companyCode", companyCode)
+                        .queryParam("plantId", plantId)
+                        .queryParam("languageId", languageId);
+
+        HttpEntity<?> entity = new HttpEntity<>(headers);
+
+        ResponseEntity<Integer> result =
+                getRestTemplate().exchange(
+                        builder.toUriString(),
+                        HttpMethod.GET,
+                        entity,
+                        Integer.class);
+
+        Integer count = result.getBody() != null ? result.getBody() : 0;
+
+        metricsService.updateFailedOrdersCount(count);
+
+        return count;
     }
 }
 

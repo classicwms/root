@@ -9637,7 +9637,7 @@ public class OutboundTransactionService {
             ResponseEntity<Integer> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, Integer.class);
             log.info("result : " + result.getStatusCode());
             Integer count = result.getBody() != null ? result.getBody() : 0;
-            metricsService.updateObConfirmedCount(count);
+            metricsService.updateOutboundConfirmedCount(count);
             log.info("count : " + count);
 
             return count;

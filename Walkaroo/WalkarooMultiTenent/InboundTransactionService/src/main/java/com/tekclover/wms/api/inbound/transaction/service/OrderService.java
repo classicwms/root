@@ -307,24 +307,64 @@ public class OrderService extends BaseService {
 
     // ==================================== Grafana ==================================== //
 
-    public Integer getInboundOrderCount(String warehouseId,String companyCode,String plantId,String languageId)
-    {
-        return inboundOrderV2Repository.getInboundOrderCount(companyCode, plantId, warehouseId);
+//    public Integer getInboundOrderCount(String warehouseId,String companyCode,String plantId,String languageId)
+//    {
+//        return inboundOrderV2Repository.getInboundOrderCount(companyCode, plantId, warehouseId);
+//    }
+
+    public Integer getInboundOrderCount(String warehouseId,
+                                        String companyCode,
+                                        String plantId,
+                                        String languageId) {
+
+        System.out.println("warehouseId = " + warehouseId);
+        System.out.println("companyCode = " + companyCode);
+        System.out.println("plantId = " + plantId);
+
+        Integer count = inboundOrderV2Repository.getInboundOrderCount(
+                companyCode,
+                plantId,
+                warehouseId);
+
+        System.out.println("Inbound Order Count = " + count);
+
+        return count;
     }
 
-    public Integer getInboundOrderLineCount(String warehouseId,String companyCode,String plantId,String languageId)
-    {
+    public Integer getInboundOrderLineCount(String warehouseId, String companyCode, String plantId, String languageId) {
         return inboundOrderLinesV2Repository.getInboundOrderLineCount(companyCode, plantId)
                 .intValue();
     }
-    public Integer getPutawayLineCount(String warehouseId,String companyCode,String plantId,String languageId)
-    {
+
+    public Integer getPutawayLineCount(String warehouseId, String companyCode, String plantId, String languageId) {
         return putAwayLineV2Repository.getPutawayLineCount(companyCode, plantId, warehouseId)
                 .intValue();
     }
-    public Integer getInboundHeaderConfirmCount(String warehouseId,String companyCode,String plantId,String languageId)
-    {
+
+    public Integer getInboundHeaderConfirmCount(String warehouseId, String companyCode, String plantId, String languageId) {
         return inboundHeaderV2Repository.getInboundHeaderCnfCount(companyCode, plantId, warehouseId)
                 .intValue();
+    }
+
+    public Integer getIbQueuedOrdersCount(String warehouseId,
+                                          String companyCode,
+                                          String plantId,
+                                          String languageId) {
+
+        return inboundOrderV2Repository.getObQueuedOrdersCount(
+                companyCode,
+                plantId,
+                warehouseId);
+    }
+
+    public Integer getIbFailedOrdersCount(String warehouseId,
+                                          String companyCode,
+                                          String plantId,
+                                          String languageId) {
+
+        return inboundOrderV2Repository.getObFailedOrdersCount(
+                companyCode,
+                plantId,
+                warehouseId);
     }
 }

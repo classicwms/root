@@ -130,10 +130,17 @@ public class OrderController {
                                                      @RequestParam String plantId,
                                                      @RequestParam String languageId) throws ParseException {
 
+        try {
+            String currentDB = baseService.getDataBase(plantId);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(currentDB);
+            log.info("Current DB " + currentDB);
         int count = orderService.getInboundOrderCount(warehouseId, companyCode, plantId, languageId);
 
         return new ResponseEntity<>(count, HttpStatus.OK);
-
+        } finally {
+            DataBaseContextHolder.clear();
+        }
     }
 
     @ApiOperation(response = Integer.class, value = "Get Inbound Order Line Count")
@@ -143,10 +150,17 @@ public class OrderController {
                                                          @RequestParam String plantId,
                                                          @RequestParam String languageId) throws ParseException {
 
-
+        try {
+            String currentDB = baseService.getDataBase(plantId);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(currentDB);
+            log.info("Current DB " + currentDB);
         int count = orderService.getInboundOrderLineCount(warehouseId, companyCode, plantId, languageId);
 
         return new ResponseEntity<>(count, HttpStatus.OK);
+        } finally {
+            DataBaseContextHolder.clear();
+        }
 
     }
 
@@ -156,11 +170,19 @@ public class OrderController {
                                                       @RequestParam String companyCode,
                                                       @RequestParam String plantId,
                                                       @RequestParam String languageId) throws ParseException {
+        try {
+            String currentDB = baseService.getDataBase(plantId);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(currentDB);
+            log.info("Current DB " + currentDB);
 
 
         int count = orderService.getPutawayLineCount(warehouseId, companyCode, plantId, languageId);
 
         return new ResponseEntity<>(count, HttpStatus.OK);
+        } finally {
+            DataBaseContextHolder.clear();
+        }
 
     }
 
@@ -170,11 +192,67 @@ public class OrderController {
                                                               @RequestParam String companyCode,
                                                               @RequestParam String plantId,
                                                               @RequestParam String languageId) throws ParseException {
-
+        try {
+            String currentDB = baseService.getDataBase(plantId);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(currentDB);
+            log.info("Current DB " + currentDB);
 
         int count = orderService.getInboundHeaderConfirmCount(warehouseId, companyCode, plantId, languageId);
 
         return new ResponseEntity<>(count, HttpStatus.OK);
+        } finally {
+            DataBaseContextHolder.clear();
+        }
 
     }
+
+    @ApiOperation(response = Integer.class, value = "Get IB Queued Orders Count")
+    @GetMapping("/grafana/ibqueuedOrdersCount")
+    public ResponseEntity<?> getQueuedOrdersCount(@RequestParam String warehouseId,
+                                                  @RequestParam String companyCode,
+                                                  @RequestParam String plantId,
+                                                  @RequestParam String languageId) {
+        try {
+            String currentDB = baseService.getDataBase(plantId);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(currentDB);
+            log.info("Current DB {}", currentDB);
+
+            int count = orderService.getIbQueuedOrdersCount(
+                    warehouseId,
+                    companyCode,
+                    plantId,
+                    languageId);
+
+            return new ResponseEntity<>(count, HttpStatus.OK);
+        } finally {
+            DataBaseContextHolder.clear();
+        }
+    }
+
+    @ApiOperation(response = Integer.class, value = "Get IB Failed Orders Count")
+    @GetMapping("/grafana/ibfailedOrdersCount")
+    public ResponseEntity<?> getFailedOrdersCount(@RequestParam String warehouseId,
+                                                  @RequestParam String companyCode,
+                                                  @RequestParam String plantId,
+                                                  @RequestParam String languageId) {
+        try {
+            String currentDB = baseService.getDataBase(plantId);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(currentDB);
+            log.info("Current DB {}", currentDB);
+
+            int count = orderService.getIbFailedOrdersCount(
+                    warehouseId,
+                    companyCode,
+                    plantId,
+                    languageId);
+
+            return new ResponseEntity<>(count, HttpStatus.OK);
+        } finally {
+            DataBaseContextHolder.clear();
+        }
+    }
+
 }
