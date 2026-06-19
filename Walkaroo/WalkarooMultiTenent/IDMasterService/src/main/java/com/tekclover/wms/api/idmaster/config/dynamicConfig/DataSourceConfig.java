@@ -35,6 +35,7 @@ public class DataSourceConfig {
         targetDataSources.put("CCL", cclDataSource());
         targetDataSources.put("HYD", hydDataSource());
         targetDataSources.put("AHM", ahmDataSource());
+        targetDataSources.put("MUB", mubDataSource());
 
         DynamicDataSource ds = new DynamicDataSource();
         ds.setTargetDataSources(targetDataSources);
@@ -108,6 +109,14 @@ public class DataSourceConfig {
         return buildDataSource(
                 "AHM",
                 "jdbc:sqlserver://10.10.10.61;databaseName=WMS_AHM",
+                "sa",
+                "4V7lOXaxgAi3i6mgJL7qBUSPM"
+        );
+    }
+    private DataSource mubDataSource() {
+        return buildDataSource(
+                "MUB",
+                "jdbc:sqlserver://10.10.10.61;databaseName=WMS_MUB",
                 "sa",
                 "4V7lOXaxgAi3i6mgJL7qBUSPM"
         );

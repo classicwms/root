@@ -79,6 +79,8 @@ public class BaseService {
 			return "HYD";
 		} else if (plantId.equalsIgnoreCase("1322")) {
 			return "AHM";
+		} else if (plantId.equalsIgnoreCase("1324")) {
+			return "MUB";
 		} else {
 			return "WK";
 		}

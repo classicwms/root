@@ -64,6 +64,10 @@ public class ScheduleAsyncService {
         WarehouseApiResponse inboundOrder = transactionService.processInboundOrder("AHM");
     }
 
+    @Async("asyncExecutor")
+    public void processInboundOrderV8() throws Exception{
+        WarehouseApiResponse inboundOrder = transactionService.processInboundOrder("MUB");
+    }
     //-------------------------------------------------------------------Inbound-Failed-Order-------------------------------------------------------------
     @Async("asyncExecutor")
     public CompletableFuture<WarehouseApiResponse> processInboundFailedOrder() throws Exception {
