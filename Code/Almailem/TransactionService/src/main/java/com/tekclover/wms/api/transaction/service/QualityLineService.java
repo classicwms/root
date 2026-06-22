@@ -8,6 +8,7 @@ import com.tekclover.wms.api.transaction.model.dto.*;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.*;
 import com.tekclover.wms.api.transaction.model.kafka.DeliveryConfirmEvent;
 import com.tekclover.wms.api.transaction.model.kafka.QualityHeaderUpdateEvent;
+import com.tekclover.wms.api.transaction.model.kafka.QualityLineCreateEvent;
 import com.tekclover.wms.api.transaction.model.kafka.QualityLineSaveEvent;
 import com.tekclover.wms.api.transaction.model.outbound.OutboundHeader;
 import com.tekclover.wms.api.transaction.model.outbound.OutboundLine;
@@ -2136,7 +2137,25 @@ public class QualityLineService extends BaseService {
 
     public List<AddQualityLineV2> createQualityLineWithKafka(List<AddQualityLineV2> newQualityLines, String loginUserID) throws java.text.ParseException, InvocationTargetException, IllegalAccessException {
         log.info("-------createQualityLineWithKafka--------called-------> " + newQualityLines);
-        createQualityLineInKafka(newQualityLines, loginUserID);
+
+        for (AddQualityLineV2 newQualityLine : newQualityLines) {
+            log.info("QualityHeader update Event published -------->");
+            producerService.qualityHeaderUpdate(new QualityHeaderUpdateEvent(newQualityLine.getCompanyCodeId(), newQualityLine.getPlantId(),
+                    newQualityLine.getLanguageId(), newQualityLine.getWarehouseId(), newQualityLine.getQualityInspectionNo(),
+                    statusDescription, 55L, loginUserID));
+
+            boolean qtyEqual = newQualityLine.getQualityQty().equals(newQualityLine.getPickConfirmQty());
+            log.info("getQualityQty, getPickConfirmQty: " + newQualityLine.getQualityQty() + "," + newQualityLine.getPickConfirmQty());
+            log.info("Qty Equal: " + qtyEqual);
+
+            if (!qtyEqual) {
+                throw new BadRequestException("Quality Qty and Picking Confirm Qty Must be same");
+            }
+        }
+        log.info("Quality Line Process Event publish in kafka --");
+        QualityLineCreateEvent qualityLineCreateEvent = new QualityLineCreateEvent(newQualityLines, loginUserID);
+        producerService.qualityLineProcess(qualityLineCreateEvent);
+        log.info("Quality Line Process Event published in kafka --");
         return newQualityLines;
     }
 
@@ -2155,18 +2174,18 @@ public class QualityLineService extends BaseService {
             List<QualityLineV2> createdQualityLineList = new ArrayList<>();
             List<OutboundLineInterim> outboundLineInterimList = new ArrayList<>();
             for (AddQualityLineV2 newQualityLine : newQualityLines) {
-                log.info("QualityHeader update Event published -------->");
-                producerService.qualityHeaderUpdate(new QualityHeaderUpdateEvent(newQualityLine.getCompanyCodeId(), newQualityLine.getPlantId(),
-                        newQualityLine.getLanguageId(), newQualityLine.getWarehouseId(), newQualityLine.getQualityInspectionNo(),
-                        statusDescription, 55L, loginUserID));
-
-                boolean qtyEqual = newQualityLine.getQualityQty().equals(newQualityLine.getPickConfirmQty());
-                log.info("getQualityQty, getPickConfirmQty: " + newQualityLine.getQualityQty() + "," + newQualityLine.getPickConfirmQty());
-                log.info("Qty Equal: " + qtyEqual);
-
-                if (!qtyEqual) {
-                    throw new BadRequestException("Quality Qty and Picking Confirm Qty Must be same");
-                }
+//                log.info("QualityHeader update Event published -------->");
+//                producerService.qualityHeaderUpdate(new QualityHeaderUpdateEvent(newQualityLine.getCompanyCodeId(), newQualityLine.getPlantId(),
+//                        newQualityLine.getLanguageId(), newQualityLine.getWarehouseId(), newQualityLine.getQualityInspectionNo(),
+//                        statusDescription, 55L, loginUserID));
+//
+//                boolean qtyEqual = newQualityLine.getQualityQty().equals(newQualityLine.getPickConfirmQty());
+//                log.info("getQualityQty, getPickConfirmQty: " + newQualityLine.getQualityQty() + "," + newQualityLine.getPickConfirmQty());
+//                log.info("Qty Equal: " + qtyEqual);
+//
+//                if (!qtyEqual) {
+//                    throw new BadRequestException("Quality Qty and Picking Confirm Qty Must be same");
+//                }
                 log.info("Input from UI:  " + newQualityLine);
                 log.info("QualityQty, PickConfirmQty: " + newQualityLine.getQualityQty() + ", " + newQualityLine.getPickConfirmQty());
 

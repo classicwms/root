@@ -1,8 +1,6 @@
 package com.tekclover.wms.api.transaction.config.kafka;
 
-import com.tekclover.wms.api.transaction.model.kafka.PickupLineCreateEvent;
-import com.tekclover.wms.api.transaction.model.kafka.PickupLineEvent;
-import com.tekclover.wms.api.transaction.model.kafka.UpdatePickupHeaderEvent;
+import com.tekclover.wms.api.transaction.model.kafka.*;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.context.annotation.Bean;
@@ -48,6 +46,32 @@ public class KafkaConsumerConfig {
     public ConsumerFactory<String, UpdatePickupHeaderEvent> updatePickupHeaderEventConsumerFactory() {
         return createConsumerFactory(UpdatePickupHeaderEvent.class, "pickupheader-update-topic-v1");
     }
+    @Bean
+    public ConsumerFactory<String, QualityLineSaveEvent> qualityLineCreateEventConsumerFactory() {
+        return createConsumerFactory(QualityLineSaveEvent.class, "qualityline-save-topic-v1");
+    }
+
+    @Bean
+    public ConsumerFactory<String, QualityHeaderUpdateEvent> qualityHeaderUpdateEventConsumerFactory() {
+        return createConsumerFactory(QualityHeaderUpdateEvent.class, "qualityheader-update-topic-v1");
+    }
+    @Bean
+    public ConsumerFactory<String, OutboundLineInterimSaveEvent> outboundLineInterimSaveEventConsumerFactory() {
+        return createConsumerFactory(OutboundLineInterimSaveEvent.class, "outboundlineinterim-save-topic-v1");
+    }
+    @Bean
+    public ConsumerFactory<String, QualityLineSaveEvent> dlvQtyUpdateEventConsumerFactory() {
+        return createConsumerFactory(QualityLineSaveEvent.class, "dlv_qty-update-topic-v1");
+    }
+    @Bean
+    public ConsumerFactory<String, DeliveryConfirmEvent> deliveryConfirmEventConsumerFactory() {
+        return createConsumerFactory(DeliveryConfirmEvent.class, "delivery-confirm-topic-v1");
+    }
+
+    @Bean
+    public ConsumerFactory<String, QualityLineCreateEvent> qualityLineProcessEventConsumerFactory() {
+        return createConsumerFactory(QualityLineCreateEvent.class, "qualityline-process-topic-v1");
+    }
 
 
     @Bean("pickupLineListenerFactory")
@@ -68,6 +92,51 @@ public class KafkaConsumerConfig {
     public ConcurrentKafkaListenerContainerFactory<String, UpdatePickupHeaderEvent> updatePickupHeaderEventListenerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, UpdatePickupHeaderEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(updatePickupHeaderEventConsumerFactory());
+        factory.setConcurrency(10);
+        return factory;
+    }
+
+    @Bean("qualitylineListenerFactory")
+    public ConcurrentKafkaListenerContainerFactory<String, QualityLineSaveEvent> qualityLineListenerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, QualityLineSaveEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(qualityLineCreateEventConsumerFactory());
+        factory.setConcurrency(10);
+        return factory;
+    }
+    @Bean("qualityHeaderUpdateListenerFactory")
+    public ConcurrentKafkaListenerContainerFactory<String, QualityHeaderUpdateEvent> qualityHeaderListenerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, QualityHeaderUpdateEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(qualityHeaderUpdateEventConsumerFactory());
+        factory.setConcurrency(10);
+        return factory;
+    }
+    @Bean("outboundlineInterimListenerFactory")
+    public ConcurrentKafkaListenerContainerFactory<String, OutboundLineInterimSaveEvent> outboundLineInterimListenerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, OutboundLineInterimSaveEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(outboundLineInterimSaveEventConsumerFactory());
+        factory.setConcurrency(10);
+        return factory;
+    }
+    @Bean("dlvQtyInterimListenerFactory")
+    public ConcurrentKafkaListenerContainerFactory<String, QualityLineSaveEvent> dlvQtyUpdateInterimListenerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, QualityLineSaveEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(dlvQtyUpdateEventConsumerFactory());
+        factory.setConcurrency(10);
+        return factory;
+    }
+
+    @Bean("deliveryConfirmInterimListenerFactory")
+    public ConcurrentKafkaListenerContainerFactory<String, DeliveryConfirmEvent> deliveryConfirmEventConcurrentKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, DeliveryConfirmEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(deliveryConfirmEventConsumerFactory());
+        factory.setConcurrency(10);
+        return factory;
+    }
+
+    @Bean("qualityLineProcessEventConsumerFactory")
+    public ConcurrentKafkaListenerContainerFactory<String, QualityLineCreateEvent> deliveryCOnfrimEventConcurrentKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, QualityLineCreateEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(qualityLineProcessEventConsumerFactory());
         factory.setConcurrency(10);
         return factory;
     }

@@ -100,5 +100,9 @@ public class ConsumerService {
         outboundLineService.deliveryConfirmationInKafka(event.getCompanyCodeId(), event.getPlantId(), event.getLanguageId(), event.getWarehouseId(),
                 event.getPreOutboundNo(), event.getRefDocNumber(), event.getPartnerCode(), event.getLoginUserID());
     }
+    @KafkaListener(topics = "qualityline-process-topic-v1", groupId = "qualityline-confirm-group-v1", containerFactory = "qualityLineProcessEventConsumerFactory")
+    public void consume(QualityLineCreateEvent event) throws ParseException, InvocationTargetException, IllegalAccessException {
+        qualityLineService.createQualityLineInKafka(event.getQualityLineV2s(), event.getLoginUserID());
+    }
 
 }

@@ -36,17 +36,21 @@ public class ProducerService {
         kafkaTemplate.send("qualityheader-update-topic-v1", event);
     }
 
-    // OutboundLineInterim Save
-    public void outboundLineInterimSave(OutboundLineInterimSaveEvent event) {
-        kafkaTemplate.send("outboundlineinterim-save-topic-v1", event);
-    }
+//    // OutboundLineInterim Save
+//    public void outboundLineInterimSave(OutboundLineInterimSaveEvent event) {
+//        kafkaTemplate.send("outboundlineinterim-save-topic-v1", event);
+//    }
 
-//    // DLV_QTY Update
+    //    // DLV_QTY Update
 //    public void dlvQTYUpdate(QualityLineSaveEvent event) {
 //        kafkaTemplate.send("dlv_qty-update-topic-v1", event);
 //    }
     // Delivery Confirm
     public void deliveryConfirm(DeliveryConfirmEvent event) {
         kafkaTemplate.send("delivery-confirm-topic-v1", event);
+    }
+
+    public void qualityLineProcess(QualityLineCreateEvent event) {
+        kafkaTemplate.send("qualityline-process-topic-v1", event);
     }
 }
