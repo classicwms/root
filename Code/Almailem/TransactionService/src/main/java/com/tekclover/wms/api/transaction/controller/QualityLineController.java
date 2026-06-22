@@ -111,12 +111,21 @@ public class QualityLineController {
         return qualitylineService.findQualityLineV2(searchQualityLine);
     }
 
+//    @ApiOperation(response = QualityLineV2.class, value = "Create QualityLine") // label for swagger
+//    @PostMapping("/v2")
+//    public ResponseEntity<?> postQualityLineV2(@Valid @RequestBody List<AddQualityLineV2> newQualityLine,
+//                                               @RequestParam String loginUserID)
+//            throws IllegalAccessException, InvocationTargetException, ParseException {
+//        List<QualityLineV2> createdQualityLine = qualitylineService.createQualityLineV2(newQualityLine, loginUserID);
+//        return new ResponseEntity<>(createdQualityLine, HttpStatus.OK);
+//    }
+
     @ApiOperation(response = QualityLineV2.class, value = "Create QualityLine") // label for swagger
     @PostMapping("/v2")
     public ResponseEntity<?> postQualityLineV2(@Valid @RequestBody List<AddQualityLineV2> newQualityLine,
                                                @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException, ParseException {
-        List<QualityLineV2> createdQualityLine = qualitylineService.createQualityLineV2(newQualityLine, loginUserID);
+        List<AddQualityLineV2> createdQualityLine = qualitylineService.createQualityLineWithKafka(newQualityLine, loginUserID);
         return new ResponseEntity<>(createdQualityLine, HttpStatus.OK);
     }
 

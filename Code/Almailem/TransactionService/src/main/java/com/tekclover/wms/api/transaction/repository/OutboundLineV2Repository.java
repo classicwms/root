@@ -644,4 +644,35 @@ public interface OutboundLineV2Repository extends JpaRepository<OutboundLineV2, 
             @Param("statusDescription") String statusDescription,
             @Param("statusId") Long statusId
     );
+
+    @Modifying
+    @Transactional
+    @Query(value = "update tbloutboundline set DLV_QTY = :deliveryQty, STATUS_TEXT = :statusDescription, STATUS_ID = :statusId " +
+            "Where C_ID = :companyCodeId AND PLANT_ID = :plantId AND LANG_ID = :languageId AND WH_ID = :warehouseId AND PRE_OB_NO = :preOutboundNo and REF_DOC_NO = :refDocNumber AND " +
+            "PARTNER_CODE = :partnerCode AND OB_LINE_NO = :lineNumber AND ITM_CODE = :itemCode ", nativeQuery = true)
+    int updateOutboundLineDeliveryQty(@Param("companyCodeId") String companyCodeId,
+                                      @Param("plantId") String plantId,
+                                      @Param("languageId") String languageId,
+                                      @Param("warehouseId") String warehouseId,
+                                      @Param("preOutboundNo") String preOutboundNo,
+                                      @Param("refDocNumber") String refDocNumber,
+                                      @Param("partnerCode") String partnerCode,
+                                      @Param("lineNumber") Long lineNumber,
+                                      @Param("itemCode") String itmCode,
+                                      @Param("deliveryQty") Double deliveryQty,
+                                      @Param("statusDescription") String statusDescription,
+                                      @Param("statusId") Long statusId);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query(value = "update tbloutboundline set STATUS_TEXT = :statusDescription, STATUS_ID = :statusId " +
+            "Where C_ID = :companyCodeId AND PLANT_ID = :plantId AND LANG_ID = :languageId AND WH_ID = :warehouseId AND PRE_OB_NO = :preOutboundNo and REF_DOC_NO = :refDocNumber", nativeQuery = true)
+    int updateOutboundLineStatusId(@Param("companyCodeId") String companyCodeId,
+                                   @Param("plantId") String plantId,
+                                   @Param("languageId") String languageId,
+                                   @Param("warehouseId") String warehouseId,
+                                   @Param("preOutboundNo") String preOutboundNo,
+                                   @Param("refDocNumber") String refDocNumber,
+                                   @Param("statusDescription") String statusDescription,
+                                   @Param("statusId") Long statusId);
+
 }

@@ -2,7 +2,6 @@ package com.tekclover.wms.api.transaction.model.kafka;
 
 
 import com.tekclover.wms.api.transaction.model.outbound.quality.v2.AddQualityLineV2;
-import com.tekclover.wms.api.transaction.model.outbound.quality.v2.QualityLineV2;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

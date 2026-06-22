@@ -1,10 +1,14 @@
 package com.tekclover.wms.api.transaction.service;
 
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
+import com.tekclover.wms.api.transaction.model.DescriptionDTO;
 import com.tekclover.wms.api.transaction.model.IKeyValuePair;
 import com.tekclover.wms.api.transaction.model.auth.AuthToken;
 import com.tekclover.wms.api.transaction.model.dto.*;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.*;
+import com.tekclover.wms.api.transaction.model.kafka.DeliveryConfirmEvent;
+import com.tekclover.wms.api.transaction.model.kafka.QualityHeaderUpdateEvent;
+import com.tekclover.wms.api.transaction.model.kafka.QualityLineSaveEvent;
 import com.tekclover.wms.api.transaction.model.outbound.OutboundHeader;
 import com.tekclover.wms.api.transaction.model.outbound.OutboundLine;
 import com.tekclover.wms.api.transaction.model.outbound.OutboundLineInterim;
@@ -19,6 +23,8 @@ import com.tekclover.wms.api.transaction.model.outbound.v2.*;
 import com.tekclover.wms.api.transaction.repository.*;
 import com.tekclover.wms.api.transaction.repository.specification.QualityLineSpecification;
 import com.tekclover.wms.api.transaction.repository.specification.QualityLineV2Specification;
+import com.tekclover.wms.api.transaction.service.kafka.ProducerService;
+import com.tekclover.wms.api.transaction.service.redis.RedisService;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -96,6 +102,14 @@ public class QualityLineService extends BaseService {
     private QualityLineV2Repository qualityLineV2Repository;
     @Autowired
     private StagingLineV2Repository stagingLineV2Repository;
+    @Autowired
+    private RedisService redisService;
+
+    @Autowired
+    private ProducerService producerService;
+
+    @Autowired
+    private OutboundHeaderV2Repository outboundHeaderV2Repository;
     String statusDescription = null;
     //------------------------------------------------------------------------------------------------------
 
@@ -1419,6 +1433,21 @@ public class QualityLineService extends BaseService {
 
 
     /**
+     * @param dbQualityLine QualityLIne
+     */
+    private OutboundLineInterim createOutboundLineInterimInKafka(QualityLineV2 dbQualityLine) throws java.text.ParseException {
+        OutboundLineInterim outboundLineInterim = new OutboundLineInterim();
+        BeanUtils.copyProperties(dbQualityLine, outboundLineInterim, CommonUtils.getNullPropertyNames(dbQualityLine));
+        outboundLineInterim.setDeletionIndicator(0L);
+        outboundLineInterim.setDeliveryQty(dbQualityLine.getQualityQty());
+        outboundLineInterim.setCreatedBy(dbQualityLine.getQualityCreatedBy());
+        outboundLineInterim.setCreatedOn(new Date());
+
+//        OutboundLineInterim createdOutboundLine = outboundLineInterimRepository.saveAndFlush(outboundLineInterim);
+        return outboundLineInterim;
+    }
+
+    /**
      * @param dbQualityLine
      * @param DLV_ORD_NO
      */
@@ -2104,4 +2133,162 @@ public class QualityLineService extends BaseService {
         log.info("PickList Cancellation - QualityLine : " + dbQualityLineList);
         return dbQualityLineList;
     }
+
+    public List<AddQualityLineV2> createQualityLineWithKafka(List<AddQualityLineV2> newQualityLines, String loginUserID) throws java.text.ParseException, InvocationTargetException, IllegalAccessException {
+        log.info("-------createQualityLineWithKafka--------called-------> " + newQualityLines);
+        createQualityLineInKafka(newQualityLines, loginUserID);
+        return newQualityLines;
+    }
+
+    /**
+     * @param newQualityLines
+     * @param loginUserID
+     * @return
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     */
+//    @Transactional
+    public List<QualityLineV2> createQualityLineInKafka(List<AddQualityLineV2> newQualityLines, String loginUserID)
+            throws IllegalAccessException, InvocationTargetException, java.text.ParseException {
+        try {
+            log.info("-------createQualityLine--------called-------> " + newQualityLines);
+            List<QualityLineV2> createdQualityLineList = new ArrayList<>();
+            List<OutboundLineInterim> outboundLineInterimList = new ArrayList<>();
+            for (AddQualityLineV2 newQualityLine : newQualityLines) {
+                log.info("QualityHeader update Event published -------->");
+                producerService.qualityHeaderUpdate(new QualityHeaderUpdateEvent(newQualityLine.getCompanyCodeId(), newQualityLine.getPlantId(),
+                        newQualityLine.getLanguageId(), newQualityLine.getWarehouseId(), newQualityLine.getQualityInspectionNo(),
+                        statusDescription, 55L, loginUserID));
+
+                boolean qtyEqual = newQualityLine.getQualityQty().equals(newQualityLine.getPickConfirmQty());
+                log.info("getQualityQty, getPickConfirmQty: " + newQualityLine.getQualityQty() + "," + newQualityLine.getPickConfirmQty());
+                log.info("Qty Equal: " + qtyEqual);
+
+                if (!qtyEqual) {
+                    throw new BadRequestException("Quality Qty and Picking Confirm Qty Must be same");
+                }
+                log.info("Input from UI:  " + newQualityLine);
+                log.info("QualityQty, PickConfirmQty: " + newQualityLine.getQualityQty() + ", " + newQualityLine.getPickConfirmQty());
+
+                QualityLineV2 dbQualityLine = new QualityLineV2();
+                BeanUtils.copyProperties(newQualityLine, dbQualityLine, CommonUtils.getNullPropertyNames(newQualityLine));
+                // STATUS_ID - HardCoded Value "55"
+                dbQualityLine.setStatusId(55L);
+                // Get Description from Redis
+                DescriptionDTO description = redisService.getDescription(dbQualityLine.getCompanyCodeId(),
+                        dbQualityLine.getLanguageId(),
+                        dbQualityLine.getPlantId(),
+                        dbQualityLine.getWarehouseId());
+
+                statusDescription = redisService.getStatusDescription(55L, dbQualityLine.getLanguageId());
+                dbQualityLine.setStatusDescription(statusDescription);
+                dbQualityLine.setCompanyDescription(description.getCompanyDesc());
+                dbQualityLine.setPlantDescription(description.getPlantDesc());
+                dbQualityLine.setWarehouseDescription(description.getWarehouseDesc());
+
+                OrderManagementLineV2 dbOrderManagementLine = orderManagementLineService.getOrderManagementLineForLineUpdateV2(
+                        newQualityLine.getCompanyCodeId(),
+                        newQualityLine.getPlantId(),
+                        newQualityLine.getLanguageId(),
+                        newQualityLine.getWarehouseId(),
+                        newQualityLine.getPreOutboundNo(),
+                        newQualityLine.getRefDocNumber(),
+                        newQualityLine.getLineNumber(),
+                        newQualityLine.getItemCode());
+                log.info("Find OrderManagementLine In Quality Line Process " + dbOrderManagementLine);
+
+                if (dbOrderManagementLine != null) {
+                    dbQualityLine.setManufacturerName(dbOrderManagementLine.getManufacturerName());
+                    dbQualityLine.setManufacturerFullName(dbOrderManagementLine.getManufacturerFullName());
+                    dbQualityLine.setMiddlewareId(dbOrderManagementLine.getMiddlewareId());
+                    dbQualityLine.setMiddlewareHeaderId(dbOrderManagementLine.getMiddlewareHeaderId());
+                    dbQualityLine.setMiddlewareTable(dbOrderManagementLine.getMiddlewareTable());
+                    dbQualityLine.setReferenceDocumentType(dbOrderManagementLine.getReferenceDocumentType());
+                    dbQualityLine.setSalesInvoiceNumber(dbOrderManagementLine.getSalesInvoiceNumber());
+                    dbQualityLine.setSalesOrderNumber(dbOrderManagementLine.getSalesOrderNumber());
+                    dbQualityLine.setPickListNumber(dbOrderManagementLine.getPickListNumber());
+                    dbQualityLine.setOutboundOrderTypeId(dbOrderManagementLine.getOutboundOrderTypeId());
+                    dbQualityLine.setDescription(dbOrderManagementLine.getDescription());
+                    dbQualityLine.setSupplierInvoiceNo(dbOrderManagementLine.getSupplierInvoiceNo());
+                    dbQualityLine.setTokenNumber(dbOrderManagementLine.getTokenNumber());
+//                    dbQualityLine.setBarcodeId(dbOrderManagementLine.getBarcodeId());
+                    dbQualityLine.setTargetBranchCode(dbOrderManagementLine.getTargetBranchCode());
+                    dbQualityLine.setImsSaleTypeCode(dbOrderManagementLine.getImsSaleTypeCode());
+                }
+
+                dbQualityLine.setBarcodeId(newQualityLine.getBarcodeId());
+                dbQualityLine.setDeletionIndicator(0L);
+                dbQualityLine.setQualityCreatedBy(loginUserID);
+                dbQualityLine.setQualityUpdatedBy(loginUserID);
+                dbQualityLine.setQualityCreatedOn(new Date());
+                dbQualityLine.setQualityUpdatedOn(new Date());
+
+                /*
+                 * String warehouseId, String preOutboundNo, String refDocNumber, String
+                 * partnerCode, Long lineNumber, String qualityInspectionNo, String itemCode
+                 */
+                QualityLineV2 existingQualityLine = findDuplicateRecordV2(
+                        newQualityLine.getCompanyCodeId(), newQualityLine.getPlantId(),
+                        newQualityLine.getLanguageId(), newQualityLine.getWarehouseId(),
+                        newQualityLine.getPreOutboundNo(), newQualityLine.getRefDocNumber(),
+                        newQualityLine.getPartnerCode(), newQualityLine.getLineNumber(),
+                        newQualityLine.getQualityInspectionNo(), newQualityLine.getItemCode(), newQualityLine.getManufacturerName());
+                log.info("existingQualityLine record status : " + existingQualityLine);
+                if (existingQualityLine == null) {
+                    // createOutboundLineInterim
+                    outboundLineInterimList.add(createOutboundLineInterimInKafka(dbQualityLine));
+                    createdQualityLineList.add(dbQualityLine);
+                }
+
+            }
+
+
+
+            log.info("Quality Line Saving Process in Kafka");
+            producerService.qualityLineSave(new QualityLineSaveEvent(createdQualityLineList));
+//            log.info("OutboundLineInterim Table Save Process in Kafka");
+//            producerService.outboundLineInterimSave(new OutboundLineInterimSaveEvent(outboundLineInterimList));
+            outboundLineInterimRepository.saveAll(outboundLineInterimList);
+            log.info("OutboundLine DLV_QTY Update Process Started ");
+//            producerService.dlvQTYUpdate(new QualityLineSaveEvent(createdQualityLineList));
+
+            updateDeliveryQty(createdQualityLineList);
+            log.info("OutboundLine DLV_QTY Update Process Completed");
+//            for (QualityLineV2 dbQualityLine : createdQualityLineList) {
+
+
+            producerService.deliveryConfirm(new DeliveryConfirmEvent(createdQualityLineList.get(0).getCompanyCodeId(), createdQualityLineList.get(0).getPlantId(),
+                    createdQualityLineList.get(0).getLanguageId(), createdQualityLineList.get(0).getWarehouseId(), createdQualityLineList.get(0).getPreOutboundNo(),
+                    createdQualityLineList.get(0).getRefDocNumber(), createdQualityLineList.get(0).getPartnerCode(), loginUserID));
+//            postDeliveryConfirm(createdQualityLineList, loginUserID);
+
+            return createdQualityLineList;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    /**
+     *
+     * @param qualityLineV2List qualityLine
+     */
+    public void updateDeliveryQty(List<QualityLineV2> qualityLineV2List) {
+        for(QualityLineV2 dbQualityLine : qualityLineV2List) {
+            Double deliveryQty = outboundLineInterimRepository.getSumOfDeliveryLine(dbQualityLine.getWarehouseId(), dbQualityLine.getPreOutboundNo(),
+                    dbQualityLine.getRefDocNumber(), dbQualityLine.getPartnerCode(), dbQualityLine.getLineNumber(),
+                    dbQualityLine.getItemCode());
+            log.info("=======updateOutboundLine==========>: " + deliveryQty);
+            statusDescription = redisService.getStatusDescription(57L, dbQualityLine.getLanguageId());
+            // WarehouseId, PreOutboundNo, RefDocNumber, PartnerCode, LineNumber, ItemCode, DeliveryQty, DeliveryOrderNo, StatusId(57L);
+            int outboundLine = outboundLineV2Repository.updateOutboundLineDeliveryQty(dbQualityLine.getCompanyCodeId(), dbQualityLine.getPlantId(), dbQualityLine.getLanguageId(), dbQualityLine.getWarehouseId(),
+                    dbQualityLine.getPreOutboundNo(), dbQualityLine.getRefDocNumber(), dbQualityLine.getPartnerCode(), dbQualityLine.getLineNumber(), dbQualityLine.getItemCode(),
+                    deliveryQty, dbQualityLine.getStatusDescription(), 57L);
+            log.info("----------DLV QTY updated in OutboundLine and StatusID = 57, Affected Row's {} ", outboundLine);
+        }
+        int outboundHeader = outboundHeaderV2Repository.updateOutboundHeaderStatus(qualityLineV2List.get(0).getCompanyCodeId(), qualityLineV2List.get(0).getPlantId(), qualityLineV2List.get(0).getLanguageId(),
+                qualityLineV2List.get(0).getWarehouseId(), qualityLineV2List.get(0).getRefDocNumber(), statusDescription, new Date());
+        log.info("OutboundHeader Update Process Affected {} rows", outboundHeader);
+    }
+
 }

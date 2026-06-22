@@ -71,7 +71,7 @@ public interface OutboundHeaderV2Repository extends JpaRepository<OutboundHeader
     @Query(value ="Update tbloutboundheader SET STATUS_ID = :statusId, STATUS_TEXT = :statusDescription, DLV_CNF_ON = :deliveryConfirmedOn \r\n "
             + " WHERE C_ID = :companyCodeId AND PLANT_ID = :plantId AND \r\n"
             + "LANG_ID = :languageId AND WH_ID = :warehouseId AND REF_DOC_NO = :refDocNumber AND PRE_OB_NO = :preOutboundNo", nativeQuery = true)
-    public void updateOutboundHeaderStatusNewV2(@Param("companyCodeId") String companyCodeId,
+    public int updateOutboundHeaderStatusNewV2(@Param("companyCodeId") String companyCodeId,
                                                 @Param("plantId") String plantId,
                                                 @Param("languageId") String languageId,
                                                 @Param("warehouseId") String warehouseId,
@@ -862,6 +862,30 @@ public interface OutboundHeaderV2Repository extends JpaRepository<OutboundHeader
             @Param("statusDescription") String statusDescription,
             @Param("updatedOn") Date updatedOn,
             @Param("updatedBy") String updatedBy);
+
+    @Modifying
+    @Query(value = "WITH LineStatusSummary AS ( " +
+            "   SELECT COUNT(*) AS totalCount, " +
+            "          SUM(CASE WHEN status_id = 57 THEN 1 ELSE 0 END) AS countStatus57 " +
+            "   FROM tbloutboundline " +
+            "   WHERE ref_doc_no = :refDocNumber AND is_deleted = 0 and c_id = :companyCodeId and plant_id = :plantId and lang_id = :languageId and wh_id = :warehouseId " +
+            ") " +
+            "UPDATE tbloutboundheader " +
+            "SET status_id = CASE WHEN s.totalCount = s.countStatus57 THEN 57 ELSE status_id END, " +
+            "    status_text = CASE WHEN s.totalCount = s.countStatus57 THEN :statusDescription ELSE status_text END, " +
+            "    dlv_utd_on = CASE WHEN s.totalCount = s.countStatus57 THEN :updatedOn ELSE dlv_utd_on END " +
+            "FROM tbloutboundheader oh " +
+            "CROSS JOIN LineStatusSummary s " +
+            "WHERE oh.ref_doc_no = :refDocNumber AND oh.is_deleted = 0 and oh.c_id = :companyCodeId and " +
+            "oh.plant_id = :plantId and oh.lang_id = :languageId and oh.wh_id = :warehouseId", nativeQuery = true)
+    int updateOutboundHeaderStatus(
+            @Param("companyCodeId") String companyCodeId,
+            @Param("plantId") String plantId,
+            @Param("languageId") String languageId,
+            @Param("warehouseId") String warehouseId,
+            @Param("refDocNumber") String refDocNumber,
+            @Param("statusDescription") String statusDescription,
+            @Param("updatedOn") Date updatedOn);
 
 
 

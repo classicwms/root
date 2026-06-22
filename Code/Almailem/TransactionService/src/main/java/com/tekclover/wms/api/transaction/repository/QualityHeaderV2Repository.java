@@ -71,7 +71,7 @@ public interface QualityHeaderV2Repository extends JpaRepository<QualityHeaderV2
             "  AND QC_NO = :qualityInspectionNo " +
             "  AND IS_DELETED = 0",
             nativeQuery = true)
-    void updateQualityHeader(
+    int updateQualityHeader(
             @Param("companyCodeId") String companyCodeId,
             @Param("plantId") String plantId,
             @Param("languageId") String languageId,
@@ -80,6 +80,7 @@ public interface QualityHeaderV2Repository extends JpaRepository<QualityHeaderV2
             @Param("statusId") Long statusId,
             @Param("statusDescription") String statusDescription,
             @Param("created") String created);
+
 
 
 

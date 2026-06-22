@@ -4312,4 +4312,96 @@ public class OutboundLineService extends BaseService {
         log.info("PickList Cancellation - OutboundLine : " + outboundLineV2List);
         return outboundLineV2List;
     }
+
+    /**
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param preOutboundNo
+     * @param refDocNumber
+     * @param partnerCode
+     * @param loginUserID
+     * @return
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     */
+    public void deliveryConfirmationInKafka(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                            String preOutboundNo, String refDocNumber, String partnerCode, String loginUserID)
+            throws IllegalAccessException, InvocationTargetException {
+        /*--------------------OutboundLine-Check---------------------------------------------------------------------------*/
+        List<Long> statusIds = Arrays.asList(59L);
+        long outboundLineProcessedCount = getOutboundLineV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode, statusIds);
+        log.info("outboundLineProcessedCount : " + outboundLineProcessedCount);
+        boolean isAlreadyProcessed = (outboundLineProcessedCount > 0 ? true : false);
+        log.info("outboundLineProcessed Already Processed? : " + isAlreadyProcessed);
+        if (isAlreadyProcessed) {
+            throw new BadRequestException("Order is already processed.");
+        }
+
+        /*--------------------OrderManagementLine-Check---------------------------------------------------------------------*/
+        // OrderManagementLine checking for STATUS_ID - 42L, 43L
+        long orderManagementLineCount = orderManagementLineService.getOrderManagementLineV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, Arrays.asList(42L, 43L));
+        boolean isConditionMet = (orderManagementLineCount > 0 ? true : false);
+        log.info("orderManagementLineCount ---- isConditionMet : " + isConditionMet);
+        if (isConditionMet) {
+            throw new BadRequestException("OrderManagementLine is not completely Processed.");
+        }
+
+        /*--------------------PickupHeader-Check---------------------------------------------------------------------*/
+        // PickupHeader checking for STATUS_ID - 48
+        long pickupHeaderCount = pickupHeaderService.getPickupHeaderCountForDeliveryConfirmationV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, 48L);
+        isConditionMet = (pickupHeaderCount > 0 ? true : false);
+        log.info("pickupHeaderCount ---- isConditionMet : " + isConditionMet);
+        if (isConditionMet) {
+            throw new BadRequestException("Pickup is not completely Processed.");
+        }
+
+        // QualityHeader checking for STATUS_ID - 54
+        long qualityHeaderCount = qualityHeaderService.getQualityHeaderCountForDeliveryConfirmationV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, 54L);
+        isConditionMet = (qualityHeaderCount > 0 ? true : false);
+        log.info("qualityHeaderCount ---- isConditionMet : " + isConditionMet);
+        if (isConditionMet) {
+            throw new BadRequestException("Quality check is not completely Processed.");
+        }
+
+        //----------------------------------------------------------------------------------------------------------
+//        List<Long> statusIdsToBeChecked = Arrays.asList(57L, 47L, 51L, 41L);
+        List<Long> statusIdsToBeChecked = Arrays.asList(57L, 47L, 51L);
+        long outboundLineListCount = getOutboundLineV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode, statusIdsToBeChecked);
+        log.info("outboundLineListCount : " + outboundLineListCount);
+        isConditionMet = (outboundLineListCount > 0 ? true : false);
+        log.info("isConditionMet : " + isConditionMet);
+
+        if (!isConditionMet) {
+            throw new BadRequestException("OutboundLine: Order is not completely Processed.");
+        } else {
+            log.info("Order can be Processed.");
+        }
+
+        Long STATUS_ID_59 = 59L;
+        statusDescription = stagingLineV2Repository.getStatusDescription(STATUS_ID_59, languageId);
+        int outboundLine = outboundLineV2Repository.updateOutboundLineStatusId(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, statusDescription, STATUS_ID_59);
+        log.info("OutboundLine Update Affected Row's -----------> {} ", outboundLine);
+        //----------------Outbound Header update----------------------------------------------------------------------------------------
+        log.info("c_id, plant_id, lang_id, wh_id, ref_doc_no, status_id, Status_desc, date:---->OBH Update----> "
+                + companyCodeId + "," + plantId + "," + languageId + "," + warehouseId + "," + refDocNumber + "," + STATUS_ID_59 + "," + statusDescription + "," + new Date());
+        int outboundHeader = outboundHeaderV2Repository.updateOutboundHeaderStatusNewV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, STATUS_ID_59, statusDescription, new Date());
+        log.info("OutboundHeader Update Affected Row's --------> {} ", outboundHeader);
+
+        //----------------Preoutbound Line----------------------------------------------------------------------------------------------
+        preOutboundLineV2Repository.updatePreOutboundLineStatusV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, STATUS_ID_59, statusDescription);
+        log.info("PreOutbound Line updated");
+
+        //----------------Preoutbound Header--------------------------------------------------------------------------------------------
+        preOutboundHeaderV2Repository.updatePreOutboundHeaderStatusV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, STATUS_ID_59, statusDescription);
+        log.info("PreOutbound Header updated");
+
+        //----------------OrderManagement Line--------------------------------------------------------------------------------------------
+        orderManagementLineV2Repository.updateOrderManagementLineStatus(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, STATUS_ID_59, statusDescription);
+        log.info("OrderManagement Line updated");
+
+    }
+
 }
