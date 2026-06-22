@@ -7348,7 +7348,7 @@ public class MultiTenantService {
                     "inv.STATUS_TEXT, inv.PARTNER_CODE, inv.ITM_TYP_ID, inv.ITM_TYP_TXT, inv.BATCH_DATE, inv.ALT_UOM, inv.NO_BAGS, inv.BAG_SIZE, inv.CASE_QTY,\n" +
                     "inv.PIECE_QTY, inv.CRATE_QTY, inv.QTY_IN_CASE, inv.QTY_IN_PIECE, inv.QTY_IN_CREATE, inv.VEHICLE_NO, inv.VEHICLE_REPORTING_DATE,\n" +
                     "inv.VEHICLE_UNLOADING_DATE, inv.SELF_LIFE, inv.REMAINING_DAYS, inv.REMAINING_SELF_LIFE_PERCENTAGE, inv.RECEIVINGVARIANCE, inv.PALLET_ID,\n" +
-                    "inv.LOOSE_PACK, inv.MRP, inv.TPL_PARTNER_ID, inv.PRICE_SEGMENT, inv.MATERIAL_NO ,ol.allocatedQty from tblinventory inv\n" +
+                    "inv.LOOSE_PACK, inv.MRP, inv.TPL_PARTNER_ID, inv.PRICE_SEGMENT, inv.MATERIAL_NO, inv.ITM_GRP, ol.allocatedQty from tblinventory inv\n" +
                     "\n" +
                     "left join(select sum(o.ALLOC_QTY) as allocatedQty,o.C_ID,o.PLANT_ID,o.LANG_ID,o.WH_ID,o.ITM_CODE,o.PARTNER_ITEM_BARCODE,o.PALLET_ID,o.PROP_ST_BIN from tblordermangementline o \n" +
                     "where o.STATUS_ID in (43,48,42) and o.IS_DELETED = 0 \n" +

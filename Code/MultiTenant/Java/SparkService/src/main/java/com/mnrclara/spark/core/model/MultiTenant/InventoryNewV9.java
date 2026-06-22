@@ -91,4 +91,5 @@ public class InventoryNewV9 {
     private String article_no;
     private String gender;
     private Double allocatedQty;
+    private String itm_grp;
 }
