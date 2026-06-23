@@ -81,11 +81,11 @@ public class ConsumerService {
     }
 
     // OutboundLine Interim Save
-    @KafkaListener(topics = "outboundlineinterim-save-topic-v1", groupId = "outboundlineinterim-save-group-v1", containerFactory = "outboundlineInterimListenerFactory")
-    public void consume(OutboundLineInterimSaveEvent event) throws ParseException, InvocationTargetException, IllegalAccessException {
-        log.info("OutboundLine Interim Save Event {} ", event.getOutboundLineInterimList());
-        outboundLineInterimRepository.saveAll(event.getOutboundLineInterimList());
-    }
+//    @KafkaListener(topics = "outboundlineinterim-save-topic-v1", groupId = "outboundlineinterim-save-group-v1", containerFactory = "outboundlineInterimListenerFactory")
+//    public void consume(OutboundLineInterimSaveEvent event) throws ParseException, InvocationTargetException, IllegalAccessException {
+//        log.info("OutboundLine Interim Save Event {} ", event.getOutboundLineInterimList());
+//        outboundLineInterimRepository.saveAll(event.getOutboundLineInterimList());
+//    }
 //    // DLV_QTY Update
 //    @KafkaListener(topics = "dlv_qty-update-topic-v1", groupId = "dlv_qty-update-group-v1", containerFactory = "dlvQtyInterimListenerFactory")
 //    public void consume(QualityLineSaveEvent event) throws ParseException, InvocationTargetException, IllegalAccessException {
