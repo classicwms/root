@@ -133,7 +133,7 @@ public class KafkaConsumerConfig {
         return factory;
     }
 
-    @Bean("qualityLineProcessEventConsumerFactory")
+    @Bean("qualityLineProcessListenerFactory")
     public ConcurrentKafkaListenerContainerFactory<String, QualityLineCreateEvent> deliveryCOnfrimEventConcurrentKafkaListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, QualityLineCreateEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(qualityLineProcessEventConsumerFactory());
