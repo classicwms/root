@@ -2137,25 +2137,7 @@ public class QualityLineService extends BaseService {
 
     public List<AddQualityLineV2> createQualityLineWithKafka(List<AddQualityLineV2> newQualityLines, String loginUserID) throws java.text.ParseException, InvocationTargetException, IllegalAccessException {
         log.info("-------createQualityLineWithKafka--------called-------> " + newQualityLines);
-
-        for (AddQualityLineV2 newQualityLine : newQualityLines) {
-            log.info("QualityHeader update Event published -------->");
-            producerService.qualityHeaderUpdate(new QualityHeaderUpdateEvent(newQualityLine.getCompanyCodeId(), newQualityLine.getPlantId(),
-                    newQualityLine.getLanguageId(), newQualityLine.getWarehouseId(), newQualityLine.getQualityInspectionNo(),
-                    statusDescription, 55L, loginUserID));
-
-            boolean qtyEqual = newQualityLine.getQualityQty().equals(newQualityLine.getPickConfirmQty());
-            log.info("getQualityQty, getPickConfirmQty: " + newQualityLine.getQualityQty() + "," + newQualityLine.getPickConfirmQty());
-            log.info("Qty Equal: " + qtyEqual);
-
-            if (!qtyEqual) {
-                throw new BadRequestException("Quality Qty and Picking Confirm Qty Must be same");
-            }
-        }
-        log.info("Quality Line Process Event publish in kafka --");
-        QualityLineCreateEvent qualityLineCreateEvent = new QualityLineCreateEvent(newQualityLines, loginUserID);
-        producerService.qualityLineProcess(qualityLineCreateEvent);
-        log.info("Quality Line Process Event published in kafka --");
+        createQualityLineInKafka(newQualityLines, loginUserID);
         return newQualityLines;
     }
 
@@ -2174,18 +2156,18 @@ public class QualityLineService extends BaseService {
             List<QualityLineV2> createdQualityLineList = new ArrayList<>();
             List<OutboundLineInterim> outboundLineInterimList = new ArrayList<>();
             for (AddQualityLineV2 newQualityLine : newQualityLines) {
-//                log.info("QualityHeader update Event published -------->");
-//                producerService.qualityHeaderUpdate(new QualityHeaderUpdateEvent(newQualityLine.getCompanyCodeId(), newQualityLine.getPlantId(),
-//                        newQualityLine.getLanguageId(), newQualityLine.getWarehouseId(), newQualityLine.getQualityInspectionNo(),
-//                        statusDescription, 55L, loginUserID));
-//
-//                boolean qtyEqual = newQualityLine.getQualityQty().equals(newQualityLine.getPickConfirmQty());
-//                log.info("getQualityQty, getPickConfirmQty: " + newQualityLine.getQualityQty() + "," + newQualityLine.getPickConfirmQty());
-//                log.info("Qty Equal: " + qtyEqual);
-//
-//                if (!qtyEqual) {
-//                    throw new BadRequestException("Quality Qty and Picking Confirm Qty Must be same");
-//                }
+                log.info("QualityHeader update Event published -------->");
+                producerService.qualityHeaderUpdate(new QualityHeaderUpdateEvent(newQualityLine.getCompanyCodeId(), newQualityLine.getPlantId(),
+                        newQualityLine.getLanguageId(), newQualityLine.getWarehouseId(), newQualityLine.getQualityInspectionNo(),
+                        statusDescription, 55L, loginUserID));
+
+                boolean qtyEqual = newQualityLine.getQualityQty().equals(newQualityLine.getPickConfirmQty());
+                log.info("getQualityQty, getPickConfirmQty: " + newQualityLine.getQualityQty() + "," + newQualityLine.getPickConfirmQty());
+                log.info("Qty Equal: " + qtyEqual);
+
+                if (!qtyEqual) {
+                    throw new BadRequestException("Quality Qty and Picking Confirm Qty Must be same");
+                }
                 log.info("Input from UI:  " + newQualityLine);
                 log.info("QualityQty, PickConfirmQty: " + newQualityLine.getQualityQty() + ", " + newQualityLine.getPickConfirmQty());
 
@@ -2260,21 +2242,12 @@ public class QualityLineService extends BaseService {
                 }
 
             }
-
-
-
             log.info("Quality Line Saving Process in Kafka");
             producerService.qualityLineSave(new QualityLineSaveEvent(createdQualityLineList));
-//            log.info("OutboundLineInterim Table Save Process in Kafka");
-//            producerService.outboundLineInterimSave(new OutboundLineInterimSaveEvent(outboundLineInterimList));
             outboundLineInterimRepository.saveAll(outboundLineInterimList);
             log.info("OutboundLine DLV_QTY Update Process Started ");
-//            producerService.dlvQTYUpdate(new QualityLineSaveEvent(createdQualityLineList));
-
             updateDeliveryQty(createdQualityLineList);
             log.info("OutboundLine DLV_QTY Update Process Completed");
-//            for (QualityLineV2 dbQualityLine : createdQualityLineList) {
-
 
             producerService.deliveryConfirm(new DeliveryConfirmEvent(createdQualityLineList.get(0).getCompanyCodeId(), createdQualityLineList.get(0).getPlantId(),
                     createdQualityLineList.get(0).getLanguageId(), createdQualityLineList.get(0).getWarehouseId(), createdQualityLineList.get(0).getPreOutboundNo(),
