@@ -4403,7 +4403,7 @@ public class OutboundLineService extends BaseService {
             orderManagementLineV2Repository.updateOrderManagementLineStatus(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, STATUS_ID_59, statusDescription);
             log.info("OrderManagement Line updated");
         } catch (Exception e) {
-            log.info("OrderManagement Line updated");
+            log.info("Order is not completely processed");
         }
     }
 
