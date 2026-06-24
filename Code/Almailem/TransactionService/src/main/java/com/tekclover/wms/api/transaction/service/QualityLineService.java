@@ -2237,14 +2237,15 @@ public class QualityLineService extends BaseService {
                 log.info("existingQualityLine record status : " + existingQualityLine);
                 if (existingQualityLine == null) {
                     // createOutboundLineInterim
-                    outboundLineInterimList.add(createOutboundLineInterimInKafka(dbQualityLine));
+//                    outboundLineInterimList.add(createOutboundLineInterimInKafka(dbQualityLine));
                     createdQualityLineList.add(dbQualityLine);
                 }
 
             }
             log.info("Quality Line Saving Process in Kafka");
             producerService.qualityLineSave(new QualityLineSaveEvent(createdQualityLineList));
-            outboundLineInterimRepository.saveAll(outboundLineInterimList);
+
+//            outboundLineInterimRepository.saveAll(outboundLineInterimList);
             log.info("OutboundLine DLV_QTY Update Process Started ");
             updateDeliveryQty(createdQualityLineList);
             log.info("OutboundLine DLV_QTY Update Process Completed");
@@ -2267,15 +2268,15 @@ public class QualityLineService extends BaseService {
      */
     public void updateDeliveryQty(List<QualityLineV2> qualityLineV2List) {
         for(QualityLineV2 dbQualityLine : qualityLineV2List) {
-            Double deliveryQty = outboundLineInterimRepository.getSumOfDeliveryLine(dbQualityLine.getWarehouseId(), dbQualityLine.getPreOutboundNo(),
-                    dbQualityLine.getRefDocNumber(), dbQualityLine.getPartnerCode(), dbQualityLine.getLineNumber(),
-                    dbQualityLine.getItemCode());
-            log.info("=======updateOutboundLine==========>: " + deliveryQty);
+//            Double deliveryQty = outboundLineInterimRepository.getSumOfDeliveryLine(dbQualityLine.getWarehouseId(), dbQualityLine.getPreOutboundNo(),
+//                    dbQualityLine.getRefDocNumber(), dbQualityLine.getPartnerCode(), dbQualityLine.getLineNumber(),
+//                    dbQualityLine.getItemCode());
+            log.info("=======updateOutboundLine==========>: " + dbQualityLine.getQualityQty());
             statusDescription = redisService.getStatusDescription(57L, dbQualityLine.getLanguageId());
             // WarehouseId, PreOutboundNo, RefDocNumber, PartnerCode, LineNumber, ItemCode, DeliveryQty, DeliveryOrderNo, StatusId(57L);
             int outboundLine = outboundLineV2Repository.updateOutboundLineDeliveryQty(dbQualityLine.getCompanyCodeId(), dbQualityLine.getPlantId(), dbQualityLine.getLanguageId(), dbQualityLine.getWarehouseId(),
                     dbQualityLine.getPreOutboundNo(), dbQualityLine.getRefDocNumber(), dbQualityLine.getPartnerCode(), dbQualityLine.getLineNumber(), dbQualityLine.getItemCode(),
-                    deliveryQty, dbQualityLine.getStatusDescription(), 57L);
+                    dbQualityLine.getQualityQty(), dbQualityLine.getStatusDescription(), 57L);
             log.info("----------DLV QTY updated in OutboundLine and StatusID = 57, Affected Row's {} ", outboundLine);
         }
         int outboundHeader = outboundHeaderV2Repository.updateOutboundHeaderStatus(qualityLineV2List.get(0).getCompanyCodeId(), qualityLineV2List.get(0).getPlantId(), qualityLineV2List.get(0).getLanguageId(),
