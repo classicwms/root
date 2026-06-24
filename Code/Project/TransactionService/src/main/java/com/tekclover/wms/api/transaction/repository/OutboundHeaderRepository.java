@@ -359,4 +359,12 @@ public interface OutboundHeaderRepository extends JpaRepository<OutboundHeader, 
      void updatePdfPrintOutboundHeader(@Param("warehouseId") String warehouseId,
                                            @Param("preOutBoundNo") String preOutBoundNo,
                                            @Param("refDocNumber") String refDocNumber);
+
+	@Modifying
+	@Query(value = "update tbloutboundheader set status_id = :statusId, dlv_cnf_on = :deliveryConfirmedOn \r\n "
+			+ " WHERE wh_id = :warehouseId AND ref_doc_no = :refDocNumber", nativeQuery = true)
+	int updateOutboundHeaderStatusInDeliveryConfirm(@Param("warehouseId") String warehouseId,
+													@Param("refDocNumber") String refDocNumber,
+													@Param("statusId") Long statusId,
+													@Param("deliveryConfirmedOn") Date deliveryConfirmedOn);
 }

@@ -983,6 +983,10 @@ public class OutboundLineService extends BaseService {
 //			axapiResponse.setStatusCode("200");
 		}
 
+		log.info("OutboundHeader 59 Update Process Started In this REF_DOC_NO {}", refDocNumber);
+		int outboundHeader = outboundHeaderRepository.updateOutboundHeaderStatusInDeliveryConfirm(warehouseId, refDocNumber, 59L, new Date());
+		log.info("OutboundHeader 59 Update Process Completed in this REF_DOC_NO {}, Affected Row's {}", refDocNumber, outboundHeader);
+
         assert axapiResponse != null;
         if (axapiResponse.getStatusCode() != null && axapiResponse.getStatusCode().equalsIgnoreCase("200")) {
 			try {
@@ -1185,7 +1189,7 @@ public class OutboundLineService extends BaseService {
             log.info("OutboundLine updated ");
 
             //----------------Outbound Header update----------------------------------------------------------------------------------------
-            outboundHeaderRepository.updateOutboundHeaderStatus (warehouseId, refDocNumber, STATUS_ID_59, new Date());
+//            outboundHeaderRepository.updateOutboundHeaderStatus (warehouseId, refDocNumber, STATUS_ID_59, new Date());
             OutboundHeader isOrderConfirmedOutboundHeader = outboundHeaderService.getOutboundHeader(warehouseId, preOutboundNo, refDocNumber);
             log.info("OutboundHeader updated----1---> : " + isOrderConfirmedOutboundHeader.getRefDocNumber() + "---" + isOrderConfirmedOutboundHeader.getStatusId());
             if (isOrderConfirmedOutboundHeader.getStatusId() != 59L) {
