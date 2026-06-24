@@ -2280,6 +2280,9 @@ public class PreOutboundHeaderService extends BaseService {
                 newPickupHeader.setIsCancelled(outboundIntegrationHeader.getIsCancelled());
                 newPickupHeader.setMUpdatedOn(outboundIntegrationHeader.getMUpdatedOn());
 
+                newPickupHeader.setReferenceField2(String.valueOf(orderManagementLine.getInventoryQty())); // inv_qty
+                newPickupHeader.setReferenceField3(orderManagementLine.getDescription()); // item_text
+
                 log.info("PickupHeader Creation Process Started --->");
                 PickupHeaderV2 createdPickupHeader = pickupHeaderService.createOutboundOrderProcessingPickupHeaderV2(newPickupHeader, orderManagementLine.getPickupCreatedBy());
                 log.info("PickupHeader Creation Process Completed ---> Values is {} ", createdPickupHeader);
