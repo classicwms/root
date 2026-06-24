@@ -3326,15 +3326,6 @@ public class PreOutboundHeaderService extends BaseService {
         orderManagementLine.setIsCompleted(preOutboundLine.getIsCompleted());
         orderManagementLine.setIsCancelled(preOutboundLine.getIsCancelled());
 
-//        List<InventoryV2> inventoryV2 = inventoryService.getInventoryForInhouseTransferV2(companyCodeId, plantId, languageId, preOutboundLine.getWarehouseId(),
-//                preOutboundLine.getItemCode(), preOutboundLine.getManufacturerName());
-//
-//        if (inventoryV2 != null && !inventoryV2.isEmpty()) {
-//            orderManagementLine.setBarcodeId(inventoryV2.get(0).getBarcodeId());
-//            orderManagementLine.setLevelId(inventoryV2.get(0).getLevelId());
-//            log.info("PartnerItemBarCode: " + inventoryV2.get(0).getBarcodeId());
-//        }
-
         // INV_QTY
         log.info("orderManagementLine : " + orderManagementLine);
 
@@ -3373,12 +3364,6 @@ public class PreOutboundHeaderService extends BaseService {
     private OrderManagementLineV2 createOrderManagementV2(String companyCodeId, String plantId, String languageId,
                                                           Long binClassId, OrderManagementLineV2 orderManagementLine,
                                                           String warehouseId, String itemCode, Double ORD_QTY) throws ParseException {
-//        List<IInventoryImpl> stockType1InventoryList = inventoryService.
-//                getInventoryForOrderManagementV2(companyCodeId, plantId, languageId, warehouseId, itemCode, 1L, binClassId, orderManagementLine.getManufacturerName());
-//        log.info("---Global---stockType1InventoryList-------> : " + stockType1InventoryList.size());
-//        if (stockType1InventoryList.isEmpty()) {
-//            return createEMPTYOrderManagementLineV2(orderManagementLine);
-//        }
         return orderManagementLineService.updateAllocationV2(orderManagementLine, binClassId, ORD_QTY, warehouseId, itemCode, "ORDER_PLACED");
     }
 

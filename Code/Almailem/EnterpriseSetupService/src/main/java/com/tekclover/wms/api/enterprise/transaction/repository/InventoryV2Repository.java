@@ -2463,4 +2463,24 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
 			@Param ("storageBin") String storageBin,
 			@Param ("inventoryQuantity") Double inventoryQuantity,
 			@Param ("allocatedQuantity") Double allocatedQuantity);
+
+    @Query(value = "SELECT * from tblinventory where \n" +
+            "inv_id in (select max(inv_id) from tblinventory WHERE is_deleted = 0 group by itm_code,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) and \n" +
+            "(COALESCE(:companyCodeId, null) IS NULL OR (c_id IN (:companyCodeId))) and \n" +
+            "(COALESCE(:languageId, null) IS NULL OR (lang_id IN (:languageId))) and \n" +
+            "(COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) and \n" +
+            "(COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and \n" +
+            "(COALESCE(:manufacturerName, null) IS NULL OR (MFR_NAME IN (:manufacturerName))) and \n" +
+            "(COALESCE(:itemCode, null) IS NULL OR (ITM_CODE IN (:itemCode))) and \n" +
+            "(COALESCE(:stockTypeId, null) IS NULL OR (STCK_TYP_ID IN (:stockTypeId))) and \n" +
+            "(COALESCE(:binClassId, null) IS NULL OR (BIN_CL_ID IN (:binClassId))) and\n" +
+            "is_deleted = 0 and (INV_QTY > 0) ORDER BY LEVEL_ID, INV_QTY ", nativeQuery = true)
+    public List<InventoryV2> findInventoryGroupByLevel(@Param("companyCodeId") String companyCodeId,
+                                                       @Param("plantId") String plantId,
+                                                       @Param("languageId") String languageId,
+                                                       @Param("warehouseId") String warehouseId,
+                                                       @Param("itemCode") String itemCode,
+                                                       @Param("manufacturerName") String manufacturerName,
+                                                       @Param("stockTypeId") Long stockTypeId,
+                                                       @Param("binClassId") Long binClassId);
 }
