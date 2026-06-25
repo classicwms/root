@@ -2691,6 +2691,8 @@ public class OrderManagementLineService extends BaseService {
                     newOrderManagementLine.setLevelId(stBinInventory.getLevelId());
                 }
                 newOrderManagementLine.setProposedPackBarCode(stBinInventory.getPackBarcodes());
+                newOrderManagementLine.setReferenceField2(String.valueOf(newOrderManagementLine.getInventoryQty())); // INV_QTY
+                newOrderManagementLine.setReferenceField3(newOrderManagementLine.getDescription()); // Item_Text
                 OrderManagementLineV2 createdOrderManagementLine = orderManagementLineV2Repository.save(newOrderManagementLine);
                 log.info("--else---createdOrderManagementLine newly created------: " + createdOrderManagementLine);
                 allocatedQtyFromOrderMgmt = createdOrderManagementLine.getAllocatedQty();
@@ -2701,21 +2703,21 @@ public class OrderManagementLineService extends BaseService {
 
                 if (allocatedQtyFromOrderMgmt > 0) {
                     // Update Inventory table
-                    InventoryV2 inventoryForUpdate = inventoryService.getInventoryForAllocationV2(
-                            orderManagementLine.getCompanyCodeId(), orderManagementLine.getPlantId(),
-                            orderManagementLine.getLanguageId(), warehouseId, stBinInventory.getPackBarcodes(),
-                            itemCode, orderManagementLine.getManufacturerName(),
-                            stBinInventory.getStorageBin());
+//                    InventoryV2 inventoryForUpdate = inventoryService.getInventoryForAllocationV2(
+//                            orderManagementLine.getCompanyCodeId(), orderManagementLine.getPlantId(),
+//                            orderManagementLine.getLanguageId(), warehouseId, stBinInventory.getPackBarcodes(),
+//                            itemCode, orderManagementLine.getManufacturerName(),
+//                            stBinInventory.getStorageBin());
 
                     double dbInventoryQty = 0;
                     double dbInvAllocatedQty = 0;
 
-                    if (inventoryForUpdate.getInventoryQuantity() != null) {
-                        dbInventoryQty = inventoryForUpdate.getInventoryQuantity();
+                    if (stBinInventory.getInventoryQuantity() != null) {
+                        dbInventoryQty = stBinInventory.getInventoryQuantity();
                     }
 
-                    if (inventoryForUpdate.getAllocatedQuantity() != null) {
-                        dbInvAllocatedQty = inventoryForUpdate.getAllocatedQuantity();
+                    if (stBinInventory.getAllocatedQuantity() != null) {
+                        dbInvAllocatedQty = stBinInventory.getAllocatedQuantity();
                     }
 
                     double inventoryQty = dbInventoryQty - allocatedQtyFromOrderMgmt;
@@ -2729,13 +2731,12 @@ public class OrderManagementLineService extends BaseService {
                         inventoryQty = 0;
                     }
                     // End
-                    inventoryForUpdate.setInventoryQuantity(inventoryQty);
-                    inventoryForUpdate.setAllocatedQuantity(allocatedQty);
-                    inventoryForUpdate.setReferenceField4(inventoryQty + allocatedQty);
+                    stBinInventory.setInventoryQuantity(inventoryQty);
+                    stBinInventory.setAllocatedQuantity(allocatedQty);
+                    stBinInventory.setReferenceField4(inventoryQty + allocatedQty);
                     // Create new Inventory Record
                     InventoryV2 inventoryV2 = new InventoryV2();
-                    BeanUtils.copyProperties(inventoryForUpdate, inventoryV2,
-                            CommonUtils.getNullPropertyNames(inventoryForUpdate));
+                    BeanUtils.copyProperties(stBinInventory, inventoryV2, CommonUtils.getNullPropertyNames(stBinInventory));
                     inventoryV2.setUpdatedOn(new Date());
                     inventoryV2.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 2));
                     try {
