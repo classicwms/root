@@ -95,4 +95,9 @@ public interface PreOutboundLineRepository extends JpaRepository<PreOutboundLine
 	@Query("UPDATE PreOutboundLine ob SET ob.requiredDeliveryDate = :requiredDeliveryDate WHERE ob.warehouseId = :warehouseId AND ob.refDocNumber = :refDocNumber")
 	void updatePreOutboundLineRequiredDeliveryDate(@Param ("warehouseId") String warehouseId,
 			@Param ("refDocNumber") String refDocNumber, @Param ("requiredDeliveryDate") Date requiredDeliveryDate);
+
+	@Modifying(clearAutomatically = true)
+	@Query(value = "UPDATE tblpreoutboundline set status_id = :statusId WHERE wh_id = :warehouseId AND ref_doc_no = :refDocNumber and is_deleted = 0", nativeQuery = true)
+	int updateLineStatus(@Param ("warehouseId") String warehouseId, @Param ("refDocNumber") String refDocNumber,
+						 @Param ("statusId") Long statusId);
 }

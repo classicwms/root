@@ -229,6 +229,11 @@ public interface OutboundHeaderRepository extends JpaRepository<OutboundHeader, 
 										 @Param(value = "warehouseId") String warehouseId,
 										 @Param(value = "languageId") String languageId,
 										 @Param(value = "companyCodeId") String companyCodeId);
+
+	@Query(value = "select status_text from tblstatusid where \n" +
+			"status_id = :statusId and wh_id = :warehouseId and is_deleted = 0", nativeQuery = true)
+	public String findStatusDescription(@Param(value = "statusId") Long statusId,
+										@Param(value = "warehouseId") String warehouseId);
 	
 	//============================================================================================================================
 	
@@ -362,7 +367,7 @@ public interface OutboundHeaderRepository extends JpaRepository<OutboundHeader, 
 
 	@Modifying
 	@Query(value = "update tbloutboundheader set status_id = :statusId, dlv_cnf_on = :deliveryConfirmedOn \r\n "
-			+ " WHERE wh_id = :warehouseId AND ref_doc_no = :refDocNumber", nativeQuery = true)
+			+ "WHERE wh_id = :warehouseId AND ref_doc_no = :refDocNumber", nativeQuery = true)
 	int updateOutboundHeaderStatusInDeliveryConfirm(@Param("warehouseId") String warehouseId,
 													@Param("refDocNumber") String refDocNumber,
 													@Param("statusId") Long statusId,

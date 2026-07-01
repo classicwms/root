@@ -754,7 +754,7 @@ public class InhouseTransferHeaderService extends BaseService {
 			throw new BadRequestException("The given StorageBin ID : " + storageBin + " doesn't exist.");
 		}
 	}
-	
+
 	/**
 	 * 
 	 * @param createdInhouseTransferLine

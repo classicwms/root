@@ -29,6 +29,7 @@ public interface StorageBinRepository extends JpaRepository<StorageBin,Long>, Jp
 
 	public StorageBin findByWarehouseIdAndStorageBinAndDeletionIndicator(String warehouseId, String storageBin, long l);
 
+
 	long countByWarehouseIdAndStatusIdAndDeletionIndicator(String warehouseId, Long statusId, Long deletionIndicator );
 
 	long countByWarehouseIdAndStatusIdNotAndDeletionIndicator(String warehouseId, Long statusId, Long deletionIndicator );

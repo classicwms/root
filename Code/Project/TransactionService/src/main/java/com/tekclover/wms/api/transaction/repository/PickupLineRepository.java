@@ -197,4 +197,9 @@ public interface PickupLineRepository extends JpaRepository<PickupLine,Long>, Jp
 													   @Param("warehouseId") List<String> warehouseId,
 													   @Param("dateFrom") Date dateFrom,
 													   @Param("dateTo") Date dateTo);
+
+	@Query(value = "select * from tblpickupline where wh_id = :warehouseId and ref_doc_no = :refDocNo and PRE_OB_NO = :preOutboundNo \n" +
+			" and PARTNER_CODE = :partnerCode and is_deleted = 0", nativeQuery = true)
+	List<PickupLine> getPickupLine(@Param("warehouseId") String warehouseId, @Param("refDocNo") String refDocNo,
+								   @Param("preOutboundNo") String preOutboundNo, @Param("partnerCode") String partnerCode);
 }

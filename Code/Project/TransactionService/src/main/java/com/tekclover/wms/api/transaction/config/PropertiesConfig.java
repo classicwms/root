@@ -128,4 +128,8 @@ public class PropertiesConfig {
 	
 	@Value("${axapi.service.access_token.client_secret}")
 	private String axapiServiceAccessTokenClientSecret;
+
+	//-----------------KAFKA-CONF-----------------------------------------------------
+	@Value("${spring.kafka.bootstrap-servers}")
+	private String bootstrapServers;
 }

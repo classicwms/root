@@ -116,6 +116,13 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
 	public List<OutboundLine> findByWarehouseIdAndPreOutboundNoAndRefDocNumberAndReferenceField2AndDeletionIndicator(
 			String warehouseId, String preOutboundNo, String refDocNumber, String referenceField2, Long deletionIndicator);
 
+	@Query (value = "SELECT COUNT(*) FROM tbloutboundline \r\n"
+			+ " WHERE REF_DOC_NO = :refDocNo AND REF_FIELD_2 IS NULL AND WH_ID =:warehouseId and PRE_OB_NO = :preOutboundNo and is_deleted = 0", nativeQuery = true)
+	Long getCountFromOutboundLineAndRefField2IsNull (
+			@Param("refDocNo") String refDocNo,
+			@Param("warehouseId") String warehouseId,
+			@Param("preOutboundNo") String preOutboundNo);
+
 	/*
 	 * Reports
 	 */
@@ -307,7 +314,13 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
 	public List<OutboundLine> findByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndStatusIdInAndDeletionIndicator(
 			String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode, List<Long> statusId,
 			long i);
-	
+
+	@Query(value = "select count(*) from tbloutboundline where wh_id = :warehouseId and pre_ob_no = :preOutboundNo and " +
+			"ref_doc_no = :refDocNo and status_id = :statusId and partner_code = :partnerCode and is_deleted = 0", nativeQuery = true)
+	Long getOutboundLineStatusCount(@Param("warehouseId") String warehouseId, @Param("preOutboundNo") String preOutboundNo,
+									@Param("refDocNo") String refDocNo, @Param("statusId") Long statusId, @Param("partnerCode") String partnerCode);
+
+	//warehouseId, preOutboundNo, refDocNumber, partnerCode, statusIds,
 	/**
 	 * 
 	 * @param warehouseId
@@ -424,5 +437,14 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
 										 @Param ("refDocNumber") String refDocNumber,
 										 @Param ("statusId") Long statusId,
 										 @Param ("lineNumber") Long lineNumber);
+
+	@Modifying
+	@Query(value = "UPDATE tbloutboundline SET status_id = :statusId, DLV_CNF_ON = :deliveryConfirmedOn \r\n"
+			+ " WHERE wh_id = :warehouseId AND \r\n "
+			+ " ref_doc_no = :refDocNumber AND status_id in (51, 57)", nativeQuery = true)
+	public int updateOutboundLineStatus(@Param ("warehouseId") String warehouseId,
+										 @Param ("refDocNumber") String refDocNumber,
+										 @Param ("statusId") Long statusId,
+										 @Param ("deliveryConfirmedOn") Date deliveryConfirmedOn);
 
 }

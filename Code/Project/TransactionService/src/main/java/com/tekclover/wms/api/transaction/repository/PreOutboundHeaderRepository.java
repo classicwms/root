@@ -69,4 +69,12 @@ public interface PreOutboundHeaderRepository extends JpaRepository<PreOutboundHe
 	@QueryHints({@QueryHint(name = "javax.persistence.lock.timeout", value = UPGRADE_SKIPLOCKED)})
 	public Optional<PreOutboundHeader> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
 			String languageId, String companyCode, String plantId, String warehouseId, String refDocNumber, long l);
+
+
+	@Modifying
+	@Query(value = "UPDATE tblpreoutboundheader SET status_id = :statusId, REF_FIELD_10 = :refField10 WHERE wh_id = :warehouseId AND ref_doc_no = :refDocNumber", nativeQuery = true)
+	int updateHeaderStatus(@Param ("warehouseId") String warehouseId,
+									  @Param ("refDocNumber") String refDocNumber, @Param ("statusId") Long statusId, @Param ("refField10") String refField10);
+
+
 }
