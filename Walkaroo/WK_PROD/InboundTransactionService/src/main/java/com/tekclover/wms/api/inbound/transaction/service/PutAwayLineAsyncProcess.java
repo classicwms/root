@@ -57,7 +57,7 @@ public class PutAwayLineAsyncProcess extends BaseService {
     public void createPutawayHeaderv4(List<StagingLineEntityV2> stagingLineEntityV2List) {
 
         try {
-            String currentDB = baseService.getDataBase(stagingLineEntityV2List.get(0).getPlantId());
+            String currentDB = baseService.getDataBase(stagingLineEntityV2List.get(0).getPlantId(), stagingLineEntityV2List.get(0).getWarehouseId());
             DataBaseContextHolder.clear();
             DataBaseContextHolder.setCurrentDb(currentDB);
             log.info("PutAwayHeader Creation Process Started DB: {} ", currentDB);

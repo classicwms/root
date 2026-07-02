@@ -131,7 +131,7 @@ public class OrderController {
                                                      @RequestParam String languageId) throws ParseException {
 
         try {
-            String currentDB = baseService.getDataBase(plantId);
+            String currentDB = baseService.getDataBase(plantId, warehouseId);
             DataBaseContextHolder.clear();
             DataBaseContextHolder.setCurrentDb(currentDB);
             log.info("Current DB " + currentDB);
@@ -151,7 +151,7 @@ public class OrderController {
                                                          @RequestParam String languageId) throws ParseException {
 
         try {
-            String currentDB = baseService.getDataBase(plantId);
+            String currentDB = baseService.getDataBase(plantId, warehouseId);
             DataBaseContextHolder.clear();
             DataBaseContextHolder.setCurrentDb(currentDB);
             log.info("Current DB " + currentDB);
@@ -171,7 +171,7 @@ public class OrderController {
                                                       @RequestParam String plantId,
                                                       @RequestParam String languageId) throws ParseException {
         try {
-            String currentDB = baseService.getDataBase(plantId);
+            String currentDB = baseService.getDataBase(plantId, warehouseId);
             DataBaseContextHolder.clear();
             DataBaseContextHolder.setCurrentDb(currentDB);
             log.info("Current DB " + currentDB);
@@ -193,7 +193,7 @@ public class OrderController {
                                                               @RequestParam String plantId,
                                                               @RequestParam String languageId) throws ParseException {
         try {
-            String currentDB = baseService.getDataBase(plantId);
+            String currentDB = baseService.getDataBase(plantId, warehouseId);
             DataBaseContextHolder.clear();
             DataBaseContextHolder.setCurrentDb(currentDB);
             log.info("Current DB " + currentDB);
@@ -214,7 +214,7 @@ public class OrderController {
                                                   @RequestParam String plantId,
                                                   @RequestParam String languageId) {
         try {
-            String currentDB = baseService.getDataBase(plantId);
+            String currentDB = baseService.getDataBase(plantId, warehouseId);
             DataBaseContextHolder.clear();
             DataBaseContextHolder.setCurrentDb(currentDB);
             log.info("Current DB {}", currentDB);
@@ -238,7 +238,7 @@ public class OrderController {
                                                   @RequestParam String plantId,
                                                   @RequestParam String languageId) {
         try {
-            String currentDB = baseService.getDataBase(plantId);
+            String currentDB = baseService.getDataBase(plantId, warehouseId);
             DataBaseContextHolder.clear();
             DataBaseContextHolder.setCurrentDb(currentDB);
             log.info("Current DB {}", currentDB);

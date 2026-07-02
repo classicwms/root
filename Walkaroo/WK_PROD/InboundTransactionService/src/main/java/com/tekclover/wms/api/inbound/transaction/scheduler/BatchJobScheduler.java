@@ -42,9 +42,9 @@ public class BatchJobScheduler {
         //MUB
         scheduleAsyncService.processInboundOrderV8();
         // NGP1
-        CompletableFuture<WarehouseApiResponse> inboundOrderV3 = scheduleAsyncService.processInboundOrderV3();
+        scheduleAsyncService.processInboundOrderV9();
         // NGP2
-        CompletableFuture<WarehouseApiResponse> inboundOrderV4 = scheduleAsyncService.processInboundOrderV4();
+        scheduleAsyncService.processInboundOrderV10();
 
 
 //        CompletableFuture<WarehouseApiResponse> inboundFailedOrder = scheduleAsyncService.processInboundFailedOrder();
