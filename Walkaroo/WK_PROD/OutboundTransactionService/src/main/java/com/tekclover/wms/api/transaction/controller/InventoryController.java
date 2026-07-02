@@ -315,7 +315,7 @@ public class InventoryController {
 	@PostMapping("/upload/inventory/invMovement")
 	public ResponseEntity<?> uploadInventory(@Valid @RequestBody List<InventoryV2> inventoryV2 ,String loginUserID) throws InvocationTargetException, IllegalAccessException {
 		try {
-			String routingDb = baseService.getDataBase(inventoryV2.get(0).getPlantId());
+			String routingDb = baseService.getDataBase(inventoryV2.get(0).getPlantId(), inventoryV2.get(0).getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
 			DataBaseContextHolder.setCurrentDb(routingDb);
