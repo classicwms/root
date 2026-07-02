@@ -36,6 +36,8 @@ public class DataSourceConfig {
         targetDataSources.put("HYD", hydDataSource());
         targetDataSources.put("AHM", ahmDataSource());
         targetDataSources.put("MUB", mubDataSource());
+        targetDataSources.put("NGP1", ngp1DataSource());
+        targetDataSources.put("NGP2", ngp2DataSource());
 
 
         DynamicDataSource ds = new DynamicDataSource();
@@ -119,6 +121,24 @@ public class DataSourceConfig {
         return buildDataSource(
                 "MUB",
                 "jdbc:sqlserver://10.10.10.61;databaseName=WMS_MUB",
+                "sa",
+                "4V7lOXaxgAi3i6mgJL7qBUSPM"
+        );
+    }
+
+    private DataSource ngp1DataSource() {
+        return buildDataSource(
+                "NGP1",
+                "jdbc:sqlserver://10.10.10.61;databaseName=WMS_NGP1",
+                "sa",
+                "4V7lOXaxgAi3i6mgJL7qBUSPM"
+        );
+    }
+
+    private DataSource ngp2DataSource() {
+        return buildDataSource(
+                "NGP2",
+                "jdbc:sqlserver://10.10.10.61;databaseName=WMS_NGP2",
                 "sa",
                 "4V7lOXaxgAi3i6mgJL7qBUSPM"
         );

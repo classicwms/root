@@ -335,7 +335,7 @@ public class ImBasicData1Service extends BaseService{
     public ImBasicData1V2 createImBasicData1V2(ImBasicData1V2 newImBasicData1, String loginUserID)
             throws IllegalAccessException, InvocationTargetException, ParseException {
 
-        String db = getDataBase(newImBasicData1.getPlantId());
+        String db = getDataBase(newImBasicData1.getPlantId(), newImBasicData1.getWarehouseId());
         DataBaseContextHolder.clear();
         DataBaseContextHolder.setCurrentDb(db);
         log.info("Current DataBase --------------> " + db);
