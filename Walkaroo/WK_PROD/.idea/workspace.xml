@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="379764b3-5c57-4c17-82a9-aa5f03489e65" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/../../../3PL/Code/Dev/MasterSetupService/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../../3PL/Code/Dev/MasterSetupService/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../3PL/Code/Dev/MasterSetupService/src/main/java/com/tekclover/wms/api/masters/service/ProformaInvoiceService2.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../../3PL/Code/Dev/MasterSetupService/src/main/java/com/tekclover/wms/api/masters/service/ProformaInvoiceService2.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../Almailem/AutoLab/TransactionService/src/main/java/com/tekclover/wms/api/transaction/repository/GrHeaderV2Repository.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../../Almailem/AutoLab/TransactionService/src/main/java/com/tekclover/wms/api/transaction/repository/GrHeaderV2Repository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../Almailem/AutoLab/TransactionService/src/main/java/com/tekclover/wms/api/transaction/repository/GrLineV2Repository.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../../Almailem/AutoLab/TransactionService/src/main/java/com/tekclover/wms/api/transaction/repository/GrLineV2Repository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../Almailem/AutoLab/TransactionService/src/main/java/com/tekclover/wms/api/transaction/repository/InboundHeaderV2Repository.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../../Almailem/AutoLab/TransactionService/src/main/java/com/tekclover/wms/api/transaction/repository/InboundHeaderV2Repository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../Almailem/AutoLab/TransactionService/src/main/java/com/tekclover/wms/api/transaction/repository/StagingHeaderV2Repository.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../../Almailem/AutoLab/TransactionService/src/main/java/com/tekclover/wms/api/transaction/repository/StagingHeaderV2Repository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../Almailem/AutoLab/TransactionService/src/main/java/com/tekclover/wms/api/transaction/service/GrLineService.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../../Almailem/AutoLab/TransactionService/src/main/java/com/tekclover/wms/api/transaction/service/GrLineService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../Tamween/Java/InboundOrderService/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../../Tamween/Java/InboundOrderService/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../Tamween/Java/InboundOrderService/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../../Tamween/Java/InboundOrderService/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../Tamween/Java/InboundTransactionService/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../../Tamween/Java/InboundTransactionService/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../Tamween/Java/InboundTransactionService/.idea/modules/InboundTransactionService.main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../../../Tamween/Java/InboundTransactionService/.idea/modules/InboundTransactionService.main.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../Tamween/Java/OutboundTransactionService/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../../Tamween/Java/OutboundTransactionService/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../Tamween/Java/OutboundTransactionService/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../../Tamween/Java/OutboundTransactionService/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../Tamween/Java/OutboundTransactionService/hs_err_pid1157652.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../Tamween/Java/OutboundTransactionService/replay_pid1157652.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Dev/TransactionService/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../Dev/TransactionService/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/InboundTransactionService/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/InboundTransactionService/.idea/workspace.xml" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../../.." />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 5
+}</component>
+  <component name="ProjectId" id="325WdcLPIcIgBFh5h6H4Oc3Nj6f" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "main",
+    "last_opened_file_path": "D:/GIT/active-projects/Walkaroo/Java"
+  }
+}]]></component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="379764b3-5c57-4c17-82a9-aa5f03489e65" name="Changes" comment="" />
+      <created>1756711001756</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1756711001756</updated>
+    </task>
+    <task id="LOCAL-00001" summary="walkaroo">
+      <option name="closed" value="true" />
+      <created>1756711756811</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1756711756811</updated>
+    </task>
+    <task id="LOCAL-00002" summary="walkaroo">
+      <option name="closed" value="true" />
+      <created>1764056305430</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1764056305430</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
+    <servers />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="walkaroo" />
+    <option name="LAST_COMMIT_MESSAGE" value="walkaroo" />
+  </component>
+</project>

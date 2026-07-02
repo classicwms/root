@@ -1,0 +1,104 @@
+package com.tekclover.wms.api.idmaster.service;
+
+import java.time.Year;
+
+import com.tekclover.wms.api.idmaster.model.IKeyValuePair;
+import com.tekclover.wms.api.idmaster.repository.CompanyIdRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+
+public class BaseService {
+
+	@Autowired
+	NumberRangeService numberRangeService;
+
+	@Autowired
+	WarehouseService warehouseService;
+
+	@Autowired
+	CompanyIdRepository companyIdRepository;
+
+	IKeyValuePair description = null;
+
+	/**
+	 *
+	 * @return
+	 */
+	protected String getLanguageId () {
+		return "EN";
+	}
+
+	/**
+	 *
+	 * @return
+	 */
+	protected String getCompanyCode () {
+		return "1000";
+	}
+
+	/**
+	 *
+	 * @return
+	 */
+	protected String getPlantId () {
+		return "1001";
+	}
+
+	/**
+	 *
+	 * @param NUM_RAN_CODE
+	 * @param warehouseId
+	 * @param accessToken
+	 * @return
+	 */
+	protected String getNextRangeNumber (long NUM_RAN_CODE, String warehouseId,
+										 String companyCodeId,String plantId,
+										 String languageId,String accessToken) {
+		long FISCALYEAR = Year.now().getValue();
+		String nextNumberRange = numberRangeService.getNextNumberRange(NUM_RAN_CODE, FISCALYEAR, warehouseId, companyCodeId, plantId, languageId);
+		return nextNumberRange;
+	}
+
+	/**
+	 *
+	 * @param plantId plantId
+	 * @return
+	 */
+	public String getDataBase(String plantId, String warehouseId) {
+
+		if (plantId.equalsIgnoreCase("1207")) {
+			return "MDU";
+		} else if (plantId.equalsIgnoreCase("1204")) {
+			return "CMP";
+		} else if (plantId.equalsIgnoreCase("1203")) {
+			return "CHN";
+		} else if (plantId.equalsIgnoreCase("1200")) {
+			return "VGA";
+		} else if (plantId.equalsIgnoreCase("1202")) {
+			return "CCL";
+		} else if (plantId.equalsIgnoreCase("1205")) {
+			return "HYD";
+		} else if (plantId.equalsIgnoreCase("1322")) {
+			return "AHM";
+		} else if (plantId.equalsIgnoreCase("1324")) {
+			return "MUB";
+		}else if (plantId.equalsIgnoreCase("1700") && warehouseId.equalsIgnoreCase("1000")) {
+			return "NGP1";
+		} else if (plantId.equalsIgnoreCase("1700") && warehouseId.equalsIgnoreCase("1001")) {
+			return "NGP2";
+		} else {
+			return "WK";
+		}
+	}
+
+    /**
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @return
+     */
+    protected IKeyValuePair getDescription (String companyCodeId,String plantId, String languageId, String warehouseId) {
+        return companyIdRepository.getDescription(companyCodeId, plantId, languageId, warehouseId);
+    }
+}
