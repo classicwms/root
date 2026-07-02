@@ -1,5 +1,6 @@
 package com.tekclover.wms.core.service;
 
+import com.tekclover.wms.core.exception.BadRequestException;
 import com.tekclover.wms.core.model.IKeyValuePair;
 import com.tekclover.wms.core.model.dto.AsnList;
 import com.tekclover.wms.core.model.dto.SalesOrderV3;
@@ -346,8 +347,8 @@ public class ExcelDataProcessService {
      */
     public List<InboundOrderProcessV4> inboundDataSet(List<AsnList> asnv2) {
         List<InboundOrderProcessV4> inboundOrderList = new ArrayList<>();
-
-        asnv2.forEach(asn->{
+        log.info("Inbound Input's List from Sap: {} ", asnv2);
+        asnv2.forEach(asn -> {
 //            IKeyValuePair iKeyValuePair = userRepository.getCompanyAndPlant(asn.getPlant());
 //            log.info("company -> {}",iKeyValuePair.getCompanyCode());
 //            log.info("lang -> {}",iKeyValuePair.getLanguage());
@@ -394,7 +395,7 @@ public class ExcelDataProcessService {
         });
         log.info("SAP inboundOrderList -------------> {}", inboundOrderList);
 
-     return inboundOrderList;
+        return inboundOrderList;
 
     }
 

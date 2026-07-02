@@ -287,6 +287,7 @@ public class FileStorageService {
 	 */
 	public WarehouseApiResponse processDeliveryConfirmationV3(List<DeliveryConfirmationSAP> deliveryConfirmationSAPList) {
 		try {
+			log.info("Delivery Confimation Input's Value : " + deliveryConfirmationSAPList);
 //			DeliveryConfirmationV3 deliveryLines = orderPreparationService.prepDeliveryConfirmationV3(deliveryConfirmationSAPList);
 //			log.info("deliveryLines : " + deliveryLines);
 			WarehouseApiResponse dbWarehouseApiResponse = new WarehouseApiResponse();
