@@ -1,9 +1,11 @@
 package com.tekclover.wms.api.transaction.repository;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -50,4 +52,14 @@ public interface OutboundLineInterimRepository extends JpaRepository<OutboundLin
 	public List<OutboundLineInterim> findByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndItemCodeAndDeletionIndicator(
 			String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode, Long lineNumber,
 			String itemCode, Long deletionIndicator);
+
+	@Modifying
+	@Query(value = "update tbloutboundlinedup set IS_DELETED = :deletionIndicator, DLV_UTD_BY = :updatedBy, DLV_UTD_ON = :updatedOn \n" +
+			"where wh_id = :warehouseId and ref_doc_no = :refDocNumber and ITM_CODE = :itemCode and is_deleted = 0 ", nativeQuery = true)
+	int deleteOutboundLineInterimReversal(@Param("deletionIndicator") long deletionIndicator,
+									@Param("updatedBy") String updatedBy,
+									@Param("updatedOn") Date updatedOn,
+									@Param("warehouseId") String warehouseId,
+									@Param("refDocNumber") String refDocNumber,
+									@Param("itemCode") String itemCode);
 }

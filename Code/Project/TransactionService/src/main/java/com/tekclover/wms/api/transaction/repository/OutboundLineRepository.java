@@ -447,4 +447,15 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
 										 @Param ("statusId") Long statusId,
 										 @Param ("deliveryConfirmedOn") Date deliveryConfirmedOn);
 
+	@Modifying
+	@Query(value = "update tbloutboundline set dlv_qty = :deliveryQty, status_id = :statusId, DLV_REV_BY = :deliveryReversedBy, " +
+			"DLV_REV_ON = :deliveryReversedOn where wh_id = :warehouseId and ref_doc_no = :refDocNumber and itm_code = :itemCode and is_deleted = 0", nativeQuery = true)
+	int updateOutboundLineInReversal(@Param("warehouseId") String warehouseId,
+									 @Param ("refDocNumber") String refDocNumber,
+									 @Param ("itemCode") String itemCode,
+									 @Param ("deliveryQty") Double deliveryQty,
+									 @Param ("statusId") Long statusId,
+									 @Param("deliveryReversedBy") String deliveryReversedBy,
+									 @Param ("deliveryReversedOn") Date deliveryConfirmedOn);
+
 }

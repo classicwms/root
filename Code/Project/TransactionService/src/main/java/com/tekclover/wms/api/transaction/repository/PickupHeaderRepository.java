@@ -1,16 +1,14 @@
 package com.tekclover.wms.api.transaction.repository;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 import javax.persistence.LockModeType;
 import javax.persistence.QueryHint;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.jpa.repository.Lock;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.jpa.repository.QueryHints;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -65,4 +63,10 @@ public interface PickupHeaderRepository
 	public long getPickupHeaderByWarehouseIdAndRefDocNumberAndPreOutboundNoAndStatusIdInAndDeletionIndicator(
 			 @Param ("warehouseId") String warehouseId, @Param ("refDocNumber") String refDocNumber, @Param ("preOutboundNo") String preOutboundNo, 
 			 @Param ("statusId") Long statusId, @Param ("deletionIndicator") long deletionIndicator);
+
+	@Modifying
+	@Query(value = "update tblpickupheader set is_deleted = :deletionIndicator, PICK_REV_BY = :updatedBy, PICK_REV_ON = :updatedOn " +
+			"where wh_id = :warehouseId and ITM_CODE = :itemCode and REF_DOC_NO = :refDocNumber and is_deleted = 0", nativeQuery = true)
+	int deletePickupHeader(@Param("deletionIndicator") Long deletionIndicator, @Param("updatedBy") String updatedBy, @Param("updatedOn") Date updatedOn,
+						   @Param("warehouseId") String warehouseId, @Param("itemCode") String itemCode, @Param("refDocNumber") String refDocNumber);
 }

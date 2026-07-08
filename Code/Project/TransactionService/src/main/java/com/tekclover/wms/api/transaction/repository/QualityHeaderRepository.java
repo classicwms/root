@@ -1,5 +1,6 @@
 package com.tekclover.wms.api.transaction.repository;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -70,4 +71,10 @@ public interface QualityHeaderRepository extends JpaRepository<QualityHeader,Lon
 											 @Param ("referenceField10") String referenceField10,
 											 @Param ("referenceField10") String qualityReversedBy,
 											 @Param ("qualityInspectionNo") String qualityInspectionNo);
+
+	@Modifying
+	@Query( value = "Update tblqualityheader set is_deleted = :deletionIndicator, QC_UTD_BY = :updatedBy, QC_UTD_ON = :updatedOn where WH_ID = :warehouseId and \n" +
+			"REF_DOC_NO = :refDocNumber and PU_NO = :pickUpNumber and is_Deleted = 0", nativeQuery = true)
+	int deleteQualityHeader(@Param("deletionIndicator") Long deletionIndicator, @Param("updatedBy") String updatedBy, @Param("updatedOn") Date updatedOn,
+						  @Param("warehouseId") String warehouseId, @Param("refDocNumber") String refDocNumber, @Param("pickUpNumber") String pickUpNumber);
 }

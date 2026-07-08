@@ -35,4 +35,33 @@ public class ProducerService {
     public void preOutboundHeaderStatusUpdate(PreOutboundHeaderStatusEvent event) {
         kafkaTemplate.send("preoutbound-header-update-topic-v2", event);
     }
+
+    // OutboundLine Reversal
+    public void outboundLineReversal(OutboundLineReverseEvent event) {
+        kafkaTemplate.send("outbound-line-reversal-topic-v1", event);
+    }
+
+    // OutboundLine Reversal
+    public void qualityLineReversal(OutboundLineReverseEvent event) {
+        kafkaTemplate.send("quality-line-reversal-topic-v1", event);
+    }
+
+    // QualityHeader Reversal
+    public void qualityHeaderReversal(QualityHeaderReverseEvent event) {
+        kafkaTemplate.send("quality-header-reversal-topic-v1", event);
+    }
+
+    // QualityLineInterim Reversal
+    public void outboundLineInterimReversal(OutboundLineReverseEvent event) {
+        kafkaTemplate.send("outboundline-interim-reversal-topic-v1", event);
+    }
+
+    // QualityLineInterim Reversal
+    public void pickupHeaderReversal(OutboundLineReverseEvent event) {
+        kafkaTemplate.send("pickup-header-reversal-topic-v1", event);
+    }
+
+    public void orderManagementLineReversal(OutboundLineReverseEvent outboundLineReverseEvent) {
+        kafkaTemplate.send("order-management-line-reversal-topic-v1", outboundLineReverseEvent);
+    }
 }

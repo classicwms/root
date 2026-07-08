@@ -372,4 +372,11 @@ public interface OutboundHeaderRepository extends JpaRepository<OutboundHeader, 
 													@Param("refDocNumber") String refDocNumber,
 													@Param("statusId") Long statusId,
 													@Param("deliveryConfirmedOn") Date deliveryConfirmedOn);
+
+	@Modifying
+	@Query(value = "update tbloutboundheader set status_id = :statusId where ref_doc_no = :refDocNumber and status_id <> 59 and wh_id = :warehouseId and \n" +
+			"NOT EXISTS (select 1 from tblqualityheader where ref_doc_no = :refDocNumber and wh_id = :warehouseId and status_id <> 55 and is_deleted = 0)", nativeQuery = true)
+	int updateOutboundHeaderStatusInQualityCheck(@Param("warehouseId") String warehouseId,
+												 @Param("refDocNumber") String refDocNumber,
+												 @Param("statusId") Long statusId);
 }

@@ -4,10 +4,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.jpa.repository.QueryHints;
+import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -202,4 +199,15 @@ public interface PickupLineRepository extends JpaRepository<PickupLine,Long>, Jp
 			" and PARTNER_CODE = :partnerCode and is_deleted = 0", nativeQuery = true)
 	List<PickupLine> getPickupLine(@Param("warehouseId") String warehouseId, @Param("refDocNo") String refDocNo,
 								   @Param("preOutboundNo") String preOutboundNo, @Param("partnerCode") String partnerCode);
+
+	@Query(value = "select * from tblpickupline where wh_id = :warehouseId and ref_doc_no = :refDocNo and ITM_CODE = :itemCode and is_deleted = 0", nativeQuery = true)
+	List<PickupLine> pickUpLineList(@Param("warehouseId") String warehouseId, @Param("refDocNo") String refDocNo,
+								   @Param("itemCode") String itemCode);
+
+	@Modifying
+	@Query(value = "update tblpickupline set is_deleted = :deletionIndicator, PICK_REV_BY = :updatedBy, PICK_REV_ON = :updatedOn " +
+			"where wh_id = :warehouseId and ITM_CODE = :itemCode and REF_DOC_NO = :refDocNumber and is_deleted = 0", nativeQuery = true)
+	int deletePickupLine(@Param("deletionIndicator") Long deletionIndicator, @Param("updatedBy") String updatedBy, @Param("updatedOn") Date updatedOn,
+						   @Param("warehouseId") String warehouseId, @Param("itemCode") String itemCode, @Param("refDocNumber") String refDocNumber);
+
 }

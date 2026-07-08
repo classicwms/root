@@ -59,6 +59,37 @@ public class KafkaConsumerConfig {
         return createConsumerFactory(PreOutboundHeaderStatusEvent.class, "preoutbound-header-update-topic-v2");
     }
 
+
+    @Bean
+    public ConsumerFactory<String, OutboundLineReverseEvent> outboundLineReversalEventConfumerFactory() {
+        return createConsumerFactory(OutboundLineReverseEvent.class, "outbound-line-reversal-topic-v1");
+    }
+
+    @Bean
+    public ConsumerFactory<String, OutboundLineReverseEvent> qualityLineReversalEventConfumerFactory() {
+        return createConsumerFactory(OutboundLineReverseEvent.class, "quality-line-reversal-topic-v1");
+    }
+
+    @Bean
+    public ConsumerFactory<String, QualityHeaderReverseEvent> qualityHeaderReversalEventConfumerFactory() {
+        return createConsumerFactory(QualityHeaderReverseEvent.class, "quality-header-reversal-topic-v1");
+    }
+
+    @Bean
+    public ConsumerFactory<String, OutboundLineReverseEvent> outboundLineInterimReversalEventConfumerFactory() {
+        return createConsumerFactory(OutboundLineReverseEvent.class, "outboundline-interim-reversal-topic-v1");
+    }
+
+    @Bean
+    public ConsumerFactory<String, OutboundLineReverseEvent> pikcupHeaderReversalEventConfumerFactory() {
+        return createConsumerFactory(OutboundLineReverseEvent.class, "pickup-header-reversal-topic-v1");
+    }
+
+    @Bean
+    public ConsumerFactory<String, OutboundLineReverseEvent> orderManagementLineReversalEventConfumerFactory() {
+        return createConsumerFactory(OutboundLineReverseEvent.class, "order-management-line-reversal-topic-v1");
+    }
+
     @Bean("outboundHeaderListenerFactory")
     public ConcurrentKafkaListenerContainerFactory<String, OutboundHeaderUpdateEvent> pickupLineListenerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, OutboundHeaderUpdateEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
@@ -95,6 +126,54 @@ public class KafkaConsumerConfig {
     public ConcurrentKafkaListenerContainerFactory<String, PreOutboundHeaderStatusEvent> preOutboundHeaderStatusUpdateListenerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, PreOutboundHeaderStatusEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(preOutboundHeaderStatusEventConsumerFactory());
+        factory.setConcurrency(5);
+        return factory;
+    }
+
+    @Bean("outboundLineReversalListenerFactory")
+    public ConcurrentKafkaListenerContainerFactory<String, OutboundLineReverseEvent> outboundLineReverseEventConcurrentKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, OutboundLineReverseEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(outboundLineReversalEventConfumerFactory());
+        factory.setConcurrency(5);
+        return factory;
+    }
+
+    @Bean("qualityLineReversalListenerFactory")
+    public ConcurrentKafkaListenerContainerFactory<String, OutboundLineReverseEvent> qualityLineReverseEventConcurrentKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, OutboundLineReverseEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(qualityLineReversalEventConfumerFactory());
+        factory.setConcurrency(5);
+        return factory;
+    }
+
+    @Bean("qualityHeaderReversalListenerFactory")
+    public ConcurrentKafkaListenerContainerFactory<String, QualityHeaderReverseEvent> qualityHeaderReverseEventConcurrentKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, QualityHeaderReverseEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(qualityHeaderReversalEventConfumerFactory());
+        factory.setConcurrency(5);
+        return factory;
+    }
+
+    @Bean("outboundLineInterimReversalListenerFactory")
+    public ConcurrentKafkaListenerContainerFactory<String, OutboundLineReverseEvent> outboundLineInterimReverseEventConcurrentKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, OutboundLineReverseEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(outboundLineInterimReversalEventConfumerFactory());
+        factory.setConcurrency(5);
+        return factory;
+    }
+
+    @Bean("pickupHeaderReversalListenerFactory")
+    public ConcurrentKafkaListenerContainerFactory<String, OutboundLineReverseEvent> pikcupHeaderReverseEventConcurrentKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, OutboundLineReverseEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(pikcupHeaderReversalEventConfumerFactory());
+        factory.setConcurrency(5);
+        return factory;
+    }
+
+    @Bean("orderManagementLineReversalListenerFactory")
+    public ConcurrentKafkaListenerContainerFactory<String, OutboundLineReverseEvent> orderManagementLineReverseEventConcurrentKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, OutboundLineReverseEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(orderManagementLineReversalEventConfumerFactory());
         factory.setConcurrency(5);
         return factory;
     }

@@ -1,12 +1,11 @@
 package com.tekclover.wms.api.transaction.repository;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.jpa.repository.QueryHints;
+import lombok.Data;
+import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,5 +49,20 @@ public interface QualityLineRepository extends JpaRepository<QualityLine,Long>, 
 
 	public List<QualityLine> findAllByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberInAndItemCodeInAndDeletionIndicator(
 			String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode, List<Long> lineNumbers,
-			List<String> itemCodes, long l); 		
+			List<String> itemCodes, long l);
+
+	@Modifying
+	@Query(value = "update tblqualityline set is_deleted = :deletionIndicator, QC_UTD_BY = :updatedBy, QC_UTD_ON = :updatedOn \n" +
+			"where wh_id = :warehouseId and ref_doc_no = :refDocNumber and ITM_CODE = :itemCode and is_deleted = 0 ", nativeQuery = true)
+	int deleteQualityLineInReversal(@Param("deletionIndicator") long deletionIndicator,
+			@Param("updatedBy") String updatedBy,
+			@Param("updatedOn") Date updatedOn,
+			@Param("warehouseId") String warehouseId,
+			@Param("refDocNumber") String refDocNumber,
+			@Param("itemCode") String itemCode);
+
+	@Query(value = "select * from tblqualityline where wh_id = :warehouseId and ref_doc_no = :refDocNumber and ITM_CODE = :itemCode and is_deleted = 0 ", nativeQuery = true)
+	List<QualityLine> getQualityLineInReversal(@Param("warehouseId") String warehouseId,
+			@Param("refDocNumber") String refDocNumber,
+			@Param("itemCode") String itemCode);
 }

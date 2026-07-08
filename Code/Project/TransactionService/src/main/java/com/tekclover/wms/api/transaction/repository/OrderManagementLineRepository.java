@@ -72,4 +72,6 @@ public interface OrderManagementLineRepository extends JpaRepository<OrderManage
 			+ " GROUP BY itm_code,item_text", nativeQuery = true)
 	public List<PickerDenialReportImpl> getItemCodeList(@Param("warehouseId") String warehouseId,
 														@Param("statusIds") List<Long> statusIds);
+
+    List<OrderManagementLine> findByWarehouseIdAndRefDocNumberAndItemCodeAndDeletionIndicator(String warehouseId, String refDocNumber, String itemCode, Long deletionIndicator);
 }
