@@ -4134,13 +4134,13 @@ public class InventoryService extends BaseService {
                                                                            String mtoNumber) {
         log.info(companyCodeId + "|" + plantId + "|" + languageId + "|" + warehouseId + "|" + itemCode + "|" + manufacturerName + "|" + binClassId);
 
-        log.info("MTO Number -----------------------------------> " + mtoNumber);
         if (mtoNumber != null) {
+            log.info("MTO Number -----------------------------------> " + mtoNumber);
             List<InventoryV2> inventoryList = inventoryV2Repository.getOMLInventoryFFMMtoNumber(
-                    companyCodeId, plantId, languageId, warehouseId, null, null, itemCode, manufacturerName, PACK_BARCODE, binClassId, stockTypeId);
+                    companyCodeId, plantId, languageId, warehouseId, null, null, itemCode, manufacturerName, PACK_BARCODE, binClassId, stockTypeId, mtoNumber);
             if (inventoryList == null || inventoryList.isEmpty()) {
                 return inventoryV2Repository.getOMLInventoryFFMMtoNumber(
-                        companyCodeId, plantId, languageId, warehouseId, null, null, itemCode, manufacturerName, PACK_BARCODE, Collections.singletonList(3L), stockTypeId);
+                        companyCodeId, plantId, languageId, warehouseId, null, null, itemCode, manufacturerName, PACK_BARCODE, Collections.singletonList(3L), stockTypeId, mtoNumber);
             }
             return inventoryList;
         } else {

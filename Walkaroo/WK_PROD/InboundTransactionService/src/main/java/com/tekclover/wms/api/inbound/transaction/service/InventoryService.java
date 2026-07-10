@@ -3634,6 +3634,7 @@ public class InventoryService extends BaseService {
 
                 newInventoryBinClassId1.setCreatedOn(new Date());
                 newInventoryBinClassId1.setUpdatedOn(new Date());
+                newInventoryBinClassId1.setMtoNumber(putAwayLine.getMtoNumber() != null ? putAwayLine.getMtoNumber() : null);
                 log.info("Inventory Quantity is {}, BarcodeID is {} ---------------------------->  ", newInventoryBinClassId1.getInventoryQuantity(), newInventoryBinClassId1.getBarcodeId());
                 if (newInventoryBinClassId1.getInventoryQuantity() == 1) {
                     newInventoryBinClassId1 = inventoryV2Repository.save(newInventoryBinClassId1);

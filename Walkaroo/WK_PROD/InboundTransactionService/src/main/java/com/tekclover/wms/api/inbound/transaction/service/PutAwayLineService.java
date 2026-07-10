@@ -3755,6 +3755,7 @@ public class PutAwayLineService extends BaseService {
                     newPutAwayLine.setWarehouseDescription(dbStagingLineEntity.getWarehouseDescription());
                     newPutAwayLine.setSize(dbStagingLineEntity.getSize());
                     newPutAwayLine.setBrand(dbStagingLineEntity.getBrand());
+                    newPutAwayLine.setMtoNumber(dbStagingLineEntity.getMtoNumber() != null ? dbStagingLineEntity.getMtoNumber() : null);
                 }
 
                 BeanUtils.copyProperties(newPutAwayLine, dbPutAwayLine, CommonUtils.getNullPropertyNames(newPutAwayLine));
