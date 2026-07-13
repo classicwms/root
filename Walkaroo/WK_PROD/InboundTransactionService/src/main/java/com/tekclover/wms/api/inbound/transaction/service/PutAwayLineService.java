@@ -3657,11 +3657,16 @@ public class PutAwayLineService extends BaseService {
 
                 if (attempt >= maxAttempts) {
                     log.error(" Retry failed after {} attempts", attempt, ex);
-                    throw ex;
+//                    throw ex;
                 }
 
                 log.warn(" Retry attempt {} after failure", attempt);
 
+                try {
+                    Thread.sleep(1000);   // 1 second wait
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
             }
         }
     }
