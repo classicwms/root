@@ -1271,7 +1271,7 @@ public class SalesOrderService extends BaseService {
                     newPickupHeader.setReferenceField3(orderManagementLine.getDescription()); // item_text
 
                     log.info("PickupHeader Creation Process Started --->");
-                    PickupHeaderV2 createdPickupHeader = orderService.createOutboundOrderProcessingPickupHeaderV2(newPickupHeader, orderManagementLine.getPickupCreatedBy());
+                    PickupHeaderV2 createdPickupHeader = createOutboundOrderProcessingPickupHeaderV2(newPickupHeader, orderManagementLine.getPickupCreatedBy());
                     log.info("PickupHeader Creation Process Completed ---> Values is {} ", createdPickupHeader);
                     pickupHeaderV2List.add(createdPickupHeader);
                     orderManagementLineV2Repository.updateOrderManagementLineV2(
@@ -1289,6 +1289,35 @@ public class SalesOrderService extends BaseService {
             pushNotificationService.sendPushNotification(preOutboundNo, warehouseId);
         } catch (Exception e) {
             log.error("create PickupHeader error : " + e);
+            throw e;
+        }
+    }
+
+    public PickupHeaderV2 createOutboundOrderProcessingPickupHeaderV2(PickupHeaderV2 newPickupHeader, String loginUserID) throws Exception {
+        try {
+            PickupHeaderV2 dbPickupHeader = new PickupHeaderV2();
+            log.info("newPickupHeader : " + newPickupHeader);
+            BeanUtils.copyProperties(newPickupHeader, dbPickupHeader, CommonUtils.getNullPropertyNames(newPickupHeader));
+
+            IKeyValuePair description = stagingLineV2Repository.getDescription(dbPickupHeader.getCompanyCodeId(),
+                    dbPickupHeader.getLanguageId(),
+                    dbPickupHeader.getPlantId(),
+                    dbPickupHeader.getWarehouseId());
+
+            if (dbPickupHeader.getStatusId() != null) {
+                statusDescription = stagingLineV2Repository.getStatusDescription(dbPickupHeader.getStatusId(), dbPickupHeader.getLanguageId());
+                dbPickupHeader.setStatusDescription(statusDescription);
+            }
+
+            dbPickupHeader.setCompanyDescription(description.getCompanyDesc());
+            dbPickupHeader.setPlantDescription(description.getPlantDesc());
+            dbPickupHeader.setWarehouseDescription(description.getWarehouseDesc());
+            dbPickupHeader.setDeletionIndicator(0L);
+            dbPickupHeader.setPickupCreatedBy(loginUserID);
+            dbPickupHeader.setPickupCreatedOn(new Date());
+            return dbPickupHeader;
+        } catch (Exception e) {
+            e.printStackTrace();
             throw e;
         }
     }
