@@ -4140,7 +4140,7 @@ public class InventoryService extends BaseService {
                     companyCodeId, plantId, languageId, warehouseId, null, null, itemCode, manufacturerName, PACK_BARCODE, binClassId, stockTypeId, mtoNumber);
             if (inventoryList == null || inventoryList.isEmpty()) {
                 return inventoryV2Repository.getOMLInventoryFFMMtoNumber(
-                        companyCodeId, plantId, languageId, warehouseId, null, null, itemCode, manufacturerName, PACK_BARCODE, Collections.singletonList(3L), stockTypeId, mtoNumber);
+                        companyCodeId, plantId, languageId, warehouseId, null, null, itemCode, manufacturerName, PACK_BARCODE, binClassId, stockTypeId, null);
             }
             return inventoryList;
         } else {
