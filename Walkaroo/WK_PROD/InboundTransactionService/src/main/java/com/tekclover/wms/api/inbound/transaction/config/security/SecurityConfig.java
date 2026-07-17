@@ -40,9 +40,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	protected void configure(HttpSecurity http) throws Exception {
 		http.cors().and()
 				.authorizeRequests()
-				.antMatchers("/actuator/**").permitAll()
-				.antMatchers("/**/actuator/**").permitAll()
-				.antMatchers("/grafana/**").permitAll()
+//				.antMatchers("/actuator/**").permitAll()
+//				.antMatchers("/**/actuator/**").permitAll()
+//				.antMatchers("/grafana/**").permitAll()
 				// optional (swagger)
 				.antMatchers("/v2/api-docs", "/swagger-resources/**", "/swagger-ui.html", "/webjars/**").permitAll()
 				.anyRequest().authenticated()
