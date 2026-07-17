@@ -5732,7 +5732,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "(COALESCE(:itemCode, null) IS NULL OR (ITM_CODE IN (:itemCode))) and \n" +
             "(COALESCE(:binClassId, null) IS NULL OR (BIN_CL_ID IN (:binClassId))) and\n" +
             "(COALESCE(:stockTypeId, null) IS NULL OR (STCK_TYP_ID IN (:stockTypeId))) and \n" +
-            "is_deleted = 0 and (INV_QTY > 0) and MTO_NUMBER is null order by BIN_CL_ID, REF_FIELD_10 \n", nativeQuery = true)
+            "is_deleted = 0 and (INV_QTY > 0) order by BIN_CL_ID, REF_FIELD_10 \n", nativeQuery = true)
     public List<InventoryV2> getInventoryFFM(@Param("companyCodeId") String companyCodeId,
                                              @Param("plantId") String plantId,
                                              @Param("languageId") String languageId,
@@ -5762,7 +5762,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "(COALESCE(:itemCode, null) IS NULL OR (ITM_CODE IN (:itemCode))) and \n" +
             "(COALESCE(:binClassId, null) IS NULL OR (BIN_CL_ID IN (:binClassId))) and\n" +
             "(COALESCE(:stockTypeId, null) IS NULL OR (STCK_TYP_ID IN (:stockTypeId))) and \n" +
-            "is_deleted = 0 and (INV_QTY > 0) and MTO_NUMBER is null order by BIN_CL_ID, REF_FIELD_10 \n", nativeQuery = true)
+            "is_deleted = 0 and (INV_QTY > 0) order by BIN_CL_ID, REF_FIELD_10 \n", nativeQuery = true)
     public List<InventoryV2> getInventoryOFFM(@Param("companyCodeId") String companyCodeId,
                                              @Param("plantId") String plantId,
                                              @Param("languageId") String languageId,
