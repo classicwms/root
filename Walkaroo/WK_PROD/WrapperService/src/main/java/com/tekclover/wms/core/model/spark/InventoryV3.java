@@ -73,4 +73,5 @@ public class InventoryV3 {
     private String size;
     private String no_pairs;
     private String pallet_id;
+    private String mto_number;
 }
