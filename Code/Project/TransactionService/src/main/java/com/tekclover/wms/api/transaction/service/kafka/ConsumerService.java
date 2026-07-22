@@ -104,7 +104,7 @@ public class ConsumerService {
     @KafkaListener(topics = "quality-header-reversal-topic-v1", groupId = "quality-header-reversal-group-v1", containerFactory = "qualityHeaderReversalListenerFactory")
     public void qualityHeaderConsume(QualityHeaderReverseEvent event) throws Exception {
         log.info("QualityHeader Reversal Process Started In this REF_DOC_NO {} ", event.getRefDocNumber());
-        int qualityHeader = qualityHeaderRepository.deleteQualityHeader(1L, event.getLoginUserID(), new Date(), event.getWarehouseId(), event.getRefDocNumber(), event.getPickupNumber());
+        int qualityHeader = qualityHeaderRepository.deleteQualityHeader(1L, event.getLoginUserID(), new Date(), event.getWarehouseId(), event.getRefDocNumber(), event.getItemCode());
         log.info("QualityHeader Reversal Process Completed In this REF_DOC_NO {} Affected Row's {} ", event.getRefDocNumber(), qualityHeader);
     }
 

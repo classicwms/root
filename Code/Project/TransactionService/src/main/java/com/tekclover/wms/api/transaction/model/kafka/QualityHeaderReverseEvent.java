@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 public class QualityHeaderReverseEvent {
     private String refDocNumber;
     private String warehouseId;
-    private String pickupNumber;
+    private String itemCode;
     private String loginUserID;
 }

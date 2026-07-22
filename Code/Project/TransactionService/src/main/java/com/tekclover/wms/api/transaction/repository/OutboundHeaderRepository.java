@@ -379,4 +379,12 @@ public interface OutboundHeaderRepository extends JpaRepository<OutboundHeader, 
 	int updateOutboundHeaderStatusInQualityCheck(@Param("warehouseId") String warehouseId,
 												 @Param("refDocNumber") String refDocNumber,
 												 @Param("statusId") Long statusId);
+
+	@Modifying
+	@Query(value = "update tbloutboundheader set status_id = :statusId where ref_doc_no = :refDocNumber and wh_id = :warehouseId and ((select count(*) from tbloutboundline " +
+			"where ref_doc_no = :refDocNumber and wh_id = :warehouseId and is_deleted = 0) = (select count(*) from tbloutboundline where ref_doc_no = :refDocNumber and wh_id = :warehouseId and is_deleted = 0 and status_id = 47)) ", nativeQuery = true)
+	int updateOutboundHeaderStatusInReversal(@Param("warehouseId") String warehouseId,
+												 @Param("refDocNumber") String refDocNumber,
+												 @Param("statusId") Long statusId);
+
 }

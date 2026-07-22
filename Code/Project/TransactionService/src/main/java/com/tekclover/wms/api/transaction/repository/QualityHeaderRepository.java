@@ -74,7 +74,7 @@ public interface QualityHeaderRepository extends JpaRepository<QualityHeader,Lon
 
 	@Modifying
 	@Query( value = "Update tblqualityheader set is_deleted = :deletionIndicator, QC_UTD_BY = :updatedBy, QC_UTD_ON = :updatedOn where WH_ID = :warehouseId and \n" +
-			"REF_DOC_NO = :refDocNumber and PU_NO = :pickUpNumber and is_Deleted = 0", nativeQuery = true)
+			"REF_DOC_NO = :refDocNumber and ref_field_4 = :itemCode and is_Deleted = 0", nativeQuery = true)
 	int deleteQualityHeader(@Param("deletionIndicator") Long deletionIndicator, @Param("updatedBy") String updatedBy, @Param("updatedOn") Date updatedOn,
-						  @Param("warehouseId") String warehouseId, @Param("refDocNumber") String refDocNumber, @Param("pickUpNumber") String pickUpNumber);
+						  @Param("warehouseId") String warehouseId, @Param("refDocNumber") String refDocNumber, @Param("itemCode") String pickUpNumber);
 }

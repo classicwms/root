@@ -1402,10 +1402,10 @@ public class OutboundLineService extends BaseService {
     @Transactional(rollbackFor = {Exception.class, Throwable.class})
 	public List<OutboundReversal> doReversal(String refDocNumber, String itemCode, String loginUserID) 
 			throws IllegalAccessException, InvocationTargetException {
-		List<OutboundLine> outboundLineList = 
+		List<OutboundLine> outboundLineList =
 				outboundLineRepository.findByRefDocNumberAndItemCodeAndDeletionIndicator(refDocNumber, itemCode, 0L);
 		log.info("outboundLineList---------> : " + outboundLineList);
-		
+
 		List<OutboundReversal> outboundReversalList = new ArrayList<>();
 		for (OutboundLine outboundLine : outboundLineList) {
 			Warehouse warehouse = getWarehouse(outboundLine.getWarehouseId());
@@ -1417,7 +1417,7 @@ public class OutboundLineService extends BaseService {
 				// OutboundLine Update
 				log.info("OutbondLine 57 Status Update in Kafka published RefDocNo: {} and ItemCode: {}", refDocNumber, itemCode);
 				producerService.outboundLineReversal(new OutboundLineReverseEvent(outboundLine.getWarehouseId(), outboundLine.getRefDocNumber(),
-						outboundLine.getItemCode(), outboundLine.getStatusId(), loginUserID));
+						outboundLine.getItemCode(), 47L, loginUserID));
 
 				/*--------------STEP 2--------------------------------------*/
 				// Delete QualityLine
@@ -1432,37 +1432,38 @@ public class OutboundLineService extends BaseService {
 						outboundLine.getItemCode(), outboundLine.getStatusId(), loginUserID));
 
 				/*---------------STEP 4------------------------------------*/
-				// Find PickupLine
-				List<PickupLine> pickupLineList = pickupLineRepository.pickUpLineList(outboundLine.getWarehouseId(), outboundLine.getRefDocNumber(), outboundLine.getItemCode());
-				log.info("PickupLine List of size in Reversal: {} ", pickupLineList.size());
+				List<OrderManagementLine> dbOrderManagementLine = orderManagementLineRepository.findByWarehouseIdAndRefDocNumberAndItemCodeAndDeletionIndicator(outboundLine.getWarehouseId(), refDocNumber, itemCode, 0L);
+				log.info("OrderManagementLine Size: {} ", dbOrderManagementLine.size());
 
+				/*----------------STEP 5-------------------------------------*/
 				List<QualityLine> dbQualityLine = qualityLineRepository.getQualityLineInReversal(outboundLine.getWarehouseId(), refDocNumber, itemCode);
 				log.info("QualityLine Size: {} ", dbQualityLine.size());
 
-				if(!pickupLineList.isEmpty()) {
-					for(PickupLine pickupLine : pickupLineList) {
-						/*---------------STEP 5------------------------------------*/
+				if (!dbOrderManagementLine.isEmpty()) {
+					for (OrderManagementLine orderManagementLine : dbOrderManagementLine) {
+						/*---------------STEP 6------------------------------------*/
 						// Delete QualityHeader
 						log.info("Delete QualityHeader in Kafka published RefDocNo: {} and ItemCode: {}", refDocNumber, itemCode);
-						producerService.qualityHeaderReversal(new QualityHeaderReverseEvent(pickupLine.getRefDocNumber(), pickupLine.getWarehouseId(), pickupLine.getPickupNumber(), loginUserID));
+						producerService.qualityHeaderReversal(new QualityHeaderReverseEvent(orderManagementLine.getRefDocNumber(), orderManagementLine.getWarehouseId(), orderManagementLine.getItemCode(), loginUserID));
 
-						log.info("------pickupLine-------: " + pickupLine);
-						log.info("PickUpLine StatusId: " + pickupLine.getStatusId());
+						log.info("------pickupLine-------: " + orderManagementLine);
+						log.info("PickUpLine StatusId: " + orderManagementLine.getStatusId());
 
 						log.info("OrderManagementLine updated for reversal");
 						producerService.orderManagementLineReversal(new OutboundLineReverseEvent(outboundLine.getWarehouseId(), outboundLine.getRefDocNumber(),
 								outboundLine.getItemCode(), outboundLine.getStatusId(), loginUserID));
 
 						// Inventory Update
-						if (pickupLine.getStatusId() == 50L) {
+						if (orderManagementLine.getStatusId() == 50L) {
 							try {
-								Inventory inventory = inventoryService.getInventory(pickupLine.getWarehouseId(), pickupLine.getPickedPackCode(),
-										pickupLine.getItemCode(), pickupLine.getPickedStorageBin());
+								Inventory inventory = inventoryService.getInventory(orderManagementLine.getWarehouseId(), orderManagementLine.getProposedPackBarCode(),
+										orderManagementLine.getItemCode(), orderManagementLine.getProposedStorageBin());
+
 								if (inventory != null) {
-									Double INV_QTY = inventory.getInventoryQuantity() + pickupLine.getPickConfirmQty();
+									Double INV_QTY = inventory.getInventoryQuantity() + orderManagementLine.getAllocatedQty();
 
 									Double ALLOC_QTY = (inventory.getAllocatedQuantity() != null ? inventory.getAllocatedQuantity() : 0);
-									Double PICK_CNF_QTY = pickupLine.getPickConfirmQty();
+									Double PICK_CNF_QTY = orderManagementLine.getAllocatedQty();
 									ALLOC_QTY = ALLOC_QTY - PICK_CNF_QTY;
 									log.info("----inventory update-50flow---INV_QTY-------- " + INV_QTY);
 									log.info("----inventory update-50flow---ALLOC_QTY-------- " + ALLOC_QTY);
@@ -1475,8 +1476,8 @@ public class OutboundLineService extends BaseService {
 									log.info("inventory updated : " + inventory);
 								}
 							} catch (Exception e) {
-								String objectData = (pickupLine.getWarehouseId() + "|" + pickupLine.getPickedPackCode() + "|" +
-										pickupLine.getItemCode() + "|" + pickupLine.getPickedStorageBin());
+								String objectData = (orderManagementLine.getWarehouseId() + "|" + orderManagementLine.getProposedPackBarCode() + "|" +
+										orderManagementLine.getItemCode() + "|" + orderManagementLine.getProposedStorageBin());
 								transactionErrorService.createTransactionError("INVENTORY", "Reversal | Inventory Update Error | STEP 3.2",
 										e.getMessage(), e.getLocalizedMessage(), objectData, loginUserID);
 								log.info("inventory update error: " + e.toString());
@@ -1485,17 +1486,17 @@ public class OutboundLineService extends BaseService {
 //							}
 						}
 
-						if (pickupLine.getStatusId() == 51L) {
+						if (orderManagementLine.getStatusId() == 51L) {
 //							Inventory inventory = updateInventory1(pickupLine,outboundLineStatusIdBeforeUpdate);
 //							if(inventory != null) {
 							try {
-								Inventory inventory = inventoryService.getInventory(pickupLine.getWarehouseId(), pickupLine.getPickedPackCode(),
-										pickupLine.getItemCode(), pickupLine.getPickedStorageBin());
+								Inventory inventory = inventoryService.getInventory(orderManagementLine.getWarehouseId(), orderManagementLine.getProposedPackBarCode(),
+										orderManagementLine.getItemCode(), orderManagementLine.getProposedStorageBin());
 								if (inventory != null) {
-									Double INV_QTY = inventory.getInventoryQuantity() + pickupLine.getAllocatedQty();
+									Double INV_QTY = inventory.getInventoryQuantity() + orderManagementLine.getAllocatedQty();
 
 									Double ALLOC_QTY = (inventory.getAllocatedQuantity() != null ? inventory.getAllocatedQuantity() : 0);
-									Double PICK_ALLOC_QTY = pickupLine.getAllocatedQty();
+									Double PICK_ALLOC_QTY = orderManagementLine.getAllocatedQty();
 									ALLOC_QTY = ALLOC_QTY - PICK_ALLOC_QTY;
 									log.info("----inventory update-51flow---INV_QTY-------- " + INV_QTY);
 									log.info("----inventory update-51flow---ALLOC_QTY-------- " + ALLOC_QTY);
@@ -1507,8 +1508,8 @@ public class OutboundLineService extends BaseService {
 									log.info("inventory updated : " + inventory);
 								}
 							} catch (Exception e) {
-								String objectData = (pickupLine.getWarehouseId() + "|" + pickupLine.getPickedPackCode() + "|" +
-										pickupLine.getItemCode() + "|" + pickupLine.getPickedStorageBin());
+								String objectData = (orderManagementLine.getWarehouseId() + "|" + orderManagementLine.getProposedPackBarCode() + "|" +
+										orderManagementLine.getItemCode() + "|" + orderManagementLine.getProposedStorageBin());
 								transactionErrorService.createTransactionError("INVENTORY", "Reversal | Inventory Update Error | STEP 3.2",
 										e.getMessage(), e.getLocalizedMessage(), objectData, loginUserID);
 								log.info("inventory update error: " + e.toString());
@@ -1529,7 +1530,7 @@ public class OutboundLineService extends BaseService {
 
 							/////////RECORD-2/////////////////////////////////////////////////////////////////////////////////
 							reversalType = "PICKING";
-							reversedQty = pickupLine.getPickConfirmQty();
+							reversedQty = orderManagementLine.getAllocatedQty();
 							createdOutboundReversal = createOutboundReversal(warehouse, reversalType, refDocNumber,
 									outboundLine.getPartnerCode(), itemCode, qualityLineData.getPickPackBarCode(), reversedQty,
 									outboundLine.getStatusId(), loginUserID);
@@ -1538,7 +1539,7 @@ public class OutboundLineService extends BaseService {
 					}
 				}
 			}
-			
+
 			/*-----------------------------Next Process----------------------------------------------------------*/
 			// If STATUS_ID = 50 - Reversal of Picking Confirmation
 			// HAREESH 27-08-2022 added status id 51
@@ -1550,38 +1551,20 @@ public class OutboundLineService extends BaseService {
 				producerService.outboundLineReversal(new OutboundLineReverseEvent(outboundLine.getWarehouseId(), outboundLine.getRefDocNumber(),
 						outboundLine.getItemCode(), 47L, loginUserID));
 
-				List<PickupLine> pickupLineList = pickupLineRepository.pickUpLineList(outboundLine.getWarehouseId(), outboundLine.getRefDocNumber(), outboundLine.getItemCode());
-				log.info("PickupLine List of size in Reversal: {} ", pickupLineList.size());
+//				List<PickupLine> pickupLineList = pickupLineRepository.pickUpLineList(outboundLine.getWarehouseId(), outboundLine.getRefDocNumber(), outboundLine.getItemCode());
+//				log.info("PickupLine List of size in Reversal: {} ", pickupLineList.size());
 
-//				List<PickupLine> pickupLineList = pickupLineService.deletePickupLineForReversal(outboundLine.getWarehouseId(), outboundLine.getPreOutboundNo(),
-//						outboundLine.getRefDocNumber(), outboundLine.getPartnerCode(), outboundLine.getLineNumber(),
-//						outboundLine.getItemCode(), loginUserID);
-				
-				List<Long> list_50_StatusId = new ArrayList<>();
-				List<Long> list_51_StatusId = new ArrayList<>();
-				Double PICK_CNF_QTY_50 = 0D;
-				for(PickupLine pickupLine : pickupLineList) {
-					// StatusID - 50
-					if (pickupLine.getStatusId() == 50L) {
-						list_50_StatusId.add(pickupLine.getStatusId());
-						PICK_CNF_QTY_50 = pickupLine.getPickConfirmQty();
-					}
-					// StatusID - 51
-					if (pickupLine.getStatusId() == 51L) {
-						list_51_StatusId.add(pickupLine.getStatusId());
-					}
-				}
-				
-				log.info("------list_50_StatusId-------: " + list_50_StatusId);
-				log.info("------list_51_StatusId-------: " + list_51_StatusId);
-				
-				if (pickupLineList != null && !pickupLineList.isEmpty()) {
-					for (PickupLine pickupLine : pickupLineList) {
+				/*---------------STEP 4------------------------------------*/
+				List<OrderManagementLine> dbOrderManagementLine = orderManagementLineRepository.findByWarehouseIdAndRefDocNumberAndItemCodeAndDeletionIndicator(outboundLine.getWarehouseId(), refDocNumber, itemCode, 0L);
+				log.info("OrderManagementLine Size: {} ", dbOrderManagementLine.size());
+
+				if (!dbOrderManagementLine.isEmpty()) {
+					for (OrderManagementLine orderManagementLine : dbOrderManagementLine) {
 
 						/*--------------STEP 2-------------------------------------*/
 						// Delete QualityHeader
 						log.info("Delete QualityHeader in Kafka published RefDocNo: {} and ItemCode: {}", refDocNumber, itemCode);
-						producerService.qualityHeaderReversal(new QualityHeaderReverseEvent(pickupLine.getRefDocNumber(), pickupLine.getWarehouseId(), pickupLine.getPickupNumber(), loginUserID));
+						producerService.qualityHeaderReversal(new QualityHeaderReverseEvent(orderManagementLine.getRefDocNumber(), orderManagementLine.getWarehouseId(), orderManagementLine.getItemCode(), loginUserID));
 
 						/*--------------STEP 3-------------------------------------*/
 						// Delete QualityLine
@@ -1589,143 +1572,59 @@ public class OutboundLineService extends BaseService {
 						producerService.qualityLineReversal(new OutboundLineReverseEvent(outboundLine.getWarehouseId(), outboundLine.getRefDocNumber(),
 								outboundLine.getItemCode(), outboundLine.getStatusId(), loginUserID));
 
-						// DELETE QUALITY_HEADER
-//						List<QualityHeader> dbQualityHeader = qualityHeaderService.getInitialQualityHeaderForReversal(outboundLine.getWarehouseId(),
-//								outboundLine.getPreOutboundNo(), outboundLine.getRefDocNumber(), pickupLine.getPickupNumber(), outboundLine.getPartnerCode());
-//						if (dbQualityHeader != null && dbQualityHeader.size() > 0) {
-//							for (QualityHeader qualityHeaderData : dbQualityHeader) {
-//								QualityHeader qualityHeader = qualityHeaderService.deleteQualityHeader(outboundLine.getWarehouseId(),
-//										outboundLine.getPreOutboundNo(), refDocNumber, qualityHeaderData.getQualityInspectionNo(),
-//										qualityHeaderData.getActualHeNo(), loginUserID);
-//								log.info("QualityHeader----------Deleted-------> : " + qualityHeader);
-//							}
-//						}
+						log.info("========1================ENTERIMNG========>");
+						updateInventory2(orderManagementLine, outboundLine.getStatusId());
+
+						/*---------------STEP 3.2-----Inventory update-------------------------------
+						 * Pass WH_ID/_ITM_CODE/ST_BIN from PICK_ST_BIN/PACK_BARCODE from PICK_PACK_BARCODE of PICKUPLINE in
+						 * INVENTORY table and update INV_QTY as (INV_QTY + PICK_CNF_QTY )- (Update 2)
+						 */
+						Inventory inventory = inventoryService.getInventory(orderManagementLine.getWarehouseId(), orderManagementLine.getProposedPackBarCode(),
+								orderManagementLine.getItemCode(), orderManagementLine.getProposedStorageBin());
+
+						if (inventory != null) {
+							// HAREESH -28-08-2022 change to update allocated qty
+							try {
+								Double INV_QTY = (inventory.getInventoryQuantity() != null ? inventory.getInventoryQuantity() : 0);
+								Double ALLOC_QTY = (inventory.getAllocatedQuantity() != null ? inventory.getAllocatedQuantity() : 0);
+								Double PICK_CNF_QTY = (orderManagementLine.getAllocatedQty() != null ? orderManagementLine.getAllocatedQty() : 0);
+								INV_QTY = INV_QTY + PICK_CNF_QTY;
+								ALLOC_QTY = ALLOC_QTY - PICK_CNF_QTY;
+								log.info("----inventory update-50flow---INV_QTY-------- " + INV_QTY);
+								log.info("----inventory update-50flow---ALLOC_QTY-------- " + ALLOC_QTY);
+								log.info("----inventory update-51flow---PICK_CNF_QTY-------- " + PICK_CNF_QTY);
+
+								if (INV_QTY < 0) {
+									log.info("inventory qty calculated is less than 0: " + INV_QTY);
+									INV_QTY = Double.valueOf(0);
+								}
+								inventory.setInventoryQuantity(INV_QTY);
+								inventory.setAllocatedQuantity(ALLOC_QTY);
+								inventory = inventoryRepository.save(inventory);
+								log.info("inventory updated : " + inventory);
+							} catch (Exception e) {
+								String objectData = (orderManagementLine.getWarehouseId() + "|" + orderManagementLine.getProposedPackBarCode() + "|" +
+										orderManagementLine.getItemCode() + "|" + orderManagementLine.getProposedStorageBin());
+								transactionErrorService.createTransactionError("INVENTORY", "Reversal | Inventory Update - inventory qty calculated is < 0",
+										e.getMessage(), e.getLocalizedMessage(), objectData, loginUserID);
+								log.info("inventory update error: " + e.toString());
+								e.printStackTrace();
+							}
+						}
 
 						/*--------------STEP 4-------------------------------------*/
 						log.info("OrderManagementLine updated for reversal");
 						producerService.orderManagementLineReversal(new OutboundLineReverseEvent(outboundLine.getWarehouseId(), outboundLine.getRefDocNumber(),
 								outboundLine.getItemCode(), outboundLine.getStatusId(), loginUserID));
 
-						log.info("!list_50_StatusId.isEmpty() && list_51_StatusId.isEmpty()---> " +
-								list_50_StatusId.isEmpty() + "," + list_51_StatusId.isEmpty());
-						// Inventory Update
-						if (!list_50_StatusId.isEmpty() && list_51_StatusId.isEmpty()) {
-							log.info("========1================ENTERIMNG========>");
-							/*---------------STEP 3.1-----Inventory update-------------------------------
-							 * Pass WH_ID/_ITM_CODE/ST_BIN of BIN_CLASS_ID=4/PACK_BARCODE as PICK_PACK_BARCODE of PICKUPLINE in
-							 * INVENTORY table and update INV_QTY as (INV_QTY - PICK_CNF_QTY ) and
-							 * delete the record If INV_QTY = 0 - (Update 1)
-							 */
-							updateInventory1(pickupLine, outboundLine.getStatusId());
-
-							/*---------------STEP 3.2-----Inventory update-------------------------------
-							 * Pass WH_ID/_ITM_CODE/ST_BIN from PICK_ST_BIN/PACK_BARCODE from PICK_PACK_BARCODE of PICKUPLINE in
-							 * INVENTORY table and update INV_QTY as (INV_QTY + PICK_CNF_QTY )- (Update 2)
-							 */
-							Inventory inventory = inventoryService.getInventory(pickupLine.getWarehouseId(), pickupLine.getPickedPackCode(),
-									pickupLine.getItemCode(), pickupLine.getPickedStorageBin());
-
-							if (inventory != null) {
-								// HAREESH -28-08-2022 change to update allocated qty
-								try {
-									Double INV_QTY = (inventory.getInventoryQuantity() != null ? inventory.getInventoryQuantity() : 0);
-									Double ALLOC_QTY = (inventory.getAllocatedQuantity() != null ? inventory.getAllocatedQuantity() : 0);
-									Double PICK_CNF_QTY = (pickupLine.getPickConfirmQty() != null ? pickupLine.getPickConfirmQty() : 0);
-									INV_QTY = INV_QTY + PICK_CNF_QTY;
-									ALLOC_QTY = ALLOC_QTY - PICK_CNF_QTY;
-									log.info("----inventory update-50flow---INV_QTY-------- " + INV_QTY);
-									log.info("----inventory update-50flow---ALLOC_QTY-------- " + ALLOC_QTY);
-									log.info("----inventory update-51flow---PICK_CNF_QTY-------- " + PICK_CNF_QTY);
-
-									if (INV_QTY < 0) {
-										log.info("inventory qty calculated is less than 0: " + INV_QTY);
-										INV_QTY = Double.valueOf(0);
-									}
-									inventory.setInventoryQuantity(INV_QTY);
-									inventory.setAllocatedQuantity(ALLOC_QTY);
-									inventory = inventoryRepository.save(inventory);
-									log.info("inventory updated : " + inventory);
-								} catch (Exception e) {
-									String objectData = (pickupLine.getWarehouseId() + "|" + pickupLine.getPickedPackCode() + "|" +
-											pickupLine.getItemCode() + "|" + pickupLine.getPickedStorageBin());
-									transactionErrorService.createTransactionError("INVENTORY", "Reversal | Inventory Update - inventory qty calculated is < 0",
-											e.getMessage(), e.getLocalizedMessage(), objectData, loginUserID);
-									log.info("inventory update error: " + e.toString());
-									e.printStackTrace();
-								}
-							}
-						}
-
-						// Inventory Update
-						if (!list_51_StatusId.isEmpty() && pickupLine.getStatusId() == 51L) {
-							log.info("========2================ENTERIMNG========>");
-							/*---------------STEP 3.1-----Inventory update-------------------------------
-							 * Pass WH_ID/_ITM_CODE/ST_BIN of BIN_CLASS_ID=4/PACK_BARCODE as PICK_PACK_BARCODE of PICKUPLINE in
-							 * INVENTORY table and update INV_QTY as (INV_QTY - PICK_CNF_QTY ) and
-							 * delete the record If INV_QTY = 0 - (Update 1)
-							 */
-							updateInventory1(pickupLine, outboundLine.getStatusId());
-
-							/*---------------STEP 3.2-----Inventory update-------------------------------
-							 * Pass WH_ID/_ITM_CODE/ST_BIN from PICK_ST_BIN/PACK_BARCODE from PICK_PACK_BARCODE of PICKUPLINE in
-							 * INVENTORY table and update INV_QTY as (INV_QTY + PICK_CNF_QTY )- (Update 2)
-							 */
-							Inventory inventory = inventoryService.getInventory(pickupLine.getWarehouseId(), pickupLine.getPickedPackCode(),
-									pickupLine.getItemCode(), pickupLine.getPickedStorageBin());
-
-							if (inventory != null) {
-								// HAREESH -28-08-2022 change to update allocated qty
-								try {
-									Double INV_QTY = (inventory.getInventoryQuantity() != null ? inventory.getInventoryQuantity() : 0);
-									Double ALLOC_QTY = (inventory.getAllocatedQuantity() != null ? inventory.getAllocatedQuantity() : 0);
-									Double PICK_ALLOC_QTY = (pickupLine.getAllocatedQty() != null ? pickupLine.getAllocatedQty() : 0);
-
-									// If the StatusID -> 51's PickupConfirmQty is 0 then consider the 50's PickupConfirmQty value
-									if (PICK_ALLOC_QTY == 0D) {
-										PICK_ALLOC_QTY = PICK_CNF_QTY_50;
-									}
-
-									INV_QTY = INV_QTY + PICK_ALLOC_QTY;
-									ALLOC_QTY = ALLOC_QTY - PICK_ALLOC_QTY;
-									log.info("----inventory update-51flow---INV_QTY-------- " + INV_QTY);
-									log.info("----inventory update-51flow---ALLOC_QTY-------- " + ALLOC_QTY);
-									log.info("----inventory update-51flow---PICK_ALLOC_QTY-------- " + PICK_ALLOC_QTY);
-
-									if (INV_QTY < 0) {
-										log.info("inventory qty calculated is less than 0: " + INV_QTY);
-										INV_QTY = Double.valueOf(0);
-									}
-									inventory.setInventoryQuantity(INV_QTY);
-									inventory.setAllocatedQuantity(ALLOC_QTY);
-									inventory = inventoryRepository.save(inventory);
-									log.info("------inventory updated------>: " + inventory);
-								} catch (Exception e) {
-									String objectData = (pickupLine.getWarehouseId() + "|" + pickupLine.getPickedPackCode() + "|" +
-											pickupLine.getItemCode() + "|" + pickupLine.getPickedStorageBin());
-									transactionErrorService.createTransactionError("INVENTORY", "Reversal | Inventory Update - inventory qty calculated is < 0",
-											e.getMessage(), e.getLocalizedMessage(), objectData, loginUserID);
-									log.info("inventory update error: " + e.toString());
-									e.printStackTrace();
-								}
-							}
-						}
-
 						/*------------------------Record insertion in Outbound Reversal table----------------------------*/
 						/////////RECORD-1/////////////////////////////////////////////////////////////////////////////////
 						String reversalType = "PICKING";
-						Double reversedQty = pickupLine.getPickConfirmQty();
+						Double reversedQty = orderManagementLine.getAllocatedQty();
 						OutboundReversal createdOutboundReversal = createOutboundReversal(warehouse, reversalType, refDocNumber, outboundLine.getPartnerCode(), itemCode,
-								pickupLine.getPickedPackCode(), reversedQty, outboundLine.getStatusId(), loginUserID);
+								orderManagementLine.getProposedPackBarCode(), reversedQty, outboundLine.getStatusId(), loginUserID);
 						outboundReversalList.add(createdOutboundReversal);
 					}
-
-					//Delete pickupheader after inventory update
-//					for(PickupLine pickupLine : pickupLineList) {
-//						List<PickupHeader> pickupHeader = pickupHeaderService.deletePickupHeaderForReversal(outboundLine.getWarehouseId(), outboundLine.getPreOutboundNo(),
-//								outboundLine.getRefDocNumber(), outboundLine.getPartnerCode(),
-//								pickupLine.getPickupNumber(), outboundLine.getLineNumber(), outboundLine.getItemCode(),loginUserID);
-//						log.info("pickupHeader deleted : " + pickupHeader);
-//					}
 				}
 			}
 			/*---------------STEP 6------------------------------------*/
@@ -1733,8 +1632,11 @@ public class OutboundLineService extends BaseService {
 			producerService.pickupHeaderReversal(new OutboundLineReverseEvent(outboundLine.getWarehouseId(), outboundLine.getRefDocNumber(),
 					outboundLine.getItemCode(), outboundLine.getStatusId(), loginUserID));
 
+			/*---------------STEP 7------------------------------------------*/
+			log.info("Update OutboundHeader Status ");
+			int outboundHeader = outboundHeaderRepository.updateOutboundHeaderStatusInReversal(outboundLine.getWarehouseId(), outboundLine.getRefDocNumber(), 47L);
+			log.info("OutboundHeader Status Updated Completed & Affected Row's {} ", outboundHeader);
 		}
-		
 		return outboundReversalList;
 	}
 	
@@ -2072,6 +1974,42 @@ public class OutboundLineService extends BaseService {
 		} catch (Exception e) {
 			String objectData = pickupLine.getWarehouseId() + "|" + pickupLine.getPickedPackCode() + "|" + pickupLine.getItemCode() + "|" + storageBin.getStorageBin();
 			transactionErrorService.createTransactionError("INVENTORY", "Reversal | Inventory Update | updateInventory1() ", e.getMessage(), e.getLocalizedMessage(), objectData, "Reversal");	
+			log.error("Inventory Update Error:" + e.toString());
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	/**
+	 *
+	 * @param orderManagementLine
+	 * @param
+	 * @return
+	 * @throws InvocationTargetException
+	 * @throws IllegalAccessException
+	 */
+	private Inventory updateInventory2(OrderManagementLine orderManagementLine,Long statusId) throws IllegalAccessException, InvocationTargetException {
+		AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
+		Long BIN_CLASS_ID = 5L;
+		if(statusId == 50L){
+			BIN_CLASS_ID = 4L;
+		}
+		StorageBin storageBin = mastersService.getStorageBin(orderManagementLine.getWarehouseId(), BIN_CLASS_ID, authTokenForMastersService.getAccess_token());
+		try {
+			Inventory inventory = inventoryService.getInventory(orderManagementLine.getWarehouseId(), orderManagementLine.getProposedPackBarCode(),
+					orderManagementLine.getItemCode(), storageBin.getStorageBin());
+			if(inventory != null) {
+				Double INV_QTY = inventory.getInventoryQuantity() - orderManagementLine.getAllocatedQty();
+				inventory.setInventoryQuantity(INV_QTY);
+
+				// INV_QTY > 0 then, update Inventory Table
+				inventory = inventoryRepository.save(inventory);
+				log.info("Inventory updated : " + inventory);
+			}
+			return inventory;
+		} catch (Exception e) {
+			String objectData = orderManagementLine.getWarehouseId() + "|" + orderManagementLine.getProposedPackBarCode() + "|" + orderManagementLine.getItemCode() + "|" + storageBin.getStorageBin();
+			transactionErrorService.createTransactionError("INVENTORY", "Reversal | Inventory Update | updateInventory1() ", e.getMessage(), e.getLocalizedMessage(), objectData, "Reversal");
 			log.error("Inventory Update Error:" + e.toString());
 			e.printStackTrace();
 		}
