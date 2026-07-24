@@ -7,6 +7,8 @@ import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
 
+import com.tekclover.wms.api.inbound.transaction.kafka.ProducerService;
+import com.tekclover.wms.api.inbound.transaction.kafka.event.InventoryEvent;
 import com.tekclover.wms.api.inbound.transaction.model.inbound.stock.v2.InventoryStockV2;
 import com.tekclover.wms.api.inbound.transaction.repository.*;
 import org.hibernate.exception.LockAcquisitionException;
@@ -84,6 +86,10 @@ public class InventoryService extends BaseService {
 
     @Autowired
     InventoryStockRepository inventoryStockRepository;
+
+    @Autowired
+    ProducerService producerService;
+
 //    boolean alreadyExecuted = true;
     //================================================================================================
 
@@ -3518,7 +3524,11 @@ public class InventoryService extends BaseService {
      */
 //    @Async("asyncExecutor")
 //    @Transactional
-    public void createInventoryNonCBMV3(PutAwayLineV2 putAwayLine, String loginUserId) throws Exception {
+    public InventoryV2 createInventoryNonCBMV3(PutAwayLineV2 putAwayLine, String loginUserId) throws Exception {
+
+//        List<InventoryV2> createdBin1Inentory = new ArrayList<>();
+        InventoryV2 newInventoryBinClassId1 = new InventoryV2();
+
         String companyCode = putAwayLine.getCompanyCode();
         String plantId = putAwayLine.getPlantId();
         String languageId = putAwayLine.getLanguageId();
@@ -3529,6 +3539,8 @@ public class InventoryService extends BaseService {
         String refDocNumber = putAwayLine.getRefDocNumber();
         try {
             //BinClassId 3 reduce Inventory
+            log.info("companyCode ---> {}, plantId ---> {}, languageId ----> {}, warehouseId ----> {}, barcodeId ----> {}, itemCode ----> {}, manufacturerName -----> {}",
+                    companyCode, plantId, languageId, warehouseId, barCodeId, itemCode, manufacturerName);
             InventoryV2 dbInventory = inventoryV2Repository.findInventoryInPutAwayLine(companyCode, plantId, languageId, warehouseId, barCodeId,
                     null, itemCode, manufacturerName, PACK_BARCODE, null, 3L, 1L);
             log.info("BinClassId 3 Values -------------> In PutAwayLine Creation ---->" + dbInventory);
@@ -3571,7 +3583,7 @@ public class InventoryService extends BaseService {
 
                 log.info("Inventory BinClassID 1 Creation In PutAwayLine Started ---->  " + new Date());
 //            InventoryV2 dbInventoryBinClassId1 = getInventoryV3(companyCode, plantId, languageId, warehouseId, PACK_BARCODE, itemCode, barCodeId, manufacturerName, putAwayLine.getConfirmedStorageBin());
-                InventoryV2 newInventoryBinClassId1 = new InventoryV2();
+//                InventoryV2 newInventoryBinClassId1 = new InventoryV2();
                 BeanUtils.copyProperties(putAwayLine, newInventoryBinClassId1, CommonUtils.getNullPropertyNames(putAwayLine));
                 newInventoryBinClassId1.setCompanyCodeId(companyCode);
 
@@ -3588,6 +3600,7 @@ public class InventoryService extends BaseService {
                 newInventoryBinClassId1.setDescription(putAwayLine.getDescription());
                 newInventoryBinClassId1.setReferenceDocumentNo(putAwayLine.getRefDocNumber());
                 newInventoryBinClassId1.setReferenceOrderNo(putAwayLine.getRefDocNumber());
+                newInventoryBinClassId1.setMtoNumber(dbInventory.getMtoNumber() != null ? dbInventory.getMtoNumber() : null);
 
                 // ST_BIN ---Pass WH_ID/BIN_CL_ID=3 in STORAGEBIN table and fetch ST_BIN value and update
                 StorageBinV2 storageBin = storageBinService.getStorageBinV2(companyCode, plantId, languageId, warehouseId, putAwayLine.getConfirmedStorageBin());
@@ -3634,11 +3647,11 @@ public class InventoryService extends BaseService {
 
                 newInventoryBinClassId1.setCreatedOn(new Date());
                 newInventoryBinClassId1.setUpdatedOn(new Date());
-                newInventoryBinClassId1.setMtoNumber(dbInventory.getMtoNumber() != null ? dbInventory.getMtoNumber() : null);
                 log.info("Inventory Quantity is {}, BarcodeID is {} ---------------------------->  ", newInventoryBinClassId1.getInventoryQuantity(), newInventoryBinClassId1.getBarcodeId());
                 if (newInventoryBinClassId1.getInventoryQuantity() == 1) {
-                    newInventoryBinClassId1 = inventoryV2Repository.save(newInventoryBinClassId1);
+//                    newInventoryBinClassId1 = inventoryV2Repository.save(newInventoryBinClassId1);        Going to save with Kafka method
                     log.info("B1-created inventory : {}", newInventoryBinClassId1);
+//                    createdBin1Inentory.add(newInventoryBinClassId1);
                 } else {
                     log.info("Inventory Qty Value is {} ---------> So Skip the Value", newInventoryBinClassId1.getInventoryQuantity());
                 }
@@ -3650,6 +3663,7 @@ public class InventoryService extends BaseService {
             e.printStackTrace();
             throw e;
         }
+        return newInventoryBinClassId1;
     }
 
     /**

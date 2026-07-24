@@ -189,6 +189,14 @@ public interface StorageBinV2Repository extends JpaRepository<StorageBinV2, Long
     Optional<StorageBinV2> findByStorageBinAndCompanyCodeIdAndPlantIdAndWarehouseIdAndLanguageIdAndDeletionIndicator(
             String storageBin, String companyCodeId, String plantId, String warehouseId, String languageId, Long deletionIndicator);
 
+    @Query(value = "SELECT * from tblstoragebin WHERE C_ID = :companyCodeId AND PLANT_ID = :plantId " +
+            "AND WH_ID = :warehouseId AND LANG_ID = :languageId AND st_bin = :storageBin AND IS_DELETED = 0", nativeQuery = true)
+    StorageBinV2 getStorageBinValid(@Param("companyCodeId") String companyCodeId,
+                                    @Param("plantId") String plantId,
+                                    @Param("warehouseId") String warehouseId,
+                                    @Param("languageId") String languageId,
+                                    @Param("storageBin") String storageBin);
+
 
     @Query(value = "select max(inv_id) inventoryId into #inv from tblinventory \n"
             + "WHERE is_deleted = 0 group by itm_code,barcode_id,mfr_name,pack_barcode,st_bin,plant_id,wh_id,c_id,lang_id \n" +
@@ -361,7 +369,7 @@ public interface StorageBinV2Repository extends JpaRepository<StorageBinV2, Long
             "AND wh_id = :warehouseId \n" +
             "AND st_bin = :storageBin \n " +
             "AND is_deleted = 0 ", nativeQuery = true)
-    void updateStorageBin( @Param("companyCode") String companyCode,
+    int updateStorageBin( @Param("companyCode") String companyCode,
                            @Param("plantId") String plantId,
                            @Param("languageId") String languageId,
                            @Param("warehouseId") String warehouseId,

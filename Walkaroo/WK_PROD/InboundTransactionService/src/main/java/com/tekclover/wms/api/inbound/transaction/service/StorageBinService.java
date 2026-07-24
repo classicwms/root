@@ -436,6 +436,20 @@ public class StorageBinService extends BaseService {
         return storagebin.get();
     }
 
+    public StorageBinV2 getStorageBinV3(String companyCodeId, String plantId, String languageId, String warehouseId, String storageBin) {
+        StorageBinV2 storageBinV2 = storageBinV2Repository.getStorageBinValid(companyCodeId, plantId, languageId, warehouseId, storageBin);
+
+        if (storageBinV2 == null) {
+            throw new BadRequestException("The Given Values: " +
+                    "storageBin" + storageBin +
+                    "companyCodeId " + companyCodeId +
+                    "plantId " + plantId +
+                    "warehouseId " + warehouseId + " doesn't exist:");
+        }
+
+        return storageBinV2;
+    }
+
     /**
      * @param companyCodeId
      * @param plantId

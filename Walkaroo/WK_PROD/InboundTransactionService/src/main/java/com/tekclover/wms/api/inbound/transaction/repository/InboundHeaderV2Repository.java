@@ -167,6 +167,256 @@ public interface InboundHeaderV2Repository extends JpaRepository<InboundHeaderV2
                                                 @Param("updatedBy") String updatedBy,
                                                 @Param("updatedOn") Date updatedOn);
 
+    @Modifying
+    @Query(value =
+            "UPDATE tblpreinboundheader " +
+                    "SET STATUS_ID = :statusId, STATUS_TEXT = :statusDescription, " +
+                    "UTD_BY = :updatedBy, UTD_ON = :updatedOn " +
+                    "WHERE IS_DELETED = 0 " +
+                    "AND C_ID = :companyCodeId " +
+                    "AND PLANT_ID = :plantId " +
+                    "AND LANG_ID = :languageId " +
+                    "AND WH_ID = :warehouseId " +
+                    "AND REF_DOC_NO = :refDocNumber " +
+                    "AND PRE_IB_NO = :preInboundNo " +
+                    "AND STATUS_ID <> 24",
+            nativeQuery = true)
+    int updatePreInboundHeaderStatus(@Param("companyCodeId") String companyCodeId,
+                                     @Param("plantId") String plantId,
+                                     @Param("languageId") String languageId,
+                                     @Param("warehouseId") String warehouseId,
+                                     @Param("preInboundNo") String preInboundNo,
+                                     @Param("refDocNumber") String refDocNumber,
+                                     @Param("statusId") Long statusId,
+                                     @Param("statusDescription") String statusDescription,
+                                     @Param("updatedBy") String updatedBy,
+                                     @Param("updatedOn") Date updatedOn);
+
+    @Modifying
+    @Query(value =
+            "UPDATE tblinboundheader " +
+                    "SET STATUS_ID = :statusId, STATUS_TEXT = :statusDescription, " +
+                    "IB_CNF_BY = :updatedBy, IB_CNF_ON = :updatedOn " +
+                    "WHERE IS_DELETED = 0 " +
+                    "AND C_ID = :companyCodeId " +
+                    "AND PLANT_ID = :plantId " +
+                    "AND LANG_ID = :languageId " +
+                    "AND WH_ID = :warehouseId " +
+                    "AND REF_DOC_NO = :refDocNumber " +
+                    "AND PRE_IB_NO = :preInboundNo " +
+                    "AND STATUS_ID <> 24",
+            nativeQuery = true)
+    int updateInboundHeaderStatus(@Param("companyCodeId") String companyCodeId,
+                                  @Param("plantId") String plantId,
+                                  @Param("languageId") String languageId,
+                                  @Param("warehouseId") String warehouseId,
+                                  @Param("preInboundNo") String preInboundNo,
+                                  @Param("refDocNumber") String refDocNumber,
+                                  @Param("statusId") Long statusId,
+                                  @Param("statusDescription") String statusDescription,
+                                  @Param("updatedBy") String updatedBy,
+                                  @Param("updatedOn") Date updatedOn);
+
+    @Modifying
+    @Query(value =
+            "UPDATE tblgrheader " +
+                    "SET STATUS_ID = :statusId, STATUS_TEXT = :statusDescription, " +
+                    "GR_CNF_BY = :updatedBy, GR_CNF_ON = :updatedOn " +
+                    "WHERE IS_DELETED = 0 " +
+                    "AND C_ID = :companyCodeId " +
+                    "AND PLANT_ID = :plantId " +
+                    "AND LANG_ID = :languageId " +
+                    "AND WH_ID = :warehouseId " +
+                    "AND REF_DOC_NO = :refDocNumber " +
+                    "AND PRE_IB_NO = :preInboundNo " +
+                    "AND STATUS_ID <> 24",
+            nativeQuery = true)
+    int updateGrHeaderStatus(@Param("companyCodeId") String companyCodeId,
+                             @Param("plantId") String plantId,
+                             @Param("languageId") String languageId,
+                             @Param("warehouseId") String warehouseId,
+                             @Param("preInboundNo") String preInboundNo,
+                             @Param("refDocNumber") String refDocNumber,
+                             @Param("statusId") Long statusId,
+                             @Param("statusDescription") String statusDescription,
+                             @Param("updatedBy") String updatedBy,
+                             @Param("updatedOn") Date updatedOn);
+
+    @Modifying
+    @Query(value =
+            "UPDATE tblstagingheader " +
+                    "SET STATUS_ID = :statusId, STATUS_TEXT = :statusDescription, " +
+                    "ST_CNF_BY = :updatedBy, ST_CNF_ON = :updatedOn " +
+                    "WHERE IS_DELETED = 0 " +
+                    "AND C_ID = :companyCodeId " +
+                    "AND PLANT_ID = :plantId " +
+                    "AND LANG_ID = :languageId " +
+                    "AND WH_ID = :warehouseId " +
+                    "AND REF_DOC_NO = :refDocNumber " +
+                    "AND PRE_IB_NO = :preInboundNo " +
+                    "AND STATUS_ID <> 24",
+            nativeQuery = true)
+    int updateStagingHeaderStatus(@Param("companyCodeId") String companyCodeId,
+                                  @Param("plantId") String plantId,
+                                  @Param("languageId") String languageId,
+                                  @Param("warehouseId") String warehouseId,
+                                  @Param("preInboundNo") String preInboundNo,
+                                  @Param("refDocNumber") String refDocNumber,
+                                  @Param("statusId") Long statusId,
+                                  @Param("statusDescription") String statusDescription,
+                                  @Param("updatedBy") String updatedBy,
+                                  @Param("updatedOn") Date updatedOn);
+
+    @Modifying
+    @Query(value =
+            "UPDATE tblputawayheader " +
+                    "SET STATUS_ID = :statusId, STATUS_TEXT = :statusDescription, " +
+                    "PA_CNF_BY = :updatedBy, PA_CNF_ON = :updatedOn " +
+                    "WHERE IS_DELETED = 0 " +
+                    "AND C_ID = :companyCodeId " +
+                    "AND PLANT_ID = :plantId " +
+                    "AND LANG_ID = :languageId " +
+                    "AND WH_ID = :warehouseId " +
+                    "AND REF_DOC_NO = :refDocNumber " +
+                    "AND PRE_IB_NO = :preInboundNo " +
+                    "AND STATUS_ID <> 24",
+            nativeQuery = true)
+    int updatePutAwayHeaderStatus(@Param("companyCodeId") String companyCodeId,
+                                  @Param("plantId") String plantId,
+                                  @Param("languageId") String languageId,
+                                  @Param("warehouseId") String warehouseId,
+                                  @Param("preInboundNo") String preInboundNo,
+                                  @Param("refDocNumber") String refDocNumber,
+                                  @Param("statusId") Long statusId,
+                                  @Param("statusDescription") String statusDescription,
+                                  @Param("updatedBy") String updatedBy,
+                                  @Param("updatedOn") Date updatedOn);
+
+    @Modifying
+    @Query(value =
+            "UPDATE tblputawayline " +
+                    "SET STATUS_ID = :statusId, STATUS_TEXT = :statusDescription, " +
+                    "PA_CNF_BY = :updatedBy, PA_CNF_ON = :updatedOn " +
+                    "WHERE IS_DELETED = 0 " +
+                    "AND C_ID = :companyCodeId " +
+                    "AND PLANT_ID = :plantId " +
+                    "AND LANG_ID = :languageId " +
+                    "AND WH_ID = :warehouseId " +
+                    "AND REF_DOC_NO = :refDocNumber " +
+                    "AND PRE_IB_NO = :preInboundNo " +
+                    "AND STATUS_ID NOT IN (22,24)",
+            nativeQuery = true)
+    int updatePutAwayLineStatus(@Param("companyCodeId") String companyCodeId,
+                                @Param("plantId") String plantId,
+                                @Param("languageId") String languageId,
+                                @Param("warehouseId") String warehouseId,
+                                @Param("preInboundNo") String preInboundNo,
+                                @Param("refDocNumber") String refDocNumber,
+                                @Param("statusId") Long statusId,
+                                @Param("statusDescription") String statusDescription,
+                                @Param("updatedBy") String updatedBy,
+                                @Param("updatedOn") Date updatedOn);
+
+    @Modifying
+    @Query(value =
+            "UPDATE tblpreinboundline " +
+                    "SET STATUS_ID = :statusId, STATUS_TEXT = :statusDescription, " +
+                    "UTD_BY = :updatedBy, UTD_ON = :updatedOn " +
+                    "WHERE IS_DELETED = 0 " +
+                    "AND C_ID = :companyCodeId " +
+                    "AND PLANT_ID = :plantId " +
+                    "AND LANG_ID = :languageId " +
+                    "AND WH_ID = :warehouseId " +
+                    "AND REF_DOC_NO = :refDocNumber " +
+                    "AND PRE_IB_NO = :preInboundNo " +
+                    "AND STATUS_ID NOT IN (22,24)",
+            nativeQuery = true)
+    int updatePreInboundLineStatus(@Param("companyCodeId") String companyCodeId,
+                                   @Param("plantId") String plantId,
+                                   @Param("languageId") String languageId,
+                                   @Param("warehouseId") String warehouseId,
+                                   @Param("preInboundNo") String preInboundNo,
+                                   @Param("refDocNumber") String refDocNumber,
+                                   @Param("statusId") Long statusId,
+                                   @Param("statusDescription") String statusDescription,
+                                   @Param("updatedBy") String updatedBy,
+                                   @Param("updatedOn") Date updatedOn);
+
+    @Modifying
+    @Query(value =
+            "UPDATE tblgrline " +
+                    "SET STATUS_ID = :statusId, STATUS_TEXT = :statusDescription, " +
+                    "GR_CNF_BY = :updatedBy, GR_CNF_ON = :updatedOn " +
+                    "WHERE IS_DELETED = 0 " +
+                    "AND C_ID = :companyCodeId " +
+                    "AND PLANT_ID = :plantId " +
+                    "AND LANG_ID = :languageId " +
+                    "AND WH_ID = :warehouseId " +
+                    "AND REF_DOC_NO = :refDocNumber " +
+                    "AND PRE_IB_NO = :preInboundNo " +
+                    "AND STATUS_ID NOT IN (22,24)",
+            nativeQuery = true)
+    int updateGrLineStatus(@Param("companyCodeId") String companyCodeId,
+                           @Param("plantId") String plantId,
+                           @Param("languageId") String languageId,
+                           @Param("warehouseId") String warehouseId,
+                           @Param("preInboundNo") String preInboundNo,
+                           @Param("refDocNumber") String refDocNumber,
+                           @Param("statusId") Long statusId,
+                           @Param("statusDescription") String statusDescription,
+                           @Param("updatedBy") String updatedBy,
+                           @Param("updatedOn") Date updatedOn);
+
+    @Modifying
+    @Query(value =
+            "UPDATE tblstagingline " +
+                    "SET STATUS_ID = :statusId, STATUS_TEXT = :statusDescription, " +
+                    "ST_CNF_BY = :updatedBy, ST_CNF_ON = :updatedOn " +
+                    "WHERE IS_DELETED = 0 " +
+                    "AND C_ID = :companyCodeId " +
+                    "AND PLANT_ID = :plantId " +
+                    "AND LANG_ID = :languageId " +
+                    "AND WH_ID = :warehouseId " +
+                    "AND REF_DOC_NO = :refDocNumber " +
+                    "AND PRE_IB_NO = :preInboundNo " +
+                    "AND STATUS_ID NOT IN (22,24)",
+            nativeQuery = true)
+    int updateStagingLineStatus(@Param("companyCodeId") String companyCodeId,
+                                @Param("plantId") String plantId,
+                                @Param("languageId") String languageId,
+                                @Param("warehouseId") String warehouseId,
+                                @Param("preInboundNo") String preInboundNo,
+                                @Param("refDocNumber") String refDocNumber,
+                                @Param("statusId") Long statusId,
+                                @Param("statusDescription") String statusDescription,
+                                @Param("updatedBy") String updatedBy,
+                                @Param("updatedOn") Date updatedOn);
+
+    @Modifying
+    @Query(value =
+            "UPDATE tblinboundline " +
+                    "SET STATUS_ID = :statusId, STATUS_TEXT = :statusDescription, " +
+                    "IB_CNF_BY = :updatedBy, IB_CNF_ON = :updatedOn " +
+                    "WHERE IS_DELETED = 0 " +
+                    "AND C_ID = :companyCodeId " +
+                    "AND PLANT_ID = :plantId " +
+                    "AND LANG_ID = :languageId " +
+                    "AND WH_ID = :warehouseId " +
+                    "AND REF_DOC_NO = :refDocNumber " +
+                    "AND PRE_IB_NO = :preInboundNo " +
+                    "AND STATUS_ID NOT IN (22,24)",
+            nativeQuery = true)
+    int updateInboundLineStatus(@Param("companyCodeId") String companyCodeId,
+                                @Param("plantId") String plantId,
+                                @Param("languageId") String languageId,
+                                @Param("warehouseId") String warehouseId,
+                                @Param("preInboundNo") String preInboundNo,
+                                @Param("refDocNumber") String refDocNumber,
+                                @Param("statusId") Long statusId,
+                                @Param("statusDescription") String statusDescription,
+                                @Param("updatedBy") String updatedBy,
+                                @Param("updatedOn") Date updatedOn);
+
     @Query(value = "SELECT CASE WHEN \n" +
             "(select sum(ord_qty) from tblinboundline where c_id = :companyCodeId and plant_id = :plantId \n" +
             " and lang_id = :languageId and wh_id = :warehouseId and REF_DOC_NO = :refDocNumber and is_deleted = 0 and status_id <> :statusId) = \n" +

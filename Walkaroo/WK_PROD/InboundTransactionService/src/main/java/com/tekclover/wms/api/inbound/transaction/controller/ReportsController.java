@@ -5,7 +5,9 @@ import com.tekclover.wms.api.inbound.transaction.model.TransactionReport;
 import com.tekclover.wms.api.inbound.transaction.model.TransactionReportRes;
 import com.tekclover.wms.api.inbound.transaction.model.impl.StockReportImpl;
 import com.tekclover.wms.api.inbound.transaction.model.inbound.inventory.Inventory;
+import com.tekclover.wms.api.inbound.transaction.model.inbound.putaway.v2.PutAwayLineV2;
 import com.tekclover.wms.api.inbound.transaction.model.report.*;
+import com.tekclover.wms.api.inbound.transaction.model.warehouse.inbound.WarehouseApiResponse;
 import com.tekclover.wms.api.inbound.transaction.repository.DbConfigRepository;
 import com.tekclover.wms.api.inbound.transaction.service.BaseService;
 import com.tekclover.wms.api.inbound.transaction.service.ReportsService;
@@ -331,5 +333,29 @@ public class    ReportsController {
         }
     }
 
+
+    //---------------------------------------------Inbound Reversal-V9------------------------------------------------------------
+    @ApiOperation(response = PutAwayLineV2.class, value = "Inbound Cancellation")    // label for swagger
+    @GetMapping("/inboundcancellation")
+    public ResponseEntity<?> inboundCancellationV9(@RequestParam String companyCodeId, @RequestParam String plantId,
+                                                   @RequestParam String warehouseId, @RequestParam String refDocNumber, @RequestParam String preInboundNo) {
+
+        WarehouseApiResponse response = new WarehouseApiResponse();
+        try {
+            String currentDB = baseService.getDataBase(plantId,warehouseId);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(currentDB);
+            log.info("Current DB " + currentDB);
+            reportsService.inboundCancellation(companyCodeId, plantId, warehouseId, refDocNumber, preInboundNo);
+            response.setStatusCode("200");
+            response.setMessage("Inbound Cancellation Successfully");
+            log.info("Inbound Cancelled Successfully ---------------------------------------------> ");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            response.setStatusCode("400");
+            response.setMessage("Inbound Not Cancelled " + e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+    }
 
 }

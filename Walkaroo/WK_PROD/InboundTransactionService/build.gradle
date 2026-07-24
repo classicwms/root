@@ -55,8 +55,11 @@ dependencies {
 	// https://mvnrepository.com/artifact/org.springframework/spring-aspects
 	implementation group: 'org.springframework', name: 'spring-aspects', version: '5.3.5'
 
-	//  Prometheus
-	implementation 'io.micrometer:micrometer-registry-prometheus'
+	// Kafka
+	implementation 'org.springframework.kafka:spring-kafka'
+
+	// Redis
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
 	//runtimeOnly 'mysql:mysql-connector-java'
 	implementation group: 'com.microsoft.sqlserver', name: 'mssql-jdbc', version: '8.1.0.jre8-preview'
