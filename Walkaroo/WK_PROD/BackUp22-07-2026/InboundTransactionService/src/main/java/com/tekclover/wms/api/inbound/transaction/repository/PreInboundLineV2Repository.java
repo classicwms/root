@@ -159,4 +159,10 @@ public interface PreInboundLineV2Repository extends JpaRepository<PreInboundLine
             @Param("companyCode") String companyCode, @Param("plantId") String plantId,
            @Param("warehouseId") String warehouseId,
            @Param("barcodeId") String barcodeId);
+
+    @Modifying(clearAutomatically = true)
+    @Query(value = "delete tblpreinboundline where REF_DOC_NO = :refDocNumber AND PRE_IB_NO = :preInboundNo ",nativeQuery = true)
+    void deleteByRefDocNo(@Param("refDocNumber") String refDocNumber,
+                              @Param("preInboundNo") String preInboundNo);
+
 }

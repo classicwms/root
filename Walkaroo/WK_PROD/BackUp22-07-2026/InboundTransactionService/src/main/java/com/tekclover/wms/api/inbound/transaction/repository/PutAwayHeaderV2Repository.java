@@ -604,6 +604,7 @@ public interface PutAwayHeaderV2Repository extends JpaRepository<PutAwayHeaderV2
                                      @Param("itemCode") String itemCode, @Param("barcodeId") String barcodeId,
                                      @Param("statusId") Long statusId);
 
+    @Transactional
     @Modifying
     @Query(value = "UPDATE tblputawayheader SET STATUS_ID = :statusId where C_ID = :companyCodeId and PLANT_ID = :plantId \n" +
             "AND LANG_ID = :languageId and WH_ID = :warehouseId \n" +
@@ -677,4 +678,20 @@ int getBarcodeId(
                           @Param("companyCode") String companyCode, @Param("plantId") String plantId,
                           @Param("warehouseId") String warehouseId,
                           @Param("barcodeId") String barcodeId);
+
+    @Modifying
+    @Query(value = "delete tblputawayheader where REF_DOC_NO = :refDocNumber AND PRE_IB_NO = :preInboundNo ", nativeQuery = true)
+    int deleteByRefDocNo(@Param("refDocNumber") String refDocNumber,
+                             @Param("preInboundNo") String preInboundNo);
+
+    @Query(value = "select * from tblputawayheader where WH_ID = :warehouseId AND pal_id = :palletId and PRE_IB_NO = :preInboundNo " +
+            " and REF_DOC_NO = :refDocNumber and pa_no = :putAwayNumber and REF_FIELD_5 = :itemCode and PACK_BARCODE = :packBarcode and IS_DELETED = 0 ", nativeQuery = true)
+    PutAwayHeaderV2 getPutAwayHeaderNew(@Param("warehouseId") String warehouseId,
+                                        @Param("packBarcode") String packBarcode,
+                                        @Param("preInboundNo") String preInboundNo,
+                                        @Param("refDocNumber") String refDocNumber,
+                                        @Param("itemCode") String itemCode,
+                                        @Param("palletId") String palletId,
+                                        @Param("putAwayNumber") String putAwayNumber);
+
 }

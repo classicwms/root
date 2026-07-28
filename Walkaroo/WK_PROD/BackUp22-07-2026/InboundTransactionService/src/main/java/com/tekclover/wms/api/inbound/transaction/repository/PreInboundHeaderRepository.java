@@ -83,4 +83,13 @@ public interface PreInboundHeaderRepository extends JpaRepository<PreInboundHead
             @Param("warehouseId") String warehouseId,
             @Param("refDocNumber") String refDocNumber,
             @Param("inboundOrderTypeId") Long inboundOrderTypeId);
+
+    PreInboundHeaderEntity findByRefDocNumberAndPreInboundNo(String refDocNumber,String preInboundNo);
+
+
+    @Modifying(clearAutomatically = true)
+    @Query(value = "delete tblpreinboundheader where REF_DOC_NO = :refDocNumber AND PRE_IB_NO = :preInboundNo ",nativeQuery = true)
+    void deleteByRefDocNo(@Param("refDocNumber") String refDocNumber,
+                              @Param("preInboundNo") String preInboundNo);
+
 }

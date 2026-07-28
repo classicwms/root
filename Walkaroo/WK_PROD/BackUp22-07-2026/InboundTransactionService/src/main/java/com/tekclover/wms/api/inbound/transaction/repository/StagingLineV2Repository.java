@@ -746,7 +746,7 @@ public interface StagingLineV2Repository extends JpaRepository<StagingLineEntity
                           @Param("text") String text);
 
     @Modifying(flushAutomatically = true, clearAutomatically = true)
-    @Query(value = "update tblstagingline set STATUS_ID = 101, STATUS_TEXT = :statusText, PALLET_ID = :palId, st_utd_by = :loginUserId " +
+    @Query(value = "update tblstagingline set STATUS_ID = 101, STATUS_TEXT = :statusText, PALLET_ID = :palId, st_utd_by = :loginUserId, ST_CNF_ON = getDate() \n" +
             "WHERE lang_id = :languageId AND c_id = :companyId AND plant_id = :plantId AND WH_ID = :warehouseId AND \n" +
             "REF_DOC_NO = :refDocNo AND PRE_IB_NO = :preInboundNo AND STG_NO = :stagingNo AND CASE_CODE = :caseCode AND PAL_CODE = :palCode AND \n" +
             "IB_LINE_NO = :lineNo AND is_deleted = 0", nativeQuery = true)
@@ -779,4 +779,8 @@ public interface StagingLineV2Repository extends JpaRepository<StagingLineEntity
     StagingLineEntityV2 findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndBarcodeIdAndDeletionIndicator(String languageId, String companyCode, String plantId,
                                                                                                                String warehouseId, String barcodeId, Long deletionIndicator);
 
+    @Modifying(clearAutomatically = true)
+    @Query(value = "delete tblstagingline where REF_DOC_NO = :refDocNumber AND PRE_IB_NO = :preInboundNo ", nativeQuery = true)
+    void deleteByRefDocNo(@Param("refDocNumber") String refDocNumber,
+                          @Param("preInboundNo") String preInboundNo);
 }

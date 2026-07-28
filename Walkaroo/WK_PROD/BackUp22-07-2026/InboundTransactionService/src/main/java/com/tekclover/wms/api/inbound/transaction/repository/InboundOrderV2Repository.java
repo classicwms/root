@@ -17,8 +17,7 @@ import java.util.Set;
 @Transactional
 public interface InboundOrderV2Repository extends JpaRepository<InboundOrderV2, Long>,
         StreamableJpaSpecificationRepository<InboundOrderV2>, JpaSpecificationExecutor<InboundOrderV2> {
-    public InboundOrderV2 findByRefDocumentNo(String orderId);
-
+    public List<InboundOrderV2> findByRefDocumentNo(String orderId);
     public InboundOrderV2 findByRefDocumentNoAndInboundOrderTypeId(String orderId, Long inboundOrderTypeId);
 
     List<InboundOrderV2> findTopByProcessedStatusIdOrderByOrderReceivedOn(long l);

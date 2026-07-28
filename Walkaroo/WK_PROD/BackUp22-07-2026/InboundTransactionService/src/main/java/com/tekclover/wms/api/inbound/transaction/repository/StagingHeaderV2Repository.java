@@ -66,4 +66,9 @@ public interface StagingHeaderV2Repository extends JpaRepository<StagingHeaderV2
             @Param("updatedBy") String updatedBy,
             @Param("updatedOn") Date updatedOn
     );
+
+    @Modifying(clearAutomatically = true)
+    @Query(value = "delete tblstagingheader where REF_DOC_NO = :refDocNumber AND PRE_IB_NO = :preInboundNo ",nativeQuery = true)
+    void deleteByRefDocNo(@Param("refDocNumber") String refDocNumber,
+                              @Param("preInboundNo") String preInboundNo);
 }

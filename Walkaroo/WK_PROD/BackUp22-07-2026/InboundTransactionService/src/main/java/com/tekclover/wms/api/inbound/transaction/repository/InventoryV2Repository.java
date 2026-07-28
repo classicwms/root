@@ -5625,4 +5625,8 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
                             @Param("companyCode") String companyCode, @Param("plantId") String plantId,
                             @Param("warehouseId") String warehouseId,
                             @Param("barcodeId") String barcodeId);
+
+    @Modifying
+    @Query(value = "update tblinventory set is_deleted = 1 where REF_ORD_NO = :refDocNo and is_deleted = 0 ", nativeQuery = true)
+    int updateInventory(@Param("refDocNo") String refDocNo);
 }

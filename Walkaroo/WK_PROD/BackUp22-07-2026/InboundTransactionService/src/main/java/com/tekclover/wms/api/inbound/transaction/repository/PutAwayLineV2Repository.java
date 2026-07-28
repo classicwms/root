@@ -358,4 +358,9 @@ public interface PutAwayLineV2Repository extends JpaRepository<PutAwayLineV2, Lo
             @Param("plantId") String plantId,
             @Param("warehouseId") String warehouseId
     );
+
+    @Modifying(clearAutomatically = true)
+    @Query(value = "delete tblputawayline where REF_DOC_NO = :refDocNumber AND PRE_IB_NO = :preInboundNo ", nativeQuery = true)
+    int deleteByRefDocNo(@Param("refDocNumber") String refDocNumber,
+                         @Param("preInboundNo") String preInboundNo);
 }

@@ -205,5 +205,10 @@ public interface InboundHeaderV2Repository extends JpaRepository<InboundHeaderV2
             @Param("plantId") String plantId,
             @Param("warehouseId") String warehouseId
     );
+
+    @Modifying(clearAutomatically = true)
+    @Query(value = "delete tblinboundheader where REF_DOC_NO = :refDocNumber AND PRE_IB_NO = :preInboundNo ", nativeQuery = true)
+    void deleteByRefDocNo(@Param("refDocNumber") String refDocNumber,
+                          @Param("preInboundNo") String preInboundNo);
     
 }

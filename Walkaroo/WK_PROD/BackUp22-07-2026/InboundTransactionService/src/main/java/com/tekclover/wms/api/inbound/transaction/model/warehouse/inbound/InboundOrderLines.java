@@ -14,6 +14,9 @@ public class InboundOrderLines {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "inbound_order_header_id")
+    private Long inboundOrderHeaderId;
+
 	@Column(name = "line_reference")
 	private Long lineReference;								// IB_LINE_NO
 	@Column(name = "item_code")

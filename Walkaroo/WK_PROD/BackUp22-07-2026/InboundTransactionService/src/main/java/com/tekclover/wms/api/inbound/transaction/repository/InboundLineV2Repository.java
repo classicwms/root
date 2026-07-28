@@ -343,5 +343,10 @@ public interface InboundLineV2Repository extends JpaRepository<InboundLineV2, Lo
                             @Param("warehouseId") String warehouseId,
                              @Param("barcodeId") String barcodeId);
 
+    @Modifying(clearAutomatically = true)
+    @Query(value = "delete tblinboundline where REF_DOC_NO = :refDocNumber AND PRE_IB_NO = :preInboundNo ", nativeQuery = true)
+    void deleteByRefDocNo(@Param("refDocNumber") String refDocNumber,
+                              @Param("preInboundNo") String preInboundNo);
+
 }
 

@@ -20,6 +20,7 @@ import com.tekclover.wms.api.inbound.transaction.model.inbound.inventory.Invento
 import com.tekclover.wms.api.inbound.transaction.model.inbound.inventory.InventoryMovement;
 import com.tekclover.wms.api.inbound.transaction.model.inbound.inventory.SearchInventory;
 import com.tekclover.wms.api.inbound.transaction.model.inbound.inventory.v2.InventoryV2;
+import com.tekclover.wms.api.inbound.transaction.model.inbound.preinbound.PreInboundHeaderEntity;
 import com.tekclover.wms.api.inbound.transaction.model.inbound.putaway.PutAwayHeader;
 import com.tekclover.wms.api.inbound.transaction.model.inbound.putaway.v2.PutAwayLineV2;
 import com.tekclover.wms.api.inbound.transaction.model.inbound.putaway.v2.SearchPutAwayLineV2;
@@ -30,6 +31,8 @@ import com.tekclover.wms.api.inbound.transaction.model.pickup.v2.PickupLineV2;
 import com.tekclover.wms.api.inbound.transaction.model.pickup.v2.SearchPickupLineV2;
 import com.tekclover.wms.api.inbound.transaction.model.preoutbound.v2.OutboundHeader;
 import com.tekclover.wms.api.inbound.transaction.model.report.*;
+import com.tekclover.wms.api.inbound.transaction.model.warehouse.inbound.v2.InboundOrderLinesV2;
+import com.tekclover.wms.api.inbound.transaction.model.warehouse.inbound.v2.InboundOrderV2;
 import com.tekclover.wms.api.inbound.transaction.repository.*;
 import com.tekclover.wms.api.inbound.transaction.repository.specification.StockMovementReportNewSpecification;
 import com.tekclover.wms.api.inbound.transaction.repository.specification.StockReportOutputSpecification;
@@ -190,6 +193,30 @@ public class ReportsService extends BaseService {
 
     @Autowired
     DeliveryConfirmationRepository deliveryConfirmationRepository;
+
+    @Autowired
+    private PreInboundHeaderRepository preInboundHeaderRepository;
+    @Autowired
+    private PreInboundLineV2Repository preInboundLineV2Repository;
+    @Autowired
+    private InboundHeaderV2Repository inboundHeaderV2Repository;
+    @Autowired
+    private InboundLineV2Repository inboundLineV2Repository;
+    @Autowired
+    private StagingHeaderV2Repository stagingHeaderV2Repository;
+    @Autowired
+    private StagingLineV2Repository stagingLineV2Repository;
+    @Autowired
+    private GrHeaderV2Repository grHeaderV2Repository;
+    @Autowired
+    private PutAwayHeaderV2Repository putAwayHeaderV2Repository;
+    @Autowired
+    private InboundOrderV2Repository inboundOrderV2Repository;
+    @Autowired
+    private InboundOrderLinesV2Repository inboundOrderLinesV2Repository;
+
+    @Autowired
+    DbConfigRepository dbConfigRepository;
 
 
     /**
@@ -2222,6 +2249,89 @@ public class ReportsService extends BaseService {
     private List<String> nullIfEmpty(List<String> list) {
         return (list == null || list.isEmpty()) ? null : list;
     }
+
+
+    //---------------------------------------------Inbound Cancellation-V9------------------------------------------------------------
+
+
+    public void inboundCancellation(String companyCodeId, String plantId, String warehouseId,
+                                      String refDocNumber, String preInboundNo) {
+
+        if (refDocNumber != null && preInboundNo != null) {
+
+            log.info("Starting deletion process for RefDocNumber: {} and PreInboundNo: {}", refDocNumber, preInboundNo);
+
+//            List<PutAwayLineV2> putAwayLine = putAwayLineV2Repository.findByRefDocNumberAndPreInboundNo(refDocNumber, preInboundNo);
+//            if (!putAwayLine.isEmpty()) {
+//                log.warn("Inbound already confirmed for RefDocNumber: {} and PreInboundNo: {}", refDocNumber, preInboundNo);
+//                throw new RuntimeException("Already Inbound confirmed for the given RefDocNumber and PreInboundNo");
+//            }
+
+            //delete ibOrder2 and ibOrderLines2
+            inboundOrderReversal(refDocNumber);
+
+            log.info("Checking existence of PreInboundHeader...");
+            PreInboundHeaderEntity preInboundHeader = preInboundHeaderRepository.findByRefDocNumberAndPreInboundNo(refDocNumber, preInboundNo);
+
+            if (preInboundHeader != null) {
+                log.info("Deleting all related records for RefDocNumber: {} and PreInboundNo: {}", refDocNumber, preInboundNo);
+                preInboundHeaderRepository.deleteByRefDocNo(refDocNumber, preInboundNo);
+                preInboundLineV2Repository.deleteByRefDocNo(refDocNumber, preInboundNo);
+                inboundHeaderV2Repository.deleteByRefDocNo(refDocNumber, preInboundNo);
+                inboundLineV2Repository.deleteByRefDocNo(refDocNumber, preInboundNo);
+                stagingHeaderV2Repository.deleteByRefDocNo(refDocNumber, preInboundNo);
+                stagingLineV2Repository.deleteByRefDocNo(refDocNumber, preInboundNo);
+                grHeaderV2Repository.deleteByRefDocNo(refDocNumber, preInboundNo);
+                log.info("Delete completed for header, line, staging, and GR header records.");
+            } else {
+                log.warn("PreInboundHeader not found for RefDocNumber: {} and PreInboundNo: {}", refDocNumber, preInboundNo);
+            }
+
+            List<GrLineV2> grLine = grLineV2Repository.findByRefDocNumberAndPreInboundNo(refDocNumber, preInboundNo);
+
+            int putAwayHeader = putAwayHeaderV2Repository.deleteByRefDocNo(refDocNumber, preInboundNo);
+            log.info("PutAwayHeader Deletion Row's Affected -------> {} RefDocNo is {} ", putAwayHeader, refDocNumber);
+            int grLineDelete = grLineV2Repository.deleteByRefDocNo(refDocNumber, preInboundNo);
+            log.info("GrLine Deletion Row's Affected ---------> {} ", grLineDelete);
+
+//            if (!grLine.isEmpty()) {
+                log.info("Inbound Cancellation Process Delete Inventory Table for RefDocNumber: {} and PreInboundNo: {}...", refDocNumber, preInboundNo);
+                int inventory = inventoryV2Repository.updateInventory(refDocNumber);
+                log.info("Inventory Affected ---------> {} ", inventory);
+
+                int putAwayLine = putAwayLineV2Repository.deleteByRefDocNo(refDocNumber, preInboundNo);
+                log.info("PutAwayLine Deletion Row's Affected -------> {} RefDocNo is {} ", putAwayLine, refDocNumber);
+
+//            }
+
+            log.info("Completed deletion and inventory adjustment for RefDocNumber: {} and PreInboundNo: {}", refDocNumber, preInboundNo);
+
+        } else {
+            log.error("RefDocNumber and PreInboundNo cannot be null");
+            throw new RuntimeException("RefDocNumber and PreInboundNo cannot be null");
+        }
+
+    }
+
+    public void inboundOrderReversal(String refDocNumber) {
+
+        List<InboundOrderV2> inboundOrderList = inboundOrderV2Repository.findByRefDocumentNo(refDocNumber);
+
+        if (inboundOrderList.isEmpty()) {
+            throw new RuntimeException("No inbound orders found for RefDocNumber");
+        }
+        for (InboundOrderV2 order : inboundOrderList) {
+            List<InboundOrderLinesV2> inboundOrderLines = inboundOrderLinesV2Repository.findByOrderIdAndInboundOrderHeaderId(
+                    order.getOrderId(), order.getInboundOrderHeaderId());
+
+            if (inboundOrderLines != null) {
+                inboundOrderLinesV2Repository.deleteAll(inboundOrderLines);
+            }
+        }
+        inboundOrderV2Repository.deleteAll(inboundOrderList);
+        log.info("Deleted all InboundOrders for RefDocNumber: {}", refDocNumber);
+    }
+
 
 
 }
