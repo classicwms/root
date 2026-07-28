@@ -2380,7 +2380,7 @@ public class OutboundTransactionService {
                 headers.add("Authorization", "Bearer " + oAuth.getAccess_token());
 
                 UriComponentsBuilder builder = UriComponentsBuilder
-                        .fromHttpUrl(getOutboundTransactionServiceApiUrl() + "reports/transactionHistoryReport");
+                        .fromHttpUrl(getOutboundTransactionServiceApiUrl() + "reports/transactionHistoryReport/v2");
 
                 HttpEntity<?> entity = new HttpEntity<>(findImBasicData1, headers);
                 ResponseEntity<InventoryStockReport[]> result = getRestTemplate().exchange(builder.toUriString(),
@@ -6977,6 +6977,25 @@ public class OutboundTransactionService {
             }
         }
 
+    public DeliveryConfirmationDto[] findDeliveryConfirmationReport(SearchDeliveryConfirmation searchDeliveryConfirmation, String authToken) throws Exception {
+        try {
+            AuthToken oAuth = authTokenService.getOutboundTransactionServiceAuthToken();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS RestTemplate");
+            headers.add("Authorization", "Bearer " + oAuth.getAccess_token());
+
+            UriComponentsBuilder builder = UriComponentsBuilder
+                    .fromHttpUrl(getOutboundTransactionServiceApiUrl() + "deliveryconfirmation/report");
+            HttpEntity<?> entity = new HttpEntity<>(searchDeliveryConfirmation, headers);
+            ResponseEntity<DeliveryConfirmationDto[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, DeliveryConfirmationDto[].class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
         /*
          * ---------------------------------OutboundReversal----------------------------
          */
@@ -9446,6 +9465,7 @@ public class OutboundTransactionService {
         }
     }
 
+
     // POST - findInventory/v9
     public StorageBinDesc[] findInventoryLikeBin(SearchInventoryV2 searchInventory, String authToken) throws ParseException {
         try {
@@ -9739,6 +9759,24 @@ public class OutboundTransactionService {
             throw e;
         }
     }
+
+
+    //--------------------------------------------Outbound Cancellation----------------------------------------------
+
+    public WarehouseApiResponse outboundCancellation(OutboundReversalInput outboundReversalInput, String authToken) {
+        AuthToken oAuth = authTokenService.getOutboundTransactionServiceAuthToken();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        headers.add("User-Agent", "RestTemplate");
+        headers.add("Authorization", "Bearer " + oAuth.getAccess_token());
+        UriComponentsBuilder builder =
+                UriComponentsBuilder.fromHttpUrl(getOutboundTransactionServiceApiUrl() + "reports/outboundcancellation");
+        HttpEntity<?> entity = new HttpEntity<>(outboundReversalInput, headers);
+        ResponseEntity<WarehouseApiResponse> result =
+                getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, WarehouseApiResponse.class);
+        return result.getBody();
+    }
+
 }
 
 

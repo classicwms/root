@@ -2,6 +2,7 @@ package com.tekclover.wms.core.model.spark;
 
 import lombok.Data;
 
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -28,4 +29,6 @@ public class FindInventoryV2 {
     private List<String> referenceDocumentNo;
     private List<String> partnerCode;
     private List<String> levelId;
+    private Date startUpdatedOn;
+    private Date endUpdatedOn;
 }

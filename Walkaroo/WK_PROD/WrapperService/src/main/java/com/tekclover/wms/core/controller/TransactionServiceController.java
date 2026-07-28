@@ -3,7 +3,9 @@ package com.tekclover.wms.core.controller;
 import com.tekclover.wms.core.batch.scheduler.BatchJobScheduler;
 import com.tekclover.wms.core.model.dto.*;
 import com.tekclover.wms.core.model.masters.EMailDetails;
+import com.tekclover.wms.core.model.masters.ImAlternateUom;
 import com.tekclover.wms.core.model.masters.ImPartner;
+import com.tekclover.wms.core.model.masters.StorageBinDesc;
 import com.tekclover.wms.core.model.transaction.*;
 import com.tekclover.wms.core.model.warehouse.cyclecount.periodic.Periodic;
 import com.tekclover.wms.core.model.warehouse.cyclecount.perpetual.Perpetual;
@@ -3717,6 +3719,13 @@ public class TransactionServiceController {
         return outboundTransactionService.findDeliveryConfirmation(searchDeliveryConfirmation, authToken);
     }
 
+    @ApiOperation(response = DeliveryConfirmation.class, value = "Search DeliveryConfirmation V3") // label for swagger
+    @PostMapping("/findDeliveryConfirmation/report")
+    public DeliveryConfirmationDto[] findDeliveryConfirmationReport(@RequestBody SearchDeliveryConfirmation searchDeliveryConfirmation,
+                                                             @RequestParam String authToken) throws Exception {
+        return outboundTransactionService.findDeliveryConfirmationReport(searchDeliveryConfirmation, authToken);
+    }
+
     /*
      * ----------------------OutboundLine----------------------------------------------------------
      */
@@ -4650,5 +4659,22 @@ public class TransactionServiceController {
                         authToken);
 
         return new ResponseEntity<>(count, HttpStatus.OK);
+    }
+
+    //---------------------------------------------Inbound Cancellation------------------------------------------------------------
+    @ApiOperation(response = PutAwayLineV2.class, value = "Inbound Cancellation") // label for swagger
+    @GetMapping("/reports/inboundCancellation")
+    public ResponseEntity<?> inboundCancellation(@RequestParam String companyCodeId, @RequestParam String plantId,
+                                                 @RequestParam String warehouseId, @RequestParam String refDocNumber, @RequestParam String preInboundNo, @RequestParam String authToken) {
+        WarehouseApiResponse response = inboundTransactionService.inboundCancellation(companyCodeId, plantId, warehouseId, refDocNumber, preInboundNo, authToken);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    //--------------------------------------------Outbound Cancellation--------------------------------------------
+    @ApiOperation(response = OutboundOrder.class, value = "Outbound Cancellation") // label for swagger
+    @PostMapping("/order/outboundCancellation")
+    public ResponseEntity<?> outboundCancellation(@RequestBody OutboundReversalInput outboundReversalInput, @RequestParam String authToken){
+        WarehouseApiResponse response = outboundTransactionService.outboundCancellation(outboundReversalInput,authToken);
+        return new ResponseEntity<>(response,HttpStatus.OK);
     }
 }

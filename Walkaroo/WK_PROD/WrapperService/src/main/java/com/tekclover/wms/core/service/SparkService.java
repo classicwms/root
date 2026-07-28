@@ -445,6 +445,25 @@ public class SparkService {
         }
     }
 
+    // Find InventoryV2CoreNew
+    public InventoryV3[] findInventoryV3CoreNew(FindInventoryV2 findInventoryV2) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", " RestTemplate");
+//        headers.add("Authorization", "Bearer " + authToken);
+
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "inventory/new/v3");
+            HttpEntity<?> entity = new HttpEntity<>(findInventoryV2, headers);
+            ResponseEntity<InventoryV3[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, InventoryV3[].class);
+            log.info("result: " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
     // Find PutAwayLineV2
     public PutAwayLineV2[] findPutAwayLineV2(FindPutAwayLineV2 findInventoryV2) {
         try {
@@ -807,6 +826,7 @@ public class SparkService {
 
     /**
      * Find OutboundHeader
+     *
      * @param findOutBoundHeader
      * @return
      */
@@ -997,6 +1017,7 @@ public class SparkService {
         }
     }
 
+
     // PreOutboundHeaderV2
     public PreOutboundHeaderNewRes[] findPreOutboundHeaderV2New(FindPreOutboundHeaderV2 findPreOutboundHeaderV2) {
         try {
@@ -1039,7 +1060,6 @@ public class SparkService {
         }
     }
 
-
     // PickupHeaderV2 -- New API
     public NewPickupHeaderRes[] findPickupHeaderV3New(SearchPickupHeaderV2 findPickupHeaderV2) {
         try {
@@ -1060,5 +1080,28 @@ public class SparkService {
             throw e;
         }
     }
+
+    //Find StagingLine
+    public PreInboundLineV2New[] findPreInboundLineV2(FindStagingLineV2 findStagingLineV2) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", " RestTemplate");
+//        headers.add("Authorization", "Bearer " + authToken);
+
+            UriComponentsBuilder builder =
+                    UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "/preinboundline/new");
+            HttpEntity<?> entity = new HttpEntity<>(findStagingLineV2, headers);
+            ResponseEntity<PreInboundLineV2New[]> result =
+                    getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, PreInboundLineV2New[].class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+
+    }
+
 }
 

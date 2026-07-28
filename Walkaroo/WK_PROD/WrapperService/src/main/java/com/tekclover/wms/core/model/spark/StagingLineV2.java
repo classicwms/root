@@ -1,7 +1,10 @@
 package com.tekclover.wms.core.model.spark;
 
 import lombok.Data;
+
+import javax.persistence.Column;
 import java.sql.Timestamp;
+import java.util.Date;
 
 @Data
 public class StagingLineV2 {
@@ -98,4 +101,6 @@ public class StagingLineV2 {
     private String sapType;
     private String sapMessage;
     private String sapDocumentNo;
+//    private Timestamp putAwayDate;
+
 }

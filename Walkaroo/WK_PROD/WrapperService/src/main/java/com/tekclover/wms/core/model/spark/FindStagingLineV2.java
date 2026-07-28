@@ -2,6 +2,7 @@ package com.tekclover.wms.core.model.spark;
 
 import lombok.Data;
 
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 
@@ -34,4 +35,5 @@ public class FindStagingLineV2 {
     private List<String> palletId;
     private List<String> barcodeId;
     private List<String> vehicleNumber;
+
 }

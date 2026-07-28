@@ -8,6 +8,7 @@ import java.util.Date;
 public class InboundOrderLines {
 
     private Long id;
+    private Long inboundOrderHeaderId;
     private Long lineReference;                                // IB_LINE_NO
     private String itemCode;                                // ITM_CODE
     private String itemText;                                // ITEM_TEXT

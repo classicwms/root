@@ -25,5 +25,6 @@ public class PutAwayLineSpark {
     private Timestamp pa_cnf_on;
     private Timestamp pa_asgn_on;
     private String ref_field_1;
+    private String pal_id;
 
 }

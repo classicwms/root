@@ -23,5 +23,5 @@ public class OutboundLineV3 {
     private Double dlv_qty;
     private String status_text;
     private Timestamp dlv_ctd_on;
-
+    private String customer_code;
 }

@@ -11653,6 +11653,26 @@ public class InboundTransactionService {
         }
     }
 
+    public WarehouseApiResponse[] postInventoryStock(List<InventoryStockV2> inventory, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            UriComponentsBuilder builder =
+                    UriComponentsBuilder.fromHttpUrl(getInboundTransactionServiceApiUrl() + "inventory/upload/inventory/stock");
+            HttpEntity<?> entity = new HttpEntity<>(inventory, headers);
+            ResponseEntity<WarehouseApiResponse[]> result =
+                    getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, WarehouseApiResponse[].class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
     // POST - findStagingLine-V2Report
     public StagingLineNewReport[] findStagingLineNewV2Report(SearchStagingLineV2 searchStagingLine, String authToken) throws ParseException {
         try {
@@ -11896,6 +11916,40 @@ public class InboundTransactionService {
         metricsService.updateFailedOrdersCount(count);
 
         return count;
+    }
+
+
+    //---------------------------------------Inbound-Cancellation v9--------------------------------------------------------------------
+
+    public WarehouseApiResponse inboundCancellation(String companyCodeId, String plantId, String warehouseId,
+                                                    String refDocNumber, String preInboundNo, String authToken) {
+        try {
+            AuthToken oAuth = authTokenService.getInboundTransactionServiceAuthToken();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS-Almailem RestTemplate");
+            headers.add("Authorization", "Bearer " + oAuth.getAccess_token());
+
+            HttpEntity<?> entity = new HttpEntity<>(headers);
+            HttpClient client = HttpClients.createDefault();
+            RestTemplate restTemplate = getRestTemplate();
+            restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
+
+            UriComponentsBuilder builder =
+                    UriComponentsBuilder.fromHttpUrl(getInboundTransactionServiceApiUrl() + "/reports/inboundcancellation")
+                            .queryParam("companyCodeId", companyCodeId)
+                            .queryParam("plantId", plantId)
+                            .queryParam("warehouseId", warehouseId)
+                            .queryParam("refDocNumber", refDocNumber)
+                            .queryParam("preInboundNo", preInboundNo);
+
+            ResponseEntity<WarehouseApiResponse> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, WarehouseApiResponse.class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
     }
 }
 

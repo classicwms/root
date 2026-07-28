@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -27,4 +28,6 @@ public class SearchPickupHeaderV2 extends SearchPickupHeader {
 
 	private List<String> shipToParty;
 	private List<String> shipToCode;
+	private Date pickupCreatedFrom;
+	private Date pickupCreatedTo;
 }
