@@ -11653,26 +11653,26 @@ public class InboundTransactionService {
         }
     }
 
-    public WarehouseApiResponse[] postInventoryStock(List<InventoryStockV2> inventory, String authToken) {
-        try {
-            HttpHeaders headers = new HttpHeaders();
-            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-            headers.add("User-Agent", "RestTemplate");
-            headers.add("Authorization", "Bearer " + authToken);
-
-            UriComponentsBuilder builder =
-                    UriComponentsBuilder.fromHttpUrl(getInboundTransactionServiceApiUrl() + "inventory/upload/inventory/stock");
-            HttpEntity<?> entity = new HttpEntity<>(inventory, headers);
-            ResponseEntity<WarehouseApiResponse[]> result =
-                    getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, WarehouseApiResponse[].class);
-            log.info("result : " + result.getStatusCode());
-            return result.getBody();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
-        }
-    }
+//    public WarehouseApiResponse[] postInventoryStock(List<InventoryStockV2> inventory, String authToken) {
+//        try {
+//            HttpHeaders headers = new HttpHeaders();
+//            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+//            headers.add("User-Agent", "RestTemplate");
+//            headers.add("Authorization", "Bearer " + authToken);
+//
+//            UriComponentsBuilder builder =
+//                    UriComponentsBuilder.fromHttpUrl(getInboundTransactionServiceApiUrl() + "inventory/upload/inventory/stock");
+//            HttpEntity<?> entity = new HttpEntity<>(inventory, headers);
+//            ResponseEntity<WarehouseApiResponse[]> result =
+//                    getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, WarehouseApiResponse[].class);
+//            log.info("result : " + result.getStatusCode());
+//            return result.getBody();
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            throw e;
+//        }
+//    }
     // POST - findStagingLine-V2Report
     public StagingLineNewReport[] findStagingLineNewV2Report(SearchStagingLineV2 searchStagingLine, String authToken) throws ParseException {
         try {
