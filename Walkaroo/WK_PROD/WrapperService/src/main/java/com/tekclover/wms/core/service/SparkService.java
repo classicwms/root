@@ -1082,26 +1082,26 @@ public class SparkService {
     }
 
     //Find StagingLine
-    public PreInboundLineV2New[] findPreInboundLineV2(FindStagingLineV2 findStagingLineV2) {
-        try {
-            HttpHeaders headers = new HttpHeaders();
-            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-            headers.add("User-Agent", " RestTemplate");
-//        headers.add("Authorization", "Bearer " + authToken);
-
-            UriComponentsBuilder builder =
-                    UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "/preinboundline/new");
-            HttpEntity<?> entity = new HttpEntity<>(findStagingLineV2, headers);
-            ResponseEntity<PreInboundLineV2New[]> result =
-                    getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, PreInboundLineV2New[].class);
-            log.info("result : " + result.getStatusCode());
-            return result.getBody();
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
-        }
-
-    }
+//    public PreInboundLineV2New[] findPreInboundLineV2(FindStagingLineV2 findStagingLineV2) {
+//        try {
+//            HttpHeaders headers = new HttpHeaders();
+//            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+//            headers.add("User-Agent", " RestTemplate");
+////        headers.add("Authorization", "Bearer " + authToken);
+//
+//            UriComponentsBuilder builder =
+//                    UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "/preinboundline/new");
+//            HttpEntity<?> entity = new HttpEntity<>(findStagingLineV2, headers);
+//            ResponseEntity<PreInboundLineV2New[]> result =
+//                    getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, PreInboundLineV2New[].class);
+//            log.info("result : " + result.getStatusCode());
+//            return result.getBody();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            throw e;
+//        }
+//
+//    }
 
 }
 
