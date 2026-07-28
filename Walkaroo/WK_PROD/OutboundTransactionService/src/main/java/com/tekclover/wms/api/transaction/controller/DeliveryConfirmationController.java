@@ -3,6 +3,7 @@ package com.tekclover.wms.api.transaction.controller;
 import com.tekclover.wms.api.transaction.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.transaction.model.deliveryconfirmation.DeliveryConfirmation;
 import com.tekclover.wms.api.transaction.model.deliveryconfirmation.SearchDeliveryConfirmation;
+import com.tekclover.wms.api.transaction.model.dto.DeliveryConfirmationDto;
 import com.tekclover.wms.api.transaction.repository.DbConfigRepository;
 import com.tekclover.wms.api.transaction.service.BaseService;
 import com.tekclover.wms.api.transaction.service.DeliveryConfirmationService;
@@ -55,6 +56,27 @@ public class DeliveryConfirmationController {
 			DataBaseContextHolder.setCurrentDb(currentDB);
 			log.info("Current DB " + currentDB);
 			List<DeliveryConfirmation> delivery =  deliveryConfirmationService.findDeliveryConfirmation(searchDeliveryConfirmation);
+			return new ResponseEntity<>(delivery, HttpStatus.OK);
+		} finally {
+			DataBaseContextHolder.clear();
+		}
+	}
+
+	/**
+	 *
+	 * @param searchDeliveryConfirmation
+	 * @return
+	 * @throws Exception
+	 */
+	@ApiOperation(response = DeliveryConfirmation.class, value = "Search DeliveryConfirmation Report") // label for swagger
+	@PostMapping("/report")
+	public ResponseEntity<?> findDeliveryConfirmationReport(@RequestBody SearchDeliveryConfirmation searchDeliveryConfirmation) throws Exception {
+		try {
+			String currentDB = baseService.getDataBase(searchDeliveryConfirmation.getPlantId().get(0),searchDeliveryConfirmation.getWarehouseId().get(0));
+			DataBaseContextHolder.clear();
+			DataBaseContextHolder.setCurrentDb(currentDB);
+			log.info("Current DB " + currentDB);
+			List<DeliveryConfirmationDto> delivery =  deliveryConfirmationService.getDeliveryConfirmationReport(searchDeliveryConfirmation);
 			return new ResponseEntity<>(delivery, HttpStatus.OK);
 		} finally {
 			DataBaseContextHolder.clear();

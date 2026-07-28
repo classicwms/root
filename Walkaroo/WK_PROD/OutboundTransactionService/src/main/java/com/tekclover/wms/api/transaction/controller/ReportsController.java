@@ -3,6 +3,8 @@ package com.tekclover.wms.api.transaction.controller;
 import com.tekclover.wms.api.transaction.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.transaction.model.impl.StockReportImpl;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
+import com.tekclover.wms.api.transaction.model.outbound.OutboundReversalInput;
+import com.tekclover.wms.api.transaction.model.outbound.v2.WarehouseApiResponse;
 import com.tekclover.wms.api.transaction.model.report.*;
 import com.tekclover.wms.api.transaction.repository.DbConfigRepository;
 import com.tekclover.wms.api.transaction.service.BaseService;
@@ -461,5 +463,45 @@ public class ReportsController {
     public ResponseEntity<?> getPutAwayReport(@RequestBody FindReport findReport) throws Exception {
         List<CharData> reportResult = reportsService.findPutAwayReport(findReport);
         return new ResponseEntity<>(reportResult, HttpStatus.OK);
+    }
+
+    //====================================BF Outbound Cancellation===========================================
+    @ApiOperation(response = MobileDashboard.class, value = "Outbound Cancellation") // label for swagger
+    @PostMapping("/outboundcancellation")
+    public ResponseEntity<?> outboundReversalV9(@RequestBody OutboundReversalInput outboundReversalInput) {
+        WarehouseApiResponse response = new WarehouseApiResponse();
+        try {
+        String currentDB = baseService.getDataBase(outboundReversalInput.getPlantId(),outboundReversalInput.getWarehouseId());
+        DataBaseContextHolder.clear();
+        DataBaseContextHolder.setCurrentDb(currentDB);
+        log.info("Current DB " + currentDB);
+            reportsService.outboundCancellation(outboundReversalInput);
+            response.setStatusCode("200");
+            response.setMessage("Outbound Reversed Successfully");
+            return new ResponseEntity<>(response,HttpStatus.OK);
+
+        } catch (Exception e) {
+            response.setStatusCode("400");
+            response.setMessage("Outbound Not Reversed " + e.getMessage());
+            return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
+        }
+    }
+
+
+    @ApiOperation(response = TransactionHistoryReport.class, value = "Find Transaction History Report")
+    // label for swagger
+    @PostMapping("/transactionHistoryReport/v2")
+    public ResponseEntity<?> getTransactionHistoryReportV2(@RequestBody FindImBasicData1 searchImBasicData1) throws java.text.ParseException {
+        try {
+            DataBaseContextHolder.setCurrentDb("MT");
+            String routingDb = baseService.getDataBase(searchImBasicData1.getPlantId(), searchImBasicData1.getWarehouseId());
+            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(routingDb);
+            List<HistoryReport> transactionHistoryReportList = reportsService.getTransactionHistoryReportV2(searchImBasicData1);
+            return new ResponseEntity<>(transactionHistoryReportList, HttpStatus.OK);
+        } finally {
+            DataBaseContextHolder.clear();
+        }
     }
 }

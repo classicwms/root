@@ -703,4 +703,9 @@ public interface PickupHeaderV2Repository extends JpaRepository<PickupHeaderV2, 
                              @Param("pickupNumber") String pickupNumber,
                              @Param("refField2") String refField2,
                              @Param("updatedBy") String updatedBy);
+    boolean existsByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndStatusIdInAndDeletionIndicator(
+            String companyCodeId, String plantId, String warehouseId, String refDocNumber, List<Long> statusId, Long deletionIndicator);
+
+    void deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
+            String companyCodeId, String plantId, String warehouseId, String refDocNumber, Long deletionIndicator);
 }

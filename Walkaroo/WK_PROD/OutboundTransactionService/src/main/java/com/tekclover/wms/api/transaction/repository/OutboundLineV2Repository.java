@@ -870,4 +870,7 @@ public interface OutboundLineV2Repository extends JpaRepository<OutboundLineV2, 
                                               @Param("statusDescription") String statusDescription,
                                               @Param("loginUserId") String loginUserId,
                                               @Param("updatedOn") Date updatedOn);
+
+    void deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
+            String companyCodeId, String plantId, String warehouseId, String refDocNumber, Long deletionIndicator);
 }

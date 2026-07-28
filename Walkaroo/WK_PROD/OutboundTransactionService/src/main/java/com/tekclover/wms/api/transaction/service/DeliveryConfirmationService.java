@@ -1,9 +1,11 @@
 package com.tekclover.wms.api.transaction.service;
 
+import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Stream;
 
+import com.tekclover.wms.api.transaction.model.dto.DeliveryConfirmationDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -34,9 +36,31 @@ public class DeliveryConfirmationService {
             searchDeliveryConfirmation.setFromDate(dates[0]);
             searchDeliveryConfirmation.setToDate(dates[1]);
         }
+        if (searchDeliveryConfirmation.getFromOrderProcessedDate() != null && searchDeliveryConfirmation.getToOrderProcessedDate() != null) {
+            Date[] dates = DateUtils.addTimeToDatesForSearch(searchDeliveryConfirmation.getFromOrderProcessedDate(), searchDeliveryConfirmation.getToOrderProcessedDate());
+            searchDeliveryConfirmation.setFromOrderProcessedDate(dates[0]);
+            searchDeliveryConfirmation.setToOrderProcessedDate(dates[1]);
+        }
         log.info("Find Delivery Confirmation Input: " + searchDeliveryConfirmation);
         DeliveryConfirmationSpecification spec = new DeliveryConfirmationSpecification(searchDeliveryConfirmation);
         return deliveryConfirmationRepository.findAll(spec);
+    }
+
+    public List<DeliveryConfirmationDto> getDeliveryConfirmationReport(SearchDeliveryConfirmation searchDeliveryConfirmation) throws Exception {
+
+        if (searchDeliveryConfirmation.getFromOrderProcessedDate() != null && searchDeliveryConfirmation.getToOrderProcessedDate() != null) {
+            Date[] dates = DateUtils.addTimeToDatesForSearch(searchDeliveryConfirmation.getFromOrderProcessedDate(), searchDeliveryConfirmation.getToOrderProcessedDate());
+            searchDeliveryConfirmation.setFromOrderProcessedDate(dates[0]);
+            searchDeliveryConfirmation.setToOrderProcessedDate(dates[1]);
+        }
+
+        List<DeliveryConfirmationDto> deliveryConfirmationDtoList = deliveryConfirmationRepository.getDeliveryConfirmationReport(
+                searchDeliveryConfirmation.getCompanyCodeId(), searchDeliveryConfirmation.getPlantId(), searchDeliveryConfirmation.getWarehouseId(),
+                searchDeliveryConfirmation.getOutbound(), searchDeliveryConfirmation.getCustomerCode(), searchDeliveryConfirmation.getSkuCode(),
+                searchDeliveryConfirmation.getFromOrderProcessedDate(), searchDeliveryConfirmation.getToOrderProcessedDate()
+        );
+
+        return deliveryConfirmationDtoList;
     }
 
     /**

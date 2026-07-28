@@ -78,6 +78,11 @@ public class DeliveryConfirmationSpecification implements Specification<Delivery
             predicates.add(group.in(searchDeliveryConfirmation.getArticleNumber()));
         }
 
+        if (searchDeliveryConfirmation.getCustomerCode() != null && !searchDeliveryConfirmation.getCustomerCode().isEmpty()) {
+            final Path<Group> group = root.<Group> get("customerCode");
+            predicates.add(group.in(searchDeliveryConfirmation.getCustomerCode()));
+        }
+
         if (searchDeliveryConfirmation.getDeliveryId() != null && !searchDeliveryConfirmation.getDeliveryId().isEmpty()) {
             final Path<Group> group = root.<Group> get("deliveryId");
             predicates.add(group.in(searchDeliveryConfirmation.getDeliveryId()));
@@ -85,6 +90,10 @@ public class DeliveryConfirmationSpecification implements Specification<Delivery
 
         if (searchDeliveryConfirmation.getFromDate() != null && searchDeliveryConfirmation.getToDate() != null) {
             predicates.add(cb.between(root.get("orderReceivedOn"), searchDeliveryConfirmation.getFromDate(), searchDeliveryConfirmation.getToDate()));
+        }
+
+        if (searchDeliveryConfirmation.getFromOrderProcessedDate() != null && searchDeliveryConfirmation.getToOrderProcessedDate() != null) {
+            predicates.add(cb.between(root.get("orderProcessedOn"), searchDeliveryConfirmation.getFromOrderProcessedDate(), searchDeliveryConfirmation.getToOrderProcessedDate()));
         }
 
         return cb.and(predicates.toArray(new Predicate[]{}));

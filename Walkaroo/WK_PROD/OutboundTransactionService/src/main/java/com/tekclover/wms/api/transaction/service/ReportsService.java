@@ -192,6 +192,32 @@ public class ReportsService extends BaseService {
     @Autowired
     PutAwayLineV2Repository putAwayLineV2Repository;
 
+
+    @Autowired
+    private PickupHeaderV2Repository pickupHeaderV2Repository;
+
+    @Autowired
+    PreOutboundHeaderV2Repository preOutboundHeaderV2Repository;
+    @Autowired
+    PreOutboundLineV2Repository preOutboundLineV2Repository;
+    @Autowired
+    OrderManagementHeaderV2Repository orderManagementHeaderV2Repository;
+    @Autowired
+    OrderManagementLineV2Repository orderManagementLineV2Repository;
+    @Autowired
+    OutboundOrderV2Repository outboundOrderV2Repository;
+    @Autowired
+    OutboundOrderLinesV2Repository outboundOrderLinesV2Repository;
+
+    @Autowired
+    StorageBinRepository storageBinRepository;
+
+    @Autowired
+    StagingLineV2Repository stagingLineV2Repository;
+
+    @Autowired
+    DbConfigRepository dbConfigRepository;
+
     /**
      * Stock Report ---------------------
      *
@@ -3368,6 +3394,63 @@ public class ReportsService extends BaseService {
     }
 
     /**
+     * @param searchImBasicData1
+     * @return
+     */
+    public List<HistoryReport> getTransactionHistoryReportV2(FindImBasicData1 searchImBasicData1) {
+        try {
+            if (searchImBasicData1.getFromCreatedOn() != null && searchImBasicData1.getToCreatedOn() != null) {
+                Date[] dates = DateUtils.addTimeToDatesForSearch(searchImBasicData1.getFromCreatedOn(),
+                        searchImBasicData1.getToCreatedOn());
+                searchImBasicData1.setFromCreatedOn(dates[0]);
+                searchImBasicData1.setToCreatedOn(dates[1]);
+            }
+
+
+            Date openingStockDateFrom = null;
+            Date openingStockDateTo = null;
+            Date closingStockDateFrom = null;
+            Date closingStockDateTo = null;
+
+            try {
+                openingStockDateFrom = DateUtils.convertStringToDateByYYYYMMDD("2022-06-20");
+                Date[] dates = DateUtils.addTimeToDatesForSearch(openingStockDateFrom, searchImBasicData1.getFromCreatedOn());
+                openingStockDateFrom = dates[0];
+                openingStockDateTo = DateUtils.dateSubtract(dates[1]);
+                log.info("----Opening Stock----> dateFrom & dateTo---> : " + openingStockDateFrom + "," + openingStockDateTo);
+            } catch (java.text.ParseException e) {
+                e.printStackTrace();
+            }
+
+            try {
+                Date[] dates = DateUtils.addTimeToDatesForSearch(searchImBasicData1.getFromCreatedOn(),
+                        searchImBasicData1.getToCreatedOn());
+                closingStockDateFrom = dates[0];
+                closingStockDateTo = dates[1];
+                log.info("----Closing Stock----> dateFrom & dateTo---> : " + closingStockDateFrom + "," + closingStockDateTo);
+            } catch (java.text.ParseException e) {
+                e.printStackTrace();
+            }
+
+            return transactionHistoryResultRepository.findTransactionHistoryReport(
+                    searchImBasicData1.getCompanyCodeId(),
+                    searchImBasicData1.getPlantId(),
+                    searchImBasicData1.getLanguageId(),
+                    searchImBasicData1.getWarehouseId(),
+                    searchImBasicData1.getItemCode(),
+                    searchImBasicData1.getManufacturerName(),
+                    openingStockDateFrom,
+                    openingStockDateTo,
+                    closingStockDateFrom,
+                    closingStockDateTo);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
      * @param warehouseId
      * @param fromCreatedOn
      * @param toCreatedOn
@@ -3871,5 +3954,74 @@ public class ReportsService extends BaseService {
         charData.setCategories(categories);
 
         return Collections.singletonList(charData);
+    }
+
+    //====================================BF Outbound Cancellation===========================================
+
+    /**
+     * @param outboundReversalInput Outbound Cancellation
+     */
+    public void outboundCancellation(OutboundReversalInput outboundReversalInput) {
+
+        log.info("OutboundCancellationInput ------> {}", outboundReversalInput);
+        List<Long> statusIdList = Arrays.asList(57L, 50L);
+        boolean pickUpConfirm = pickupHeaderV2Repository.existsByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndStatusIdInAndDeletionIndicator(
+                outboundReversalInput.getCompanyCodeId(), outboundReversalInput.getPlantId(), outboundReversalInput.getWarehouseId(),
+                outboundReversalInput.getRefDocNumber(), statusIdList, 0L);
+        log.info("PickupHeader Status Checking " + pickUpConfirm);
+        if (pickUpConfirm) {
+            throw new BadRequestException("This Order Already PickList Confirm --------> RefDocNo is " + outboundReversalInput.getRefDocNumber());
+        }
+
+        preOutboundHeaderV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
+                outboundReversalInput.getCompanyCodeId(), outboundReversalInput.getPlantId(), outboundReversalInput.getWarehouseId(),
+                outboundReversalInput.getRefDocNumber(),  0L);
+        log.info("PreOutboundHeader Deleted Successfully ---> RefDocNo is {}", outboundReversalInput.getRefDocNumber());
+
+        preOutboundLineV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
+                outboundReversalInput.getCompanyCodeId(), outboundReversalInput.getPlantId(), outboundReversalInput.getWarehouseId(),
+                outboundReversalInput.getRefDocNumber(), 0L);
+        log.info("PreOutboundLine Deleted Successfully ---> RefDocNo is {}", outboundReversalInput.getRefDocNumber());
+
+        outboundHeaderV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
+                outboundReversalInput.getCompanyCodeId(), outboundReversalInput.getPlantId(), outboundReversalInput.getWarehouseId(),
+                outboundReversalInput.getRefDocNumber(), 0L);
+        log.info("OutboundHeader Deleted Successfully ---> RefDocNo is {}", outboundReversalInput.getRefDocNumber());
+
+        outboundLineV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
+                outboundReversalInput.getCompanyCodeId(), outboundReversalInput.getPlantId(), outboundReversalInput.getWarehouseId(),
+                outboundReversalInput.getRefDocNumber(), 0L);
+        log.info("OutboundLine Deleted Successfully ---> RefDocNo is {}", outboundReversalInput.getRefDocNumber());
+
+        orderManagementHeaderV2Repository.deleteOrderManagementHeaderV2(outboundReversalInput.getCompanyCodeId(), outboundReversalInput.getPlantId(), outboundReversalInput.getWarehouseId(),
+                outboundReversalInput.getRefDocNumber());
+        log.info("OrderManagementHeader Deleted Successfully ---> RefDocNo is {}", outboundReversalInput.getRefDocNumber());
+
+        orderManagementLineV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
+                outboundReversalInput.getCompanyCodeId(), outboundReversalInput.getPlantId(), outboundReversalInput.getWarehouseId(),
+                outboundReversalInput.getRefDocNumber(), 0L);
+        log.info("OrderManagementLine Deleted Successfully ---> RefDocNo is {}", outboundReversalInput.getRefDocNumber());
+
+
+        pickupHeaderV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
+                outboundReversalInput.getCompanyCodeId(), outboundReversalInput.getPlantId(), outboundReversalInput.getWarehouseId(),
+                outboundReversalInput.getRefDocNumber(), 0L);
+        log.info("PickupHeader Deleted Successfully ---> RefDocNo is {}", outboundReversalInput.getRefDocNumber());
+
+        obOrderCancellation(outboundReversalInput.getRefDocNumber());
+
+    }
+
+    /**
+     * @param refDocNumber refDocNo
+     */
+    public void obOrderCancellation(String refDocNumber) {
+
+        if (refDocNumber != null) {
+            outboundOrderLinesV2Repository.deleteByOrderId(refDocNumber);
+            outboundOrderV2Repository.deleteByOrderId(refDocNumber);
+            log.info("OBOrder - OBOrderLines Deleted Successfully ----------------> OrderNo {}", refDocNumber);
+        }
+
     }
 }

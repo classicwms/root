@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.transaction.Transactional;
 
+import com.tekclover.wms.api.transaction.model.dto.DeliveryConfirmationDto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -91,7 +92,45 @@ public interface DeliveryConfirmationRepository extends JpaRepository<DeliveryCo
                                      @Param("processStatusId") Long processStatusId,
                                      @Param("orderProcessedOn") Date orderProcessedOn);
 
-
-
+    @Query(value =
+            "SELECT " +
+                    "    ol.C_TEXT              AS companyDesc, " +
+                    "    ol.PLANT_TEXT          AS plantDesc, " +
+                    "    ol.WH_TEXT             AS warehouseDesc, " +
+                    "    ol.CUSTOMER_ID         AS customerCode, " +
+                    "    ol.CUSTOMER_NAME       AS customerName, " +
+                    "    dc.HU_SERIAL_NO        AS huSerialNo, " +
+                    "    dc.MATERIAL            AS material, " +
+                    "    dc.OUTBOUND            AS outboundNo, " +
+                    "    dc.SKU_CODE            AS skuCode, " +
+                    "    dc.PIK_QTY             AS pickQty, " +
+                    "    ol.SHIP_TO_PARTY       AS shipToParty, " +
+                    "    ol.SHIP_TO_CODE        AS shipToCode, " +
+                    "    dc.ORDER_PROCESSED_ON  AS orderProcessedOn " +
+                    "FROM tbldeliveryconfirmation dc " +
+                    "INNER JOIN tbloutboundline ol " +
+                    "    ON dc.OUTBOUND = ol.REF_DOC_NO " +
+                    "   AND dc.SKU_CODE = ol.ITM_CODE " +
+                    "   AND dc.MATERIAL = ol.MATERIAL_NO " +
+                    "WHERE " +
+                    "(COALESCE(:companyCodeId, null) IS NULL OR (dc.C_ID IN (:companyCodeId))) \n" +
+                    "AND (COALESCE(:plantId, null) IS NULL OR (dc.PLANT_ID IN (:plantId))) \n" +
+                    "AND (COALESCE(:warehouseId, null) IS NULL OR (dc.WH_ID IN (:warehouseId))) \n" +
+                    "AND (COALESCE(:refDocNo, NULL) IS NULL OR (dc.OUTBOUND IN (:refDocNo))) \n " +
+                    "AND (COALESCE(:customerCode, NULL) IS NULL OR (ol.CUSTOMER_ID IN (:customerCode))) \n" +
+                    "AND (COALESCE(:itemCode, NULL) IS NULL OR (dc.SKU_CODE IN (:itemCode))) \n" +
+                    "AND (COALESCE(CONVERT(VARCHAR(255), :fromDate), null) IS NULL OR " +
+                    "(dc.ORDER_PROCESSED_ON between COALESCE(CONVERT(VARCHAR(255), :fromDate), null) and " +
+                    "COALESCE(CONVERT(VARCHAR(255), :toDate), null)))",
+            nativeQuery = true)
+    List<DeliveryConfirmationDto> getDeliveryConfirmationReport(
+            @Param("companyCodeId") List<String> companyCodeId,
+            @Param("plantId") List<String> plantId,
+            @Param("warehouseId") List<String> warehouseId,
+            @Param("refDocNo") List<String> refDocNo,
+            @Param("customerCode") List<String> customerCode,
+            @Param("itemCode") List<String> itemCode,
+            @Param("fromDate") Date fromDate,
+            @Param("toDate") Date toDate);
 
 }

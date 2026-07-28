@@ -20,7 +20,11 @@ public class SearchDeliveryConfirmation {
 	private List<String> articleNumber;
 	private List<Long> deliveryId;
 	private List<Long> processedStatusId;
+	private List<String> customerCode;
 
 	private Date fromDate;
 	private Date toDate;
+
+	private Date fromOrderProcessedDate;
+	private Date toOrderProcessedDate;
 }

@@ -134,12 +134,12 @@ public interface PickupLineV2Repository extends JpaRepository<PickupLineV2, Long
     @Query(value = "select ol.wh_id as warehouseId,ol.c_id as companyCodeId,ol.plant_id as plantId,ol.lang_id as languageId, ol.itm_code as itemCode , \n" +
             " ol.wh_text as warehouseDescription,ol.c_text as companyDescription,ol.plant_text as plantDescription,ol.status_text as statusDescription,\n" +
             " 'OutBound' as documentType , ol.ref_doc_no as documentNumber, ol.partner_code as customerCode,\n" +
-            " ol.PICK_CNF_ON as confirmedOn, ol.pick_cnf_qty as movementQty, ol.item_text as itemText,ol.mfr_name as manufacturerSKU \n" +
-            " from tblpickupline ol\n" +
+            " ol.DLV_CNF_ON as confirmedOn, ol.DLV_QTY as movementQty, ol.item_text as itemText,ol.mfr_name as manufacturerSKU \n" +
+            " from tbloutboundline ol\n" +
             " WHERE ol.ITM_CODE in (:itemCode) and ol.is_deleted = 0 and \n" +
             "(COALESCE(:manufacturerName, null) IS NULL OR (ol.MFR_NAME IN (:manufacturerName))) \n" +
-            " AND ol.C_ID in (:companyCodeId) AND ol.PLANT_ID in (:plantId) AND ol.LANG_ID in (:languageId) AND ol.WH_ID in (:warehouseId) AND ol.status_id = :statusId \n" +
-            " AND ol.PICK_CNF_ON between :fromDate and :toDate ", nativeQuery = true)
+            " AND ol.C_ID in (:companyCodeId) AND ol.PLANT_ID in (:plantId) AND ol.LANG_ID in (:languageId) AND ol.WH_ID in (:warehouseId) AND ol.status_id = :statusId and ol.DLV_QTY > 0 \n" +
+            " AND ol.DLV_CNF_ON between :fromDate and :toDate ", nativeQuery = true)
     public List<StockMovementReportImpl> findPickupLineForStockMovement(@Param("itemCode") List<String> itemCode,
                                                                         @Param("manufacturerName") List<String> manufacturerName,
                                                                         @Param("warehouseId") List<String> warehouseId,

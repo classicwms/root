@@ -128,4 +128,7 @@ public interface PreOutboundLineV2Repository extends JpaRepository<PreOutboundLi
                                @Param("plantId") String plantId,
                                @Param("warehouseId") String warehouseId,
                                @Param("refDocNumber") String refDocNumber);
+
+    void deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
+            String companyCodeId, String plantId, String warehouseId, String refDocNumber, Long deletionIndicator);
 }

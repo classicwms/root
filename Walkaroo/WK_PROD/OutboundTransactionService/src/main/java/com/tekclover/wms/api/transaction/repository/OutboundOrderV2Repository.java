@@ -143,4 +143,6 @@ public interface OutboundOrderV2Repository extends JpaRepository<OutboundOrderV2
             @Param("companyCode") String companyCode,
             @Param("plantId") String plantId,
             @Param("warehouseId") String warehouseId);
+
+    void deleteByOrderId(String orderId);
 }
