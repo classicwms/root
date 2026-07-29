@@ -251,7 +251,8 @@ public interface PutAwayLineV2Repository extends JpaRepository<PutAwayLineV2, Lo
     PutAwayLineV2 findTopByCompanyCodeAndPlantIdAndWarehouseIdAndLanguageIdAndItemCodeAndStatusIdAndDeletionIndicatorOrderByCreatedOn(
             String companyCodeId, String plantId, String warehouseId, String languageId, String itemCode, Long statusId, Long deletionIndicator);
 
-    @Query(value = "SELECT MAX(pa_cnf_by) assign, CONVERT(DATE, pa_utd_on) as pickDate, SUM(CAST(ref_field_1 AS INT)) leadTime \n" +
+    @Query(value = "SELECT MAX(pa_cnf_by) assign, CONVERT(DATE, pa_utd_on) as pickDate, \n" +
+            " CAST(SUM(DATEDIFF(SECOND, PA_CTD_ON, PA_CNF_ON)) AS INT) AS leadTime \n" +
             "FROM tblputawayline \n" +
             "WHERE is_deleted = 0 AND \n" +
             "(COALESCE(:startConfirmedOn, null) IS NULL OR (pa_utd_on between :startConfirmedOn and :endConfirmedOn)) \n" +
@@ -267,17 +268,19 @@ public interface PutAwayLineV2Repository extends JpaRepository<PutAwayLineV2, Lo
     List<Object[]> getQuantity(@Param(value = "startConfirmedOn") Date startConfirmedOn,
                                @Param(value = "endConfirmedOn") Date endConfirmedOn);
 
-    @Query(value = "SELECT MAX(pa_cnf_by) assign, CONVERT(DATE, pa_utd_on) as pickDate, AVG(CAST(ref_field_1 AS INT)) leadTime \n" +
+    @Query(value = "SELECT MAX(pa_cnf_by) assign, CONVERT(DATE, pa_utd_on) as pickDate, \n " +
+            " CAST(AVG(DATEDIFF(SECOND, PA_CTD_ON, PA_CNF_ON)) AS INT) AS leadTime\n" +
             "FROM tblputawayline \n" +
             "WHERE is_deleted = 0 AND \n" +
             "(COALESCE(:startConfirmedOn, null) IS NULL OR (pa_utd_on between :startConfirmedOn and :endConfirmedOn)) \n" +
             "GROUP BY CONVERT(DATE, pa_utd_on), pa_cnf_by", nativeQuery = true)
     List<Object[]> getAverageLeadTime(@Param(value = "startConfirmedOn") Date startConfirmedOn,
-                               @Param(value = "endConfirmedOn") Date endConfirmedOn);
+                                      @Param(value = "endConfirmedOn") Date endConfirmedOn);
 
     @Query(value = "SELECT MAX(pa_cnf_by) assign, " +
             "CONVERT(DATE, pa_utd_on) as pickDate, " +
-            "CASE WHEN SUM(CAST(ref_field_1 AS INT)) != 0 THEN ((SUM(PA_QTY) / SUM(CAST(ref_field_1 AS INT))) * 60) " +
+            "CASE WHEN SUM(CAST(ref_field_1 AS INT)) != 0 THEN " +
+            "((SUM(PA_QTY) / CAST(SUM(DATEDIFF(SECOND, PA_CTD_ON, PA_CNF_ON)) AS INT) AS leadTime * 60) " +
             "ELSE 0 END as leadTime " +
             "FROM tblputawayline " +
             "WHERE is_deleted = 0 AND " +

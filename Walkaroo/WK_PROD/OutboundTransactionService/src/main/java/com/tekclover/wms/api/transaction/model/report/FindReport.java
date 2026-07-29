@@ -19,4 +19,7 @@ public class FindReport {
     private Long averageLeadTime;
     private Long productivity;
 
+    private String plantId;
+    private String warehouseId;
+
 }
