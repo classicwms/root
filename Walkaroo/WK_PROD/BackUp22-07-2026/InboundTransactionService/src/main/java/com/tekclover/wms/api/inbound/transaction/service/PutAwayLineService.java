@@ -3775,7 +3775,7 @@ public class PutAwayLineService extends BaseService {
 
                 if (putAwayHeader != null) {
                     dbPutAwayLine.setBatchSerialNumber(putAwayHeader.getBatchSerialNumber());
-                    dbPutAwayLine.setCreatedOn(putAwayHeader.getCreatedOn());
+                    dbPutAwayLine.setCreatedOn(putAwayHeader.getUpdatedOn() != null ? putAwayHeader.getUpdatedOn() : putAwayHeader.getCreatedOn());
                     dbPutAwayLine.setPutAwayQuantity(putAwayHeader.getPutAwayQuantity());
                     dbPutAwayLine.setInboundOrderTypeId(putAwayHeader.getInboundOrderTypeId());
                     dbPutAwayLine.setStorageSectionId(putAwayHeader.getStorageSectionId());
