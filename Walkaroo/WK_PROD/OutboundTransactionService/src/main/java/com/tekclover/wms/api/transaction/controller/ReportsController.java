@@ -461,6 +461,9 @@ public class ReportsController {
     @ApiOperation(response = CharData.class, value = "Picking Report v2")    // label for swagger
     @PostMapping("/putaway/report/v2")
     public ResponseEntity<?> getPutAwayReport(@RequestBody FindReport findReport) throws Exception {
+        String currentDB = baseService.getDataBase(findReport.getPlantId(),findReport.getWarehouseId());
+        DataBaseContextHolder.clear();
+        DataBaseContextHolder.setCurrentDb(currentDB);
         List<CharData> reportResult = reportsService.findPutAwayReport(findReport);
         return new ResponseEntity<>(reportResult, HttpStatus.OK);
     }
