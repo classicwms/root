@@ -29,5 +29,5 @@ public class NewPickupHeaderRes {
     private Long lineNumber;
     private String referenceDocumentType;
     private String storageBin;
-    private double pickToQuantity;
+    private Double pickToQuantity;
 }
