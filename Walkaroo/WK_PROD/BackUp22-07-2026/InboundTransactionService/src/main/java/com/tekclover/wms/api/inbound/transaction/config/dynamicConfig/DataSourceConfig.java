@@ -37,6 +37,7 @@ public class DataSourceConfig {
         DataSource mub = mubDataSource();
         DataSource ngp1 = ngp1DataSource();
         DataSource ngp2 = ngp2DataSource();
+        DataSource mys = mysDataSource();
 
 
         Map<Object, Object> targetDataSources = new HashMap<>();
@@ -51,6 +52,7 @@ public class DataSourceConfig {
         targetDataSources.put("MUB", mub);
         targetDataSources.put("NGP1", ngp1);
         targetDataSources.put("NGP2", ngp2);
+        targetDataSources.put("MYS", mys);
 
         DynamicDataSource ds = new DynamicDataSource();
         ds.setTargetDataSources(targetDataSources);
@@ -157,6 +159,16 @@ public class DataSourceConfig {
                 "4V7lOXaxgAi3i6mgJL7qBUSPM"
         );
     }
+
+    private DataSource mysDataSource() {
+        return buildDataSource(
+                "MYS",
+                "jdbc:sqlserver://10.10.6.30;databaseName=WMS_MYS",
+                "sa",
+                "SuHcHQR72nxvyJx6EPpoOsK4V"
+        );
+    }
+
 
     private DataSource buildDataSource(String poolName, String jdbcUrl, String username, String password) {
 

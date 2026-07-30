@@ -85,6 +85,8 @@ public class BaseService {
 			return "NGP1";
 		} else if (plantId.equalsIgnoreCase("1700") && warehouseId.equalsIgnoreCase("1001")) {
 			return "NGP2";
+		} else if (plantId.equalsIgnoreCase("1201")) {
+			return "MYS";
 		} else {
 			return "WK";
 		}
