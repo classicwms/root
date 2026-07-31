@@ -212,32 +212,61 @@ public class PickupAsyncProcessService extends BaseService{
      * Perform post-save updates in a deterministic order for each saved PickupHeader.
      * Keep this transaction short. Retryable for transient lock acquisition issues.
      */
-    @Retryable(value = { CannotAcquireLockException.class, ObjectOptimisticLockingFailureException.class, Exception.class },
-            maxAttempts = 3, backoff = @Backoff(delay = 1000, multiplier = 2))
-    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
-    public void doPostPickupUpdatesTx(String companyCodeId, String plantId, String languageId, String warehouseId, List<PickupHeaderV2> savedPickupHeaders) {
+//    @Retryable(value = { CannotAcquireLockException.class, ObjectOptimisticLockingFailureException.class, Exception.class },
+//            maxAttempts = 3, backoff = @Backoff(delay = 1000, multiplier = 2))
+//    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
+    public void doPostPickupUpdatesTx(String companyCodeId, String plantId, String languageId, String warehouseId, List<PickupHeaderV2> savedPickupHeaders) throws InterruptedException {
+        log.info("doPostPickupUpdatesTx method called for status update process ------------> ");
         for (PickupHeaderV2 ph : savedPickupHeaders) {
-            String refDoc = ph.getRefDocNumber();
-            String pickupNumber = ph.getPickupNumber();
-            String statusDescription = ph.getStatusDescription();
+            int maxRetry = 3;
+            for(int retry = 1; retry <= maxRetry; retry ++){
+                try {
+                    String refDoc = ph.getRefDocNumber();
+                    String pickupNumber = ph.getPickupNumber();
+                    String statusDescription = ph.getStatusDescription();
 
-            // 1) outboundLine update
-            int outboundLineCount = outboundLineV2Repository.updateOutboundLineStatus(companyCodeId, plantId, languageId, warehouseId, refDoc, ph.getPreOutboundNo(), 48L, statusDescription, ph.getLineNumber(), ph.getItemCode());
-            log.info("OutboundLine Status Update Count Size {} ", outboundLineCount);
+                    // 1) outboundLine update
+                    int outboundLineCount = outboundLineV2Repository.updateOutboundLineStatus(companyCodeId, plantId, languageId, warehouseId, refDoc, ph.getPreOutboundNo(), 48L, statusDescription, ph.getLineNumber(), ph.getItemCode());
+                    log.info("OutboundLine Status Update Count Size {} ", outboundLineCount);
 
-            // 2) outboundHeader update
-            int outboundHeaderCount = outboundHeaderV2Repository.updateOutboundHeaderStatus(companyCodeId, plantId, languageId, warehouseId, refDoc, ph.getPreOutboundNo(), 48L, statusDescription);
-            log.info("OutboundHeader Status Update Count {} ", outboundHeaderCount);
+                    // 2) outboundHeader update
+                    int outboundHeaderCount = outboundHeaderV2Repository.updateOutboundHeaderStatus(companyCodeId, plantId, languageId, warehouseId, refDoc, ph.getPreOutboundNo(), 48L, statusDescription);
+                    log.info("OutboundHeader Status Update Count {} ", outboundHeaderCount);
 
-            // 3) preOutboundHeader update - include pickup number
-            int preoutboundHeader = preOutboundHeaderV2Repository.updatePreOutboundHeaderStatus(companyCodeId, plantId, languageId, warehouseId, refDoc, pickupNumber, 48L, statusDescription);
-            log.info("PreOutboundHeader Status Update Count {} ", preoutboundHeader);
+                    // 3) preOutboundHeader update - include pickup number
+                    int preoutboundHeader = preOutboundHeaderV2Repository.updatePreOutboundHeaderStatus(companyCodeId, plantId, languageId, warehouseId, refDoc, pickupNumber, 48L, statusDescription);
+                    log.info("PreOutboundHeader Status Update Count {} ", preoutboundHeader);
 
-            // 4) outboundOrder text update
-            int obOrderStatusUpdateCount =  outboundOrderV2Repository.updateOBHeaderText(ph.getOutboundOrderTypeId(), refDoc, "PickupHeader Created");
-            log.info("OB Order PickupHeader Status Updated Count {} ", obOrderStatusUpdateCount);
+                    // 4) outboundOrder text update
+                    int obOrderStatusUpdateCount = outboundOrderV2Repository.updateOBHeaderText(ph.getOutboundOrderTypeId(), refDoc, "PickupHeader Created");
+                    log.info("OB Order PickupHeader Status Updated Count {} ", obOrderStatusUpdateCount);
 
-            log.info("Completed post updates for RefDocNo {}", refDoc);
+                    log.info("Completed post updates for RefDocNo {}", refDoc);
+                    break;
+                } catch (Exception ex) {
+
+                    log.warn("Retry {}/{}", retry, maxRetry);
+
+                    if (retry == maxRetry) {
+                        throw ex;
+                    }
+                    Thread.sleep(1000L * retry);
+
+//                    log.warn("Deadlock occurred. Retry {}/{}", retry, maxRetry);
+//
+//                    if (retry >= maxRetry) {
+//                        log.error("Max retry reached. Throwing exception.");
+//                        throw ex;
+//                    }
+//
+//                    try {
+//                        Thread.sleep(1000L * retry);   // 1 sec, 2 sec, 3 sec
+//                    } catch (InterruptedException e) {
+//                        Thread.currentThread().interrupt();
+//                        throw new RuntimeException(e);
+//                    }
+                }
+            }
         }
     }
 
