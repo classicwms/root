@@ -4037,7 +4037,8 @@ public class SalesOrderService extends BaseService {
                     try {
                         dbStorageBin = mastersService.getaStorageBinV2(storageBinPutAway, authTokenForMastersService.getAccess_token());
                     } catch (Exception e) {
-                        throw new BadRequestException("Invalid StorageBin");
+//                        throw new BadRequestException("Invalid StorageBin");
+                        log.error("Invalid StorageBin : " + dbInventory.getStorageBin());
                     }
                     if (dbStorageBin != null) {
                         dbPerpetualLine.setStorageSectionId(dbStorageBin.getStorageSectionId());
