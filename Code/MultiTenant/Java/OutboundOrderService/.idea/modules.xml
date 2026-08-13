@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/OutboundOrderService.iml" filepath="$PROJECT_DIR$/.idea/OutboundOrderService.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/com.example.OutboundOrderService.main.iml" filepath="$PROJECT_DIR$/.idea/modules/com.example.OutboundOrderService.main.iml" />
     </modules>
   </component>
 </project>

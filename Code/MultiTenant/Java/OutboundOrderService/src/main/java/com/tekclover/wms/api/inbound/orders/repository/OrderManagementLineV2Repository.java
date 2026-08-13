@@ -426,4 +426,10 @@ public interface OrderManagementLineV2Repository extends JpaRepository<OrderMana
 
     List<OrderManagementLineV2> findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndStatusIdNotInAndDeletionIndicator(
             String companyCodeId, String plantId, String languageId, String warehouseId, String refDocNumber, String preOutboundNo, List<Long> statusIds, Long deletionIndicator);
+
+    @Query(value = "SELECT * from tblordermangementline WHERE PARTNER_ITEM_BARCODE = :barcodeId \n " +
+            "AND STATUS_ID in (:statusIds) AND IS_DELETED = 0", nativeQuery = true)
+    List<OrderManagementLineV2> getByBarcodeIdAndStatusIdInAndDeletionIndicatorV7(
+            @Param("barcodeId") String barcodeId,
+            @Param("statusIds") List<Long> statusIds);
 }

@@ -1387,7 +1387,6 @@ public class OrderManagementLineService extends BaseService {
                                                    String loginUserID) {
         OrderManagementLineV2 newOrderManagementLine = null;
         String alternateUom = orderManagementLine.getAlternateUom();
-//        outerloop:
         for (IInventoryImpl stBinWiseInventory : finalInventoryList) {
             InventoryV2 stBinInventory = inventoryService.getInventoryV4(companyCodeId, plantId, languageId, warehouseId, itemCode,
                     manufacturerName, stBinWiseInventory.getBarcodeId(),
@@ -1415,18 +1414,6 @@ public class OrderManagementLineService extends BaseService {
             log.info("ORD_QTY -----> {}", ORD_QTY);
             log.info("INV_QTY -----> {}", INV_QTY);
 
-            // Temp variable for setting ORD_QTY
-            Double INCOMING_ORD_QTY = ORD_QTY;
-
-            if (ORD_QTY <= INV_QTY) {
-                ALLOC_QTY = ORD_QTY;
-            } else if (ORD_QTY > INV_QTY) {
-                ALLOC_QTY = INV_QTY;
-            } else if (INV_QTY == 0) {
-                ALLOC_QTY = 0D;
-            }
-            log.info("ALLOC_QTY -----1--->: " + ALLOC_QTY);
-
             if (orderManagementLine.getStatusId() == 47L) {
                 try {
                     orderManagementLineV2Repository.delete(orderManagementLine);
@@ -1439,28 +1426,8 @@ public class OrderManagementLineService extends BaseService {
 
             orderManagementLine.setNoBags(stBinInventory.getNoBags() != null ? stBinInventory.getNoBags() : 0.0);
             orderManagementLine.setBagSize(stBinInventory.getBagSize() != null ? stBinInventory.getBagSize() : 0.0);
-            orderManagementLine.setAllocatedQty(ALLOC_QTY);
-            orderManagementLine.setReAllocatedQty(ALLOC_QTY);
-
-            // STATUS_ID
-            /* if ORD_QTY> ALLOC_QTY , then STATUS_ID is hardcoded as "42" */
-            if (ORD_QTY > ALLOC_QTY) {
-                STATUS_ID = 42L;
-            }
-
-            /* if ORD_QTY=ALLOC_QTY, then STATUS_ID is hardcoded as "43" */
-            if (ORD_QTY == ALLOC_QTY) {
-                STATUS_ID = 43L;
-            }
-
-            statusDescription = getStatusDescription(STATUS_ID, orderManagementLine.getLanguageId());
-            orderManagementLine.setStatusId(STATUS_ID);
-            orderManagementLine.setStatusDescription(statusDescription);
-            orderManagementLine.setReferenceField7(statusDescription);
             orderManagementLine.setPickupUpdatedBy(loginUserID);
             orderManagementLine.setPickupUpdatedOn(new Date());
-
-            double allocatedQtyFromOrderMgmt = 0.0;
 
             /*
              * Deleting current record and inserting new record (since UK is not allowing to
@@ -1483,50 +1450,109 @@ public class OrderManagementLineService extends BaseService {
             if (stBinInventory.getLevelId() != null) {
                 newOrderManagementLine.setLevelId(stBinInventory.getLevelId());
             }
-//            log.info("LoosePack is inventory ---------> " + stBinInventory.getLoosePack());
-//            if (stBinInventory.getLoosePack()) {
-//                newOrderManagementLine.setLoosePack(1L);
-//            } else {
-//                newOrderManagementLine.setLoosePack(0L);
-//            }
+            log.info("LoosePack is inventory ---------> " + stBinInventory.getLoosePack());
+            if (Boolean.TRUE.equals(stBinInventory.getLoosePack())) {
+                newOrderManagementLine.setLoosePack(1L);
+            } else {
+                newOrderManagementLine.setLoosePack(0L);
+            }
             newOrderManagementLine.setProposedPackBarCode(stBinInventory.getPackBarcodes());
             newOrderManagementLine.setProposedBatchSerialNumber(stBinInventory.getBatchSerialNumber());
             newOrderManagementLine.setMrp(stBinInventory.getMrp());
 
             // Logic for checking ordermanagementline partner_item_barcode duplicates
             List<Long> statusIds = Arrays.asList(42L, 43L, 48L);  //42,43,48
-            boolean existingOrderManagementLine = orderManagementLineV2Repository.existsByBarcodeIdAndStatusIdInAndDeletionIndicator(newOrderManagementLine.getBarcodeId(), statusIds, 0L);
 
-            OrderManagementLineV2 createdOrderManagementLine = null;
-            if (existingOrderManagementLine) {
-                log.warn("OrderManagementLine with same barcodeId is existing ---> {}", newOrderManagementLine.getBarcodeId());
+            List<OrderManagementLineV2> existingLines =
+                    orderManagementLineV2Repository.getByBarcodeIdAndStatusIdInAndDeletionIndicatorV7(
+                            newOrderManagementLine.getBarcodeId(), statusIds
+                    );
+
+            Double alreadyAllocatedQty = 0.0;
+
+            if (existingLines != null && !existingLines.isEmpty()) {
+                alreadyAllocatedQty = existingLines.stream()
+                        .map(OrderManagementLineV2::getAllocatedQty)
+                        .filter(Objects::nonNull)
+                        .mapToDouble(Double::doubleValue)
+                        .sum();
+            }
+
+            Double availableQty = INV_QTY - alreadyAllocatedQty;
+
+            if (availableQty <= 0) {
+                log.warn("No available inventory for barcode: {}", newOrderManagementLine.getBarcodeId());
+                continue;
+            }
+
+            // ALLOC_QTY
+            ALLOC_QTY = Math.min(ORD_QTY, availableQty);
+
+            if (ORD_QTY > ALLOC_QTY) {
+                STATUS_ID = 42L;
             } else {
-                createdOrderManagementLine = orderManagementLineV2Repository.save(newOrderManagementLine);
-                log.info("--else---createdOrderManagementLine newly created------: " + createdOrderManagementLine);
-                allocatedQtyFromOrderMgmt = createdOrderManagementLine.getAllocatedQty();
+                STATUS_ID = 43L;
+            }
 
-                BigDecimal ordQty = BigDecimal.valueOf(ORD_QTY);
-                BigDecimal allocQty = BigDecimal.valueOf(ALLOC_QTY);
+            newOrderManagementLine.setAllocatedQty(ALLOC_QTY);
+            newOrderManagementLine.setReAllocatedQty(ALLOC_QTY);
 
-                ordQty = ordQty.setScale(2, RoundingMode.HALF_UP);
+            statusDescription = getStatusDescription(STATUS_ID, orderManagementLine.getLanguageId());
+            newOrderManagementLine.setStatusId(STATUS_ID);
+            newOrderManagementLine.setStatusDescription(statusDescription);
+            newOrderManagementLine.setReferenceField7(statusDescription);
 
-                if (ordQty.compareTo(allocQty) > 0) {
-//                    ORD_QTY = ORD_QTY - ALLOC_QTY;
-                    ORD_QTY = ordQty.doubleValue() - ALLOC_QTY; // convert back if needed
-                }
+            OrderManagementLineV2 savedLine =
+                    orderManagementLineV2Repository.save(newOrderManagementLine);
 
-                log.info("ORD_QTY After --else---createdOrderManagementLine newly created------: {}", ORD_QTY);
-                log.info("allocatedQtyFromOrderMgmt ----> {}", allocatedQtyFromOrderMgmt);
-                log.info("INCOMING_ORD_QTY == ALLOC_QTY Check for Breaking Loop | " + INCOMING_ORD_QTY + " | " + ALLOC_QTY);
-                if (INCOMING_ORD_QTY.equals(ALLOC_QTY)) {   // Changed coz ord_qty and alloc_qty will always be same if there is excess inv_qty, in that case this condition fails, so instead check ord_qty = inv_qty then the condition is true.
-                    log.info("ORD_QTY fully allocated: " + ORD_QTY);
-                    return newOrderManagementLine;
-//                    break outerloop; // If the Inventory satisfied the Ord_qty
-                }
+            log.info("Allocation created: {}", savedLine);
+
+            ORD_QTY = BigDecimal.valueOf(ORD_QTY)
+                    .subtract(BigDecimal.valueOf(ALLOC_QTY))
+                    .setScale(2, RoundingMode.HALF_UP)
+                    .doubleValue();
+
+            // break if fully allocated
+            if (ORD_QTY <= 0) {
+                return savedLine;
             }
         }
+
+        if (ORD_QTY > 0) {
+            unAllocationProcess(orderManagementLine, ORD_QTY);
+        }
+
         return newOrderManagementLine;
     }
+
+    /**
+     *
+     * @param orderManagementLine
+     * @param ORD_QTY
+     * @return
+     */
+    private OrderManagementLineV2 unAllocationProcess(OrderManagementLineV2 orderManagementLine, Double ORD_QTY) {
+
+        if (ORD_QTY > 0) {
+            OrderManagementLineV2 newLine = new OrderManagementLineV2();
+            BeanUtils.copyProperties(orderManagementLine, newLine, CommonUtils.getNullPropertyNames(orderManagementLine));
+            newLine.setStatusId(47L);
+            statusDescription = stagingLineV2Repository.getStatusDescription(47L, orderManagementLine.getLanguageId());
+            newLine.setStatusDescription(statusDescription);
+            newLine.setReferenceField7(statusDescription);
+            newLine.setProposedStorageBin("");
+            newLine.setProposedPackBarCode("");
+            newLine.setBarcodeId("UNALLOCATED_" + UUID.randomUUID().toString());
+            newLine.setOrderQty(ORD_QTY);
+            newLine.setInventoryQty(0D);
+            newLine.setAllocatedQty(0D);
+            newLine = orderManagementLineV2Repository.save(newLine);
+            log.info("Unallocated orderManagementLine created: " + newLine);
+
+        }
+        return orderManagementLine;
+    }
+
 
 
     /**

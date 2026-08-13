@@ -350,4 +350,20 @@ public interface PickupLineV2Repository extends JpaRepository<PickupLineV2, Long
             "AND IS_DELETED = 0", nativeQuery = true)
     void deletePickupLineV7(@Param("refDocNo") String refDocNumber,
                             @Param("barcodeId") String barcodeId);
+
+    // Knowell
+    @Query(value = "SELECT * from tblpickupline where c_id = :companyCodeId " +
+            "AND lang_id = :languageId AND plant_id = :plantId AND wh_id = :warehouseId " +
+            "AND pre_ob_no = :preOutboundNo AND ref_doc_no = :refDocNo " +
+            "AND itm_code = :itemCode AND partner_item_barcode = :barcodeId \n" +
+            "AND pick_cnf_barcode = :pickCnfBarcodeId AND IS_DELETED = 0", nativeQuery = true)
+    List<PickupLineV2> getExistingPickupLineV7(@Param("companyCodeId") String companyCodeId,
+                                               @Param("languageId") String languageId,
+                                               @Param("plantId") String plantId,
+                                               @Param("warehouseId") String warehouseId,
+                                               @Param("preOutboundNo") String preOutBoundNo,
+                                               @Param("refDocNo") String refDocNo,
+                                               @Param("itemCode") String itemCode,
+                                               @Param("barcodeId") String barcodeId,
+                                               @Param("pickCnfBarcodeId") String pickCnfBarcodeId);
 }

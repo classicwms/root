@@ -4,13 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f775bbd4-20de-4090-80bf-8d0839f9f7b3" name="Changes" comment="inventory_namratha">
-      <change beforePath="$PROJECT_DIR$/../InboundOrderService/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../InboundOrderService/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../InboundOrderService/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../InboundOrderService/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_18-06-2025_10_04_pm_[Changes]/shelved.patch" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_18-06-2025_10_04_pm__Changes_.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-    </list>
+    <list default="true" id="f775bbd4-20de-4090-80bf-8d0839f9f7b3" name="Changes" comment="inventory_namratha" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -44,7 +38,7 @@
     </option>
   </component>
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../../.." />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../../../.." />
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 2
@@ -58,9 +52,8 @@
   "keyToString": {
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "android.gradle.sync.needed": "true",
     "git-widget-placeholder": "main",
-    "last_opened_file_path": "D:/GIT/Production/root/Code/MultiTenant/OutboundOrderService",
+    "last_opened_file_path": "D:/GIT/active-projects/Tamween/Kafka_Tamween/InboundTransactionService",
     "settings.editor.selected.configurable": "reference.settingsdialog.project.gradle"
   }
 }]]></component>

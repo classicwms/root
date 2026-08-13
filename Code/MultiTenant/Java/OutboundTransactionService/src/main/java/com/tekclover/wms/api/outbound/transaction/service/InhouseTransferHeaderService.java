@@ -1370,7 +1370,7 @@ public class InhouseTransferHeaderService extends BaseService {
 
             inventorySourceItemCode.setInventoryQuantity(inventoryQty);
             inventorySourceItemCode.setAllocatedQuantity(inventorySourceItemCode.getAllocatedQuantity());
-            inventorySourceItemCode.setNoBags(createdInhouseTransferLine.getNoBags());
+            inventorySourceItemCode.setNoBags(inventorySourceItemCode.getNoBags());
             inventorySourceItemCode.setReferenceField4(inventoryQty + inventorySourceItemCode.getAllocatedQuantity());
 
             log.info("Total Qty --------------> {}", inventorySourceItemCode.getReferenceField4());
@@ -1393,6 +1393,7 @@ public class InhouseTransferHeaderService extends BaseService {
             InventoryV2 newInventoryV2 = new InventoryV2();
             BeanUtils.copyProperties(inventorySourceItemCode, newInventoryV2, CommonUtils.getNullPropertyNames(inventorySourceItemCode));
             newInventoryV2.setUpdatedOn(new Date());
+            newInventoryV2.setInventoryId(null);
             newInventoryV2.setManufacturerCode(mfrName);
             try {
                 InventoryV2 createdInventoryV2 = inventoryV2Repository.save(newInventoryV2);
@@ -1406,6 +1407,7 @@ public class InhouseTransferHeaderService extends BaseService {
                     deleteInventoryV2.setAllocatedQuantity(0D);
                     deleteInventoryV2.setReferenceField4(0D);
                     deleteInventoryV2.setNoBags(0D);
+                    deleteInventoryV2.setInventoryId(null);
                     inventoryV2Repository.save(deleteInventoryV2);
                     log.info("---------inventory-----deleted-----");
                     try {
@@ -1443,7 +1445,7 @@ public class InhouseTransferHeaderService extends BaseService {
 
                     inventoryTargetItemCode.setInventoryQuantity(inventoryQty);
                     inventoryTargetItemCode.setAllocatedQuantity(inventoryTargetItemCode.getAllocatedQuantity());
-                    inventoryTargetItemCode.setNoBags(createdInhouseTransferLine.getNoBags());
+                    inventoryTargetItemCode.setNoBags(inventoryTargetItemCode.getNoBags());
                     inventoryTargetItemCode.setReferenceField4(inventoryQty + inventoryTargetItemCode.getAllocatedQuantity());
 
                     log.info("Total Qty --------------> {}", inventoryTargetItemCode.getReferenceField4());
@@ -1458,6 +1460,7 @@ public class InhouseTransferHeaderService extends BaseService {
                     BeanUtils.copyProperties(inventoryTargetItemCode, newInventoryV2_1, CommonUtils.getNullPropertyNames(inventoryTargetItemCode));
                     newInventoryV2_1.setUpdatedOn(new Date());
                     newInventoryV2_1.setManufacturerCode(mfrName);
+                    newInventoryV2_1.setInventoryId(null);
                     createdInventoryV2 = inventoryV2Repository.save(newInventoryV2_1);
                     log.info("InventoryV2 created : " + createdInventoryV2);
                 } else {
