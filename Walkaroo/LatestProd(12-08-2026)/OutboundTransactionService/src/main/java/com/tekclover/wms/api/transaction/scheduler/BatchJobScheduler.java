@@ -1,0 +1,87 @@
+package com.tekclover.wms.api.transaction.scheduler;
+
+import com.tekclover.wms.api.transaction.model.warehouse.inbound.WarehouseApiResponse;
+import com.tekclover.wms.api.transaction.service.*;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+
+import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
+import java.util.concurrent.CompletableFuture;
+
+@Slf4j
+@Component
+public class BatchJobScheduler {
+
+    @Autowired
+    ScheduleAsyncService scheduleAsyncService;
+
+    @Autowired
+    WarehouseService warehouseService;
+
+    //-------------------------------------------------------------------------------------------
+
+    @Scheduled(fixedDelay = 20000)
+    public void scheduleJob() throws Exception {
+
+        // MDU
+        CompletableFuture<WarehouseApiResponse> outboundOrder = scheduleAsyncService.processOutboundOrder();
+        // CMP
+        CompletableFuture<WarehouseApiResponse> outboundOrderV2 = scheduleAsyncService.processOutboundOrderV2();
+        //CHN
+        CompletableFuture<WarehouseApiResponse> outboundOrderV3 = scheduleAsyncService.processOutboundOrderV3();
+        //VGA
+        CompletableFuture<WarehouseApiResponse> outboundOrderV4 = scheduleAsyncService.processOutboundOrderV4();
+        //CCL
+        CompletableFuture<WarehouseApiResponse> outboundOrderV5 = scheduleAsyncService.processOutboundOrderV5();
+        //HYD
+        CompletableFuture<WarehouseApiResponse> outboundOrderV6 = scheduleAsyncService.processOutboundOrderV6();
+        //AHM
+        CompletableFuture<WarehouseApiResponse> outboundOrderV7 = scheduleAsyncService.processOutboundOrderV7();
+        //AHM
+        CompletableFuture<WarehouseApiResponse> outboundOrderV8 = scheduleAsyncService.processOutboundOrderV8();
+        //NGP_1
+        CompletableFuture<WarehouseApiResponse> outboundOrderV9 = scheduleAsyncService.processOutboundOrderV9();
+        //NGP_2
+        CompletableFuture<WarehouseApiResponse> outboundOrderV10 = scheduleAsyncService.processOutboundOrderV10();
+        //MYS
+        CompletableFuture<WarehouseApiResponse> outboundOrderV11 = scheduleAsyncService.processOutboundOrderV11();
+        //KNP
+        CompletableFuture<WarehouseApiResponse> outboundOrderV12 = scheduleAsyncService.processOutboundOrderV12();
+
+    }
+
+
+    @Scheduled(fixedDelay = 60000)
+    public void deliveryConfirmationScheduleJob() throws Exception {
+
+        //MDU
+        scheduleAsyncService.processDeliveryConfirmationV1();
+        //CMP
+        scheduleAsyncService.processDeliveryConfirmationV2();
+        //CHN
+        scheduleAsyncService.processDeliveryConfirmationV3();
+        //VGA
+        scheduleAsyncService.processDeliveryConfirmationV4();
+        //CCL
+        scheduleAsyncService.processDeliveryConfirmationV5();
+        //HYD
+        scheduleAsyncService.processDeliveryConfirmationV6();
+        //AHM
+        scheduleAsyncService.processDeliveryConfirmationV7();
+        //MUB
+        scheduleAsyncService.processDeliveryConfirmationV8();
+        //NGP_1
+        scheduleAsyncService.processDeliveryConfirmationV9();
+        //NGP_2
+        scheduleAsyncService.processDeliveryConfirmationV10();
+        //MYS
+        scheduleAsyncService.processDeliveryConfirmationV11();
+        //KNP
+        scheduleAsyncService.processDeliveryConfirmationV12();
+
+    }
+
+}
