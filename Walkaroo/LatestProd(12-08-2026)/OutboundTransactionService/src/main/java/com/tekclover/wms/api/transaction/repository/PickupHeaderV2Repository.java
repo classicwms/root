@@ -710,15 +710,39 @@ public interface PickupHeaderV2Repository extends JpaRepository<PickupHeaderV2, 
             String companyCodeId, String plantId, String warehouseId, String refDocNumber, Long deletionIndicator);
 
     @Modifying
-    @Query(value = "update tblpickupheader set ref_field_9 = (DATEDIFF(MINUTE, MIN(PICK_CTD_ON), :dlvDate)), PICK_CNF_ON = :dlvDate " +
-            " where C_ID = :companyCodeId and PLANT_ID = :plantId and LANG_ID = :languageId and WH_ID = :warehouseId " +
-            " and REF_DOC_NO = :refDocNumber and PRE_OB_NO = :preOutboundNo and REF_FIELD_9 is null \n",nativeQuery = true)
-    int updateLeadTime(@Param("companyCodeId") String companyCodeId,
-                       @Param("plantId") String plantId,
-                       @Param("languageId") String languageId,
-                       @Param("warehouseId") String warehouseId,
-                       @Param("refDocNumber") String refDocNumber,
-                       @Param("preOutboundNo") String preOutboundNo,
-                       @Param("dlvDate") Date dlvDate);
+    @Query(value = "UPDATE ph " +
+            "SET ph.REF_FIELD_9 = DATEDIFF(MINUTE, " +
+            "    (SELECT MIN(ph2.PICK_CTD_ON) " +
+            "     FROM tblpickupheader ph2 " +
+            "     WHERE ph2.C_ID = :companyCodeId " +
+            "       AND ph2.PLANT_ID = :plantId " +
+            "       AND ph2.LANG_ID = :languageId " +
+            "       AND ph2.WH_ID = :warehouseId " +
+            "       AND ph2.REF_DOC_NO = :refDocNumber " +
+            "       AND ph2.PRE_OB_NO = :preOutboundNo), " +
+            "    :dlvDate), " +
+            "    ph.PICK_CNF_ON = :dlvDate, " +
+            "    ph.STATUS_ID = :statusId, " +
+            "    ph.STATUS_TEXT = :statusDescription " +
+            "FROM tblpickupheader ph " +
+            "WHERE ph.C_ID = :companyCodeId " +
+            "  AND ph.PLANT_ID = :plantId " +
+            "  AND ph.LANG_ID = :languageId " +
+            "  AND ph.WH_ID = :warehouseId " +
+            "  AND ph.REF_DOC_NO = :refDocNumber " +
+            "  AND ph.PRE_OB_NO = :preOutboundNo " +
+            "  AND (ph.REF_FIELD_9 IS NULL OR ph.REF_FIELD_9 = 0) "+
+            "  AND ph.STATUS_ID <> 59",
+            nativeQuery = true)
+    int updateLeadTime(
+            @Param("companyCodeId") String companyCodeId,
+            @Param("plantId") String plantId,
+            @Param("languageId") String languageId,
+            @Param("warehouseId") String warehouseId,
+            @Param("refDocNumber") String refDocNumber,
+            @Param("preOutboundNo") String preOutboundNo,
+            @Param("dlvDate") Date dlvDate,
+            @Param("statusId") Long statusId,
+            @Param("statusDescription") String statusDescription);
 
 }

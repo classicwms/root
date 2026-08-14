@@ -5629,4 +5629,14 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
     @Modifying
     @Query(value = "update tblinventory set is_deleted = 1 where REF_ORD_NO = :refDocNo and is_deleted = 0 ", nativeQuery = true)
     int updateInventory(@Param("refDocNo") String refDocNo);
+
+    @Query(value = "SELECT count(*) FROM tblinventory\n" +
+            "\t WHERE IS_DELETED = 0 AND inv_id in (select max(inv_id) from tblinventory where is_deleted = 0  \n" +
+            "\t group by itm_code,barcode_id,mfr_name,pack_barcode,plant_id,wh_id,c_id,lang_id) \n" +
+            "\t and barcode_id = :barcodeId and c_id = :companyId and plant_id = :plantId\n" +
+            "\t and wh_id = :warehouseId and bin_cl_id in (1, 3) ", nativeQuery = true)
+    Long getInventoryBin3Count(@Param("barcodeId") String barcodeId,
+                               @Param("companyId") String companyId,
+                               @Param("plantId") String plantId,
+                               @Param("warehouseId") String warehouseId);
 }

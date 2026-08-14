@@ -4879,16 +4879,22 @@ public class PutAwayHeaderService extends BaseService {
                 }
 
                 inventory.setCreatedOn(new Date());
-                try {
+            // Checking already present inventory for binClsId 3
+            Long inventoryCheckBin3 = inventoryV2Repository.getInventoryBin3Count(inventory.getBarcodeId(), inventory.getCompanyCodeId(), inventory.getPlantId(), inventory.getWarehouseId());
+            log.info("inventoryCheck for Bincls 3 ----> {}", inventoryCheckBin3);
+            try {
+
+                if (inventoryCheckBin3 == 0L) {
                     InventoryV2 createdinventory = inventoryV2Repository.save(inventory);
                     log.info("created inventory : {}", createdinventory);
 
                     // Calling BinClass 8 Inventory update
                     updateInventoryBinClassID8 (createdinventory.getBarcodeId());
-                } catch (Exception e1) {
-                    log.error("--ERROR--createInventoryNonCBMV3 ----level2--inventory--error----> :" + e1.toString());
-                    e1.printStackTrace();
                 }
+            } catch (Exception e1) {
+                log.error("--ERROR--createInventoryNonCBMV3 ----level2--inventory--error----> :" + e1.toString());
+                e1.printStackTrace();
+            }
         } catch (Exception e) {
             // Exception Log
             e.printStackTrace();

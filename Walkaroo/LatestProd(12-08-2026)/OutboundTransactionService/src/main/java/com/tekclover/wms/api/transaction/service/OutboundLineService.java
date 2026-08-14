@@ -5943,10 +5943,10 @@ public class OutboundLineService extends BaseService {
                             outHeader.getRefDocNumber(), outHeader.getPreOutboundNo(), STATUS_ID, statusDescription, loginUserId, new Date());
                     log.info("Outbound Order Status Updated Successfully --------------------> RefDocNo Is ---> " + outHeader.getRefDocNumber());
 
-//                    int leadTimeUpdate = pickupHeaderV2Repository.updateLeadTime(companyCodeId, plantId, languageId, warehouseId,
-//                            outHeader.getRefDocNumber(), outHeader.getPreOutboundNo(), new Date());
-//                    log.info("Lead time update completed. RefDocNo: {}, PreOutboundNo: {}, Rows Updated: {}",
-//                            outHeader.getRefDocNumber(), outHeader.getPreOutboundNo(), leadTimeUpdate);
+                    int leadTimeUpdate = pickupHeaderV2Repository.updateLeadTime(companyCodeId, plantId, languageId, warehouseId,
+                            outHeader.getRefDocNumber(), outHeader.getPreOutboundNo(), new Date(), STATUS_ID, statusDescription);
+                    log.info("Lead time update completed. RefDocNo: {}, PreOutboundNo: {}, Rows Updated: {}",
+                            outHeader.getRefDocNumber(), outHeader.getPreOutboundNo(), leadTimeUpdate);
 
                     String storageBin = "0";
                     if(inventoryV2 != null && inventoryV2.getStorageBin() != null) {
