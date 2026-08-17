@@ -459,7 +459,9 @@ public class InboundHeaderService extends BaseService {
 		if (!sendConfirmationToAX) {
 			throw new BadRequestException("Order is NOT completely processed for OrderNumber : " + refDocNumber);
 		}
-		
+
+
+
 		// Checking relevant tables for sending confirmation to AX
 //		for (InboundLine dbInboundLine : dbInboundLines) {
 //			long matchedCount = 0;
@@ -575,26 +577,26 @@ public class InboundHeaderService extends BaseService {
 			return axapiErrorResponse;
 		}
 		
-		if (axapiResponse != null && axapiResponse.getStatusCode() != null && 
+		if (axapiResponse != null && axapiResponse.getStatusCode() != null &&
 				axapiResponse.getStatusCode().equalsIgnoreCase("200")) {
-			inboundLineRepository.updateInboundLineStatus (warehouseId, refDocNumber, 24L, loginUserID, new Date());
-			log.info("InboundLine updated");
-			
-			inboundHeaderRepository.updateInboundHeaderStatus (warehouseId, refDocNumber, 24L, loginUserID, new Date());
-			log.info("InboundHeader updated");
-			
-			preInboundHeaderRepository.updatePreInboundHeaderEntityStatus (warehouseId, refDocNumber, 24L);
-			log.info("PreInboundHeader updated");
-			
-			preInboundLineRepository.updatePreInboundLineStatus (warehouseId, refDocNumber, 24L);
-			log.info("PreInboundLine updated");
-			
-			grHeaderRepository.updateGrHeaderStatus (warehouseId, refDocNumber, 24L);
-			log.info("grHeader updated");
-			
-			stagingHeaderRepository.updateStagingHeaderStatus(warehouseId, refDocNumber, 24L);
-			log.info("stagingHeader updated");
-			
+			int inboundLine = inboundLineRepository.updateInboundLineStatus (warehouseId, refDocNumber, 24L, loginUserID, new Date());
+			log.info("InboundLine updated StatusId = 24 for refDocNumber : " + refDocNumber + "Affected rows : " + inboundLine);
+
+			int inboundHeader = inboundHeaderRepository.updateInboundHeaderStatus (warehouseId, refDocNumber, 24L, loginUserID, new Date());
+			log.info("InboundHeader updated StatusId = 24 for refDocNumber : " + refDocNumber + "Affected rows : " + inboundHeader);
+
+			int preInboundHeader = preInboundHeaderRepository.updatePreInboundHeaderEntityStatus (warehouseId, refDocNumber, 24L);
+			log.info("PreInboundHeader updated StatusId = 24 for refDocNumber : " + refDocNumber + "Affected rows : " + preInboundHeader);
+
+			int preInboundLine = preInboundLineRepository.updatePreInboundLineStatus (warehouseId, refDocNumber, 24L);
+			log.info("PreInboundLine updated StatusId = 24 for refDocNumber : " + refDocNumber + "Affected rows : " + preInboundLine);
+
+			int grHeader = grHeaderRepository.updateGrHeaderStatus (warehouseId, refDocNumber, 24L);
+			log.info("grHeader updated StatusId = 24 for refDocNumber : " + refDocNumber + "Affected rows : " + grHeader);
+
+			int stagingHeader = stagingHeaderRepository.updateStagingHeaderStatus(warehouseId, refDocNumber, 24L);
+			log.info("stagingHeader updated StatusId = 24 for refDocNumber : " + refDocNumber + "Affected rows : " + stagingHeader);
+
 		}
 		
 		// Update relevant tables once AXResponse is success

@@ -57,6 +57,6 @@ public interface PreInboundHeaderRepository extends JpaRepository<PreInboundHead
 	 */
 	@Modifying(clearAutomatically = true)
 	@Query("UPDATE PreInboundHeaderEntity ib SET ib.statusId = :statusId WHERE ib.warehouseId = :warehouseId AND ib.refDocNumber = :refDocNumber")
-	void updatePreInboundHeaderEntityStatus(@Param ("warehouseId") String warehouseId,
+	int updatePreInboundHeaderEntityStatus(@Param ("warehouseId") String warehouseId,
 			@Param ("refDocNumber") String refDocNumber, @Param ("statusId") Long statusId);
 }

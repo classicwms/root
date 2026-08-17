@@ -71,6 +71,6 @@ public interface GrHeaderRepository extends JpaRepository<GrHeader,Long>, JpaSpe
 	 */
 	@Modifying(clearAutomatically = true)
 	@Query("UPDATE GrHeader ib SET ib.statusId = :statusId WHERE ib.warehouseId = :warehouseId AND ib.refDocNumber = :refDocNumber")
-	void updateGrHeaderStatus(@Param ("warehouseId") String warehouseId,
+	int updateGrHeaderStatus(@Param ("warehouseId") String warehouseId,
 			@Param ("refDocNumber") String refDocNumber, @Param ("statusId") Long statusId);
 }

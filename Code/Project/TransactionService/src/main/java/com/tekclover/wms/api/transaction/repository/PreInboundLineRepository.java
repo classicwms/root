@@ -39,6 +39,6 @@ public interface PreInboundLineRepository extends JpaRepository<PreInboundLineEn
 	 */
 	@Modifying(clearAutomatically = true)
 	@Query("UPDATE PreInboundLineEntity ib SET ib.statusId = :statusId WHERE ib.warehouseId = :warehouseId AND ib.refDocNumber = :refDocNumber")
-	void updatePreInboundLineStatus(@Param ("warehouseId") String warehouseId,
+	int updatePreInboundLineStatus(@Param ("warehouseId") String warehouseId,
 			@Param ("refDocNumber") String refDocNumber, @Param ("statusId") Long statusId);
 }

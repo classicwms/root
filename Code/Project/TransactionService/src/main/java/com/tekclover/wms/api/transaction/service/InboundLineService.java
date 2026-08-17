@@ -133,28 +133,28 @@ public class InboundLineService extends BaseService {
 						refDocNumber,
 						preInboundNo,
 						0L);
-		log.info("inboundLine____inboundLine_additional_log---->: " + inboundLine_additional_log);
+		log.info("InboundLine List in Before AX Push: " + inboundLine_additional_log);
 		
-		List<InboundLine> inboundLine = 
-				inboundLineRepository.findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndReferenceField1AndStatusIdAndDeletionIndicator(
-						getLanguageId(),
-						getCompanyCode(),
-						getPlantId(),
-						warehouseId,
-						refDocNumber,
-						preInboundNo,
-						null,
-						20L,
-						0L);
-		log.info("inboundLine : " + inboundLine);
-		if (inboundLine.isEmpty()) {
-			throw new BadRequestException("The given values in getInboundLinebyRefDocNoISNULL: warehouseId:" + warehouseId + 
-					",refDocNumber: " + refDocNumber + 
-					",preInboundNo: " + preInboundNo + 
-					" doesn't exist.");
-		} 
+//		List<InboundLine> inboundLine =
+//				inboundLineRepository.findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndReferenceField1AndStatusIdAndDeletionIndicator(
+//						getLanguageId(),
+//						getCompanyCode(),
+//						getPlantId(),
+//						warehouseId,
+//						refDocNumber,
+//						preInboundNo,
+//						null,
+//						20L,
+//						0L);
+//		log.info("inboundLine : " + inboundLine);
+//		if (inboundLine.isEmpty()) {
+//			throw new BadRequestException("The given values in getInboundLinebyRefDocNoISNULL: warehouseId:" + warehouseId +
+//					",refDocNumber: " + refDocNumber +
+//					",preInboundNo: " + preInboundNo +
+//					" doesn't exist.");
+//		}
 		
-		return inboundLine;
+		return inboundLine_additional_log;
 	}
 	
 	/**

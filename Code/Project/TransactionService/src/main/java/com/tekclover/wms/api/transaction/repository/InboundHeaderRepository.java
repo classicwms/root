@@ -73,7 +73,7 @@ public interface InboundHeaderRepository extends JpaRepository<InboundHeader,Lon
 	
 	@Modifying(clearAutomatically = true)
 	@Query("UPDATE InboundHeader ib SET ib.statusId = :statusId, ib.confirmedBy = :confirmedBy, ib.confirmedOn = :confirmedOn WHERE ib.warehouseId = :warehouseId AND ib.refDocNumber = :refDocNumber")
-	void updateInboundHeaderStatus(@Param ("warehouseId") String warehouseId,
+	int updateInboundHeaderStatus(@Param ("warehouseId") String warehouseId,
 			@Param ("refDocNumber") String refDocNumber, 
 			@Param ("statusId") Long statusId,
 			@Param ("confirmedBy") String confirmedBy,
