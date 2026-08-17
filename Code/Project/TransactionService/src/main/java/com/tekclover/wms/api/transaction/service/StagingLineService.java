@@ -426,12 +426,12 @@ public class StagingLineService extends BaseService {
 					 * 2. Then Pass WH_ID/PRE_IB_NO/REF_DOC_NO/IB_LINE_NO/ITM_CODE in INBOUNDLINE table and 
 					 * updated STATUS_ID as 14
 					 */
-					UpdateInboundLine updateInboundLine = new UpdateInboundLine();
-					updateInboundLine.setStatusId(14L);
-					InboundLine inboundLine = inboundLineService.updateInboundLine(caseConfirmation.getWarehouseId(), 
-							caseConfirmation.getRefDocNumber(), caseConfirmation.getPreInboundNo(), caseConfirmation.getLineNo(), 
-							caseConfirmation.getItemCode(), loginUserID, updateInboundLine);
-					log.info("inboundLine : " + inboundLine);
+//					UpdateInboundLine updateInboundLine = new UpdateInboundLine();
+//					updateInboundLine.setStatusId(14L);
+//					InboundLine inboundLine = inboundLineService.updateInboundLine(caseConfirmation.getWarehouseId(),
+//							caseConfirmation.getRefDocNumber(), caseConfirmation.getPreInboundNo(), caseConfirmation.getLineNo(),
+//							caseConfirmation.getItemCode(), loginUserID, updateInboundLine);
+//					log.info("inboundLine : " + inboundLine);
 				}
 			}
 		}
