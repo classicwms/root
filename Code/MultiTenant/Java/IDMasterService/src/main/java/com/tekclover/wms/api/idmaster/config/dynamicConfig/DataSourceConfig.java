@@ -1,3 +1,4 @@
+
 package com.tekclover.wms.api.idmaster.config.dynamicConfig;
 
 import org.springframework.context.annotation.Bean;
@@ -38,6 +39,8 @@ public class DataSourceConfig {
         DataSource db8 = createDataSource("AUTO_LAP");
         DataSource db12 = createDataSource("BF");
         DataSource db13 = createDataSource("KKF");
+        DataSource db14 = createDataSource("KSP");
+
 
         targetDataSources.put("MT",db);
         targetDataSources.put("IMPEX", db1);
@@ -50,6 +53,8 @@ public class DataSourceConfig {
         targetDataSources.put("AUTO_LAP", db8);
         targetDataSources.put("BF", db12);
         targetDataSources.put("KKF", db13);
+        targetDataSources.put("KSP", db14);
+
 
         DynamicDataSource dataSource = new DynamicDataSource();
         dataSource.setTargetDataSources(targetDataSources);
@@ -124,6 +129,12 @@ public class DataSourceConfig {
             case "KKF":
                 dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
                 dataSource.setUrl("jdbc:sqlserver://10.20.0.19;databaseName=BFS_KKF");
+                dataSource.setUsername("sa");
+                dataSource.setPassword("TvHcGBR84nxvyJx6EPpoOsL5V");
+                break;
+            case "KSP":
+                dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+                dataSource.setUrl("jdbc:sqlserver://10.20.0.19;databaseName=BFS_KSP");
                 dataSource.setUsername("sa");
                 dataSource.setPassword("TvHcGBR84nxvyJx6EPpoOsL5V");
                 break;

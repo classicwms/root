@@ -183,4 +183,16 @@ public class DatabaseConnectionUtil {
         connProp.put("driver", "com.microsoft.sqlserver.jdbc.SQLServerDriver");
         return connProp;
     }
+
+    public static String getKSPJdbcUrl() {
+        return "jdbc:sqlserver://10.20.0.19;databaseName=BFS_KSP";
+    }
+
+    public static Properties getKSPDatabaseConnectionProperties() {
+        Properties connProp = new Properties();
+        connProp.put("user", "sa");
+        connProp.put("password", "TvHcGBR84nxvyJx6EPpoOsL5V");
+        connProp.put("driver", "com.microsoft.sqlserver.jdbc.SQLServerDriver");
+        return connProp;
+    }
 }

@@ -322,6 +322,9 @@ public class StorageBinController {
                     case "KKF":
                         storageBin = storagebinService.getStorageBinByBinClassIdV9(warehouseId, binClassId, companyCode, plantId, languageId);
                         break;
+                    case "KSP":
+                        storageBin = storagebinService.getStorageBinByBinClassIdV9(warehouseId, binClassId, companyCode, plantId, languageId);
+                        break;
                 }
             }
             log.info("StorageBin : " + storageBin);

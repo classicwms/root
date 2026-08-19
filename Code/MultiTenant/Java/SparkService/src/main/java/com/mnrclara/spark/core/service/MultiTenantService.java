@@ -38,6 +38,7 @@ public class MultiTenantService {
 
     Properties connBF = DatabaseConnectionUtil.getBFDatabaseConnectionProperties();
     Properties connKKF = DatabaseConnectionUtil.getKKFDatabaseConnectionProperties();
+    Properties connKSP = DatabaseConnectionUtil.getKSPDatabaseConnectionProperties();
 
     String jdbcUrl = DatabaseConnectionUtil.getImpexDevJdbcUrl();
 
@@ -59,6 +60,7 @@ public class MultiTenantService {
 
     String jdbcUrl9 = DatabaseConnectionUtil.getBFJdbcUrl();
     String jdbcUrl10 = DatabaseConnectionUtil.getKKFJdbcUrl();
+    String jdbcUrl11 = DatabaseConnectionUtil.getKSPJdbcUrl();
 
     @Autowired
     private DbConfigRepository dbConfigRepository;
@@ -180,6 +182,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
                 log.info("JDBC URL check -->{}", jdbcUrl10);
+            } else if (routingDb.equals("KSP")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl11);
             }
 
 //            data.show();
@@ -373,6 +381,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
                 log.info("JDBC URL check -->{}", jdbcUrl10);
+            } else if (routingDb.equals("KSP")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl11);
             }
 //            data.show();
             Encoder<ContainerReceiptV2> containerReceiptEncoder = Encoders.bean(ContainerReceiptV2.class);
@@ -560,6 +574,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
                 log.info("JDBC URL check -->{}", jdbcUrl10);
+            } else if (routingDb.equals("KSP")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl11);
             }
 
 //            data.show();
@@ -739,6 +759,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
                 log.info("JDBC URL check -->{}", jdbcUrl10);
+            } else if (routingDb.equals("KSP")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl11);
             }
 
             //            data.show();
@@ -890,6 +916,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
                 log.info("JDBC URL check -->{}", jdbcUrl10);
+            } else if (routingDb.equals("KSP")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl11);
             }
 
 //            data.show();
@@ -1075,6 +1107,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
                 log.info("JDBC URL check -->{}", jdbcUrl10);
+            } else if (routingDb.equals("KSP")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl11);
             }
 
             Encoder<GrHeaderV2> grHeaderV2Encoder = Encoders.bean(GrHeaderV2.class);
@@ -1251,6 +1289,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
                 log.info("JDBC URL check -->{}", jdbcUrl10);
+            } else if (routingDb.equals("KSP")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl11);
             }
 
             //            data.show();
@@ -1470,6 +1514,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
                 log.info("JDBC URL check -->{}", jdbcUrl10);
+            } else if (routingDb.equals("KSP")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl11);
             }
 
             Encoder<PreInBoundLineV2> preInboundLineEncoder = Encoders.bean(PreInBoundLineV2.class);
@@ -1695,6 +1745,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
                 log.info("JDBC URL check -->{}", jdbcUrl10);
+            } else if (routingDb.equals("KSP")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl11);
             }
             //            data.show();
             Encoder<PutAwayHeaderV4> putAwayHeaderEncoder = Encoders.bean(PutAwayHeaderV4.class);
@@ -1872,6 +1928,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
                 log.info("JDBC URL check -->{}", jdbcUrl10);
+            } else if (routingDb.equals("KSP")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl11);
             }
             //            data.show();
             Encoder<StagingHeaderV2> stagingHeaderEncoder = Encoders.bean(StagingHeaderV2.class);
@@ -2044,6 +2106,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
                 log.info("JDBC URL check -->{}", jdbcUrl10);
+            } else if (routingDb.equals("KSP")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl11);
             }
 
             //            data.show();
@@ -2277,6 +2345,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
                 log.info("JDBC URL check -->{}", jdbcUrl10);
+            } else if (routingDb.equals("KSP")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl11);
             }
 
             Encoder<StagingLineV5> stagingLineEncoder = Encoders.bean(StagingLineV5.class);
@@ -2524,6 +2598,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
                 log.info("JDBC URL check -->{}", jdbcUrl10);
+            } else if (routingDb.equals("KSP")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl11);
             }
             //            data.show();
             Encoder<GrLineV4> grLineEncoder = Encoders.bean(GrLineV4.class);
@@ -2667,6 +2747,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
                 log.info("JDBC URL check -->{}", jdbcUrl10);
+            } else if (routingDb.equals("KSP")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl11);
             }
 //            data.show();
             Encoder<PutAwayLineCoreV4> putAwayLineEncoder = Encoders.bean(PutAwayLineCoreV4.class);
@@ -2873,6 +2959,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
                 log.info("JDBC URL check -->{}", jdbcUrl10);
+            } else if (routingDb.equals("KSP")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl11);
             }
             //            data.show();
             Encoder<InboundLineNewV4> inboundLineEncoder = Encoders.bean(InboundLineNewV4.class);
@@ -3108,6 +3200,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
                 log.info("JDBC URL check -->{}", jdbcUrl10);
+            } else if (routingDb.equals("KSP")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl11);
             }
 //            data.show();
             Encoder<PutAwayLineV4> putAwayLineV2Encoder = Encoders.bean(PutAwayLineV4.class);
@@ -3289,6 +3387,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
                 log.info("JDBC URL check -->{}", jdbcUrl10);
+            } else if (routingDb.equals("KSP")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl11);
             }
             //            data.show();
             Encoder<PreOutboundHeaderV2> preOutboundHeaderEncoder = Encoders.bean(PreOutboundHeaderV2.class);
@@ -3523,6 +3627,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
                 log.info("JDBC URL check -->{}", jdbcUrl10);
+            } else if (routingDb.equals("KSP")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl11);
             }
 
 //            data.show();
@@ -3745,6 +3855,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
                 log.info("JDBC URL check -->{}", jdbcUrl10);
+            } else if (routingDb.equals("KSP")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl11);
             }
             //            data.show();
             Encoder<PickupHeaderV4> pickupHeaderEncoder = Encoders.bean(PickupHeaderV4.class);
@@ -3971,6 +4087,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
                 log.info("JDBC URL check -->{}", jdbcUrl10);
+            } else if (routingDb.equals("KSP")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl11);
             }
 
             //            data.show();
@@ -4167,6 +4289,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
                 log.info("JDBC URL check -->{}", jdbcUrl10);
+            } else if (routingDb.equals("KSP")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl11);
             }
 
             //            data.show();
@@ -4358,6 +4486,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
                 log.info("JDBC URL check -->{}", jdbcUrl10);
+            } else if (routingDb.equals("KSP")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl11);
             }
 
             //            data.show();
@@ -4553,6 +4687,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
                 log.info("JDBC URL check -->{}", jdbcUrl10);
+            } else if (routingDb.equals("KSP")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl11);
             }
 
             //            data.show();
@@ -4752,6 +4892,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
                 log.info("JDBC URL check -->{}", jdbcUrl10);
+            } else if (routingDb.equals("KSP")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl11);
             }
 
             //            data.show();
@@ -5009,6 +5155,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
                 log.info("JDBC URL check -->{}", jdbcUrl10);
+            } else if (routingDb.equals("KSP")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl11);
             }
 
             //            data.show();
@@ -5197,6 +5349,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
                 log.info("JDBC URL check -->{}", jdbcUrl10);
+            } else if (routingDb.equals("KSP")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl11);
             }
 
             //            data.show();
@@ -5371,6 +5529,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
                 log.info("JDBC URL check -->{}", jdbcUrl10);
+            } else if (routingDb.equals("KSP")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl11);
             }
 
 //            data.show();
@@ -5626,6 +5790,14 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
                 log.info("JDBC URL check -->{}", jdbcUrl10);
+            } else if (routingDb.equals("KSP")) {
+                if (!conditions.isEmpty()) {
+                    sqlQuery += " WHERE IS_DELETED = 0 AND REF_FIELD_4 > 0 AND inv_id in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,pal_code,barcode_id,stck_typ_id,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
+                } data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl11);
             }
 
             Encoder<InventoryV4> inventoryV2CoreEncoder = Encoders.bean(InventoryV4.class);
@@ -5790,6 +5962,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
                 log.info("JDBC URL check -->{}", jdbcUrl10);
+            } else if (routingDb.equals("KSP")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl11);
             }
 
             //            data.show();
@@ -6002,6 +6180,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
                 log.info("JDBC URL check -->{}", jdbcUrl10);
+            } else if (routingDb.equals("KSP")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl11);
             }
 
             //            data.show();
@@ -6166,6 +6350,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
                 log.info("JDBC URL check -->{}", jdbcUrl10);
+            } else if (routingDb.equals("KSP")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl11);
             }
 
             //            data.show();
@@ -6360,6 +6550,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
                 log.info("JDBC URL check -->{}", jdbcUrl10);
+            } else if (routingDb.equals("KSP")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl11);
             }
 
             //            data.show();
@@ -6980,6 +7176,12 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
                 log.info("JDBC URL check -->{}", jdbcUrl10);
+            } else if (routingDb.equals("KSP")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl11);
             }
 
             //            data.show();
@@ -7120,11 +7322,21 @@ public class MultiTenantService {
                         .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
                 log.info("JDBC URL check -->{}", jdbcUrl9);
             } else if (routingDb.equals("KKF")) {
-                data = spark.read()
+                if (!conditions.isEmpty()) {
+                    sqlQuery += " WHERE IS_DELETED = 0 AND REF_FIELD_4 > 0 AND inv_id in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,pal_code,barcode_id,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
+                } data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
                 log.info("JDBC URL check -->{}", jdbcUrl10);
+            } else if (routingDb.equals("KSP")) {
+                if (!conditions.isEmpty()) {
+                    sqlQuery += " WHERE IS_DELETED = 0 AND REF_FIELD_4 > 0 AND inv_id in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,pal_code,barcode_id,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
+                } data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl11);
             }
 
             Encoder<InventoryV5> inventoryV2CoreEncoder = Encoders.bean(InventoryV5.class);
@@ -7293,11 +7505,21 @@ public class MultiTenantService {
                         .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
                 log.info("JDBC URL check -->{}", jdbcUrl9);
             } else if (routingDb.equals("KKF")) {
-                data = spark.read()
+                if (!conditions.isEmpty()) {
+                    sqlQuery += " WHERE IS_DELETED = 0 AND REF_FIELD_4 > 0 AND inv_id in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,pal_code,barcode_id,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
+                } data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
                 log.info("JDBC URL check -->{}", jdbcUrl10);
+            } else if (routingDb.equals("KSP")) {
+                if (!conditions.isEmpty()) {
+                    sqlQuery += " WHERE IS_DELETED = 0 AND REF_FIELD_4 > 0 AND inv_id in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,pal_code,barcode_id,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
+                } data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl11);
             }
 
 
@@ -7408,6 +7630,14 @@ public class MultiTenantService {
                         .option("pushDownloadPredicate", true)
                         .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
                 log.info("JDBC URL check -->{}", jdbcUrl10);
+            } else if (routingDb.equals("KSP")) {
+                if (!conditions.isEmpty()) {
+                    sqlQuery += " WHERE inv.IS_DELETED = 0 AND inv.REF_FIELD_4 > 0 AND inv.INV_ID in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,pal_code,barcode_id,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
+                } data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl11);
             }
             Encoder<InventoryNewV9> inventoryV2CoreEncoder = Encoders.bean(InventoryNewV9.class);
             Dataset<InventoryNewV9> inventoryV2CoreDataset = data.as(inventoryV2CoreEncoder);

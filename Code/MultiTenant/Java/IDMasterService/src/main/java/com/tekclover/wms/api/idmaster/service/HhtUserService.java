@@ -285,6 +285,7 @@ public class HhtUserService {
             DataBaseContextHolder.clear();
             DataBaseContextHolder.setCurrentDb("MT");
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", DataBaseContextHolder.getCurrentDb());
+            dbHhtUser.setId(null);
             HhtUser savedHhtUserImf = hhtUserRepository.save(dbHhtUser);
             log.info("Hhtuser saved in common DB : savedHhtUserImf ------> {}", savedHhtUserImf);
         } catch (Exception e) {
