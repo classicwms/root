@@ -2,6 +2,7 @@ package com.tekclover.wms.core.service;
 
 
 import com.tekclover.wms.core.config.PropertiesConfig;
+import com.tekclover.wms.core.model.spark.PutawayResponse;
 import com.tekclover.wms.core.model.spark.*;
 import com.tekclover.wms.core.model.transaction.SearchInboundHeaderV2;
 import com.tekclover.wms.core.model.transaction.SearchPickupHeaderV2;
@@ -1462,6 +1463,103 @@ public class SparkService {
         }
     }
 
+    public InventoryResponse[] findAllInventory(InventoryRequest request) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", " RestTemplate");
+
+            UriComponentsBuilder builder =
+                    UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "/find/inventory/by/aging/");
+            HttpEntity<?> entity = new HttpEntity<>(request, headers);
+            ResponseEntity<InventoryResponse[]> result =
+                    getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, InventoryResponse[].class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    public PickupLineResponse[] findAllPickupLine(PickupDashBoardRequest request) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", " RestTemplate");
+
+            UriComponentsBuilder builder =
+                    UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "/find/pickup/line");
+            HttpEntity<?> entity = new HttpEntity<>(request, headers);
+            ResponseEntity<PickupLineResponse[]> result =
+                    getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, PickupLineResponse[].class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    public OccupancyResponse[] occupancyReport(CapacityUtilizationByPlantRequest request) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", " RestTemplate");
+
+            UriComponentsBuilder builder =
+                    UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "/bin/capacity");
+            HttpEntity<?> entity = new HttpEntity<>(request, headers);
+            ResponseEntity<OccupancyResponse[]> result =
+                    getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, OccupancyResponse[].class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+
+    }
+    
+        public PalletResponse[] findPalletizationDashBoard(PalletRequest request) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", " RestTemplate");
+//        headers.add("Authorization", "Bearer " + authToken);
+
+            UriComponentsBuilder builder =
+                    UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "/palletization/vehicle/dashboard");
+            HttpEntity<?> entity = new HttpEntity<>(request, headers);
+            ResponseEntity<PalletResponse[]> result =
+                    getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, PalletResponse[].class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+
+    }
+
+    public PutawayResponse[] findPutAwayByUser(PalletRequest request) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", " RestTemplate");
+
+            UriComponentsBuilder builder =
+                    UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "/putawaynew/user/dashboard");
+            HttpEntity<?> entity = new HttpEntity<>(request, headers);
+            ResponseEntity<PutawayResponse[]> result =
+                    getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, PutawayResponse[].class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
 
     //---------------------------------------Dash Board-----------------------------------------------------//
 

@@ -1,5 +1,6 @@
 package com.tekclover.wms.core.controller;
 
+import com.tekclover.wms.core.model.spark.PutawayResponse;
 import com.tekclover.wms.core.model.spark.*;
 import com.tekclover.wms.core.model.transaction.QualityLineV2;
 import com.tekclover.wms.core.model.transaction.SearchInboundHeaderV2;
@@ -563,6 +564,43 @@ public class SparkController {
         return new ResponseEntity<>(responses, HttpStatus.OK);
     }
 
+
+    @ApiOperation(response = InventoryResponse.class, value = "Spark Find Aging Report")
+    @PostMapping("/find/inventory/by/aging/")
+    public ResponseEntity<?> findInventoryAll(@RequestBody InventoryRequest request) throws Exception {
+        InventoryResponse[] responses = sparkService.findAllInventory(request);
+        return new ResponseEntity<>(responses, HttpStatus.OK);
+    }
+
+    @ApiOperation(response = PickupLineResponse.class, value = "Spark Find Pickup")
+    @PostMapping("/find/pickup/line")
+    public ResponseEntity<?> findPickupLineAll(@RequestBody PickupDashBoardRequest request) throws Exception {
+        PickupLineResponse[] responses = sparkService.findAllPickupLine(request);
+        return new ResponseEntity<>(responses, HttpStatus.OK);
+    }
+
+    //Occupancy DashBoard
+    @ApiOperation(response = OccupancyResponse.class, value = "Spark Occupancy")
+    @PostMapping("/bin/capacity")
+    public ResponseEntity<?> occupancyReport(@RequestBody CapacityUtilizationByPlantRequest request) throws Exception {
+        OccupancyResponse[] responses = sparkService.occupancyReport(request);
+        return new ResponseEntity<>(responses, HttpStatus.OK);
+    }
+
+    @ApiOperation(response = PalletResponse.class, value = "Spark Find PalletizationDashBoard")
+    @PostMapping("/palletization/vehicle/dashboard")
+    public ResponseEntity<?> findPalletizationDashBoard(@RequestBody PalletRequest request) throws Exception {
+        PalletResponse[] preInboundLineV2 = sparkService.findPalletizationDashBoard(request);
+        return new ResponseEntity<>(preInboundLineV2, HttpStatus.OK);
+    }
+
+
+    @ApiOperation(response = PutawayResponse.class, value = "Spark Find PutAway DashBoard by user")
+    @PostMapping("/putawaynew/user/dashboard")
+    public ResponseEntity<?> findPutAwayByUser(@RequestBody PalletRequest request) throws Exception {
+        PutawayResponse[] palletization = sparkService.findPutAwayByUser(request);
+        return new ResponseEntity<>(palletization, HttpStatus.OK);
+    }
 
     //---------------------------------------Dash Board-----------------------------------------------------//
 
