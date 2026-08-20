@@ -89,4 +89,44 @@ public interface PreOutboundLineV2Repository extends JpaRepository<PreOutboundLi
                                              @Param("preOutboundNo") String preOutboundNo,
                                              @Param("refDocNumber") String refDocNumber);
 
+    @Modifying
+    @Query(value = "update tblpreoutboundline set status_id = :statusId , status_text = :statusDescription \n" +
+            "where c_id = :companyCodeId and plant_id = :plantId and lang_id = :languageId and wh_id = :warehouseId and " +
+            " ref_doc_no = :refDocNo and pre_ob_no = :preOutboundNo and is_deleted = 0 ", nativeQuery = true)
+    void updatePreOutboundLineV10(@Param("companyCodeId") String companyCodeId,
+                                  @Param("plantId") String plantId,
+                                  @Param("languageId") String languageId,
+                                  @Param("warehouseId") String warehouseId,
+                                  @Param("refDocNo") String refDocNo,
+                                  @Param("preOutboundNo") String preOutboundNo,
+                                  @Param("statusId") Long statusId,
+                                  @Param("statusDescription") String statusDescription);
+
+    @Modifying
+    @Query(value = "UPDATE tblpreoutboundline SET STATUS_ID = :statusId, STATUS_TEXT = :statusText\n" +
+            " WHERE IS_DELETED = 0 AND C_ID = :companyCodeId AND PLANT_ID = :plantId AND " +
+            " LANG_ID = :languageId AND WH_ID = :warehouseId AND REF_DOC_NO = :refDocNumber " +
+            " AND PRE_OB_NO = :preOutboundNo AND ITM_CODE = :itemCode ",nativeQuery = true)
+    void updatePreOutboundLineItemWiseV10(@Param("companyCodeId") String companyCodeId,
+                                          @Param("plantId") String plantId,
+                                          @Param("languageId") String languageId,
+                                          @Param("warehouseId") String warehouseId,
+                                          @Param("refDocNumber") String refDocNumber,
+                                          @Param("preOutboundNo") String preOutboundNo,
+                                          @Param("statusId") Long statusId,
+                                          @Param("statusText") String statusText,
+                                          @Param("itemCode")String itemCode);
+
+    @Modifying
+    @Query(value ="update tblpreoutboundline set status_id = :statusId , status_text = :statusDescription \n" +
+            "where c_id = :companyCodeId and plant_id = :plantId and lang_id = :languageId and wh_id = :warehouseId and " +
+            " ref_doc_no = :refDocNo and pre_ob_no = :preOutboundNo and is_deleted = 0 ", nativeQuery = true)
+    void updatePreOutboundLineV9(@Param("companyCodeId") String companyCodeId,
+                                 @Param("plantId") String plantId,
+                                 @Param("languageId") String languageId,
+                                 @Param("warehouseId") String warehouseId,
+                                 @Param("refDocNo") String refDocNo,
+                                 @Param("preOutboundNo") String preOutboundNo,
+                                 @Param("statusId") Long statusId,
+                                 @Param("statusDescription") String statusDescription);
 }

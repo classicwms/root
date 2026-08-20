@@ -210,5 +210,14 @@ PutAwayLineV2 findTopByCompanyCodeAndPlantIdAndWarehouseIdAndLanguageIdAndItemCo
                                           @Param("warehouseId") String warehouseId,
                                           @Param("refDocNumber") String refDocNumber);
 
+    @Query(value = "select * from tblputawayline where c_id = :companyCodeId and plant_id = :plantId and " +
+            " lang_id = :languageId and wh_id = :warehouseId and ref_doc_no = :refDocNumber and IB_ORD_TYP_ID = :inboundOrderTypeId ",nativeQuery = true)
+    List<PutAwayLineV2> getPutAwayLinesV10(@Param("companyCodeId") String companyCode,
+                                           @Param("plantId") String plantId,
+                                           @Param("languageId") String languageId,
+                                           @Param("warehouseId") String warehouseId,
+                                           @Param("refDocNumber") String refDocNumber,
+                                           @Param("inboundOrderTypeId") Long inboundOrderTypeId);
+
 
 }

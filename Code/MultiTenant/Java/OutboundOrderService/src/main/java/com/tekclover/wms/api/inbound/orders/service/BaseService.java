@@ -46,6 +46,14 @@ public class BaseService {
     protected static final String COMPANY_CODE = "1001";        //Indus mega food company code
     protected static final String MFR_NAME_V4 = "NAMRATHA";              //Walkaroo Mfr code
     protected static final String MFR_NAME_V6 = "BP";
+    protected static final String MFR_NAME_V10 = "SPAREX";
+    protected static final String MFR_NAME_V9 = "BF";
+    protected static final String MFR_NAME_V11 = "KKF";
+    protected static final String MFR_NAME_V12 = "KSP";
+
+    protected String MW_BFS = "BF";
+
+
     @Autowired
     protected IDMasterService idmasterService;
 

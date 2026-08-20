@@ -11,4 +11,6 @@ public class InventoryV5 {
     private String itemCode;
     private Double referenceField4;
     private Double allocatedQuantity;
+    private String storageBin;
+
 }

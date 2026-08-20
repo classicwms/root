@@ -239,6 +239,9 @@ public class PickupLineController {
                 case "NAMRATHA":
                     log.info("Starting async process for NAMRATHA");
                     asyncService.processPickupLineAsync(newPickupLine, loginUserID);
+                    //kafka
+//                    createdPickupLine = pickuplineService.validatePickUpLine(newPickupLine, loginUserID);
+
                     log.info("Return Response for NAMRATHA without waiting for the process to complete");
                     break;
                 case "REEFERON":
@@ -246,6 +249,18 @@ public class PickupLineController {
                     break;
                 case "KNOWELL":
                     createdPickupLine = pickuplineService.createPickupLineNonCBMV7(newPickupLine, loginUserID);
+                    break;
+                case "SPAREX":
+                    createdPickupLine = pickuplineService.createPickupLineNonCBMV10(newPickupLine, loginUserID);
+                    break;
+                case "BF":
+                    createdPickupLine = pickuplineService.createPickupLineV9(newPickupLine, loginUserID);
+                    break;
+                case "KKF":
+                    createdPickupLine = pickuplineService.createPickupLineV9(newPickupLine, loginUserID);
+                    break;
+                case "KSP":
+                    createdPickupLine = pickuplineService.createPickupLineV9(newPickupLine, loginUserID);
                     break;
             }
             if(createdPickupLine == null) {
@@ -264,29 +279,6 @@ public class PickupLineController {
         } finally {
             DataBaseContextHolder.clear();
         }
-
-//        try {
-//            log.info("newPickupLine -----> {}", newPickupLine);
-//
-//            List<PickupLineV2> createPickUpLineResponse = newPickupLine.stream()
-//                    .map(item -> {
-//                        PickupLineV2 copy = new PickupLineV2();
-//                        BeanUtils.copyProperties(item, copy, CommonUtils.getNullPropertyNames(item));
-//                        return copy;
-//                    })
-//                    .collect(Collectors.toList());
-//
-//            // Return early response
-//            ResponseEntity<?> response = new ResponseEntity<>(createPickUpLineResponse, HttpStatus.ACCEPTED);
-//
-//            // Fire async processing
-//            asyncService.processPickupLineAsync(newPickupLine, loginUserID);
-//
-//            return response;
-//        } catch (Exception e) {
-//            log.error("Error processing GR line async", e);
-//            return new ResponseEntity<>("Failed to start GR Line process", HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
     }
 
     @ApiOperation(response = PickupLineV2.class, value = "Update PickupLine") // label for swagger
@@ -348,6 +340,23 @@ public class PickupLineController {
             pickuplineService.deletePickupLineV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber,
                     pickupNumber, itemCode, actualHeNo, pickedStorageBin, pickedPackCode, loginUserID);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } finally {
+            DataBaseContextHolder.clear();
+        }
+    }
+
+    @ApiOperation(response = PickupLineV2.class, value = "Search PickupLine V10") // label for swagger
+    @PostMapping("/v10/findPickupLine")
+    public ResponseEntity<?> findPickupLineV10(@RequestBody SearchPickupLineV2 searchPickupLine)
+            throws Exception {
+        try {
+            DataBaseContextHolder.setCurrentDb("MT");
+            String routingDb = dbConfigRepository.getDbList(searchPickupLine.getCompanyCodeId(), searchPickupLine.getPlantId(), searchPickupLine.getWarehouseId());
+            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(routingDb);
+            List<PickupLineV2> pickupLineV2 = pickuplineService.findPickupLineV10(searchPickupLine);
+            return new ResponseEntity<>(pickupLineV2, HttpStatus.OK);
         } finally {
             DataBaseContextHolder.clear();
         }

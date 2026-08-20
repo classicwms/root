@@ -61,4 +61,14 @@ public interface PeriodicHeaderV2Repository extends JpaRepository<PeriodicHeader
                                 @Param("languageId") String languageId,
                                 @Param("warehouseId") String warehouseId,
                                 @Param("cycleCountNo") String cycleCountNo);
+
+    @Query(value = "SELECT * from tblperiodicheader WHERE " +
+            "C_ID = :companyCode AND plant_id = :plantId AND lang_id = :languageId " +
+            "AND WH_ID = :warehouseId AND cc_no = :cycleCountNo " +
+            "AND IS_DELETED = 0", nativeQuery = true)
+    PeriodicHeaderV2 getPeriodicHeaderV9(@Param("companyCode") String companyCode,
+                                         @Param("plantId") String plantId,
+                                         @Param("languageId") String languageId,
+                                         @Param("warehouseId") String warehouseId,
+                                         @Param("cycleCountNo") String cycleCountNo);
 }

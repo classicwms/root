@@ -1825,4 +1825,53 @@ public class PickupHeaderService extends BaseService {
         pickListTransaction.setPickListLoosePackList(loosePackList);
         return pickListTransaction;
     }
+
+    //======SPAREX==============================
+    /**
+     *
+     * @param loginUserID
+     * @param updatePickupHeader
+     * @return
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     * @throws java.text.ParseException
+     * @throws FirebaseMessagingException
+     */
+    public PickupHeaderV2 updatePickupHeaderV10(String loginUserID, PickupHeaderV2 updatePickupHeader) throws IllegalAccessException, InvocationTargetException, java.text.ParseException, FirebaseMessagingException {
+        PickupHeaderV2 dbPickupHeader = getPickupHeaderForUpdateV2(updatePickupHeader.getCompanyCodeId(), updatePickupHeader.getPlantId(), updatePickupHeader.getLanguageId(),
+                updatePickupHeader.getWarehouseId(), updatePickupHeader.getPreOutboundNo(), updatePickupHeader.getRefDocNumber(),
+                updatePickupHeader.getPartnerCode(), updatePickupHeader.getPickupNumber(), updatePickupHeader.getLineNumber(),
+                updatePickupHeader.getItemCode());
+        if (dbPickupHeader != null) {
+            BeanUtils.copyProperties(updatePickupHeader, dbPickupHeader, CommonUtils.getNullPropertyNames(updatePickupHeader));
+
+            OutboundLineV2 updateOutboundLine = new OutboundLineV2();
+            updateOutboundLine.setAssignedPickerId(dbPickupHeader.getAssignedPickerId());
+            updateOutboundLine.setManufacturerName(dbPickupHeader.getManufacturerName());
+            outboundLineService.updateOutboundLineV10(
+                    dbPickupHeader.getCompanyCodeId(),
+                    dbPickupHeader.getPlantId(),
+                    dbPickupHeader.getLanguageId(),
+                    dbPickupHeader.getWarehouseId(),
+                    dbPickupHeader.getPreOutboundNo(),
+                    dbPickupHeader.getRefDocNumber(),
+                    dbPickupHeader.getPartnerCode(),
+                    dbPickupHeader.getLineNumber(),
+                    dbPickupHeader.getItemCode(),
+                    loginUserID,
+                    updateOutboundLine);
+
+            dbPickupHeader.setPickUpdatedBy(loginUserID);
+            dbPickupHeader.setPickUpdatedOn(new Date());
+            pickupHeaderV2Repository.delete(dbPickupHeader);
+            PickupHeaderV2 pickup = pickupHeaderV2Repository.save(dbPickupHeader);
+            if(pickup != null) {
+                sendNotificationForUpdate(pickup.getRefDocNumber(),
+                        pickup.getAssignedPickerId(), pickup.getWarehouseId(), pickup.getReferenceDocumentType());
+            }
+            return pickup;
+        }
+        return null;
+    }
+
 }

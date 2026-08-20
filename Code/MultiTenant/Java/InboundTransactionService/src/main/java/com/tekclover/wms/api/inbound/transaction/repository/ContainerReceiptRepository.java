@@ -6,9 +6,12 @@ import java.util.Optional;
 
 import javax.transaction.Transactional;
 
+import com.tekclover.wms.api.inbound.transaction.model.inbound.containerreceipt.v2.ContainerReceiptV2;
 import com.tekclover.wms.api.inbound.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.tekclover.wms.api.inbound.transaction.model.inbound.containerreceipt.ContainerReceipt;
@@ -45,4 +48,13 @@ public interface ContainerReceiptRepository extends JpaRepository<ContainerRecei
 	public Optional<ContainerReceipt> findByContainerReceiptNoAndDeletionIndicator(String containerReceiptNo, Long deletionIndicator);
 
 	long countByWarehouseIdAndContainerReceivedDateBetweenAndRefDocNumberIsNull(String warehouseId, Date fromDate, Date toDate);
+
+    @Query(value = "select * from tblcontainerreceipt where c_id = :companyCodeId and lang_id = :languageId and plant_id = :plantId and wh_id = :warehouseId and INV_NO = :invoiceNo and \n" +
+            "is_deleted=0", nativeQuery = true)
+    public ContainerReceiptV2 getContainerReceipt(@Param(value = "companyCodeId") String companyCodeId,
+                                                  @Param(value = "languageId") String languageId,
+                                                  @Param(value = "plantId") String plantId,
+                                                  @Param(value = "warehouseId") String warehouseId,
+                                                  @Param(value = "invoiceNo") String invoiceNo);
+
 }

@@ -85,4 +85,20 @@ public class InboundOrderProcessV4 {
     private String salesOrderNumber;
 
     private Double orderQty;
+
+    //----------------------------Bharath Package--------------------------------
+    private String billerCode;
+    private String billerName;
+    private String poAmendmentDate;
+    private Long poAmendmentNo;
+
+    private String fgSku;
+    private String fgSkuDescription;
+    private String fgUom;
+    private Date fgInwardDate;
+
+    private String unitType;
+    private String weight;
+
+    private String fscType;
 }

@@ -349,4 +349,149 @@ public class OrderProcessingService extends BaseService {
             throw e;
         }
     }
+
+    /**
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param refDocNumber
+     * @param inboundOrderTypeId
+     * @param inboundOrderProcess
+     * @return
+     * @throws Exception
+     */
+    public InboundHeaderV2 postInboundReceivedV9(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                                 String refDocNumber, String preInboundNo, Long inboundOrderTypeId,
+                                                 InboundOrderProcess inboundOrderProcess) throws Exception {
+
+        InboundHeaderV2 createdInboundHeader = new InboundHeaderV2();
+        log.info("Inbound Order Save Process Initiated ------> " + refDocNumber + "|" + inboundOrderTypeId + "|" + companyCodeId + "|" + plantId + "|" + languageId + "|" + warehouseId);
+
+        try {
+            //Checking whether received refDocNumber processed already.
+            boolean orderProcessedStatus = preInboundHeaderV2Repository.existsByRefDocNumberAndInboundOrderTypeIdAndDeletionIndicator(refDocNumber, inboundOrderTypeId, 0L);
+            if (!orderProcessedStatus) {
+                //Lines
+                if (inboundOrderProcess.getInboundLines() != null && !inboundOrderProcess.getInboundLines().isEmpty()) {
+                    inboundLineV2Repository.saveAll(inboundOrderProcess.getInboundLines());
+                }
+                if (inboundOrderProcess.getPreInboundLines() != null && !inboundOrderProcess.getPreInboundLines().isEmpty()) {
+                    preInboundLineV2Repository.saveAll(inboundOrderProcess.getPreInboundLines());
+                }
+                if (inboundOrderProcess.getStagingLines() != null && !inboundOrderProcess.getStagingLines().isEmpty()) {
+                    stagingLineV2Repository.saveAll(inboundOrderProcess.getStagingLines());
+                }
+
+                //Header
+                if (inboundOrderProcess.getStagingHeader() != null) {
+                    stagingHeaderV2Repository.save(inboundOrderProcess.getStagingHeader());
+                }
+                if (inboundOrderProcess.getGrHeader() != null) {
+                    grHeaderV2Repository.save(inboundOrderProcess.getGrHeader());
+                }
+                if (inboundOrderProcess.getInboundHeader() != null) {
+                    createdInboundHeader = inboundHeaderV2Repository.save(inboundOrderProcess.getInboundHeader());
+                }
+                if (inboundOrderProcess.getPreInboundHeader() != null) {
+                    preInboundHeaderV2Repository.save(inboundOrderProcess.getPreInboundHeader());
+                }
+                if (inboundOrderProcess.getInboundIntegrationLog() != null) {
+                    inboundIntegrationLogRepository.save(inboundOrderProcess.getInboundIntegrationLog());
+                }
+
+                log.info("Inbound Order Save Process Completed ------> " + refDocNumber + ", " + inboundOrderTypeId);
+                stagingLineV2Repository.updateStagingLineInvQtyUpdateProc(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preInboundNo);
+                log.info("StagingLine InvQty Update using Stored Procedure Finished");
+            }
+            return createdInboundHeader;
+
+        } catch (Exception e) {
+            createInboundIntegrationLogV2(inboundOrderProcess.getInboundIntegrationHeader(), inboundOrderProcess.getLoginUserId());
+            log.error("Inbound Order Processing Exception ----> ");
+            e.printStackTrace();
+
+            // Updating the Processed Status
+            log.info("Inbound Rollback Initiated...!" + refDocNumber);
+//            preInboundHeaderService.initiateInboundRollBack(companyCodeId, plantId, languageId, warehouseId, refDocNumber, inboundOrderTypeId);
+//            orderService.updateProcessedIbOrderV2(refDocNumber, inboundOrderTypeId);
+            log.info("Inbound Rollback Finished...!" + refDocNumber);
+            throw e;
+        }
+    }
+
+
+    //===========SPAREX=====================
+    /**
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param refDocNumber
+     * @param inboundOrderTypeId
+     * @param inboundOrderProcess
+     * @return
+     * @throws Exception
+     */
+    public InboundHeaderV2 postInboundReceivedV10(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                                  String refDocNumber, String preInboundNo, Long inboundOrderTypeId,
+                                                  InboundOrderProcess inboundOrderProcess) throws Exception {
+
+        InboundHeaderV2 createdInboundHeader = null;
+        log.info("Inbound Order Save Process V10 Initiated ------> " + refDocNumber + "|" + inboundOrderTypeId + "|" + companyCodeId + "|" + plantId + "|" + languageId + "|" + warehouseId);
+
+        try {
+            //Lines
+            if(inboundOrderProcess.getInboundLines() != null && !inboundOrderProcess.getInboundLines().isEmpty()) {
+                inboundLineV2Repository.saveAll(inboundOrderProcess.getInboundLines());
+            }
+            if(inboundOrderProcess.getPreInboundLines() != null && !inboundOrderProcess.getPreInboundLines().isEmpty()) {
+                preInboundLineV2Repository.saveAll(inboundOrderProcess.getPreInboundLines());
+            }
+            if(inboundOrderProcess.getStagingLines() != null && !inboundOrderProcess.getStagingLines().isEmpty()) {
+                stagingLineV2Repository.saveAll(inboundOrderProcess.getStagingLines());
+            }
+            if(inboundOrderProcess.getGrLines() != null && !inboundOrderProcess.getGrLines().isEmpty()) {
+                grLineV2Repository.saveAll(inboundOrderProcess.getGrLines());
+            }
+            if(inboundOrderProcess.getPutAwayLines() != null && !inboundOrderProcess.getPutAwayLines().isEmpty()) {
+                putAwayLineV2Repository.saveAll(inboundOrderProcess.getPutAwayLines());
+            }
+            if(inboundOrderProcess.getImPartnerList() != null) {
+                imPartnerRepository.saveAll(inboundOrderProcess.getImPartnerList());
+            }
+
+            //Header
+            if(inboundOrderProcess.getStagingHeader() != null) {
+                stagingHeaderV2Repository.save(inboundOrderProcess.getStagingHeader());
+            }
+            if(inboundOrderProcess.getGrHeader() != null) {
+                grHeaderV2Repository.save(inboundOrderProcess.getGrHeader());
+            }
+            if(inboundOrderProcess.getPutAwayHeaders() != null && !inboundOrderProcess.getPutAwayHeaders().isEmpty()) {
+                putAwayHeaderV2Repository.saveAll(inboundOrderProcess.getPutAwayHeaders());
+            }
+            if(inboundOrderProcess.getInboundHeader() != null) {
+                createdInboundHeader = inboundHeaderV2Repository.save(inboundOrderProcess.getInboundHeader());
+            }
+            if(inboundOrderProcess.getPreInboundHeader() != null) {
+                preInboundHeaderV2Repository.save(inboundOrderProcess.getPreInboundHeader());
+            }
+
+            createInboundIntegrationLogV2(inboundOrderProcess.getPreInboundHeader());
+            log.info("Inbound Order Save Process Completed V10 ------> " + refDocNumber + ", " + inboundOrderTypeId);
+            stagingLineV2Repository.updateStagingLineInvQtyUpdateV10(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preInboundNo);
+            log.info("StagingLine InvQty Update Finished V10 ");
+
+            return createdInboundHeader;
+
+        } catch (Exception e) {
+            createInboundIntegrationLogV2(inboundOrderProcess.getInboundIntegrationHeader(), inboundOrderProcess.getLoginUserId());
+            log.error("Inbound Order Processing Exception ----> ");
+            e.printStackTrace();
+            throw e;
+        }
+    }
 }

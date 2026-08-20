@@ -153,5 +153,12 @@ public class PickupHeaderV2 extends PickupHeader {
 	@Column(name = "LOOSE_PACK")
 	private Long loosePack = 0L;
 
+	//BF
+	@Column(name = "MFR_DATE")
+	private Date manufacturerDate;
+
+	@Column(name = "EXP_DATE")
+	private Date expiryDate;
+
 
 }

@@ -111,6 +111,11 @@ public interface OrderManagementLineV2Repository extends JpaRepository<OrderMana
             String companyCodeId, String plantId, String languageId, String warehouseId, String itemCode,
             String manufacturerName, List<Long> statusIdList, Long deletionIndicator);
 
+    OrderManagementLineV2 findByPlantIdAndCompanyCodeIdAndLanguageIdAndWarehouseIdAndPreOutboundNoAndRefDocNumberAndBarcodeIdAndItemCodeAndLineNumberAndDeletionIndicator(
+            String plantId, String companyCodeId, String languageId, String warehouseId, String preOutboundNo,
+            String refDocNumber, String barcodeId, String itemCode, Long lineNo, Long deletionIndicator);
+
+
     @Modifying(clearAutomatically = true)
     @Query("UPDATE OrderManagementLineV2 ob SET ob.statusId = :statusId, ob.statusDescription = :statusDescription \n" +
             "WHERE ob.companyCodeId = :companyCodeId AND ob.plantId = :plantId AND ob.languageId = :languageId AND ob.warehouseId = :warehouseId \n" +
@@ -480,6 +485,26 @@ public interface OrderManagementLineV2Repository extends JpaRepository<OrderMana
                                                             @Param("refDocNo") String refDocNo,
                                                             @Param("preOutboundNo") String preOutboundNo);
 
+
+    @Modifying
+    @Query(value = "update tblordermangementline set STATUS_ID = :statusId , STATUS_TEXT = :text , PICK_UP_CTD_BY = :updatedBy ," +
+            " PICK_UP_UTD_BY  = :updatedBy , PICK_UP_CTD_ON = :updatedOn , PICK_UP_UTD_ON  = :updatedOn " +
+            " where C_ID = :companyId and PLANT_ID = :plantId and LANG_ID = :languageId and WH_ID = :warehouseId and" +
+            " REF_DOC_NO = :refDocNo and PRE_OB_NO = :preOutboundLine and ITM_CODE = :itemCode and PARTNER_ITEM_BARCODE = :barcodeId and" +
+            " PU_NO = :pickupNo and IS_DELETED = 0", nativeQuery = true)
+    void updateOrderManagementWithoutLineV10(@Param("companyId") String companyId,
+                                             @Param("plantId") String plantId,
+                                             @Param("warehouseId") String warehouseId,
+                                             @Param("languageId") String languageId,
+                                             @Param("refDocNo") String refDocNo,
+                                             @Param("preOutboundLine") String preOutboundLine,
+                                             @Param("itemCode") String itemCode,
+                                             @Param("barcodeId") String barcodeId,
+                                             @Param("pickupNo") String pickupNo,
+                                             @Param("statusId") Long statusId,
+                                             @Param("text") String text,
+                                             @Param("updatedBy") String updatedBy,
+                                             @Param("updatedOn") Date updatedOn);
     //---------------------------------------KNOWELL------------------------------------------------------//
 
     @Query(value = "SELECT * FROM tblordermangementline " +
@@ -562,4 +587,250 @@ public interface OrderManagementLineV2Repository extends JpaRepository<OrderMana
     void deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
             String companyCodeId, String plantId, String warehouseId, String refDocNumber, String preOutboundNo, Long deletionIndicator);
 
+
+    void deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndRefDocNumberAndLineNumberAndPreOutboundNoAndDeletionIndicator(
+            String companyCodeId, String plantId, String warehouseId, String itemCode,String refDocNumber, Long lineNumber, String preOutboundNo, Long deletionIndicator);
+
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("UPDATE OrderManagementLineV2 ob SET ob.statusId = :statusId, ob.statusDescription = :statusDescription, ob.pickupUpdatedOn = :updatedOn, \r\n"
+            + " ob.pickupNumber = :pickupNumber \r\n "
+            + " WHERE ob.companyCodeId = :companyCodeId AND ob.plantId = :plantId AND ob.languageId = :languageId AND ob.warehouseId = :warehouseId AND \r\n "
+            + " ob.itemCode = :itemCode AND ob.preOutboundNo = :preOutboundNo AND ob.lineNumber = :lineNumber")
+    void updateOrderManagementLineNewV10(@Param("companyCodeId") String companyCodeId,
+                                         @Param("plantId") String plantId,
+                                         @Param("languageId") String languageId,
+                                         @Param("warehouseId") String warehouseId,
+                                         @Param("preOutboundNo") String preOutboundNo,
+                                         @Param("lineNumber") Long lineNumber,
+                                         @Param("itemCode") String itemCode,
+                                         @Param("statusId") Long statusId,
+                                         @Param("statusDescription") String statusDescription,
+                                         @Param("pickupNumber") String pickupNumber,
+                                         @Param("updatedOn") Date updatedOn);
+
+    @Modifying
+    @Query(value = "update tblordermangementline set STATUS_ID = :statusId , STATUS_TEXT = :text , PICK_UP_CTD_BY = :updatedBy ," +
+            " PICK_UP_UTD_BY  = :updatedBy , PICK_UP_CTD_ON = :updatedOn , PICK_UP_UTD_ON  = :updatedOn " +
+            " where C_ID = :companyId and PLANT_ID = :plantId and LANG_ID = :languageId and WH_ID = :warehouseId and" +
+            " REF_DOC_NO = :refDocNo and PRE_OB_NO = :preOutboundLine and ITM_CODE = :itemCode and PARTNER_ITEM_BARCODE = :barcodeId and" +
+            " OB_LINE_NO = :lineNo and PU_NO = :pickupNo and IS_DELETED = 0", nativeQuery = true)
+    void updateOrderManagementLineV10(@Param("companyId") String companyId,
+                                      @Param("plantId") String plantId,
+                                      @Param("warehouseId") String warehouseId,
+                                      @Param("languageId") String languageId,
+                                      @Param("refDocNo") String refDocNo,
+                                      @Param("preOutboundLine") String preOutboundLine,
+                                      @Param("itemCode") String itemCode,
+                                      @Param("barcodeId") String barcodeId,
+                                      @Param("lineNo") Long lineNo,
+                                      @Param("pickupNo") String pickupNo,
+                                      @Param("statusId") Long statusId,
+                                      @Param("text") String text,
+                                      @Param("updatedBy") String updatedBy,
+                                      @Param("updatedOn") Date updatedOn);
+
+    // BF
+    @Query(value = "select * from tblordermangementline where c_id = :companyId and plant_id = :plantId " +
+            "and wh_id =  :warehouseId and ref_doc_no = :refDocNo and itm_code = :itemCode and is_deleted = 0 and level_id = :levelId", nativeQuery = true)
+    List<OrderManagementLineV2> findOrderLinesV9(@Param("companyId") String companyId,
+                                                 @Param("plantId") String plantId,
+                                                 @Param("warehouseId") String warehouseId,
+                                                 @Param("refDocNo") String refDocNo,
+                                                 @Param("itemCode") String itemCode,
+                                                 @Param("levelId") String levelId);
+
+    @Modifying
+    @Transactional
+    @Query(value = "update tblordermangementline set level_id = :levelId, status_id = :statusId, STATUS_TEXT = :statusText where c_id = :companyId and plant_id = :plantId " +
+            "and wh_id  = :warehouseId and ref_doc_no = :refDocNo and itm_code = :itemCode and is_deleted = 0 ", nativeQuery = true)
+    int updateOrderLinesV9(@Param("companyId") String companyId,
+                           @Param("plantId") String plantId,
+                           @Param("warehouseId") String warehouseId,
+                           @Param("refDocNo") String refDocNo,
+                           @Param("itemCode") String itemCode,
+                           @Param("levelId") String levelId,
+                           @Param("statusId") Long statusId,
+                           @Param("statusText") String statusText);
+
+    @Transactional
+    @Modifying
+    @Query(value = "delete tblordermangementline where C_ID = :companyCodeId and PLANT_ID = :plantId and LANG_ID = :languageId \n" +
+            "and WH_ID = :warehouseId and REF_DOC_NO = :refDocNumber \n" +
+            "and ITM_CODE = :itemCode and pallet_id = :palletCode and is_deleted = 0", nativeQuery = true)
+    int deleteOrderManagementLineV9(@Param("companyCodeId") String companyCodeId,
+                                  @Param("plantId") String plantId,
+                                  @Param("languageId") String languageId,
+                                  @Param("warehouseId") String warehouseId,
+                                  @Param("refDocNumber") String refDocNumber,
+                                  @Param("itemCode") String itemCode,
+                                  @Param("palletCode") String palletCode);
+
+    @Query(value = "select coalesce(max(OB_LINE_NO), 0) + 1 from tblordermangementline where C_ID = :companyId " +
+            " and PLANT_ID = :plantId and LANG_ID = :languageId and WH_ID = :warehouseId " +
+            " and REF_DOC_NO = :refDocNumber and PRE_OB_NO = :preOutboundNo and ITM_CODE = :itemCode and IS_DELETED  = 0",nativeQuery = true)
+    public Long getLineNumberV9(@Param("companyId") String companyId,
+                                @Param("plantId") String plantId,
+                                @Param("languageId") String languageId,
+                                @Param("warehouseId") String warehouseId,
+                                @Param("refDocNumber") String refDocNumber,
+                                @Param("preOutboundNo") String preOutboundNo,
+                                @Param("itemCode") String itemCode);
+
+    List<OrderManagementLineV2> findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndItemCodeAndStatusIdAndDeletionIndicator(
+            String companyCodeId, String plantId, String languageId, String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode, Long lineNumber, String itemCode, Long statusId, Long deletionIndicator);
+
+
+    @Query(value = "select sum(ALLOC_QTY) from tblordermangementline where C_ID = :companyId and " +
+            " PLANT_ID = :plantId and LANG_ID = :languageId and WH_ID = :warehouseId and " +
+            " ITM_CODE = :itemCode and PALLET_ID = :palletId and PARTNER_ITEM_BARCODE = :barcodeId and STATUS_ID in (42,43,48) and IS_DELETED=0",nativeQuery = true)
+    public Double getSumOfOrderQtyV9(@Param("companyId") String companyId,
+                                     @Param("plantId") String plantId,
+                                     @Param("languageId") String languageId,
+                                     @Param("warehouseId") String warehouseId,
+                                     @Param("itemCode") String itemCode,
+                                     @Param("palletId") String palletId,
+                                     @Param("barcodeId") String barcodeId);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("UPDATE OrderManagementLineV2 ob SET ob.statusId = :statusId, ob.statusDescription = :statusDescription, ob.pickupUpdatedOn = :updatedOn, \r\n"
+            + " ob.pickupNumber = :pickupNumber \r\n "
+            + " WHERE ob.companyCodeId = :companyCodeId AND ob.plantId = :plantId AND ob.languageId = :languageId AND ob.warehouseId = :warehouseId AND \r\n "
+            + " ob.itemCode = :itemCode AND ob.preOutboundNo = :preOutboundNo AND ob.lineNumber = :lineNumber")
+    void updateOrderManagementLineV9(@Param("companyCodeId") String companyCodeId,
+                                     @Param("plantId") String plantId,
+                                     @Param("languageId") String languageId,
+                                     @Param("warehouseId") String warehouseId,
+                                     @Param("preOutboundNo") String preOutboundNo,
+                                     @Param("lineNumber") Long lineNumber,
+                                     @Param("itemCode") String itemCode,
+                                     @Param("statusId") Long statusId,
+                                     @Param("statusDescription") String statusDescription,
+                                     @Param("pickupNumber") String pickupNumber,
+                                     @Param("updatedOn") Date updatedOn);
+
+    @Query(value = "select * from tblordermangementline where C_ID = :companyId and PLANT_ID = :plantId and WH_ID = :warehouseId and \n" +
+            " REF_DOC_NO = :refDocNo and ITM_CODE = :itemCode and is_deleted = 0", nativeQuery = true)
+    List<OrderManagementLineV2> getOrderManagementLineNewV9(@Param("companyId") String companyId,
+                                                            @Param("plantId") String plantId,
+                                                            @Param("warehouseId") String warehouseId,
+                                                            @Param("refDocNo") String refDocNo,
+                                                            @Param("itemCode") String itemCode);
+
+    @Query(value = "select * from tblordermangementline where C_ID = :companyId and PLANT_ID = :plantId and WH_ID = :warehouseId and \n" +
+            " REF_DOC_NO = :refDocNo and ITM_CODE = :itemCode  and is_deleted = 0 ", nativeQuery = true)
+    List<OrderManagementLineV2> getOrderManagementLinePalletV9(@Param("companyId") String companyId,
+                                                               @Param("plantId") String plantId,
+                                                               @Param("warehouseId") String warehouseId,
+                                                               @Param("refDocNo") String refDocNo,
+                                                               @Param("itemCode") String itemCode);
+    // BF
+    @Modifying
+    @Transactional
+    @Query(value = "DELETE FROM tblordermangementline " +
+            "WHERE C_ID = :companyId AND PLANT_ID = :plantId AND WH_ID = :warehouseId " +
+            "AND REF_DOC_NO = :refDocNo AND ITM_CODE = :itemCode " +
+            "AND REF_FIELD_1 = :palletId and is_deleted = 0", nativeQuery = true)
+    int deleteOrderMangementLineByPallet(@Param("companyId") String companyId,
+                                         @Param("plantId") String plantId,
+                                         @Param("warehouseId") String warehouseId,
+                                         @Param("refDocNo") String refDocNo,
+                                         @Param("itemCode") String itemCode,
+                                         @Param("palletId") String palletId);
+
+    // BF
+    @Modifying
+    @Transactional
+    @Query(value = "delete tblordermangementline where C_ID = :companyId and PLANT_ID = :plantId and WH_ID = :warehouseId and \n" +
+            " REF_DOC_NO = :refDocNo and ITM_CODE = :itemCode and is_deleted = 0", nativeQuery = true)
+    int deleteOrderMangementLineV9(@Param("companyId") String companyId,
+                                 @Param("plantId") String plantId,
+                                 @Param("warehouseId") String warehouseId,
+                                 @Param("refDocNo") String refDocNo,
+                                 @Param("itemCode") String itemCode);
+
+    // BF
+    @Query(value = "SELECT DISTINCT PALLET_ID FROM tblordermangementline " +
+            "WHERE C_ID = :companyId " +
+            "AND PLANT_ID = :plantId " +
+            "AND WH_ID = :warehouseId " +
+            "AND REF_DOC_NO = :refDocNo " +
+            "AND ITM_CODE = :itemCode " +
+            "AND IS_DELETED = 0 " +
+            "AND PALLET_ID IS NOT NULL",
+            nativeQuery = true)
+    List<String> findAllPallets(@Param("companyId") String companyId,
+                                @Param("plantId") String plantId,
+                                @Param("warehouseId") String warehouseId,
+                                @Param("refDocNo") String refDocNo,
+                                @Param("itemCode") String itemCode);
+
+    // BF
+    @Modifying
+    @Transactional
+    @Query(value = "delete tblordermangementline where C_ID = :companyId and PLANT_ID = :plantId and WH_ID = :warehouseId and \n" +
+            " REF_DOC_NO = :refDocNo and ITM_CODE = :itemCode and is_deleted = 0", nativeQuery = true)
+    int deleteOrderMangementLine(@Param("companyId") String companyId,
+                                 @Param("plantId") String plantId,
+                                 @Param("warehouseId") String warehouseId,
+                                 @Param("refDocNo") String refDocNo,
+                                 @Param("itemCode") String itemCode);
+
+    // BF
+    @Transactional
+    @Modifying
+    @Query(value = "delete tblordermangementline where C_ID = :companyCodeId and PLANT_ID = :plantId and LANG_ID = :languageId \n" +
+            "and WH_ID = :warehouseId and REF_DOC_NO = :refDocNumber \n" +
+            "and ITM_CODE = :itemCode and pallet_id = :palletCode and is_deleted = 0", nativeQuery = true)
+    int deleteOrderManagementLine(@Param("companyCodeId") String companyCodeId,
+                                  @Param("plantId") String plantId,
+                                  @Param("languageId") String languageId,
+                                  @Param("warehouseId") String warehouseId,
+                                  @Param("refDocNumber") String refDocNumber,
+                                  @Param("itemCode") String itemCode,
+                                  @Param("palletCode") String palletCode);
+
+    @Modifying
+    @Transactional
+    @Query(value = "DELETE FROM tblordermangementline " +
+            "WHERE C_ID = :companyCodeId AND PLANT_ID = :plantId AND WH_ID = :warehouseId AND " +
+            "ITM_CODE = :itemCode AND REF_DOC_NO = :refDocNumber AND " +
+            "PRE_OB_NO = :preOutboundNo AND IS_DELETED = :deletionIndicator",
+            nativeQuery = true)
+    void deleteOrderManagementLine(
+            @Param("companyCodeId") String companyCodeId,
+            @Param("plantId") String plantId,
+            @Param("warehouseId") String warehouseId,
+            @Param("itemCode") String itemCode,
+            @Param("refDocNumber") String refDocNumber,
+            @Param("preOutboundNo") String preOutboundNo,
+            @Param("deletionIndicator") Long deletionIndicator
+    );
+
+    @Modifying
+    @Transactional
+    @Query(value = "DELETE FROM tblordermangementline " +
+            "WHERE C_ID = :companyCodeId AND PLANT_ID = :plantId AND WH_ID = :warehouseId AND " +
+            "REF_DOC_NO = :refDocNumber AND PRE_OB_NO = :preOutboundNo AND IS_DELETED = :deletionIndicator",
+            nativeQuery = true)
+    void deleteOrderManagementLine(
+            @Param("companyCodeId") String companyCodeId,
+            @Param("plantId") String plantId,
+            @Param("warehouseId") String warehouseId,
+            @Param("refDocNumber") String refDocNumber,
+            @Param("preOutboundNo") String preOutboundNo,
+            @Param("deletionIndicator") Long deletionIndicator
+    );
+
+    @Modifying
+    @Query(value = "update tblordermangementline set ORD_QTY = :orderQty , ALLOC_QTY = :orderQty \n" +
+            "where C_ID = :companyCodeId and PLANT_ID = :plantId and ob_line_no = :lineNumber \n" +
+            "AND WH_ID = :warehouseId and REF_DOC_NO = :refDocNumber and itm_code = :itemCode and is_deleted = 0 ", nativeQuery = true)
+    int updateOrderQtyAndAllQtyV10(@Param("companyCodeId") String companyCodeId,
+                                   @Param("plantId") String plantId,
+                                   @Param("warehouseId") String warehouseId,
+                                   @Param("refDocNumber") String refDocNumber,
+                                   @Param("itemCode") String itemCode,
+                                   @Param("lineNumber") Long lineNumber,
+                                   @Param("orderQty") Double orderQty);
 }

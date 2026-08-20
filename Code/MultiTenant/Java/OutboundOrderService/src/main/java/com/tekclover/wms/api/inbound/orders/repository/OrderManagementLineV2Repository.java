@@ -427,9 +427,119 @@ public interface OrderManagementLineV2Repository extends JpaRepository<OrderMana
     List<OrderManagementLineV2> findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndStatusIdNotInAndDeletionIndicator(
             String companyCodeId, String plantId, String languageId, String warehouseId, String refDocNumber, String preOutboundNo, List<Long> statusIds, Long deletionIndicator);
 
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("UPDATE OrderManagementLineV2 ob SET ob.statusId = :statusId, ob.statusDescription = :statusDescription, ob.pickupUpdatedOn = :updatedOn, \r\n"
+            + " ob.pickupNumber = :pickupNumber \r\n "
+            + " WHERE ob.companyCodeId = :companyCodeId AND ob.plantId = :plantId AND ob.languageId = :languageId AND ob.warehouseId = :warehouseId AND \r\n "
+            + " ob.itemCode = :itemCode AND ob.preOutboundNo = :preOutboundNo AND ob.lineNumber = :lineNumber")
+    void updateOrderManagementLineV10(@Param("companyCodeId") String companyCodeId,
+                                      @Param("plantId") String plantId,
+                                      @Param("languageId") String languageId,
+                                      @Param("warehouseId") String warehouseId,
+                                      @Param("preOutboundNo") String preOutboundNo,
+                                      @Param("lineNumber") Long lineNumber,
+                                      @Param("itemCode") String itemCode,
+                                      @Param("statusId") Long statusId,
+                                      @Param("statusDescription") String statusDescription,
+                                      @Param("pickupNumber") String pickupNumber,
+                                      @Param("updatedOn") Date updatedOn);
+
+    @Query(value = "select coalesce(max(OB_LINE_NO), 0) + 1 from tblordermangementline where C_ID = :companyCodeId " +
+            " and PLANT_ID = :plantId and LANG_ID = :languageId and WH_ID = :warehouseId " +
+            " and REF_DOC_NO = :refDocNumber and  IS_DELETED  = 0  ",nativeQuery = true)
+    public Long getLineNoV10(@Param("companyCodeId") String companyCodeId,
+                             @Param("plantId") String plantId,
+                             @Param("languageId") String languageId,
+                             @Param("warehouseId") String warehouseId,
+                             @Param("refDocNumber") String refDocNumber);
+
+    @Query(value = "SELECT CASE WHEN COUNT(ob_line_no) =\n" +
+            " SUM(CASE WHEN status_id = 47 THEN 1 ELSE 0 END) \n" +
+            " then 1 else 0 end\n" +
+            " FROM tblordermangementline WHERE \n" +
+            " REF_DOC_NO = :refDocNumber \n" +
+            " AND PRE_OB_NO = :preOutboundNo \n" +
+            " AND C_ID = :companyCodeId \n" +
+            " AND PLANT_ID = :plantId \n" +
+            " AND LANG_ID = :languageId \n" +
+            " AND WH_ID = :warehouseId \n" +
+            " AND IS_DELETED = 0",nativeQuery = true)
+    Long getLineCountV10(@Param("companyCodeId") String companyCodeId,
+                         @Param("plantId") String plantId,
+                         @Param("languageId") String languageId,
+                         @Param("warehouseId") String warehouseId,
+                         @Param("refDocNumber") String refDocNumber,
+                         @Param("preOutboundNo") String preOutboundNo);
+
+
+    @Query(value = "SELECT CASE WHEN COUNT(ob_line_no) =\n" +
+            " SUM(CASE WHEN status_id = 47 THEN 1 ELSE 0 END) \n" +
+            " then 1 else 0 end\n" +
+            " FROM tblordermangementline WHERE \n" +
+            " REF_DOC_NO = :refDocNumber \n" +
+            " AND PRE_OB_NO = :preOutboundNo \n" +
+            " AND C_ID = :companyCodeId \n" +
+            " AND PLANT_ID = :plantId \n" +
+            " AND LANG_ID = :languageId \n" +
+            " AND WH_ID = :warehouseId \n" +
+            " AND ITM_CODE = :itemCode \n" +
+            " AND IS_DELETED = 0",nativeQuery = true)
+    Long getLineCountItemWiseV10(@Param("companyCodeId") String companyCodeId,
+                                 @Param("plantId") String plantId,
+                                 @Param("languageId") String languageId,
+                                 @Param("warehouseId") String warehouseId,
+                                 @Param("refDocNumber") String refDocNumber,
+                                 @Param("preOutboundNo") String preOutboundNo,
+                                 @Param("itemCode")String itemCode);
+
     @Query(value = "SELECT * from tblordermangementline WHERE PARTNER_ITEM_BARCODE = :barcodeId \n " +
             "AND STATUS_ID in (:statusIds) AND IS_DELETED = 0", nativeQuery = true)
     List<OrderManagementLineV2> getByBarcodeIdAndStatusIdInAndDeletionIndicatorV7(
             @Param("barcodeId") String barcodeId,
             @Param("statusIds") List<Long> statusIds);
+
+    @Query(value = "select coalesce(max(OB_LINE_NO), 0) + 1 from tblordermangementline where C_ID = :companyId " +
+            " and PLANT_ID = :plantId and LANG_ID = :languageId and WH_ID = :warehouseId " +
+            " and REF_DOC_NO = :refDocNumber and PRE_OB_NO = :preOutboundNo and ITM_CODE = :itemCode and IS_DELETED  = 0",nativeQuery = true)
+    public Long getLineNumberV9(@Param("companyId") String companyId,
+                                @Param("plantId") String plantId,
+                                @Param("languageId") String languageId,
+                                @Param("warehouseId") String warehouseId,
+                                @Param("refDocNumber") String refDocNumber,
+                                @Param("preOutboundNo") String preOutboundNo,
+                                @Param("itemCode") String itemCode);
+
+    // BF
+    List<OrderManagementLineV2> findAllByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndItemCodeAndDeletionIndicator(
+            String companyCodeId, String plantId, String languageId, String warehouseId, String refDocNo, String itemCode, Long deletionIndicator);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("UPDATE OrderManagementLineV2 ob SET ob.statusId = :statusId, ob.statusDescription = :statusDescription, ob.pickupUpdatedOn = :updatedOn, \r\n"
+            + " ob.pickupNumber = :pickupNumber \r\n "
+            + " WHERE ob.companyCodeId = :companyCodeId AND ob.plantId = :plantId AND ob.languageId = :languageId AND ob.warehouseId = :warehouseId AND \r\n "
+            + " ob.itemCode = :itemCode AND ob.preOutboundNo = :preOutboundNo AND ob.lineNumber = :lineNumber")
+    void updateOrderManagementLineV9(@Param("companyCodeId") String companyCodeId,
+                                     @Param("plantId") String plantId,
+                                     @Param("languageId") String languageId,
+                                     @Param("warehouseId") String warehouseId,
+                                     @Param("preOutboundNo") String preOutboundNo,
+                                     @Param("lineNumber") Long lineNumber,
+                                     @Param("itemCode") String itemCode,
+                                     @Param("statusId") Long statusId,
+                                     @Param("statusDescription") String statusDescription,
+                                     @Param("pickupNumber") String pickupNumber,
+                                     @Param("updatedOn") Date updatedOn);
+
+    // BF
+    @Query(value = "select sum(ALLOC_QTY) from tblordermangementline where C_ID = :companyId and " +
+            " PLANT_ID = :plantId and LANG_ID = :languageId and WH_ID = :warehouseId and " +
+            " ITM_CODE = :itemCode and PALLET_ID = :palletId and PARTNER_ITEM_BARCODE = :barcodeId and STATUS_ID in (42,43,48) and IS_DELETED=0",nativeQuery = true)
+    public Double getSumOfOrderQtyV9(@Param("companyId") String companyId,
+                                     @Param("plantId") String plantId,
+                                     @Param("languageId") String languageId,
+                                     @Param("warehouseId") String warehouseId,
+                                     @Param("itemCode") String itemCode,
+                                     @Param("palletId") String palletId,
+                                     @Param("barcodeId") String barcodeId);
 }

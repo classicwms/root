@@ -2,6 +2,8 @@ package com.tekclover.wms.core.model.warehouse.outbound.almailem;
 
 import lombok.Data;
 
+import java.util.Date;
+
 @Data
 public class OutboundOrderProcessV4 {
 
@@ -80,4 +82,18 @@ public class OutboundOrderProcessV4 {
     /*----------------------REEFERON--------------------------------------------------*/
     private Double qtyInCase;
     private Double qtyInPiece;
+
+    /*----------------------Bharath Package--------------------------------------------------*/
+    private Date salerOrderAmendmentDate;
+    private String salerOrderAmendmentNo;
+
+    private String fgSku;
+    private String fgSkuDescription;
+    private String fgUom;
+    private String stock;
+    private String weight;
+    private String department;
+
+    private String unitType;
+    private String mrsIssueDate;
 }

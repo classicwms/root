@@ -162,4 +162,13 @@ public class OutboundLineV2 extends OutboundLine {
 
     @Column(name = "IMS_SALE_TYP_CODE")
     private Integer imsSaleTypeCode;
+
+    @Column(name = "QTY_IN_CASE")
+    private Double qtyInCase;
+
+    @Column(name = "QTY_IN_PIECE")
+    private Double qtyInPiece;
+
+    @Column(name = "QTY_IN_CRATE")
+    private Double qtyInCrate;
 }

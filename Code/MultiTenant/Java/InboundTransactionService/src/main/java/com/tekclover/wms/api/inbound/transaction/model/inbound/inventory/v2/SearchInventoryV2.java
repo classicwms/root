@@ -35,4 +35,6 @@ public class SearchInventoryV2 extends SearchInventory {
 
 	private List<String> alternateUom;
 	private List<Double> bagSize;
+
+	private List<String> palletCode;
 }

@@ -75,4 +75,7 @@ public class SalesOrderLineV2 {
     /*----------------Namratha------------------------*/
     private Double expectedQtyInCases;
     private Double expectedQtyInPieces;
+
+    /*-----------------------------BP----------------------------------------*/
+    private String unitType;
 }

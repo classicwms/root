@@ -3002,6 +3002,424 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
                                                  @Param("languageId") List<String> languageId,
                                                  @Param("warehouseId") List<String> warehouseId,
                                                  @Param("itemCode") List<String> itemCode);
+    @Query(value = "select * from tblinventory where inv_id in (select max(inv_id) inventoryId from tblinventory " +
+            "where is_deleted = 0 " +
+            "and bin_cl_id =:binClassId " +
+            "and c_id = :companyCodeId and " +
+            "plant_id = :plantId and lang_id = :languageId and wh_id = :warehouseId and itm_code = :itemCode  " +
+            "group by itm_code,barcode_id,st_bin,plant_id,wh_id,c_id,lang_id) and \n" +
+            "STCK_TYP_ID = 1 and inv_qty > 0 and ref_field_4 > 0 order by inv_qty ", nativeQuery = true)
+    List<InventoryV2> getInventoryV10New(@Param("companyCodeId") String companyCodeId,
+                                         @Param("plantId") String plantId,
+                                         @Param("languageId") String languageId,
+                                         @Param("warehouseId") String warehouseId,
+                                         @Param("itemCode") String itemCode,
+                                         @Param("binClassId") Long binClassId);
 
 
+    @Query(value = "select * from tblinventory where inv_id in (select max(inv_id) inventoryId from tblinventory " +
+            "where is_deleted = 0 " +
+            "and ST_BIN =:bin " +
+            "and c_id = :companyCodeId and " +
+            "plant_id = :plantId and lang_id = :languageId and wh_id = :warehouseId and itm_code = :itemCode  " +
+            "group by itm_code,barcode_id,st_bin,plant_id,wh_id,c_id,lang_id) and \n" +
+            "STCK_TYP_ID = 1 " +
+            " and (COALESCE(:barcodeId, null) IS NULL OR (barcode_id IN (:barcodeId))) \n" +
+            " and inv_qty > 0 and ref_field_4 > 0 order by inv_qty ", nativeQuery = true)
+    InventoryV2 getInventoryNewV10(@Param("companyCodeId") String companyCodeId,
+                                   @Param("plantId") String plantId,
+                                   @Param("languageId") String languageId,
+                                   @Param("warehouseId") String warehouseId,
+                                   @Param("itemCode") String itemCode,
+                                   @Param("bin") String bin,
+                                   @Param("barcodeId") String barcodeId);
+
+    // BF
+    @Query(value = "select * from tblinventory where is_deleted = 0 and c_id = :companyId and plant_id = :plantId \n " +
+            "and lang_id = :languageId and wh_id = :warehouseId and ref_field_4 > 0 and st_bin = :storageBin and pal_code = :palletId " +
+            "and inv_id in (select max(inv_id) from tblinventory where is_deleted = 0 \n " +
+            "and barcode_id = :barcodeId and itm_code = :itemCode and mfr_name = :mfrName " +
+            "group by itm_code,barcode_id,pal_code,st_bin,plant_id,wh_id,c_id,lang_id) ", nativeQuery = true)
+    InventoryV2 getInventoryListV9(@Param("companyId") String companyId,
+                                   @Param("languageId") String languageId,
+                                   @Param("plantId") String plantId,
+                                   @Param("warehouseId") String warehouseId,
+                                   @Param("barcodeId") String barcodeId,
+                                   @Param("itemCode") String itemCode,
+                                   @Param("mfrName") String mfrName,
+                                   @Param("storageBin") String storageBin,
+                                   @Param("palletId") String palletId);
+
+    // BF - FIFO
+    @Query(value = "select * from tblinventory where inv_id in (select max(inv_id) inventoryId from tblinventory " +
+            "where is_deleted = 0 " +
+            "and bin_cl_id = 1 " +
+            "and c_id = :companyCodeId and " +
+            "plant_id = :plantId and lang_id = :languageId and wh_id = :warehouseId and itm_code = :itemCode and barcode_id = :barcodeId " +
+            "group by itm_code,pal_code,barcode_id,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) and \n" +
+            "STCK_TYP_ID = 1 and inv_qty > 0 and ref_field_4 > 0  order by inv_qty desc", nativeQuery = true)
+    List<InventoryV2> getInventoryAllocationWithBarcodeV9(@Param("companyCodeId") String companyCodeId,
+                                                          @Param("plantId") String plantId,
+                                                          @Param("languageId") String languageId,
+                                                          @Param("warehouseId") String warehouseId,
+                                                          @Param("itemCode") String itemCode,
+                                                          @Param("barcodeId") String barcodeId);
+
+    @Query(value = "select * from tblinventory where inv_id in (select max(inv_id) inventoryId from tblinventory " +
+            "where is_deleted = 0 " +
+            "and bin_cl_id = 7 " +
+            "and c_id = :companyCodeId and " +
+            "plant_id = :plantId and lang_id = :languageId and wh_id = :warehouseId and itm_code = :itemCode and barcode_id = :barcodeId " +
+            "group by itm_code,pal_code,barcode_id,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) and \n" +
+            "STCK_TYP_ID = 1 and inv_qty > 0 and ref_field_4 > 0  order by inv_qty desc", nativeQuery = true)
+    List<InventoryV2> getInventoryAllocationWithBarcodeV9Bin7(@Param("companyCodeId") String companyCodeId,
+                                                              @Param("plantId") String plantId,
+                                                              @Param("languageId") String languageId,
+                                                              @Param("warehouseId") String warehouseId,
+                                                              @Param("itemCode") String itemCode,
+                                                              @Param("barcodeId") String barcodeId);
+
+    //BF - BinClassId Description
+    @Query(value = "select BIN_CLASS \n" +
+            "from tblbinclassid \n" +
+            "where \n" +
+            "BIN_CL_ID IN (:binClassId) and C_ID IN (:companyCodeId) and PLANT_ID IN (:plantId) and \n" +
+            "lang_id IN (:languageId) and \n" +
+            "is_deleted=0", nativeQuery = true)
+    public String getBinClassIdDecription(@Param(value = "binClassId") Long binClassId,
+                                          @Param(value = "companyCodeId") String companyCodeId,
+                                          @Param(value = "plantId") String plantId,
+                                          @Param(value = "languageId") String languageId);
+
+
+    // BF - FEFO
+    @Query(value = "select * from tblinventory where inv_id in (select max(inv_id) inventoryId from tblinventory " +
+            "where is_deleted = 0 " +
+            "and bin_cl_id = 1 " +
+            "and c_id = :companyCodeId and " +
+            "plant_id = :plantId and lang_id = :languageId and wh_id = :warehouseId and itm_code = :itemCode  " +
+            "group by itm_code,pal_code,barcode_id,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) and \n" +
+            "STCK_TYP_ID = 1 and inv_qty > 0 and ref_field_4 > 0  order by EXP_DATE asc", nativeQuery = true)
+    List<InventoryV2> getInventoryAllocationV9(@Param("companyCodeId") String companyCodeId,
+                                               @Param("plantId") String plantId,
+                                               @Param("languageId") String languageId,
+                                               @Param("warehouseId") String warehouseId,
+                                               @Param("itemCode") String itemCode);
+
+    @Query(value = "select * from tblinventory where inv_id in (select max(inv_id) inventoryId from tblinventory " +
+            "where is_deleted = 0 " +
+            "and bin_cl_id = 7 " +
+            "and c_id = :companyCodeId and " +
+            "plant_id = :plantId and lang_id = :languageId and wh_id = :warehouseId and itm_code = :itemCode  " +
+            "group by itm_code,pal_code,barcode_id,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) and \n" +
+            "STCK_TYP_ID = 1 and inv_qty > 0 and ref_field_4 > 0  order by EXP_DATE asc", nativeQuery = true)
+    List<InventoryV2> getInventoryAllocationBin7V9(@Param("companyCodeId") String companyCodeId,
+                                                   @Param("plantId") String plantId,
+                                                   @Param("languageId") String languageId,
+                                                   @Param("warehouseId") String warehouseId,
+                                                   @Param("itemCode") String itemCode);
+
+    @Query(value = "select * from tblinventory where inv_id in (select max(inv_id) inventoryId from tblinventory " +
+            "where is_deleted = 0 " +
+            "and bin_cl_id in (1,2) " +
+            "and c_id = :companyCodeId and " +
+            "(COALESCE(:palletId, null) IS NULL OR (pal_code IN (:palletId))) and \n" +
+            "plant_id = :plantId and lang_id = :languageId and wh_id = :warehouseId and itm_code = :itemCode and barcode_id = :barcodeId " +
+            "group by itm_code,pal_code,barcode_id,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) and \n" +
+            "STCK_TYP_ID = 1 and inv_qty > 0 and ref_field_4 > 0  order by inv_qty desc", nativeQuery = true)
+    List<InventoryV2> getInventoryAllocationWithBarcodeNewV9(@Param("companyCodeId") String companyCodeId,
+                                                          @Param("plantId") String plantId,
+                                                          @Param("languageId") String languageId,
+                                                          @Param("warehouseId") String warehouseId,
+                                                          @Param("itemCode") String itemCode,
+                                                          @Param("barcodeId") String barcodeId,
+                                                          @Param("palletId") String palletId);
+
+    @Query(value = "select * from tblinventory where inv_id in (select max(inv_id) inventoryId from tblinventory " +
+            "where is_deleted = 0 " +
+            "and bin_cl_id = 7 " +
+            "and c_id = :companyCodeId and " +
+            "(COALESCE(:palletId, null) IS NULL OR (pal_code IN (:palletId))) and \n" +
+            "plant_id = :plantId and lang_id = :languageId and wh_id = :warehouseId and itm_code = :itemCode and barcode_id = :barcodeId " +
+            "group by itm_code,pal_code,barcode_id,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) and \n" +
+            "STCK_TYP_ID = 1 and inv_qty > 0 and ref_field_4 > 0  order by inv_qty desc", nativeQuery = true)
+    List<InventoryV2> getInventoryAllocationWithBarcodeNewV9Bin7(@Param("companyCodeId") String companyCodeId,
+                                                              @Param("plantId") String plantId,
+                                                              @Param("languageId") String languageId,
+                                                              @Param("warehouseId") String warehouseId,
+                                                              @Param("itemCode") String itemCode,
+                                                              @Param("barcodeId") String barcodeId,
+                                                              @Param("palletId") String palletId);
+
+    @Query(value = "select * from tblinventory where inv_id in (select max(inv_id) inventoryId from tblinventory " +
+            "where is_deleted = 0 " +
+            "and bin_cl_id in (1,2) " +
+            "and c_id = :companyCodeId and " +
+            "(COALESCE(:palletId, null) IS NULL OR (pal_code IN (:palletId))) and \n" +
+            "plant_id = :plantId and lang_id = :languageId and wh_id = :warehouseId and itm_code = :itemCode  " +
+            "group by itm_code,pal_code,barcode_id,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) and \n" +
+            "STCK_TYP_ID = 1 and inv_qty > 0 and ref_field_4 > 0  order by EXP_DATE asc", nativeQuery = true)
+    List<InventoryV2> getInventoryAllocationNewV9(@Param("companyCodeId") String companyCodeId,
+                                               @Param("plantId") String plantId,
+                                               @Param("languageId") String languageId,
+                                               @Param("warehouseId") String warehouseId,
+                                               @Param("itemCode") String itemCode,
+                                               @Param("palletId") String palletId);
+
+    @Query(value = "select * from tblinventory where inv_id in (select max(inv_id) inventoryId from tblinventory " +
+            "where is_deleted = 0 " +
+            "and bin_cl_id = 7 " +
+            "and c_id = :companyCodeId and " +
+            "(COALESCE(:palletId, null) IS NULL OR (pal_code IN (:palletId))) and \n" +
+            "plant_id = :plantId and lang_id = :languageId and wh_id = :warehouseId and itm_code = :itemCode  " +
+            "group by itm_code,pal_code,barcode_id,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) and \n" +
+            "STCK_TYP_ID = 1 and inv_qty > 0 and ref_field_4 > 0  order by EXP_DATE asc", nativeQuery = true)
+    List<InventoryV2> getInventoryAllocationBinNew7V9(@Param("companyCodeId") String companyCodeId,
+                                                   @Param("plantId") String plantId,
+                                                   @Param("languageId") String languageId,
+                                                   @Param("warehouseId") String warehouseId,
+                                                   @Param("itemCode") String itemCode,
+                                                   @Param("palletId") String palletId);
+
+    // BF
+    @Query(value = "select * from tblinventory where is_deleted = 0 and c_id = :companyId and plant_id = :plantId \n " +
+            "and lang_id = :languageId and wh_id = :warehouseId and bin_cl_id in (1,2) and ref_field_4 > 0 and st_bin = :storageBin and \n" +
+            "pal_code = :palletId and barcode_id = :barcodeId and itm_code = :itemCode and mfr_name = :mfrName \n" +
+            "and inv_id in (select max(inv_id) from tblinventory where is_deleted = 0 \n " +
+            "group by itm_code,pal_code,barcode_id,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) ", nativeQuery = true)
+    InventoryV2 getInventoryListForPickup(@Param("companyId") String companyId,
+                                          @Param("languageId") String languageId,
+                                          @Param("plantId") String plantId,
+                                          @Param("warehouseId") String warehouseId,
+                                          @Param("barcodeId") String barcodeId,
+                                          @Param("itemCode") String itemCode,
+                                          @Param("mfrName") String mfrName,
+                                          @Param("storageBin") String storageBin,
+                                          @Param("palletId") String palletId);
+     // BF
+    @Query(value = "select * from tblinventory where is_deleted = 0 and c_id = :companyId and plant_id = :plantId \n " +
+            "and lang_id = :languageId and wh_id = :warehouseId and bin_cl_id = :binClassId and ref_field_4 > 0 and st_bin = :storageBin and \n" +
+            "pal_code = :palletId and barcode_id = :barcodeId and itm_code = :itemCode and mfr_name = :mfrName \n" +
+            "and inv_id in (select max(inv_id) from tblinventory where is_deleted = 0 \n " +
+            "group by itm_code,pal_code,barcode_id,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) ", nativeQuery = true)
+    InventoryV2 getInventoryListPicking(@Param("companyId") String companyId,
+                                        @Param("languageId") String languageId,
+                                        @Param("plantId") String plantId,
+                                        @Param("warehouseId") String warehouseId,
+                                        @Param("binClassId") Long binClassId,
+                                        @Param("barcodeId") String barcodeId,
+                                        @Param("itemCode") String itemCode,
+                                        @Param("mfrName") String mfrName,
+                                        @Param("storageBin") String storageBin,
+                                        @Param("palletId") String palletId);
+
+    // BF
+    @Query(value = "select top 1 * from tblinventory where inv_id in (select max(inv_id) inventoryId from tblinventory " +
+            "where is_deleted = 0 " +
+            //  "and bin_cl_id in (1,2) " +
+            "and c_id = :companyCodeId and " +
+            "plant_id = :plantId and lang_id = :languageId and wh_id = :warehouseId " +
+            "group by itm_code,pal_code,barcode_id,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) and \n" +
+            "(COALESCE(:palletId, null) IS NULL OR (pal_code IN (:palletId))) and \n" +
+            "itm_code = :itemCode and barcode_id = :barcodeId and \n" +
+            "STCK_TYP_ID = :stockTypeId and st_bin = :storageBin and inv_qty > 0 and ref_field_4 > 0 order by inv_qty desc", nativeQuery = true)
+    InventoryV2 getInventoryAllocationTransferV9(@Param("companyCodeId") String companyCodeId,
+                                                 @Param("plantId") String plantId,
+                                                 @Param("languageId") String languageId,
+                                                 @Param("warehouseId") String warehouseId,
+                                                 @Param("itemCode") String itemCode,
+                                                 @Param("barcodeId") String barcodeId,
+                                                 @Param("palletId") String palletId,
+                                                 @Param("storageBin") String storageBin,
+                                                 @Param("stockTypeId") Long stockTypeId);
+    // BF
+    List<InventoryV2> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndBarcodeIdAndItemCodeAndBinClassIdAndStorageBinAndDeletionIndicatorOrderByInventoryIdDesc(
+            String languageId, String companyCode, String plantId, String warehouseId, String barcodeId,
+            String itemCode, Long binClassId, String storageBin, Long deletionIndicator);
+
+    //BF
+    @Query(value = "select max(inv_id) inventoryId into #inv from tblinventory \n" +
+            "WHERE \n" +
+            "(COALESCE(:itemCode, null) IS NULL OR (ITM_CODE IN (:itemCode))) and \n" +
+            "(COALESCE(:manufacturerName, null) IS NULL OR (MFR_NAME IN (:manufacturerName))) and \n" +
+            "(COALESCE(:companyCodeId, null) IS NULL OR (c_id IN (:companyCodeId))) and \n" +
+            "(COALESCE(:languageId, null) IS NULL OR (lang_id IN (:languageId))) and \n" +
+            "(COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) and \n" +
+            "(COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and \n" +
+            "is_deleted = 0 \n" +
+            "group by itm_code,barcode_id,mfr_name,pack_barcode,alt_uom,bag_size,stck_typ_id,st_bin,plant_id,wh_id,c_id,lang_id \n" +
+
+            "SELECT \n" +
+            "iv.INV_ID inventoryId, \n" +
+            "iv.LANG_ID languageId, \n" +
+            "iv.C_ID companyCodeId,\n" +
+            "iv.PLANT_ID plantId,\n" +
+            "iv.WH_ID warehouseId,\n" +
+            "iv.PAL_CODE palletCode,\n" +
+            "iv.CASE_CODE caseCode,\n" +
+            "iv.PACK_BARCODE packBarcodes,\n" +
+            "iv.ITM_CODE itemCode,\n" +
+            "iv.VAR_ID variantCode,\n" +
+            "iv.VAR_SUB_ID variantSubCode,\n" +
+            "iv.STR_NO batchSerialNumber,\n" +
+            "iv.ST_BIN storageBin,\n" +
+            "iv.STCK_TYP_ID stockTypeId,\n" +
+            "iv.SP_ST_IND_ID specialStockIndicatorId,\n" +
+            "iv.ST_SEC_ID storageSectionId, \n" +
+            "iv.REF_ORD_NO referenceOrderNo,\n" +
+            "iv.STR_MTD storageMethod,\n" +
+            "iv.BIN_CL_ID binClassId,\n" +
+            "iv.TEXT description,\n" +
+            "iv.INV_QTY inventoryQuantity,\n" +
+            "iv.ALLOC_QTY allocatedQuantity,\n" +
+            "iv.INV_UOM inventoryUom,\n" +
+            "iv.MFR_DATE manufacturerDate,\n" +
+            "iv.EXP_DATE expiryDate,\n" +
+            "iv.IS_DELETED deletionIndicator,\n" +
+            "iv.REF_FIELD_1 referenceField1,\n" +
+            "iv.REF_FIELD_2 referenceField2,\n" +
+            "iv.REF_FIELD_3 referenceField3,\n" +
+            "iv.REF_FIELD_4 referenceField4,\n" +
+            "iv.REF_FIELD_5 referenceField5,\n" +
+            "iv.REF_FIELD_6 referenceField6,\n" +
+            "iv.REF_FIELD_7 referenceField7,\n" +
+            "iv.REF_FIELD_8 referenceField8,\n" +
+            "iv.REF_FIELD_9 referenceField9,\n" +
+            "iv.REF_FIELD_10 referenceField10,\n" +
+            "iv.IU_CTD_BY createdBy,\n" +
+            "iv.IU_CTD_ON createdOn,\n" +
+            "FORMAT(iv.IU_CTD_ON,'dd-MM-yyyy hh:mm:ss') sCreatedOn,\n" +
+            "iv.UTD_BY updatedBy,\n" +
+            "iv.UTD_ON updatedOn,\n" +
+            "iv.MFR_CODE manufacturerCode,\n" +
+            "iv.BARCODE_ID barcodeId,\n" +
+            "iv.CBM cbm,\n" +
+            "iv.level_id levelId,\n" +
+            "iv.CBM_UNIT cbmUnit,\n" +
+            "iv.CBM_PER_QTY cbmPerQuantity,\n" +
+            "iv.MFR_NAME manufacturerName,\n" +
+            "iv.ORIGIN origin,\n" +
+            "iv.BRAND brand,\n" +
+            "iv.REF_DOC_NO referenceDocumentNo,\n" +
+            "iv.C_TEXT companyDescription,\n" +
+            "iv.PLANT_TEXT plantDescription,\n" +
+            "iv.WH_TEXT warehouseDescription,\n" +
+            "iv.STCK_TYP_TEXT stockTypeDescription,\n" +
+            "iv.ITM_TYP_ID itemType,\n" +
+            "iv.ITM_TYP_TXT itemTypeDescription,\n" +
+            "iv.PARTNER_CODE partnerCode,\n" +
+            "iv.BATCH_DATE batchDate,\n" +
+            "iv.MATERIAL_NO materialNo, \n" +
+            "iv.PRICE_SEGMENT priceSegment, \n" +
+            "iv.ARTICLE_NO articleNo, \n" +
+            "iv.GENDER gender, \n" +
+            "iv.COLOR color, \n" +
+            "iv.SIZE size, \n" +
+            "iv.NO_PAIRS noPairs, \n" +
+            "iv.ALT_UOM alternateUom, \n" +
+            "iv.NO_BAGS noBags, \n" +
+            "iv.BAG_SIZE bagSize, \n" +
+            "iv.MRP mrp, \n" +
+            "iv.ITM_GRP itemGroup, \n" +
+            "iv.SELF_LIFE selfLife, \n " +
+            "iv.REMAINING_DAYS remainingDays, \n " +
+            "iv.REMAINING_SELF_LIFE_PERCENTAGE remainingSelfLifePercentage, \n" +
+            "iv.STATUS_TEXT statusDescription\n" +
+            "from tblinventory iv\n" +
+            "where \n" +
+            "iv.inv_id in (select inventoryId from #inv) and \n" +
+            "(COALESCE(:companyCodeId, null) IS NULL OR (iv.c_id IN (:companyCodeId))) and \n" +
+            "(COALESCE(:plantId, null) IS NULL OR (iv.plant_id IN (:plantId))) and \n" +
+            "(COALESCE(:languageId, null) IS NULL OR (iv.lang_id IN (:languageId))) and \n" +
+            "(COALESCE(:warehouseId, null) IS NULL OR (iv.wh_id IN (:warehouseId))) and \n" +
+            "(COALESCE(:barcodeId, null) IS NULL OR (iv.BARCODE_ID IN (:barcodeId))) and \n" +
+            "(COALESCE(:batchSerialNumber, null) IS NULL OR (iv.STR_NO IN (:batchSerialNumber))) and \n" +
+            "(COALESCE(:manufacturerName, null) IS NULL OR (iv.MFR_NAME IN (:manufacturerName))) and \n" +
+            "(COALESCE(:packBarcodes, null) IS NULL OR (iv.PACK_BARCODE IN (:packBarcodes))) and \n" +
+            "(COALESCE(:itemCode, null) IS NULL OR (iv.ITM_CODE IN (:itemCode))) and \n" +
+            "(COALESCE(:storageBin, null) IS NULL OR (iv.ST_BIN IN (:storageBin))) and\n" +
+            "(COALESCE(:alternateUom, null) IS NULL OR (iv.ALT_UOM IN (:alternateUom))) and\n" +
+            "iv.is_deleted = 0  and iv.stck_typ_id = 1 and (iv.REF_FIELD_4 > 0) order by iv.BARCODE_ID \n", nativeQuery = true)
+    public IInventoryImpl getOutboundInventoryV9(@Param("companyCodeId") String companyCodeId,
+                                                 @Param("plantId") String plantId,
+                                                 @Param("languageId") String languageId,
+                                                 @Param("warehouseId") String warehouseId,
+                                                 @Param("barcodeId") String barcodeId,
+                                                 @Param("batchSerialNumber") String batchSerialNumber,
+                                                 @Param("itemCode") String itemCode,
+                                                 @Param("manufacturerName") String manufacturerName,
+                                                 @Param("packBarcodes") String packBarcodes,
+                                                 @Param("storageBin") String storageBin,
+                                                 @Param("alternateUom") String alternateUom);
+
+    // BF
+    @Query(value = "\n" +
+            "select * from tblinventory where c_id = :companyCodeId and plant_id = :plantId and lang_id = :languageId and wh_id = :warehouseId and \n" +
+            "barcode_id = :barcodeId and itm_code = :itemCode and pal_code = :palletId and ST_BIN = :storageBin and inv_id in (select max(inv_id) from tblinventory " +
+            "where itm_code = :itemCode and is_deleted = 0 and ref_field_4 > 0 and BIN_CL_ID = 1 " +
+            "group by itm_code,barcode_id,pal_code,st_bin,plant_id,wh_id,c_id,lang_id) ", nativeQuery = true)
+    InventoryV2 findInventoryIdForPickerDenialV9(@Param("companyCodeId") String companyCodeId,
+                                               @Param("plantId") String plantId,
+                                               @Param("languageId") String languageId,
+                                               @Param("warehouseId") String warehouseId,
+                                               @Param("itemCode") String itemCode,
+                                               @Param("barcodeId") String barcodeId,
+                                               @Param("palletId") String palletId,
+                                               @Param("storageBin") String storageBin);
+
+    //BF - FIFO
+    @Query(value = "select * from tblinventory where inv_id in (select max(inv_id) inventoryId from tblinventory " +
+            "where is_deleted = 0 " +
+            "and bin_cl_id in (1,2) " +
+            "and c_id = :companyCodeId and " +
+            "(COALESCE(:palletId, null) IS NULL OR (pal_code IN (:palletId))) and \n" +
+            "(COALESCE(:manufactureName, null) IS NULL OR (mfr_name IN (:manufactureName))) and \n" +
+            "plant_id = :plantId and lang_id = :languageId and wh_id = :warehouseId and itm_code = :itemCode and barcode_id = :barcodeId " +
+            "group by itm_code,pal_code,barcode_id,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) and \n" +
+            "STCK_TYP_ID = 1 and inv_qty > 0 and ref_field_4 > 0  order by inv_qty", nativeQuery = true)
+    List<InventoryV2> getInventoryAllocationWithBarcodeV9New(@Param("companyCodeId") String companyCodeId,
+                                                             @Param("plantId") String plantId,
+                                                             @Param("languageId") String languageId,
+                                                             @Param("warehouseId") String warehouseId,
+                                                             @Param("itemCode") String itemCode,
+                                                             @Param("barcodeId") String barcodeId,
+                                                             @Param("palletId") String palletId,
+                                                             @Param("manufactureName") String manufactureName);
+
+
+    @Query(value = "select * from tblinventory where inv_id in (select max(inv_id) inventoryId from tblinventory " +
+            "where is_deleted = 0 " +
+            "and bin_cl_id = 7 " +
+            "and c_id = :companyCodeId and " +
+            "(COALESCE(:palletId, null) IS NULL OR (pal_code IN (:palletId))) and \n" +
+            "(COALESCE(:manufactureName, null) IS NULL OR (mfr_name IN (:manufactureName))) and \n" +
+            "plant_id = :plantId and lang_id = :languageId and wh_id = :warehouseId and itm_code = :itemCode and barcode_id = :barcodeId " +
+            "group by itm_code,pal_code,barcode_id,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) and \n" +
+            "STCK_TYP_ID = 1 and inv_qty > 0 and ref_field_4 > 0  order by inv_qty ", nativeQuery = true)
+    List<InventoryV2> getInventoryAllocationWithBarcodeV9Bin7New(@Param("companyCodeId") String companyCodeId,
+                                                                 @Param("plantId") String plantId,
+                                                                 @Param("languageId") String languageId,
+                                                                 @Param("warehouseId") String warehouseId,
+                                                                 @Param("itemCode") String itemCode,
+                                                                 @Param("barcodeId") String barcodeId,
+                                                                 @Param("palletId") String palletId,
+                                                                 @Param("manufactureName") String manufactureName);
+
+    @Query(value = "select * from tblinventory where inv_id in (select max(inv_id) inventoryId from tblinventory " +
+            "where is_deleted = 0 " +
+            "and bin_cl_id = 2 " +
+            "and c_id = :companyCodeId and " +
+            "(COALESCE(:palletId, null) IS NULL OR (pal_code IN (:palletId))) and \n" +
+            "(COALESCE(:manufactureName, null) IS NULL OR (mfr_name IN (:manufactureName))) and \n" +
+            "plant_id = :plantId and lang_id = :languageId and wh_id = :warehouseId and itm_code = :itemCode and barcode_id = :barcodeId " +
+            "group by itm_code,pal_code,barcode_id,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) and \n" +
+            "STCK_TYP_ID = 1 and inv_qty > 0 and ref_field_4 > 0  order by inv_qty", nativeQuery = true)
+    List<InventoryV2> getInventoryAllocationBin2(@Param("companyCodeId") String companyCodeId,
+                                                 @Param("plantId") String plantId,
+                                                 @Param("languageId") String languageId,
+                                                 @Param("warehouseId") String warehouseId,
+                                                 @Param("itemCode") String itemCode,
+                                                 @Param("barcodeId") String barcodeId,
+                                                 @Param("palletId") String palletId,
+                                                 @Param("manufactureName") String manufactureName);
 }

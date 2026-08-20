@@ -54,6 +54,8 @@ public class BatchJobScheduler {
         //MMF
 //        CompletableFuture<WarehouseApiResponse> OutboundOrderV8 = scheduleAsyncService.processOutboundOrderV8();
 
+        //SPAREX
+        CompletableFuture<WarehouseApiResponse> OutboundOrderV10 = scheduleAsyncService.processOutboundOrderV10();
     }
 
 
@@ -67,7 +69,7 @@ public class BatchJobScheduler {
     }
 
 
-    @Scheduled(cron = "0 0 1 * * *")
+//    @Scheduled(cron = "0 0 1 * * *")
     public void schedulehttnotification() {
 
         log.info("Starting schedulerhttnotification job at 1 AM");
@@ -105,6 +107,21 @@ public class BatchJobScheduler {
         DataBaseContextHolder.setCurrentDb("REEFERON");
         deleteRecords();
         log.info("Reeferon DataBase cleaned successfully.");
+        DataBaseContextHolder.clear();
+
+        DataBaseContextHolder.setCurrentDb("BF");
+        deleteRecords();
+        log.info("BF DataBase cleaned successfully.");
+        DataBaseContextHolder.clear();
+
+        DataBaseContextHolder.setCurrentDb("KKF");
+        deleteRecords();
+        log.info("KKF DataBase cleaned successfully.");
+        DataBaseContextHolder.clear();
+
+        DataBaseContextHolder.setCurrentDb("KSP");
+        deleteRecords();
+        log.info("KSP DataBase cleaned successfully.");
         DataBaseContextHolder.clear();
     }
 

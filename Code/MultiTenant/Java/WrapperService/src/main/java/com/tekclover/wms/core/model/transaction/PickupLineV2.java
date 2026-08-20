@@ -63,4 +63,5 @@ public class PickupLineV2 extends PickupLine {
 	private Double qtyInCrate;
 	private Date manufacturerDate;
 	private Date expiryDate;
+	private Long outboundOrderTypeId;
 }

@@ -35,6 +35,10 @@ public class BaseService {
     protected IKeyValuePair description = null;
     protected String statusDescription = null;
     protected static final String PACK_BARCODE = "99999";
+    protected static final String MFR_NAME_V9 = "BF";
+    protected static final String MFR_NAME_V11 = "KKF";
+    protected static final String MFR_NAME_V12 = "KSP";
+
 
     @Autowired
     protected IDMasterService idmasterService;

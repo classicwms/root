@@ -108,4 +108,20 @@ public interface PeriodicLineV2Repository extends JpaRepository<PeriodicLineV2, 
                                    @Param("manufacturerName") String manufacturerName,
                                    @Param("packBarcodes") String packBarcodes,
                                    @Param("barcodeId") String barcodeId);
+
+    @Query(value = "SELECT * from tblperiodicline WHERE C_ID = :companyCode " +
+            "AND PLANT_ID = :plantId AND lang_id = :languageId AND wh_id = :warehouseId " +
+            "AND cc_no = :cycleCountNo AND st_bin = :storageBin AND itm_code = :itemCode " +
+            "AND MFR_NAME = :manufacturerName AND pack_barcode = :packBarcodes " +
+            "AND PARTNER_ITEM_BARCODE = :barcodeId AND IS_DELETED = 0", nativeQuery = true)
+    PeriodicLineV2 getPeriodicLineV9(@Param("companyCode") String companyCode,
+                                     @Param("plantId") String plantId,
+                                     @Param("languageId") String languageId,
+                                     @Param("warehouseId") String warehouseId,
+                                     @Param("cycleCountNo") String cycleCountNo,
+                                     @Param("storageBin") String storageBin,
+                                     @Param("itemCode") String itemCode,
+                                     @Param("manufacturerName") String manufacturerName,
+                                     @Param("packBarcodes") String packBarcodes,
+                                     @Param("barcodeId") String barcodeId);
 }

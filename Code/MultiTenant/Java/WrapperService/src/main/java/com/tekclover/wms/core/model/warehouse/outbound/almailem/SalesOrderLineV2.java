@@ -56,7 +56,7 @@ public class SalesOrderLineV2 {
 
     /*----------------Walkaroo changes------------------------------------------------------*/
     private String materialNo;
-    private String priceSegment;
+    private String priceSegment;                      // For Bharath Packaging this field used for weight
     private String articleNo;
     private String gender;
     private String color;
@@ -80,4 +80,7 @@ public class SalesOrderLineV2 {
     private String mtoNumber;
     private Double qtyInCase;
     private Double qtyInPiece;
+
+    /*-----------------------------BP----------------------------------------*/
+    private String unitType;
 }

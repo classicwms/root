@@ -5,6 +5,9 @@ import com.tekclover.wms.api.outbound.transaction.model.dto.BusinessPartner;
 import com.tekclover.wms.api.outbound.transaction.model.impl.OutBoundLineImpl;
 import com.tekclover.wms.api.outbound.transaction.model.impl.StockMovementReportImpl;
 import com.tekclover.wms.api.outbound.transaction.model.outbound.v2.OutboundLineOutput;
+import com.tekclover.wms.api.outbound.transaction.model.report.ContainerReceiptOutboundlineImpl;
+import com.tekclover.wms.api.outbound.transaction.model.report.OutwardReportResponse;
+import com.tekclover.wms.api.outbound.transaction.model.report.StockMovementLedgerReport;
 import com.tekclover.wms.api.outbound.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 import com.tekclover.wms.api.outbound.transaction.model.outbound.v2.OutboundLineV2;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -1344,4 +1347,1026 @@ public interface OutboundLineV2Repository extends JpaRepository<OutboundLineV2, 
                                     @Param("updatedOn") Date updatedOn,
                                     @Param("bagSize") Double bagSize,
                                     @Param("noBags") Double noBags);
+
+    @Query(value = "select sum(PICK_CNF_QTY) pcQty,ref_doc_no,itm_code,ob_line_no,pre_ob_no,c_id,plant_id,lang_id,wh_id \n" +
+            "into #tpl from tblpickupline where is_deleted=0 \n" +
+            "group by ref_doc_no,itm_code,ob_line_no,pre_ob_no,c_id,plant_id,lang_id,wh_id \n" +
+
+            "select sum(QC_QTY) qcQty,ref_doc_no,itm_code,ob_line_no,pre_ob_no,c_id,plant_id,lang_id,wh_id \n" +
+            "into #tql from tblqualityline where is_deleted=0 \n" +
+            "group by ref_doc_no,itm_code,ob_line_no,pre_ob_no,c_id,plant_id,lang_id,wh_id \n" +
+
+            "select \n" +
+            "ob.c_id companyCodeId,\n" +
+            "ob.itm_code itemCode,\n" +
+            "ob.lang_id languageId,\n" +
+            "ob.ob_line_no lineNumber,\n" +
+            "ob.partner_code partnerCode,\n" +
+            "ob.plant_id plantId,\n" +
+            "ob.pre_ob_no preOutboundNo,\n" +
+            "ob.ref_doc_no refDocNumber,\n" +
+            "ob.wh_id warehouseId,\n" +
+            "ob.str_no batchSerialNumber,\n" +
+            "ob.dlv_ctd_by createdBy,\n" +
+            "ob.dlv_ctd_on createdOn,\n" +
+            "ob.is_deleted deletionIndicator,\n" +
+            "ob.dlv_cnf_by deliveryConfirmedBy,\n" +
+            "ob.dlv_cnf_on deliveryConfirmedOn,\n" +
+            "ob.dlv_ord_no deliveryOrderNo,\n" +
+            //"ob.dlv_qty deliveryQty,\n" +
+            "pcQty deliveryQty,\n" +
+            "ob.dlv_uom deliveryUom,\n" +
+            "ob.item_text description,\n" +
+            "ob.ord_qty orderQty,\n" +
+            "ob.ord_uom orderUom,\n" +
+            "ob.ob_ord_typ_id outboundOrderTypeId,\n" +
+            "ob.ref_field_1 referenceField1,\n" +
+            "ob.ref_field_2 referenceField2,\n" +
+            "ob.ref_field_3 referenceField3,\n" +
+            "ob.ref_field_4 referenceField4,\n" +
+            "ob.ref_field_5 referenceField5,\n" +
+            "ob.ref_field_6 referenceField6,\n" +
+            "ob.ref_field_7 referenceField7,\n" +
+            "ob.ref_field_8 referenceField8,\n" +
+            "ob.dlv_rev_by reversedBy,\n" +
+            "ob.dlv_rev_on reversedOn,\n" +
+            "ob.sp_st_ind_id specialStockIndicatorId,\n" +
+            "ob.status_id statusId,\n" +
+            "ob.stck_typ_id stockTypeId,\n" +
+            "ob.dlv_utd_by updatedBy,\n" +
+            "ob.dlv_utd_on updatedOn,\n" +
+            "ob.var_id variantCode,\n" +
+            "ob.var_sub_id variantSubCode,\n" +
+            "ob.mfr_name manufacturerName,\n" +
+            "ob.SALES_INVOICE_NUMBER salesInvoiceNumber,\n" +
+            "ob.PICK_LIST_NUMBER pickListNumber,\n" +
+            "ob.INVOICE_DATE invoiceDate,\n" +
+            "ob.DELIVERY_TYPE deliveryType,\n" +
+            "ob.CUSTOMER_ID customerId,\n" +
+            "ob.CUSTOMER_NAME customerName,\n" +
+            "ob.ADDRESS address,\n" +
+            "ob.PHONE_NUMBER phoneNumber,\n" +
+            "ob.ALTERNATE_NO alternateNo,\n" +
+            "ob.STATUS status,\n" +
+            "ob.TARGET_BRANCH_CODE targetBranchCode,\n" +
+            "ob.c_text companyDescription,\n" +
+            "ob.plant_text plantDescription,\n" +
+            "ob.wh_text warehouseDescription,\n" +
+            "ob.status_text statusDescription,\n" +
+            "ob.middleware_id middlewareId,\n" +
+            "ob.middleware_header_id middlewareHeaderId,\n" +
+            "ob.middleware_table middlewareTable,\n" +
+            "ob.ref_doc_type referenceDocumentType,\n" +
+            "ob.supplier_invoice_no supplierInvoiceNo,\n" +
+            "ob.sales_order_number salesOrderNumber,\n" +
+            "ob.manufacturer_full_name manufacturerFullName,\n" +
+            "ob.PARTNER_ITEM_BARCODE barcodeId,\n" +
+            "ob.HE_NO handlingEquipment,\n" +
+            "ob.ASS_PICKER_ID assignedPickerId, \n" +
+            "ob.VEHICLE_NO vehicleNO, ob.DRIVER_NAME driverName, ob.REMARKS remarks, \n" +
+            "ob.CUSTOMER_TYPE customerType,\n" +
+            "p.pcQty referenceField9,\n" +
+            "q.qcQty referenceField10\n" +
+            "from tbloutboundline ob \n" +
+            "left join #tpl p on p.wh_id = ob.wh_id and p.c_id = ob.c_id and p.plant_id=ob.plant_id and p.lang_id = ob.lang_id and \n" +
+            "p.PRE_OB_NO = ob.PRE_OB_NO and p.OB_LINE_NO = ob.OB_LINE_NO and p.itm_code = ob.itm_code and p.ref_doc_no = ob.ref_doc_no \n" +
+            "left join #tql q on q.wh_id = ob.wh_id and q.c_id = ob.c_id and q.plant_id=ob.plant_id and q.lang_id = ob.lang_id and \n" +
+            "q.PRE_OB_NO = ob.PRE_OB_NO and q.OB_LINE_NO = ob.OB_LINE_NO and q.itm_code = ob.itm_code and q.ref_doc_no = ob.ref_doc_no \n" +
+            "where \n" +
+            "ob.is_deleted = 0 and \n" +
+            "(COALESCE(:companyCodeId, null) IS NULL OR (ob.c_id IN (:companyCodeId))) and \n" +
+            "(COALESCE(:languageId, null) IS NULL OR (ob.lang_id IN (:languageId))) and \n" +
+            "(COALESCE(:plantId, null) IS NULL OR (ob.plant_id IN (:plantId))) and \n" +
+            "(COALESCE(:warehouseId, null) IS NULL OR (ob.wh_id IN (:warehouseId))) and \n" +
+            "(COALESCE(:refDocNo, null) IS NULL OR (ob.ref_doc_no IN (:refDocNo))) and \n" +
+            "(COALESCE(:partnerCode, null) IS NULL OR (ob.partner_code IN (:partnerCode))) and \n" +
+            "(COALESCE(:preObNumber, null) IS NULL OR (ob.pre_ob_no IN (:preObNumber))) and \n" +
+            "(COALESCE(:statusId, null) IS NULL OR (ob.status_id IN (:statusId))) and \n" +
+            "(COALESCE(:lineNo, null) IS NULL OR (ob.ob_line_no IN (:lineNo))) and \n" +
+            "(COALESCE(:itemCode, null) IS NULL OR (ob.itm_code IN (:itemCode))) and\n" +
+            "(COALESCE(:manufacturerName, null) IS NULL OR (ob.MFR_NAME IN (:manufacturerName))) and\n" +
+            "(COALESCE(:salesOrderNumber, null) IS NULL OR (ob.SALES_ORDER_NUMBER IN (:salesOrderNumber))) and\n" +
+            "(COALESCE(:targetBranchCode, null) IS NULL OR (ob.TARGET_BRANCH_CODE IN (:targetBranchCode))) and\n" +
+            "(COALESCE(:orderType, null) IS NULL OR (ob.ob_ord_typ_id IN (:orderType))) and \n" +
+            "(COALESCE(CONVERT(VARCHAR(255), :fromDeliveryDate), null) IS NULL OR (ob.DLV_CNF_ON between COALESCE(CONVERT(VARCHAR(255), :fromDeliveryDate), null) and COALESCE(CONVERT(VARCHAR(255), :toDeliveryDate), null))) \n"
+            , nativeQuery = true)
+    public List<OutboundLineOutput> findOutboundLineV10(@Param("companyCodeId") List<String> companyCodeId,
+                                                        @Param("languageId") List<String> languageId,
+                                                        @Param("plantId") List<String> plantId,
+                                                        @Param("warehouseId") List<String> warehouseId,
+                                                        @Param("fromDeliveryDate") Date fromDeliveryDate,
+                                                        @Param("toDeliveryDate") Date toDeliveryDate,
+                                                        @Param("preObNumber") List<String> preObNumber,
+                                                        @Param("refDocNo") List<String> refDocNo,
+                                                        @Param("lineNo") List<Long> lineNo,
+                                                        @Param("itemCode") List<String> itemCode,
+                                                        @Param("salesOrderNumber") List<String> salesOrderNumber,
+                                                        @Param("targetBranchCode") List<String> targetBranchCode,
+                                                        @Param("manufacturerName") List<String> manufacturerName,
+                                                        @Param("statusId") List<Long> statusId,
+                                                        @Param("orderType") List<String> orderType,
+                                                        @Param("partnerCode") List<String> partnerCode);
+
+    void deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndRefDocNumberAndLineNumberAndPreOutboundNoAndDeletionIndicator(
+            String companyCodeId, String plantId, String warehouseId, String itemCode,String refDocNumber, Long lineNumber, String preOutboundNo, Long deletionIndicator);
+
+
+//    @Modifying
+//    @Query(value = "update tbloutboundline set DLV_QTY = :orderQty, ORD_QTY = :orderQty \n" +
+//            "where C_ID = :companyCodeId and PLANT_ID = :plantId and ob_line_no = :lineNumber \n" +
+//            "AND WH_ID = :warehouseId and REF_DOC_NO = :refDocNumber and itm_code = :itemCode and is_deleted = 0 ", nativeQuery = true)
+//    void updateOrderQtyV10(@Param("companyCodeId") String companyCodeId,
+//                           @Param("plantId") String plantId,
+//                           @Param("warehouseId") String warehouseId,
+//                           @Param("refDocNumber") String refDocNumber,
+//                           @Param("itemCode") String itemCode,
+//                           @Param("lineNumber") Long lineNumber,
+//                           @Param("orderQty") Double orderQty);
+
+    @Modifying
+    @Query(value = "update tbloutboundline set DLV_QTY = :orderQty, ORD_QTY = :orderQty \n" +
+            "where C_ID = :companyCodeId and PLANT_ID = :plantId and ob_line_no = :lineNumber \n" +
+            "AND WH_ID = :warehouseId and REF_DOC_NO = :refDocNumber and itm_code = :itemCode and is_deleted = 0 ", nativeQuery = true)
+    int updateOrderQtyV10(@Param("companyCodeId") String companyCodeId,
+                          @Param("plantId") String plantId,
+                          @Param("warehouseId") String warehouseId,
+                          @Param("refDocNumber") String refDocNumber,
+                          @Param("itemCode") String itemCode,
+                          @Param("lineNumber") Long lineNumber,
+                          @Param("orderQty") Double orderQty);
+
+    @Modifying
+    @Query(value = "UPDATE tbloutboundline SET STATUS_ID = :statusId, STATUS_TEXT = :statusDescription, DLV_UTD_ON = :updatedOn, \n" +
+            " ASS_PICKER_ID = :assignedPickerId, MFR_NAME = :manufacturerName, DLV_UTD_BY = :loginUserId , REF_FIELD_4 = :qty  \n" +
+            " WHERE C_ID = :companyCodeId AND PLANT_ID = :plantId AND LANG_ID = :languageId AND WH_ID = :warehouseId AND \n" +
+            " ITM_CODE = :itemCode AND \n" +
+            " REF_DOC_NO = :refDocNumber AND PRE_OB_NO = :preOutboundNo ", nativeQuery = true)
+    void updateOutboundWithoutLineV10(@Param("companyCodeId") String companyCodeId,
+                                      @Param("plantId") String plantId,
+                                      @Param("languageId") String languageId,
+                                      @Param("warehouseId") String warehouseId,
+                                      @Param("preOutboundNo") String preOutboundNo,
+                                      @Param("refDocNumber") String refDocNumber,
+                                      @Param("itemCode") String itemCode,
+                                      @Param("statusId") Long statusId,
+                                      @Param("statusDescription") String statusDescription,
+                                      @Param("assignedPickerId") String assignedPickerId,
+                                      @Param("manufacturerName") String manufacturerName,
+                                      @Param("loginUserId") String loginUserId,
+                                      @Param("updatedOn") Date updatedOn,
+                                      @Param("qty") String qty);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("UPDATE OutboundLineV2 ob SET ob.statusId = :statusId, ob.statusDescription = :statusDescription, ob.updatedOn = :updatedOn, \r\n"
+            + " ob.deliveryQty = :deliveryQty, ob.updatedBy = :loginUserId \r\n "
+            + " WHERE ob.companyCodeId = :companyCodeId AND ob.plantId = :plantId AND ob.languageId = :languageId AND ob.warehouseId = :warehouseId AND \r\n "
+            + " ob.partnerCode = :partnerCode AND ob.itemCode = :itemCode AND ob.manufacturerName = :manufacturerName AND \r\n "
+            + " ob.refDocNumber = :refDocNumber AND ob.preOutboundNo = :preOutboundNo ")
+    void updateOutboundLineForDeliveryConfirmNewV10(@Param("companyCodeId") String companyCodeId,
+                                                    @Param("plantId") String plantId,
+                                                    @Param("languageId") String languageId,
+                                                    @Param("warehouseId") String warehouseId,
+                                                    @Param("preOutboundNo") String preOutboundNo,
+                                                    @Param("refDocNumber") String refDocNumber,
+                                                    @Param("partnerCode") String partnerCode,
+                                                    @Param("itemCode") String itemCode,
+                                                    @Param("manufacturerName") String manufacturerName,
+                                                    @Param("deliveryQty") Double deliveryQty,
+                                                    @Param("statusId") Long statusId,
+                                                    @Param("statusDescription") String statusDescription,
+                                                    @Param("loginUserId") String loginUserId,
+                                                    @Param("updatedOn") Date updatedOn);
+
+    @Modifying
+    @Query(value = "UPDATE tbloutboundline SET REF_FIELD_6 = :refField6 WHERE C_ID = :companyCodeId \n " +
+            "AND PLANT_ID = :plantId AND WH_ID = :warehouseId AND REF_DOC_NO = :refDocNo AND PRE_OB_NO = :preOutboundNo \n " +
+            "AND OB_LINE_NO = :lineNo AND IS_DELETED = 0 AND ITM_CODE = :itemCode", nativeQuery = true)
+    void updateOutboundLineV10(@Param("companyCodeId") String companyCodeId,
+                               @Param("plantId") String plantId,
+                               @Param("warehouseId") String warehouseId,
+                               @Param("refDocNo") String refDocNo,
+                               @Param("preOutboundNo") String preOutboundNo,
+                               @Param("itemCode") String itemCode,
+                               @Param("lineNo") Long lineNo,
+                               @Param("refField6") String refField6);
+
+
+    @Modifying
+    @Query(value = "UPDATE tbloutboundline SET STATUS_ID = :statusId, STATUS_TEXT = :statusDescription, DLV_UTD_ON = :updatedOn, \n" +
+            " ASS_PICKER_ID = :assignedPickerId, MFR_NAME = :manufacturerName, DLV_UTD_BY = :loginUserId , REF_FIELD_4 = :qty  \n" +
+            " WHERE C_ID = :companyCodeId AND PLANT_ID = :plantId AND LANG_ID = :languageId AND WH_ID = :warehouseId AND \n" +
+            " ITM_CODE = :itemCode AND \n" +
+            " REF_DOC_NO = :refDocNumber AND PRE_OB_NO = :preOutboundNo AND OB_LINE_NO = :lineNumber ", nativeQuery = true)
+    void updateOutboundLineV10(@Param("companyCodeId") String companyCodeId,
+                               @Param("plantId") String plantId,
+                               @Param("languageId") String languageId,
+                               @Param("warehouseId") String warehouseId,
+                               @Param("preOutboundNo") String preOutboundNo,
+                               @Param("refDocNumber") String refDocNumber,
+                               @Param("lineNumber") Long lineNumber,
+                               @Param("itemCode") String itemCode,
+                               @Param("statusId") Long statusId,
+                               @Param("statusDescription") String statusDescription,
+                               @Param("assignedPickerId") String assignedPickerId,
+                               @Param("manufacturerName") String manufacturerName,
+                               @Param("loginUserId") String loginUserId,
+                               @Param("updatedOn") Date updatedOn,
+                               @Param("qty") String qty);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("UPDATE OutboundLineV2 ob SET ob.statusId = :statusId, ob.statusDescription = :statusDescription, ob.updatedOn = :updatedOn, \r\n"
+            + " ob.deliveryQty = :deliveryQty, ob.updatedBy = :loginUserId \r\n "
+            + " WHERE ob.companyCodeId = :companyCodeId AND ob.plantId = :plantId AND ob.languageId = :languageId AND ob.warehouseId = :warehouseId AND \r\n "
+            + " ob.partnerCode = :partnerCode AND ob.itemCode = :itemCode AND ob.manufacturerName = :manufacturerName AND \r\n "
+            + " ob.refDocNumber = :refDocNumber AND ob.preOutboundNo = :preOutboundNo AND ob.lineNumber = :lineNumber")
+    void updateOutboundLineForDeliveryConfirmV10(@Param("companyCodeId") String companyCodeId,
+                                                 @Param("plantId") String plantId,
+                                                 @Param("languageId") String languageId,
+                                                 @Param("warehouseId") String warehouseId,
+                                                 @Param("preOutboundNo") String preOutboundNo,
+                                                 @Param("refDocNumber") String refDocNumber,
+                                                 @Param("partnerCode") String partnerCode,
+                                                 @Param("lineNumber") Long lineNumber,
+                                                 @Param("itemCode") String itemCode,
+                                                 @Param("manufacturerName") String manufacturerName,
+                                                 @Param("deliveryQty") Double deliveryQty,
+                                                 @Param("statusId") Long statusId,
+                                                 @Param("statusDescription") String statusDescription,
+                                                 @Param("loginUserId") String loginUserId,
+                                                 @Param("updatedOn") Date updatedOn);
+
+    // BF
+    @Modifying
+    @Query(value = "update tbloutboundline set ASS_PICKER_ID = :assignPicker , PARTNER_ITEM_BARCODE = :barcode ," +
+            " ORD_QTY = :orderQty , REF_FIELD_1 = :palletCode, brand = :customerPallet, ref_field_2 = :mfrDate, " +
+            " REF_FIELD_8 = :expDate where C_ID = :companyCodeId and PLANT_ID = :plantId " +
+            " and LANG_ID = :languageId and WH_ID = :warehouseId and REF_DOC_NO = :refDocNumber and " +
+            " PRE_OB_NO = :preOutboundNo and ITM_CODE = :itemCode and OB_LINE_NO = :lineNumber " +
+            " and PARTNER_CODE = :partnerCode ", nativeQuery = true)
+    void updateOutboundLineAssignPickerV9(@Param("companyCodeId") String companyCodeId,
+                                          @Param("plantId") String plantId,
+                                          @Param("languageId") String languageId,
+                                          @Param("warehouseId") String warehouseId,
+                                          @Param("refDocNumber") String refDocNumber,
+                                          @Param("preOutboundNo") String preOutboundNo,
+                                          @Param("itemCode") String itemCode,
+                                          @Param("lineNumber") Long lineNumber,
+                                          @Param("partnerCode") String partnerCode,
+                                          @Param("assignPicker") String assignPicker,
+                                          @Param("barcode") String barcode,
+                                          @Param("orderQty") Double orderQty,
+                                          @Param("palletCode") String palletCode,
+                                          @Param("customerPallet") String customerPallet,
+                                          @Param("mfrDate") Date mfrDate,
+                                          @Param("expDate") Date expDate);
+
+    @Modifying
+    @Query(value = "update tblordermangementline set ASS_PICKER_ID = :assignPicker ,PARTNER_ITEM_BARCODE = :barcode , " +
+            " PROP_PACK_BARCODE = :packBarcode , ORD_QTY = :orderQty , PALLET_ID = :palletCode, REF_FIELD_2 = :palletCode , PROP_ST_BIN = :storageBin, " +
+            " origin = :customerPallet, MFR_DATE = :mfrDate, EXP_DATE = :expDate " +
+            " where C_ID = :companyCodeId and PLANT_ID = :plantId and LANG_ID = :languageId and WH_ID =:warehouseId " +
+            " and REF_DOC_NO = :refDocNumber and PRE_OB_NO = :preOutboundNo and ITM_CODE = :itemCode and " +
+            " OB_LINE_NO = :lineNumber and PARTNER_CODE = :partnerCode ", nativeQuery = true)
+    void updateOrderManagementAssignPickerV9(@Param("companyCodeId") String companyCodeId,
+                                             @Param("plantId") String plantId,
+                                             @Param("languageId") String languageId,
+                                             @Param("warehouseId") String warehouseId,
+                                             @Param("refDocNumber") String refDocNumber,
+                                             @Param("preOutboundNo") String preOutboundNo,
+                                             @Param("itemCode") String itemCode,
+                                             @Param("lineNumber") Long lineNumber,
+                                             @Param("partnerCode") String partnerCode,
+                                             @Param("assignPicker") String assignPicker,
+                                             @Param("barcode") String barcode,
+                                             @Param("packBarcode") String packBarcode,
+                                             @Param("orderQty") Double orderQty,
+                                             @Param("palletCode") String palletCode,
+                                             @Param("storageBin") String storageBin,
+                                             @Param("customerPallet") String customerPallet,
+                                             @Param("mfrDate") Date mfrDate,
+                                             @Param("expDate") Date expDate);
+
+    @Modifying
+    @Query(value = "update tblpickupheader set ASS_PICKER_ID = :assignPicker , PARTNER_ITEM_BARCODE = :barcode , " +
+            " PROP_PACK_BARCODE = :packBarcode , PICK_TO_QTY = :orderQty , REF_FIELD_2 = :palletCode , PROP_ST_BIN = :storageBin, " +
+            " origin = :customerPallet, MFR_DATE = :mfrDate, EXP_DATE = :expDate " +
+            " where C_ID = :companyCodeId and PLANT_ID = :plantId and LANG_ID = :languageId and " +
+            " WH_ID = :warehouseId and REF_DOC_NO = :refDocNumber and PRE_OB_NO = :preOutboundNo and " +
+            " ITM_CODE = :itemCode and OB_LINE_NO = :lineNumber and PARTNER_CODE = :partnerCode ", nativeQuery = true)
+    void updatePickupHeaderAssignPickerV9(@Param("companyCodeId") String companyCodeId,
+                                          @Param("plantId") String plantId,
+                                          @Param("languageId") String languageId,
+                                          @Param("warehouseId") String warehouseId,
+                                          @Param("refDocNumber") String refDocNumber,
+                                          @Param("preOutboundNo") String preOutboundNo,
+                                          @Param("itemCode") String itemCode,
+                                          @Param("lineNumber") Long lineNumber,
+                                          @Param("partnerCode") String partnerCode,
+                                          @Param("assignPicker") String assignPicker,
+                                          @Param("barcode") String barcode,
+                                          @Param("packBarcode") String packBarcode,
+                                          @Param("orderQty") Double orderQty,
+                                          @Param("palletCode") String palletCode,
+                                          @Param("storageBin") String storageBin,
+                                          @Param("customerPallet") String customerPallet,
+                                          @Param("mfrDate") Date mfrDate,
+                                          @Param("expDate") Date expDate);
+
+    //BF
+    @Modifying
+    @Transactional
+    @Query(value = "delete tbloutboundline where C_ID = :companyCodeId and PLANT_ID = :plantId \n" +
+            "AND WH_ID = :warehouseId and REF_DOC_NO = :refDocNumber and ITM_CODE = :itemCode and REF_FIELD_1 = :palletId and IS_DELETED =0 ", nativeQuery = true)
+    int deleteOutboundLineV9(@Param("companyCodeId") String companyCodeId,
+                           @Param("plantId") String plantId,
+                           @Param("warehouseId") String warehouseId,
+                           @Param("refDocNumber") String refDocNumber,
+                           @Param("itemCode") String itemCode,
+                           @Param("palletId") String palletCode);
+
+    @Modifying
+    @Transactional
+    @Query(value = "delete tbloutboundline where C_ID = :companyCodeId and PLANT_ID = :plantId \n" +
+            "AND WH_ID = :warehouseId and REF_DOC_NO = :refDocNumber and ITM_CODE = :itemCode and ob_line_no = :lineNumber and IS_DELETED =0 ", nativeQuery = true)
+    int deleteOutboundLineV9(@Param("companyCodeId") String companyCodeId,
+                             @Param("plantId") String plantId,
+                             @Param("warehouseId") String warehouseId,
+                             @Param("refDocNumber") String refDocNumber,
+                             @Param("itemCode") String itemCode,
+                             @Param("lineNumber") Long lineNumber);
+
+    // BF
+    @Query(value = "Select count(*) from tbloutboundline where C_ID = :companyCodeId and PLANT_ID =:plantId and LANG_ID =:languageId and \r\n"
+            + "WH_ID =:warehouseId and PRE_OB_NO =:preOutboundNo and \r\n"
+            + " REF_DOC_NO =:refDocNumber and PARTNER_CODE =:partnerCode and status_Id in :statusId and IS_DELETED =:deletionIndicator", nativeQuery = true)
+    public long getOutboundLineV9(
+            @Param("companyCodeId") String companyCodeId, @Param("plantId") String plantId, @Param("languageId") String languageId,
+            @Param("warehouseId") String warehouseId, @Param("preOutboundNo") String preOutboundNo,
+            @Param("refDocNumber") String refDocNumber, @Param("partnerCode") String partnerCode, @Param("statusId") List<Long> statusId,
+            @Param("deletionIndicator") long deletionIndicator);
+
+    // BF
+    OutboundLineV2 findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPartnerCodeAndItemCodeAndLineNumberAndDeletionIndicator(
+            String companyCodeId, String plantId, String languageId, String warehouseId,
+            String refDocNumber, String partnerCode, String itemCode, Long lineNumber, Long deletionIndicator);
+
+    // BF
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("UPDATE OutboundLineV2 ob SET ob.statusId = :statusId, ob.statusDescription = :statusDescription, ob.deliveredPercentage = :deliveredPercentage, ob.deliveryConfirmedOn = :deliveryConfirmedOn \r\n"
+            + " WHERE C_ID = :companyCodeId AND PLANT_ID = :plantId AND LANG_ID = :languageId AND ob.warehouseId = :warehouseId AND \r\n "
+            + " ob.refDocNumber = :refDocNumber AND ob.preOutboundNo = :preOutboundNo AND ob.lineNumber in :lineNumber and ob.itemCode =:itemCode")
+    public void updateOutboundLineStatusNewV9(@Param("companyCodeId") String companyCodeId,
+                                           @Param("plantId") String plantId,
+                                           @Param("languageId") String languageId,
+                                           @Param("warehouseId") String warehouseId,
+                                           @Param("refDocNumber") String refDocNumber,
+                                           @Param("preOutboundNo") String preOutboundNo,
+                                           @Param("statusId") Long statusId,
+                                           @Param("statusDescription") String statusDescription,
+                                           @Param("lineNumber") List<Long> lineNumber,
+                                           @Param("deliveredPercentage") String deliveredPercentage,
+                                           @Param("deliveryConfirmedOn") Date deliveryConfirmedOn,
+                                           @Param("itemCode") String itemCode);
+    // BF
+    @Modifying
+    @Transactional
+    @Query(value = "update tbloutboundline set DLV_QTY = 0 \n" +
+            "where ref_doc_no = :refDocNo AND IS_DELETED = 0 ", nativeQuery = true)
+    int updateOutboundLineWithoutPalletV9(@Param("refDocNo") String refDocNo);
+
+    // BF
+    @Modifying
+    @Transactional
+    @Query(value = "update tbloutboundline set DLV_QTY = 0 \n" +
+            "where ref_doc_no = :refDocNo and REF_FIELD_1 = :palletCode AND IS_DELETED = 0 ", nativeQuery = true)
+    int updateOutboundLineV9(@Param("refDocNo") String refDocNo,
+                             @Param("palletCode") String palletCode);
+
+    // BF
+    @Query(value = "select cr.CONT_REC_NO as containerReceiptNo, cr.INV_NO as invoiceNo, cr.CONT_NO as containerNo, cr.CONT_TYP as containerType, \n" +
+            "cr.CASE_NO as numberOfCases, cr.PAL_QTY as numberOfPallets, cr.ORIGIN as origin, cr.PARTNER_CODE as partnerCode, cr.STATUS_ID as statusId, \n" +
+            "cr.STATUS_TEXT as statusDescription, cr.c_id as companyCodeId, cr.plant_id as plantId, cr.lang_id as languageId, cr.wh_id as warehouseId, \n" +
+            "cr.REF_FIELD_1 as referenceField1, cr.REF_FIELD_2 as referenceField2, cr.REF_FIELD_3 as referenceField3 , cr.REF_FIELD_4 as referenceField4, \n" +
+            "cr.REF_FIELD_5 as referenceField5, cr.REF_FIELD_6 as referenceField6, cr.REF_FIELD_7 as referenceField7, cr.REF_FIELD_8 as referenceField8, \n" +
+            "cr.REF_FIELD_9 as referenceField9, cr.REF_FIELD_10 as referenceField10, cr.REF_FIELD_11 as referenceField11, cr.REF_FIELD_12 as referenceField12, \n" +
+            "cr.REF_FIELD_13 as referenceField13, cr.REF_FIELD_14 as referenceField14, cr.REF_FIELD_15 as referenceField15, cr.REF_FIELD_16 as referenceField16, \n" +
+            "cr.REF_FIELD_17 as referenceField17 , cr.REF_FIELD_18 as referenceField18, cr.REF_FIELD_19 as referenceField19 , cr.REF_FIELD_20 as referenceField20, \n" +
+            "ib.REF_FIELD_1 as obReferenceField1, ib.REF_FIELD_2 as obReferenceField2, ib.REF_FIELD_3 as obReferenceField3, ib.REF_FIELD_4 as obReferenceField4, ib.REF_FIELD_5 as obReferenceField5, \n" +
+            "ib.REF_FIELD_6 as obReferenceField6, ib.REF_FIELD_7 as obReferenceField7, ib.REF_FIELD_8 as obReferenceField8, ib.REF_FIELD_9 as obReferenceField9, ib.REF_FIELD_10 as obReferenceField10, \n" +
+            "ib.PARTNER_ITEM_BARCODE as barcodeId, ib.OB_LINE_NO as lineNumber, ib.ITM_CODE as itemCode, ib.PRE_OB_NO as preOutboundNo, ib.OB_ORD_TYP_ID as outboundOrderTypeId, ib.ITEM_TEXT as description, \n" +
+            "ib.ORD_UOM as orderUom, ib.ST_SEC_ID as storageSectionId, ib.pick_st_bin as pickStBin, ib.ALLOC_QTY as allocatedQty, ib.PICK_CNF_QTY as pickConfirmQty, ib.INV_QTY as inventoryQty, \n" +
+            "ib.MRP as mrp, ib.QTY_IN_CASE as qtyInCase, ib.QTY_IN_CRATE as qtyInCrate from tblpickupline ib JOIN tblcontainerreceipt cr ON ib.c_id = cr.c_id and ib.lang_id = cr.lang_id and \n" +
+            "ib.plant_id = cr.plant_id and ib.wh_id = cr.wh_id and ib.ref_doc_no = cr.inv_no where ib.c_id IN (:companyCode) and ib.plant_id IN (:plantId) and ib.lang_id IN (:languageId) and \n" +
+            "ib.wh_id IN (:warehouseId) and (COALESCE(:refDocNumber, null) IS NULL OR (ib.ref_doc_no IN (:refDocNumber))) and ib.is_deleted = 0 and cr.is_deleted = 0 ", nativeQuery = true)
+    List<ContainerReceiptOutboundlineImpl> getOutboundLineContainerReceipt(@Param(value = "warehouseId") List<String> warehouseId,
+                                                                           @Param(value = "companyCode") List<String> companyCode,
+                                                                           @Param(value = "plantId") List<String> plantId,
+                                                                           @Param(value = "languageId") List<String> languageId,
+                                                                           @Param(value = "refDocNumber") List<String> refDocNumber);
+    @Query(value = "SELECT \n" +
+            "  ob.ITM_CODE, ob.PARTNER_ITEM_BARCODE, MAX(ob.REF_DOC_NO) as orderNo,\n" +
+            "  MAX(au.UOM_QTY) AS uomQty,\n" +
+            "  CEILING(\n" +
+            "    SUM(ISNULL(ob.PICK_CNF_QTY, 0))\n" +
+            "    / NULLIF(MAX(au.UOM_QTY), 0)\n" +
+            "  ) AS numberOfPallets,\n" +
+            "\n" +
+            "    ob.REF_FIELD_2 AS obReferenceField2, \n" +
+//            "    CAST(AVG(ob.PICK_CNF_QTY) AS DECIMAL(18,2)) AS deliveryQty, \n" +
+//            "    CAST(AVG(ob.PICK_CNF_QTY) AS DECIMAL(18,2)) AS pickConfirmQty, \n" +
+//            "    CAST(AVG(ob.INV_QTY)      AS DECIMAL(18,2)) AS inventoryQty,  \n" +
+            "    MAX(cr.CONT_REC_NO) AS containerReceiptNo,\n" +
+            "    MAX(cr.INV_NO) AS invoiceNo,\n" +
+            "    MAX(cr.CONT_NO) AS containerNo,\n" +
+            "    MAX(cr.CONT_TYP) AS containerType,\n" +
+            "    MAX(cr.CASE_NO) AS numberOfCases,\n" +
+            "    MAX(ob.ORIGIN) AS origin,\n" +
+            "    MAX(cr.PARTNER_CODE) AS partnerCode,\n" +
+            "    MAX(cr.STATUS_ID) AS statusId,\n" +
+            "    MAX(cr.STATUS_TEXT) AS statusDescription,\n" +
+            "            \n" +
+            "    MAX(cr.c_id) AS companyCodeId,\n" +
+            "    MAX(cr.plant_id) AS plantId,\n" +
+            "    MAX(cr.lang_id) AS languageId,\n" +
+            "    MAX(cr.wh_id) AS warehouseId,\n" +
+            "            \n" +
+            "    MAX(cr.REF_FIELD_1) AS referenceField1,\n" +
+            "    MAX(cr.REF_FIELD_2) AS referenceField2,\n" +
+            "    MAX(cr.REF_FIELD_3) AS referenceField3,\n" +
+            "    MAX(cr.REF_FIELD_4) AS referenceField4,\n" +
+            "    MAX(cr.REF_FIELD_5) AS referenceField5,\n" +
+            "    MAX(cr.REF_FIELD_6) AS referenceField6,\n" +
+            "    MAX(cr.REF_FIELD_7) AS referenceField7,\n" +
+            "    MAX(cr.REF_FIELD_8) AS referenceField8,\n" +
+            "    MAX(cr.REF_FIELD_9) AS referenceField9,\n" +
+            "    MAX(cr.REF_FIELD_10) AS referenceField10,\n" +
+            "    MAX(cr.REF_FIELD_11) AS referenceField11,\n" +
+            "    MAX(cr.REF_FIELD_12) AS referenceField12,\n" +
+            "    MAX(cr.REF_FIELD_13) AS referenceField13,\n" +
+            "    MAX(cr.REF_FIELD_14) AS referenceField14,\n" +
+            "    MAX(cr.REF_FIELD_15) AS referenceField15,\n" +
+            "    MAX(cr.REF_FIELD_16) AS referenceField16,\n" +
+            "    MAX(cr.REF_FIELD_17) AS referenceField17,\n" +
+            "    MAX(cr.REF_FIELD_18) AS referenceField18,\n" +
+            "    MAX(cr.REF_FIELD_19) AS referenceField19,\n" +
+            "    MAX(cr.REF_FIELD_20) AS referenceField20,\n" +
+
+            "    MAX(cr.REF_FIELD_21) AS referenceField21,\n" +
+            "    MAX(cr.REF_FIELD_22) AS referenceField22,\n" +
+            "    MAX(cr.REF_FIELD_23) AS referenceField23,\n" +
+            "    MAX(cr.REF_FIELD_24) AS referenceField24,\n" +
+            "    MAX(cr.REF_FIELD_25) AS referenceField25,\n" +
+            "    MAX(cr.REF_FIELD_26) AS referenceField26,\n" +
+            "    MAX(cr.REF_FIELD_27) AS referenceField27,\n" +
+            "    MAX(cr.REF_FIELD_28) AS referenceField28,\n" +
+            "    MAX(cr.REF_FIELD_29) AS referenceField29,\n" +
+            "    MAX(cr.REF_FIELD_30) AS referenceField30,\n" +
+            "    MAX(cr.CTD_BY) AS createdBy, \n" +
+            "            \n" +
+            "    MAX(ob.REF_FIELD_1) AS obReferenceField1,\n" +
+            "    MAX(ob.REF_FIELD_3) AS obReferenceField3,\n" +
+            "    MAX(ob.REF_FIELD_4) AS obReferenceField4,\n" +
+            "    MAX(ob.REF_FIELD_5) AS obReferenceField5,\n" +
+            "    MAX(ob.REF_FIELD_6) AS obReferenceField6,\n" +
+            "    MAX(ob.REF_FIELD_7) AS obReferenceField7,\n" +
+            "    MAX(ob.REF_FIELD_8) AS obReferenceField8,\n" +
+            "    MAX(ob.REF_FIELD_9) AS obReferenceField9,\n" +
+            "    MAX(ob.REF_FIELD_10) AS obReferenceField10,\n" +
+            "    MAX(ob.MATERIAL_NO) AS inventoryOwner,\n" +
+            "    MAX(ob.GENDER) AS grossWeight, \n" +
+            "    MAX(ob.ARTICLE_NO) AS netWeight, \n" +
+            "    MAX(ob.MFR_DATE) AS manufacturerDate,\n" +
+            "    MAX(ob.EXP_DATE) AS expiryDate,\n" +
+            "            \n" +
+            "    ob.ITM_CODE AS itemCode,\n" +
+            "    ob.PARTNER_ITEM_BARCODE AS barcodeId,\n" +
+            "            \n" +
+            "    MAX(ob.ITEM_TEXT) AS description,\n" +
+            "    MAX(ob.ORD_UOM) AS orderUom,\n" +
+            "    MAX(ob.ST_SEC_ID) AS storageSectionId,\n" +
+            "    MAX(ob.pick_st_bin) AS pickStBin,\n" +
+            "    MAX(ob.PRE_OB_NO) AS preOutboundNo, \n" +
+            "    SUM(ob.PICK_CNF_QTY) AS deliveryQty,\n" +
+            "    SUM(ob.PICK_CNF_QTY) AS pickConfirmQty,\n" +
+            "    SUM(ob.INV_QTY) AS inventoryQty,\n" +
+            "    MAX(ob.MRP) AS mrp,\n" +
+            "    MAX(ob.QTY_IN_CASE) AS qtyInCase,\n" +
+            " MAX(ob.TOKEN_NUMBER) AS tokenNumber,\n" +
+            "    MAX(ob.QTY_IN_CRATE) AS qtyInCrate\n" +
+            "            FROM tblpickupline ob\n" +
+            "            JOIN tblcontainerreceipt cr ON ob.c_id = cr.c_id\n" +
+            "             AND ob.lang_id = cr.lang_id\n" +
+            "             AND ob.plant_id = cr.plant_id\n" +
+            "             AND ob.wh_id = cr.wh_id\n" +
+            "             AND ob.ref_doc_no = cr.inv_no\n" +
+            "\n" +
+            "      LEFT JOIN (\n" +
+            "    SELECT \n" +
+            "      ITM_CODE,\n" +
+            "      MAX(UOM_QTY) AS UOM_QTY\n" +
+            "     FROM tblimalternateuom\n" +
+            "     GROUP BY ITM_CODE\n" +
+            "    ) au ON au.ITM_CODE = ob.ITM_CODE\n" +
+            "\n" +
+            "            WHERE (COALESCE(:companyCodeId, NULL) IS NULL OR ob.c_id IN (:companyCodeId))\n" +
+            "             AND (COALESCE(:plantId, NULL) IS NULL OR ob.plant_id IN (:plantId)) \n" +
+            "             AND (COALESCE(:languageId, NULL) IS NULL OR ob.lang_id IN (:languageId))\n" +
+            "             AND (COALESCE(:warehouseId, NULL) IS NULL OR ob.wh_id IN (:warehouseId))\n" +
+            "             AND (COALESCE(:refDocNo, NULL) IS NULL OR ob.ref_doc_no IN (:refDocNo))\n" +
+            "             AND (COALESCE(:barcodeId, NULL) IS NULL OR ob.PARTNER_ITEM_BARCODE IN (:barcodeId))\n" +
+            "             AND (COALESCE(:itemCode, NULL) IS NULL OR ob.ITM_CODE IN (:itemCode))\n" +
+            "             AND (COALESCE(:inventoryOwner, NULL) IS NULL OR ob.MATERIAL_NO IN (:inventoryOwner))\n" +
+            "     AND (COALESCE(CONVERT(VARCHAR(255), :fromDate), null) IS NULL OR (ob.PICK_CTD_ON between COALESCE(CONVERT(VARCHAR(255), :fromDate), null) and COALESCE(CONVERT(VARCHAR(255), :toDate), null))) \n " +
+            "             AND ob.is_deleted = 0\n" +
+            "             AND cr.is_deleted = 0\n" +
+            "            GROUP BY ob.ref_doc_no, ob.ITM_CODE, ob.PARTNER_ITEM_BARCODE, ob.REF_FIELD_2",
+            nativeQuery = true)
+    List<ContainerReceiptOutboundlineImpl> getOutboundLineContainerReceiptReport(
+            @Param("warehouseId") List<String> warehouseId,
+            @Param("companyCodeId") List<String> companyCodeId,
+            @Param("plantId") List<String> plantId,
+            @Param("languageId") List<String> languageId,
+            @Param("refDocNo") List<String> refDocNo,
+            @Param("barcodeId") List<String> barcodeId,
+            @Param("itemCode") List<String> itemCode,
+            @Param("inventoryOwner") List<String> inventoryOwner,
+            @Param("fromDate") Date fromDate,
+            @Param("toDate") Date toDate);
+
+    @Query(value = "SELECT \n" +
+            "    ol.ITM_CODE             AS sku,\n" +
+            "    ol.PARTNER_ITEM_BARCODE AS batchNo,\n" +
+//            "    MAX(ol.DLV_CTD_BY) AS createdBy, \n" +
+            "    MAX(cr.CTD_BY) AS createdBy, \n" +
+            "\n" +
+            "    MAX(ol.REF_DOC_NO)      AS orderNo,\n" +
+            "    MAX(ol.ITEM_TEXT)       AS description,\n" +
+            "    MAX(ol.TOKEN_NUMBER)       AS tokenNumber,\n" +
+            "    MAX(ol.ORD_UOM)         AS uom,\n" +
+            "    CAST(SUM(ol.DLV_QTY) AS DECIMAL(18,2)) AS shippedQty, \n" +
+            "    MAX(ol.DLV_CNF_ON)      AS shippedDate,\n" +
+            "    MAX(ol.CUSTOMER_NAME)   AS customerName,\n" +
+            "    MAX(ol.MATERIAL_NO)   AS inventoryOwner, \n" +
+            "\n" +
+            "    MAX(ph.PICK_CTD_ON)     AS receiptDate,\n" +
+            "    MAX(cr.REF_FIELD_1)     AS vehicleNo,\n" +
+            "    MAX(cr.REF_FIELD_25)    AS referenceField25, \n" +
+            "    MAX(cr.CONT_REC_NO)    AS containerReceiptNo, \n" +
+            "    MAX(inv.MFR_DATE)       AS mfg,\n" +
+            "    MAX(inv.EXP_DATE)       AS exp,\n" +
+            "    MAX(ol.PRE_OB_NO)  AS preOutboundNo, \n" +
+            "    MAX(ol.DLV_CTD_ON) AS createdOn \n" +
+            "\n" +
+            "FROM tbloutboundline ol\n " +
+            "\n" +
+            "/* Pickup Header (latest) */\n" +
+            "OUTER APPLY (\n" +
+            "    SELECT TOP 1 PICK_CTD_ON\n" +
+            "    FROM tblpickupheader ph\n" +
+            "    WHERE ph.C_ID = ol.C_ID\n" +
+            "      AND ph.PLANT_ID = ol.PLANT_ID\n" +
+            "      AND ph.LANG_ID = ol.LANG_ID\n" +
+            "      AND ph.WH_ID = ol.WH_ID\n" +
+            "      AND ph.REF_DOC_NO = ol.REF_DOC_NO\n" +
+            "      AND ph.ITM_CODE = ol.ITM_CODE\n" +
+            "      AND ph.PARTNER_ITEM_BARCODE = ol.PARTNER_ITEM_BARCODE\n" +
+            "      AND ph.IS_DELETED = 0\n" +
+            "    ORDER BY ph.PICK_CTD_ON DESC\n" +
+            ") ph\n" +
+            "\n" +
+            "/* Vehicle No (latest) */\n" +
+            "OUTER APPLY (\n" +
+            "    SELECT TOP 1 REF_FIELD_1, REF_FIELD_25, CONT_REC_NO, CTD_BY \n" +
+            "    FROM tblcontainerreceipt cr\n" +
+            "    WHERE cr.C_ID = ol.C_ID\n" +
+            "      AND cr.PLANT_ID = ol.PLANT_ID\n" +
+            "      AND cr.LANG_ID = ol.LANG_ID\n" +
+            "      AND cr.WH_ID = ol.WH_ID\n" +
+            "      AND cr.INV_NO = ol.REF_DOC_NO\n" +
+            "      AND cr.IS_DELETED = 0\n" +
+            "    ORDER BY cr.CTD_ON DESC\n" +
+            ") cr\n" +
+            "\n" +
+            "/* MFR Date (latest inventory) */\n" +
+            "OUTER APPLY (\n" +
+            "    SELECT TOP 1 MFR_DATE, EXP_DATE\n" +
+            "    FROM tblinventory i\n" +
+            "    WHERE i.C_ID = ol.C_ID\n" +
+            "      AND i.PLANT_ID = ol.PLANT_ID\n" +
+            "      AND i.LANG_ID = ol.LANG_ID\n" +
+            "      AND i.WH_ID = ol.WH_ID\n" +
+            "      AND i.ITM_CODE = ol.ITM_CODE\n" +
+            "      AND i.BARCODE_ID = ol.PARTNER_ITEM_BARCODE\n" +
+            "      AND i.IS_DELETED = 0\n" +
+            "      AND i.MFR_DATE IS NOT NULL\n" +
+            "    ORDER BY i.INV_ID DESC\n" +
+            ") inv\n" +
+            "\n" +
+            "WHERE \n" +
+            "    ol.C_ID IN (:companyCodeId) \n" +
+            "    AND ol.PLANT_ID IN (:plantId) \n" +
+            "    AND ol.LANG_ID IN (:languageId) \n" +
+            "    AND ol.WH_ID IN (:warehouseId) \n" +
+            "    AND (COALESCE(:refDocNumber, NULL) IS NULL OR ol.REF_DOC_NO IN (:refDocNumber)) \n" +
+            "    AND (COALESCE(:itemCode, NULL) IS NULL OR ol.ITM_CODE IN (:itemCode)) \n" +
+            "    AND (COALESCE(:barcodeId, NULL) IS NULL OR ol.PARTNER_ITEM_BARCODE IN (:barcodeId)) \n" +
+            "    AND (COALESCE(:statusId, NULL) IS NULL OR ol.STATUS_ID IN (:statusId)) \n" +
+            "    AND (COALESCE(:customerName, NULL) IS NULL OR ol.CUSTOMER_NAME IN (:customerName)) \n" +
+            "    AND (COALESCE(:inventoryOwner, NULL) IS NULL OR ol.MATERIAL_NO IN (:inventoryOwner)) \n" +
+            "    AND ol.DLV_CTD_ON BETWEEN :fromDate AND :toDate \n" +
+            "    AND ol.IS_DELETED = 0\n" +
+            "\n" +
+            "GROUP BY\n" +
+            "    ol.ITM_CODE,\n" +
+            "    ol.PARTNER_ITEM_BARCODE, \n " +
+            "    ol.ref_doc_no;", nativeQuery = true)
+    public List<OutwardReportResponse> outwardReportGroupByItemBatchV9(@Param("companyCodeId") List<String> companyCodeId,
+                                                                       @Param("plantId") List<String> plantId,
+                                                                       @Param("languageId") List<String> languageId,
+                                                                       @Param("warehouseId") List<String> warehouseId,
+                                                                       @Param("refDocNumber") List<String> refDocNumber,
+                                                                       @Param("itemCode") List<String> itemCode,
+                                                                       @Param("barcodeId") List<String> barcodeId,
+                                                                       @Param("statusId") List<Long> statusId,
+                                                                       @Param("fromDate") Date fromDate,
+                                                                       @Param("toDate") Date toDate,
+                                                                       @Param("customerName") List<String> customerName,
+                                                                       @Param("inventoryOwner") List<String> inventoryOwner);
+
+    @Query(value = " \n" +
+            "\n" +
+            "WITH dates AS (\n" +
+            "    SELECT DATEADD(DAY, v.number, CAST(:fromDate AS DATE)) date\n" +
+            "    FROM master..spt_values v\n" +
+            "    WHERE v.type='P'\n" +
+            "    AND v.number <= DATEDIFF(DAY,:fromDate, :toDate)\n" +
+            "),\n" +
+            "\n" +
+            "opening_balance AS (\n" +
+            "    SELECT \n" +
+            "        SUM(stockQty + inboundQty - outboundQty) AS openingQty,\n" +
+            "        SUM(stockPallet + inboundPallet - outboundPallet) AS openingPallet,\n" +
+            "        SUM(stockWt + inboundWt - outboundWt) AS openingWeight\n" +
+            "    FROM (\n" +
+            "\n" +
+            "        ---------------------------------------------------------\n" +
+            "        -- STOCK\n" +
+            "        ---------------------------------------------------------\n" +
+            "        SELECT \n" +
+            "            SUM(qty) AS stockQty,\n" +
+            "            0,\n" +
+            "            0,\n" +
+            "\n" +
+            "            SUM(pallet) AS stockPallet,\n" +
+            "            0,\n" +
+            "            0,\n" +
+            "\n" +
+            "            SUM(weight),\n" +
+            "            0,\n" +
+            "            0\n" +
+            "        FROM (\n" +
+            "            SELECT \n" +
+            "                s.ITM_CODE,\n" +
+            "                s.BARCODE_ID,\n" +
+            "\n" +
+            "                SUM(s.INV_QTY) qty,\n" +
+            "\n" +
+            "                CEILING(SUM(s.INV_QTY) * 1.0 / NULLIF(u.UOM_QTY,0)) pallet,\n" +
+            "\n" +
+            "                SUM(COALESCE(TRY_CAST(s.PRICE_SEGMENT AS FLOAT),0)) weight\n" +
+            "\n" +
+            "            FROM tblinventorystockbfs s\n" +
+            "            JOIN tblimalternateuom u\n" +
+            "                 ON s.ITM_CODE = u.ITM_CODE\n" +
+            "\n" +
+            "            WHERE s.IU_CTD_ON < :fromDate\n" +
+            "            AND s.C_ID = :companyCodeId\n" +
+            "            AND s.PLANT_ID = :plantId\n" +
+            "            AND s.LANG_ID = :languageId\n" +
+            "            AND s.WH_ID = :warehouseId\n" +
+            "            AND s.IS_DELETED = 0\n" +
+            "            AND (COALESCE(:inventoryOwner, NULL) IS NULL \n" +
+            "                 OR s.MATERIAL_NO IN (:inventoryOwner))\n" +
+            "\n" +
+            "            GROUP BY \n" +
+            "                s.ITM_CODE,\n" +
+            "                s.BARCODE_ID,\n" +
+            "                u.UOM_QTY\n" +
+            "        ) stock\n" +
+            "\n" +
+            "\n" +
+            "        UNION ALL\n" +
+            "\n" +
+            "        ---------------------------------------------------------\n" +
+            "        -- INBOUND\n" +
+            "        ---------------------------------------------------------\n" +
+            "        SELECT \n" +
+            "            0,\n" +
+            "            SUM(qty),\n" +
+            "            0,\n" +
+            "\n" +
+            "            0,\n" +
+            "            SUM(pallet),\n" +
+            "            0,\n" +
+            "\n" +
+            "            0,\n" +
+            "            SUM(weight),\n" +
+            "            0\n" +
+            "        FROM (\n" +
+            "            SELECT \n" +
+            "                gr.ITM_CODE,\n" +
+            "                gr.BARCODE_ID,\n" +
+            "\n" +
+            "                SUM(gr.accept_qty + gr.damage_qty) qty,\n" +
+            "\n" +
+            "                CEILING(\n" +
+            "                    SUM(gr.accept_qty + gr.damage_qty) * 1.0 / NULLIF(u.UOM_QTY,0)) pallet,\n" +
+            "\n" +
+            "                SUM(COALESCE(TRY_CAST(gr.PRICE_SEGMENT AS FLOAT),0)) weight\n" +
+            "\n" +
+            "            FROM tblgrline gr\n" +
+            "            JOIN tblimalternateuom u\n" +
+            "                 ON gr.ITM_CODE = u.ITM_CODE\n" +
+            "\n" +
+            "            WHERE gr.GR_CTD_ON < :fromDate\n" +
+            "            AND gr.C_ID = :companyCodeId\n" +
+            "            AND gr.PLANT_ID = :plantId\n" +
+            "            AND gr.LANG_ID = :languageId\n" +
+            "            AND gr.WH_ID = :warehouseId\n" +
+            "            AND gr.IS_DELETED = 0\n" +
+            "            AND (COALESCE(:inventoryOwner, NULL) IS NULL \n" +
+            "                 OR gr.MATERIAL_NO IN (:inventoryOwner))\n" +
+            "\n" +
+            "            GROUP BY \n" +
+            "                gr.ITM_CODE,\n" +
+            "                gr.BARCODE_ID,\n" +
+            "                u.UOM_QTY\n" +
+            "        ) inbound\n" +
+            "\n" +
+            "\n" +
+            "        UNION ALL\n" +
+            "\n" +
+            "        ---------------------------------------------------------\n" +
+            "        -- OUTBOUND\n" +
+            "        ---------------------------------------------------------\n" +
+            "        SELECT \n" +
+            "            0,\n" +
+            "            0,\n" +
+            "            SUM(qty),\n" +
+            "\n" +
+            "            0,\n" +
+            "            0,\n" +
+            "            SUM(pallet),\n" +
+            "\n" +
+            "            0,\n" +
+            "            0,\n" +
+            "            SUM(weight)\n" +
+            "        FROM (\n" +
+            "            SELECT \n" +
+            "                ob.ITM_CODE,\n" +
+            "                ob.PARTNER_ITEM_BARCODE,\n" +
+            "\n" +
+            "                SUM(ob.dlv_qty) qty,\n" +
+            "\n" +
+            "                FLOOR(SUM(ob.dlv_qty) * 1.0 / NULLIF(u.UOM_QTY,0)) pallet,\n" +
+            "\n" +
+            "                SUM(COALESCE(TRY_CAST(ob.PRICE_SEGMENT AS FLOAT),0)) weight\n" +
+            "\n" +
+            "            FROM tbloutboundline ob\n" +
+            "            JOIN tblimalternateuom u\n" +
+            "                 ON ob.ITM_CODE = u.ITM_CODE\n" +
+            "\n" +
+            "            WHERE ob.DLV_CTD_ON < :fromDate\n" +
+            "            AND ob.C_ID = :companyCodeId\n" +
+            "            AND ob.PLANT_ID = :plantId\n" +
+            "            AND ob.LANG_ID = :languageId\n" +
+            "            AND ob.WH_ID = :warehouseId\n" +
+            "            AND ob.IS_DELETED = 0\n" +
+            "            AND (COALESCE(:inventoryOwner, NULL) IS NULL \n" +
+            "                 OR ob.MATERIAL_NO IN (:inventoryOwner))\n" +
+            "\n" +
+            "            GROUP BY \n" +
+            "                ob.ITM_CODE,\n" +
+            "                ob.PARTNER_ITEM_BARCODE,\n" +
+            "                u.UOM_QTY\n" +
+            "        ) outbound\n" +
+            "\n" +
+            "    ) x(\n" +
+            "        stockQty,inboundQty,outboundQty,\n" +
+            "        stockPallet,inboundPallet,outboundPallet,\n" +
+            "        stockWt,inboundWt,outboundWt\n" +
+            "    )\n" +
+            "),\n" +
+            "\n" +
+            "daily_sum AS (\n" +
+            "    SELECT \n" +
+            "        date,\n" +
+            "        SUM(inward) inward,\n" +
+            "        SUM(outward) outward,\n" +
+            "        SUM(inboundPallet) inboundPallet,\n" +
+            "        SUM(outboundPallet) outboundPallet,\n" +
+            "        SUM(inboundWeight) inboundWeight,\n" +
+            "        SUM(outboundWeight) outboundWeight\n" +
+            "    FROM (\n" +
+            "\n" +
+            "        ---------------------------------------------------------\n" +
+            "        -- INBOUND\n" +
+            "        ---------------------------------------------------------\n" +
+            "        SELECT \n" +
+            "            dt AS date,\n" +
+            "            SUM(qty) inward,\n" +
+            "            0 outward,\n" +
+            "            SUM(pallet) inboundPallet,\n" +
+            "            0 outboundPallet,\n" +
+            "            SUM(weight) inboundWeight,\n" +
+            "            0 outboundWeight\n" +
+            "        FROM (\n" +
+            "            SELECT\n" +
+            "                CAST(gr.GR_CTD_ON AS DATE) dt,\n" +
+            "                gr.ITM_CODE,\n" +
+            "                gr.BARCODE_ID,\n" +
+            "\n" +
+            "                SUM(gr.accept_qty + gr.damage_qty) qty,\n" +
+            "\n" +
+            "                CEILING(\n" +
+            "                    SUM(gr.accept_qty + gr.damage_qty) * 1.0 / NULLIF(u.UOM_QTY,0)) pallet,\n" +
+            "\n" +
+            "                SUM(COALESCE(TRY_CAST(gr.PRICE_SEGMENT AS FLOAT),0)) weight\n" +
+            "\n" +
+            "            FROM tblgrline gr\n" +
+            "            JOIN tblimalternateuom u\n" +
+            "                 ON gr.ITM_CODE = u.ITM_CODE\n" +
+            "\n" +
+            "            WHERE gr.GR_CTD_ON >= :fromDate\n" +
+            "            AND gr.GR_CTD_ON < DATEADD(DAY,1,:toDate)\n" +
+            "            AND gr.C_ID = :companyCodeId\n" +
+            "            AND gr.PLANT_ID = :plantId\n" +
+            "            AND gr.LANG_ID = :languageId\n" +
+            "            AND gr.WH_ID = :warehouseId\n" +
+            "            AND gr.IS_DELETED = 0\n" +
+            "            AND (COALESCE(:inventoryOwner,NULL) IS NULL \n" +
+            "                 OR gr.MATERIAL_NO IN (:inventoryOwner))\n" +
+            "\n" +
+            "            GROUP BY\n" +
+            "                CAST(gr.GR_CTD_ON AS DATE),\n" +
+            "                gr.ITM_CODE,\n" +
+            "                gr.BARCODE_ID,\n" +
+            "                u.UOM_QTY\n" +
+            "        ) t\n" +
+            "        GROUP BY dt\n" +
+            "\n" +
+            "\n" +
+            "        UNION ALL\n" +
+            "\n" +
+            "\n" +
+            "        ---------------------------------------------------------\n" +
+            "        -- OUTBOUND\n" +
+            "        ---------------------------------------------------------\n" +
+            "        SELECT \n" +
+            "            dt,\n" +
+            "            0,\n" +
+            "            SUM(qty),\n" +
+            "            0,\n" +
+            "            SUM(pallet),\n" +
+            "            0,\n" +
+            "            SUM(weight)\n" +
+            "        FROM (\n" +
+            "            SELECT\n" +
+            "                CAST(ob.DLV_CTD_ON AS DATE) dt,\n" +
+            "                ob.ITM_CODE,\n" +
+            "                ob.partner_item_BARCODE,\n" +
+            "\n" +
+            "                SUM(ob.dlv_qty) qty,\n" +
+            "\n" +
+            "                FLOOR(SUM(ob.dlv_qty) * 1.0 / NULLIF(u.UOM_QTY,0)) pallet,\n" +
+            "\n" +
+            "                SUM(COALESCE(TRY_CAST(ob.PRICE_SEGMENT AS FLOAT),0)) weight\n" +
+            "\n" +
+            "            FROM tbloutboundline ob\n" +
+            "            JOIN tblimalternateuom u\n" +
+            "                 ON ob.ITM_CODE = u.ITM_CODE\n" +
+            "\n" +
+            "            WHERE ob.DLV_CTD_ON >= :fromDate\n" +
+            "            AND ob.DLV_CTD_ON < DATEADD(DAY,1,:toDate)\n" +
+            "            AND ob.C_ID = :companyCodeId\n" +
+            "            AND ob.PLANT_ID = :plantId\n" +
+            "            AND ob.LANG_ID = :languageId\n" +
+            "            AND ob.WH_ID = :warehouseId\n" +
+            "            AND ob.IS_DELETED = 0\n" +
+            "            AND (COALESCE(:inventoryOwner,NULL) IS NULL \n" +
+            "                 OR ob.MATERIAL_NO IN (:inventoryOwner))\n" +
+            "\n" +
+            "            GROUP BY\n" +
+            "                CAST(ob.DLV_CTD_ON AS DATE),\n" +
+            "                ob.ITM_CODE,\n" +
+            "                ob.partner_item_BARCODE,\n" +
+            "                u.UOM_QTY\n" +
+            "        ) t\n" +
+            "        GROUP BY dt\n" +
+            "\n" +
+            "    ) x(date,inward,outward,inboundPallet,outboundPallet,inboundWeight,outboundWeight)\n" +
+            "    GROUP BY date\n" +
+            ")\n" +
+            "SELECT\n" +
+            "    d.date,\n" +
+            "    -- opening case\n" +
+            "    o.openingQty\n" +
+            "    + COALESCE(SUM(s.inward-s.outward)\n" +
+            "      OVER (ORDER BY d.date ROWS BETWEEN UNBOUNDED PRECEDING AND 1 PRECEDING),0)\n" +
+            "    AS openingCases,\n" +
+            "\n" +
+            "    -- opening pallet\n" +
+            "    o.openingPallet\n" +
+            "    + COALESCE(SUM(s.inboundPallet-s.outboundPallet)\n" +
+            "      OVER (ORDER BY d.date ROWS BETWEEN UNBOUNDED PRECEDING AND 1 PRECEDING),0)\n" +
+            "    AS openingPallets,\n" +
+            "\n" +
+            "    -- opening weight\n" +
+            "    o.openingWeight\n" +
+            "    + COALESCE(SUM(s.inboundWeight-s.outboundWeight)\n" +
+            "      OVER (ORDER BY d.date ROWS BETWEEN UNBOUNDED PRECEDING AND 1 PRECEDING),0)\n" +
+            "    AS openingWeight,\n" +
+            "\n" +
+            "    -- daily movement\n" +
+            "    COALESCE(s.inward,0) inwardCases,\n" +
+            "    COALESCE(s.outward,0) outwardCases,\n" +
+            "    COALESCE(s.inboundPallet,0) inwardPallets,\n" +
+            "    COALESCE(s.outboundPallet,0) outwardPallets,\n" +
+            "    COALESCE(s.inboundWeight,0) inwardWeight,\n" +
+            "    COALESCE(s.outboundWeight,0) outwardWeight,\n" +
+            "\n" +
+            "    -- closing case\n" +
+            "    o.openingQty\n" +
+            "    + COALESCE(SUM(s.inward-s.outward)\n" +
+            "      OVER (ORDER BY d.date ROWS UNBOUNDED PRECEDING),0)\n" +
+            "    AS closingCases,\n" +
+            "\n" +
+            "    -- closing pallet\n" +
+            "    o.openingPallet\n" +
+            "    + COALESCE(SUM(s.inboundPallet-s.outboundPallet)\n" +
+            "      OVER (ORDER BY d.date ROWS UNBOUNDED PRECEDING),0)\n" +
+            "    AS closingPallets,\n" +
+            "\n" +
+            "    -- closing weight\n" +
+            "    o.openingWeight\n" +
+            "    + COALESCE(SUM(s.inboundWeight-s.outboundWeight)\n" +
+            "      OVER (ORDER BY d.date ROWS UNBOUNDED PRECEDING),0)\n" +
+            "    AS closingWeight\n" +
+            "\n" +
+            "FROM dates d\n" +
+            "CROSS JOIN opening_balance o\n" +
+            "LEFT JOIN daily_sum s ON s.date = d.date\n" +
+            "ORDER BY d.date;\n", nativeQuery = true)
+    public List<StockMovementLedgerReport> stockLedgerReportV9(@Param("companyCodeId") String companyCodeId,
+                                                               @Param("plantId") String plantId,
+                                                               @Param("languageId") String languageId,
+                                                               @Param("warehouseId") String warehouseId,
+                                                               @Param("fromDate") Date fromDate,
+                                                               @Param("toDate") Date toDate,
+                                                               @Param("inventoryOwner") List<String> inventoryOwner);
+
+    // BF
+    @Modifying
+    @Transactional
+    @Query(value = "delete tbloutboundline where C_ID = :companyCodeId and PLANT_ID = :plantId \n" +
+            "AND WH_ID = :warehouseId and REF_DOC_NO = :refDocNumber and ITM_CODE = :itemCode and REF_FIELD_1 = :palletId and IS_DELETED =0 ", nativeQuery = true)
+    int deleteOutboundLine(@Param("companyCodeId") String companyCodeId,
+                           @Param("plantId") String plantId,
+                           @Param("warehouseId") String warehouseId,
+                           @Param("refDocNumber") String refDocNumber,
+                           @Param("itemCode") String itemCode,
+                           @Param("palletId") String palletCode);
+
+    @Modifying
+    @Transactional
+    @Query(value = "DELETE FROM tbloutboundline " +
+            "WHERE C_ID = :companyCodeId AND PLANT_ID = :plantId AND WH_ID = :warehouseId AND " +
+            "REF_DOC_NO = :refDocNumber AND PRE_OB_NO = :preOutboundNo AND IS_DELETED = :deletionIndicator",
+            nativeQuery = true)
+    void deleteOutboundLine(
+            @Param("companyCodeId") String companyCodeId,
+            @Param("plantId") String plantId,
+            @Param("warehouseId") String warehouseId,
+            @Param("refDocNumber") String refDocNumber,
+            @Param("preOutboundNo") String preOutboundNo,
+            @Param("deletionIndicator") Long deletionIndicator
+    );
+
+
+    @Modifying
+    @Transactional
+    @Query(value = "DELETE FROM tbloutboundline " +
+            "WHERE C_ID = :companyCodeId AND PLANT_ID = :plantId AND WH_ID = :warehouseId AND " +
+            "ITM_CODE = :itemCode AND REF_DOC_NO = :refDocNumber AND " +
+            "PRE_OB_NO = :preOutboundNo AND IS_DELETED = :deletionIndicator",
+            nativeQuery = true)
+    void deleteOutboundLine(@Param("companyCodeId") String companyCodeId,
+                            @Param("plantId") String plantId,
+                            @Param("warehouseId") String warehouseId,
+                            @Param("itemCode") String itemCode,
+                            @Param("refDocNumber") String refDocNumber,
+                            @Param("preOutboundNo") String preOutboundNo,
+                            @Param("deletionIndicator") Long deletionIndicator);
+
+
 }

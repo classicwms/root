@@ -1,6 +1,8 @@
 package com.tekclover.wms.api.outbound.transaction.model;
 
 
+import java.util.Date;
+
 public interface IKeyValuePair {
 
     String getCompanyDesc();
@@ -46,5 +48,16 @@ public interface IKeyValuePair {
 
     String getItemText();
 
+    String getBarcodeId();
+    String getCompanyCodeId();
+    String getLanguageId();
+    String getPlantId();
+
     Double getDeliveryQty();
+
+    String getOrigin();
+    Date getExpiryDate();
+    Date getMfrDate();
+    String getMaterialNo();
+    Double getPickConfirmQty();
 }

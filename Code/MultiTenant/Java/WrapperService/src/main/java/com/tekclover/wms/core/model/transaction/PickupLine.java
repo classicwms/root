@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 public class PickupLine { 
 	
 	private String languageId;
-	private Long companyCodeId;
+	private String companyCodeId;
 	private String plantId;
 	private String warehouseId;
 	private String preOutboundNo;

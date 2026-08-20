@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -79,4 +80,144 @@ public interface PreOutboundLineV2Repository extends JpaRepository<PreOutboundLi
 
     void deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
             String companyCodeId, String plantId, String warehouseId, String refDocNumber, String preOutboundNo, Long deletionIndicator);
+
+    PreOutboundLineV2 findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndLineNumberAndDeletionIndicator(
+            String languageId, String companyCodeId, String plantId, String warehouseId,
+            String refDocNumber,  Long lineNumber, Long deletionIndicator);
+
+    void deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndRefDocNumberAndLineNumberAndPreOutboundNoAndDeletionIndicator(
+            String companyCodeId, String plantId, String warehouseId, String itemCode,String refDocNumber, Long lineNumber, String preOutboundNo, Long deletionIndicator);
+
+
+    List<PreOutboundLineV2> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
+            String languageId, String companyCodeId, String plantId, String warehouseId, String refDocNumber,Long deletionIndicator);
+
+
+    @Modifying
+    @Query(value = "update tblpreoutboundline set ORD_QTY = :orderQty \n" +
+            "where C_ID = :companyCodeId and PLANT_ID = :plantId \n" +
+            "AND WH_ID = :warehouseId and REF_DOC_NO = :refDocNumber and itm_code = :itemCode and is_deleted = 0 ", nativeQuery = true)
+    int updateOrderQtyV10(@Param("companyCodeId") String companyCodeId,
+                          @Param("plantId") String plantId,
+                          @Param("warehouseId") String warehouseId,
+                          @Param("refDocNumber") String refDocNumber,
+                          @Param("itemCode") String itemCode,
+                          @Param("orderQty") Double orderQty);
+
+    @Query(value = "select coalesce(max(OB_LINE_NO), 0) + 1 from tblpreoutboundline where C_ID = :companyCodeId " +
+            " and PLANT_ID = :plantId and LANG_ID = :languageId and WH_ID = :warehouseId " +
+            " and REF_DOC_NO = :refDocNumber and  IS_DELETED  = 0  ",nativeQuery = true)
+    public Long getLineNoV10(@Param("companyCodeId") String companyCodeId,
+                             @Param("plantId") String plantId,
+                             @Param("languageId") String languageId,
+                             @Param("warehouseId") String warehouseId,
+                             @Param("refDocNumber") String refDocNumber);
+
+    @Modifying
+    @Query(value = "update tblpreoutboundline set STATUS_ID = :statusId , STATUS_TEXT = :statusDescription " +
+            " where C_ID = :companyCodeId and PLANT_ID = :plantId and LANG_ID = :languageId and " +
+            " WH_ID = :warehouseId and REF_DOC_NO = :refDocNumber and PRE_OB_NO = :preOutboundNo and " +
+            " ITM_CODE = :itemCode",nativeQuery = true)
+    void updatePreOutboundLineV10(@Param("companyCodeId") String companyCodeId,
+                                  @Param("plantId") String plantId,
+                                  @Param("languageId") String languageId,
+                                  @Param("warehouseId") String warehouseId,
+                                  @Param("refDocNumber") String refDocNumber,
+                                  @Param("preOutboundNo") String preOutboundNo,
+                                  @Param("itemCode") String itemCode,
+                                  @Param("statusId") Long statusId,
+                                  @Param("statusDescription") String statusDescription);
+
+    // BF
+    @Transactional
+    @Modifying
+    @Query(value = "update tblpreoutboundline set ORD_QTY = (ORD_QTY) - (:orderQty), PRE_OB_UTD_ON = :updatedOn \n" +
+            "where C_ID = :companyCodeId and PLANT_ID = :plantId \n" +
+            "AND WH_ID = :warehouseId and REF_DOC_NO = :refDocNumber and itm_code = :itemCode and is_deleted = 0 ", nativeQuery = true)
+    int updateOrderQtyV9(@Param("companyCodeId") String companyCodeId,
+                       @Param("plantId") String plantId,
+                       @Param("warehouseId") String warehouseId,
+                       @Param("refDocNumber") String refDocNumber,
+                       @Param("itemCode") String itemCode,
+                       @Param("orderQty") Double orderQty,
+                       @Param("updatedOn") Date newDate);
+
+    // BF
+    @Query(value = "select coalesce(max(OB_LINE_NO), 0) + 1 from tblpreoutboundline where C_ID = :companyCodeId " +
+            " and PLANT_ID = :plantId and LANG_ID = :languageId and WH_ID = :warehouseId and " +
+            " REF_DOC_NO = :refDocNumber and PRE_OB_NO = :preOutboundNo and IS_DELETED = 0 \n",nativeQuery = true)
+    Long getMaxLineNumberV9(@Param("companyCodeId") String companyCodeId,
+                            @Param("plantId") String plantId,
+                            @Param("languageId") String languageId,
+                            @Param("warehouseId") String warehouseId,
+                            @Param("refDocNumber") String refDocNumber,
+                            @Param("preOutboundNo") String preOutboundNo);
+
+    // BF
+    @Transactional
+    @Modifying
+    @Query(value = "update tblpreoutboundline set ORD_QTY = (ORD_QTY) - (:orderQty), PRE_OB_UTD_ON = :updatedOn \n" +
+            "where C_ID = :companyCodeId and PLANT_ID = :plantId \n" +
+            "AND WH_ID = :warehouseId and REF_DOC_NO = :refDocNumber and itm_code = :itemCode and is_deleted = 0 ", nativeQuery = true)
+    int updateOrderQty(@Param("companyCodeId") String companyCodeId,
+                       @Param("plantId") String plantId,
+                       @Param("warehouseId") String warehouseId,
+                       @Param("refDocNumber") String refDocNumber,
+                       @Param("itemCode") String itemCode,
+                       @Param("orderQty") Double orderQty,
+                       @Param("updatedOn")Date newDate);
+
+    // BF
+    PreOutboundLineV2 findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndLineNumberAndDeletionIndicator(
+            String languageId, String companyCodeId, String plantId, String warehouseId,
+            String refDocNumber, String preOutboundNo, Long lineNumber, Long deletionIndicator);
+
+    List<PreOutboundLineV2> findByCompanyCodeIdAndLanguageIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
+            String companyCodeId, String languageId,  String plantId, String warehouseId, String refDocNumber,Long deletionIndicator);
+
+
+    @Modifying
+    @Transactional
+    @Query(value = "DELETE FROM tblpreoutboundline " +
+            "WHERE C_ID = :companyCodeId AND PLANT_ID = :plantId AND WH_ID = :warehouseId AND " +
+            "REF_DOC_NO = :refDocNumber AND PRE_OB_NO = :preOutboundNo AND IS_DELETED = :deletionIndicator",
+            nativeQuery = true)
+    void deletePreOutboundLine(
+            @Param("companyCodeId") String companyCodeId,
+            @Param("plantId") String plantId,
+            @Param("warehouseId") String warehouseId,
+            @Param("refDocNumber") String refDocNumber,
+            @Param("preOutboundNo") String preOutboundNo,
+            @Param("deletionIndicator") Long deletionIndicator
+    );
+
+    @Modifying
+    @Transactional
+    @Query(value = "DELETE FROM tblpreoutboundline " +
+            "WHERE C_ID = :companyCodeId AND PLANT_ID = :plantId AND WH_ID = :warehouseId AND " +
+            "ITM_CODE = :itemCode AND REF_DOC_NO = :refDocNumber AND " +
+            "PRE_OB_NO = :preOutboundNo AND IS_DELETED = :deletionIndicator",
+            nativeQuery = true)
+    int deletePreOutboundLine(
+            @Param("companyCodeId") String companyCodeId,
+            @Param("plantId") String plantId,
+            @Param("warehouseId") String warehouseId,
+            @Param("itemCode") String itemCode,
+            @Param("refDocNumber") String refDocNumber,
+            @Param("preOutboundNo") String preOutboundNo,
+            @Param("deletionIndicator") Long deletionIndicator);
+
+
+
+    @Query(value = "SELECT COUNT(*) FROM tblpreoutboundline " +
+            "WHERE C_ID = :companyCodeId " +
+            "AND LANG_ID = :languageId " +
+            "AND PLANT_ID = :plantId " +
+            "AND WH_ID = :warehouseId " +
+            "AND REF_DOC_NO = :refDocNumber " +
+            "AND IS_DELETED = :deletionIndicator",
+            nativeQuery = true)
+    long getLinePreOutboundLineCount(String companyCodeId, String languageId, String plantId,
+                                     String warehouseId, String refDocNumber, Long deletionIndicator);
 }
+

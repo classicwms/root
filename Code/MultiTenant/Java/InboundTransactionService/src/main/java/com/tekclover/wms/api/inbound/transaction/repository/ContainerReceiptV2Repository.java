@@ -22,4 +22,8 @@ public interface ContainerReceiptV2Repository extends JpaRepository<ContainerRec
 
     Optional<ContainerReceiptV2> findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndContainerReceiptNoAndDeletionIndicator(
             String companyCode, String plantId, String languageId, String warehouseId, String containerReceiptNo, long deletionIndicator);
+
+    Optional<ContainerReceiptV2> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndContainerReceiptNoAndDeletionIndicator(
+            String languageId, String companyCode, String plantId, String warehouseId, String refDocNumber, String containerReceiptNo, long deletionIndicator);
+
 }

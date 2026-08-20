@@ -8,6 +8,8 @@ import com.tekclover.wms.api.outbound.transaction.config.dynamicConfig.DataBaseC
 import com.tekclover.wms.api.outbound.transaction.controller.exception.OutboundOrderRequestException;
 import com.tekclover.wms.api.outbound.transaction.model.IKeyValuePair;
 import com.tekclover.wms.api.outbound.transaction.model.inventory.v2.InventoryV2;
+import com.tekclover.wms.api.outbound.transaction.model.outbound.preoutbound.v2.PreOutboundHeaderV2;
+import com.tekclover.wms.api.outbound.transaction.model.outbound.preoutbound.v2.PreOutboundLineV2;
 import com.tekclover.wms.api.outbound.transaction.model.warehouse.Warehouse;
 import com.tekclover.wms.api.outbound.transaction.model.warehouse.cyclecount.CycleCountHeader;
 import com.tekclover.wms.api.outbound.transaction.model.warehouse.cyclecount.CycleCountLine;
@@ -81,6 +83,14 @@ public class WarehouseService extends BaseService {
 		return restTemplate;
 	}
 
+	/**
+	 * ID Master AuthToken
+	 *
+	 * @return
+	 */
+	protected String getIDMasterAuthToken() {
+		return authTokenService.getIDMasterServiceAuthToken().getAccess_token();
+	}
 
 	/**
 	 * ShipmentOrder
@@ -1520,4 +1530,535 @@ public class WarehouseService extends BaseService {
         return updatedList;
     }
 
+    //=================SPAREX==================================
+    /**
+     * @param interWarehouseTransfer
+     * @return
+     */
+    public InterWarehouseTransferOutV2 postInterWarehouseTransferOutboundV10(InterWarehouseTransferOutV2 interWarehouseTransfer) throws ParseException {
+        log.info("InterWarehouseTransferHeader received from External: " + interWarehouseTransfer);
+        OutboundOrderV2 savedInterWarehouseTransferHeader = saveIWHTransferV10(interWarehouseTransfer);                                                    // Without Nongo
+        log.info("savedInterWarehouseTransferHeader: " + savedInterWarehouseTransferHeader);
+        return interWarehouseTransfer;
+    }
+
+    /**
+     * @param iWhTransferOutV2
+     * @return
+     */
+    private OutboundOrderV2 saveIWHTransferV10(InterWarehouseTransferOutV2 iWhTransferOutV2) throws ParseException {
+        try {
+            InterWarehouseTransferOutHeaderV2 interWhTransferOutHeader =
+                    iWhTransferOutV2.getInterWarehouseTransferOutHeader();
+
+            Optional<Warehouse> warehouse =
+                    warehouseRepository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndDeletionIndicator(
+                            interWhTransferOutHeader.getFromCompanyCode(), interWhTransferOutHeader.getFromBranchCode(),
+                            "EN", 0L);
+
+            // Warehouse ID Validation
+            validateWarehouseId(warehouse.get().getWarehouseId());
+            List<InterWarehouseTransferOutLineV2> interWarehouseTransferOutLines =
+                    iWhTransferOutV2.getInterWarehouseTransferOutLine();
+
+            // Mongo Primary Key
+            OutboundOrderV2 apiHeader = new OutboundOrderV2();
+
+            apiHeader.setBranchCode(interWhTransferOutHeader.getFromBranchCode());
+            apiHeader.setCompanyCode(interWhTransferOutHeader.getFromCompanyCode());
+            apiHeader.setLanguageId(warehouse.get().getLanguageId());
+            apiHeader.setWarehouseID(warehouse.get().getWarehouseId());
+            apiHeader.setFromBranchCode(interWhTransferOutHeader.getFromBranchCode());
+
+            apiHeader.setOrderId(interWhTransferOutHeader.getTransferOrderNumber());
+            apiHeader.setPartnerCode(interWhTransferOutHeader.getToBranchCode());
+
+            apiHeader.setSourceCompanyCode(interWhTransferOutHeader.getFromCompanyCode());
+            apiHeader.setTargetCompanyCode(interWhTransferOutHeader.getToCompanyCode());
+            apiHeader.setTargetBranchCode(interWhTransferOutHeader.getToBranchCode());
+
+            apiHeader.setRefDocumentNo(interWhTransferOutHeader.getTransferOrderNumber());
+            apiHeader.setOutboundOrderTypeID(1L);                             // Hardcoded Value "1"
+            apiHeader.setRefDocumentType("WMS to WMS");                            // Hardcoded value "WH to WH"
+            apiHeader.setCustomerType("TRANSVERSE");								//HardCoded
+            apiHeader.setOrderReceivedOn(new Date());
+
+            apiHeader.setMiddlewareId(interWhTransferOutHeader.getMiddlewareId());
+            apiHeader.setMiddlewareTable(interWhTransferOutHeader.getMiddlewareTable());
+
+            try {
+                Date reqDate = DateUtils.convertStringToDate2(interWhTransferOutHeader.getRequiredDeliveryDate());
+                apiHeader.setRequiredDeliveryDate(reqDate);
+            } catch (Exception e) {
+                throw new OutboundOrderRequestException("Date format should be MM-dd-yyyy");
+            }
+
+            IKeyValuePair iKeyValuePair = outboundOrderV2Repository.getV2Description(
+                    interWhTransferOutHeader.getFromCompanyCode(),
+                    interWhTransferOutHeader.getFromBranchCode(),
+                    warehouse.get().getWarehouseId());
+            if (iKeyValuePair != null) {
+                apiHeader.setCompanyName(iKeyValuePair.getCompanyDesc());
+                apiHeader.setBranchName(iKeyValuePair.getPlantDesc());
+                apiHeader.setWarehouseName(iKeyValuePair.getWarehouseDesc());
+            }
+            Set<OutboundOrderLineV2> orderLines = new HashSet<>();
+            for (InterWarehouseTransferOutLineV2 iwhTransferLine : interWarehouseTransferOutLines) {
+                OutboundOrderLineV2 apiLine = new OutboundOrderLineV2();
+
+                apiLine.setBrand(iwhTransferLine.getBrand());
+                apiLine.setOrigin(iwhTransferLine.getOrigin());
+                apiLine.setPackQty(iwhTransferLine.getPackQty());
+                apiLine.setExpectedQty(iwhTransferLine.getExpectedQty());
+                apiLine.setSupplierName(iwhTransferLine.getSupplierName());
+                apiLine.setSourceBranchCode(iwhTransferLine.getSourceBranchCode());
+                apiLine.setCountryOfOrigin(iwhTransferLine.getCountryOfOrigin());
+                apiLine.setFromCompanyCode(iwhTransferLine.getFromCompanyCode());
+                apiLine.setStoreID(iwhTransferLine.getStoreID());
+
+                apiLine.setLineReference(iwhTransferLine.getLineReference());            // IB_LINE_NO
+                apiLine.setItemCode(iwhTransferLine.getSku());                            // ITM_CODE
+                apiLine.setItemText(iwhTransferLine.getSkuDescription());                // ITEM_TEXT
+                apiLine.setOrderedQty(iwhTransferLine.getOrderedQty());                    // ORD_QTY
+                apiLine.setUom(iwhTransferLine.getUom());                                // ORD_UOM
+                apiLine.setRefField1ForOrderType(iwhTransferLine.getOrderType());        // ORDER_TYPE
+                apiLine.setManufacturerCode(iwhTransferLine.getManufacturerCode());
+                apiLine.setManufacturerName(iwhTransferLine.getManufacturerName());
+                apiLine.setOrderId(apiHeader.getOrderId());
+                apiLine.setCustomerType("TRANSVERSE");								//HardCoded
+                apiLine.setOutboundOrderTypeID(1L);
+
+                apiLine.setMiddlewareId(iwhTransferLine.getMiddlewareId());
+                apiLine.setMiddlewareHeaderId(iwhTransferLine.getMiddlewareHeaderId());
+                apiLine.setMiddlewareTable(iwhTransferLine.getMiddlewareTable());
+
+                orderLines.add(apiLine);
+            }
+            apiHeader.setLine(orderLines);
+            apiHeader.setOrderProcessedOn(new Date());
+
+            if (iWhTransferOutV2.getInterWarehouseTransferOutLine() != null &&
+                    !iWhTransferOutV2.getInterWarehouseTransferOutLine().isEmpty()) {
+                apiHeader.setProcessedStatusId(0L);
+                log.info("apiHeader: " + apiHeader);
+                OutboundOrderV2 createdOrder = orderService.createOutboundOrdersV2(apiHeader);
+                log.info("InterWarehouseTransferOut Order Success: " + createdOrder);
+                return apiHeader;
+            } else if (iWhTransferOutV2.getInterWarehouseTransferOutLine() == null ||
+                    iWhTransferOutV2.getInterWarehouseTransferOutLine().isEmpty()) {
+                // throw the error as Lines are Empty and set the Indicator as '100'
+                apiHeader.setProcessedStatusId(100L);
+                log.info("apiHeader : " + apiHeader);
+                OutboundOrderV2 createdOrder = orderService.createOutboundOrdersV2(apiHeader);
+                log.info("InterWarehouseTransferOut Order Failed: " + createdOrder);
+                throw new BadRequestException("InterWarehouseTransferOut Order doesn't contain any Lines.");
+            }
+        } catch (Exception e) {
+            throw e;
+        }
+        return null;
+    }
+
+	/**
+	 *
+	 * @param salesOrder
+	 * @return
+	 */
+	public OutboundOrderV2 postSalesOrderV9(@Valid SalesOrderV2 salesOrder) {
+		try {
+			SalesOrderHeaderV2 salesOrderHeader = salesOrder.getSalesOrderHeader();
+
+			OutboundOrderV2 apiHeader = new OutboundOrderV2();
+			BeanUtils.copyProperties(salesOrderHeader, apiHeader, CommonUtils.getNullPropertyNames(salesOrderHeader));
+
+			if (salesOrderHeader.getWarehouseId() != null && !salesOrderHeader.getWarehouseId().isBlank()) {
+				apiHeader.setWarehouseID(salesOrderHeader.getWarehouseId());
+			} else {
+				Optional<Warehouse> warehouse =
+						warehouseRepository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndDeletionIndicator(
+								salesOrderHeader.getCompanyCode(), salesOrderHeader.getBranchCode(),
+								salesOrderHeader.getLanguageId() != null ? salesOrderHeader.getLanguageId() : LANG_ID,
+								0L);
+				apiHeader.setWarehouseID(warehouse.get().getWarehouseId());
+			}
+
+			apiHeader.setBranchCode(salesOrderHeader.getStoreID());
+			apiHeader.setCompanyCode(salesOrderHeader.getCompanyCode());
+			apiHeader.setLanguageId(salesOrderHeader.getLanguageId() != null ? salesOrderHeader.getLanguageId() : LANG_ID);
+
+			apiHeader.setCustomerId(salesOrderHeader.getCustomerId());
+			apiHeader.setOrderId(salesOrderHeader.getPickListNumber());
+			apiHeader.setPartnerCode(salesOrderHeader.getCustomerId());
+			apiHeader.setPartnerName(salesOrderHeader.getCustomerName());
+			apiHeader.setPickListNumber(salesOrderHeader.getPickListNumber());
+			apiHeader.setPickListStatus(salesOrderHeader.getStatus());
+			apiHeader.setRefDocumentNo(salesOrderHeader.getPickListNumber());
+			if (salesOrderHeader.getOrderType() != null) {
+				apiHeader.setOutboundOrderTypeID(Long.valueOf(salesOrderHeader.getOrderType()));
+			} else {
+				apiHeader.setOutboundOrderTypeID(OB_PL_ORD_TYP_ID);
+			}
+
+			apiHeader.setRefDocumentType("PICK LIST");
+
+			apiHeader.setCustomerType("INVOICE");								//HardCoded
+			apiHeader.setOrderReceivedOn(new Date());
+			apiHeader.setSalesOrderNumber(salesOrderHeader.getSalesOrderNumber());
+			apiHeader.setTokenNumber(salesOrderHeader.getTokenNumber());
+
+			apiHeader.setMiddlewareId(salesOrderHeader.getMiddlewareId());
+			apiHeader.setMiddlewareTable(salesOrderHeader.getMiddlewareTable());
+
+			try {
+				Date reqDate = DateUtils.convertStringToDate2(salesOrderHeader.getRequiredDeliveryDate());
+				apiHeader.setRequiredDeliveryDate(reqDate);
+			} catch (Exception e) {
+				throw new OutboundOrderRequestException("Date format should be MM-dd-yyyy");
+			}
+
+			List<SalesOrderLineV2> salesOrderLines = salesOrder.getSalesOrderLine();
+			Set<OutboundOrderLineV2> orderLines = new HashSet<>();
+			for (SalesOrderLineV2 soLine : salesOrderLines) {
+				String barcodeId = null;
+				OutboundOrderLineV2 apiLine = new OutboundOrderLineV2();
+				BeanUtils.copyProperties(soLine, apiLine, CommonUtils.getNullPropertyNames(soLine));
+				apiLine.setBrand(soLine.getBrand());
+				apiLine.setOrigin(soLine.getOrigin());
+				apiLine.setPackQty(soLine.getPackQty());
+				apiLine.setExpectedQty(soLine.getExpectedQty());
+				apiLine.setSupplierName(soLine.getSupplierName());
+				apiLine.setSourceBranchCode(salesOrderHeader.getStoreID());
+				apiLine.setCountryOfOrigin(soLine.getCountryOfOrigin());
+				apiLine.setFromCompanyCode(salesOrderHeader.getCompanyCode());
+				if(apiHeader.getWarehouseID().equalsIgnoreCase("4100")) {
+					apiLine.setManufacturerCode(MFR_NAME_V9);
+					apiLine.setManufacturerName(MFR_NAME_V9);
+				} else if(apiHeader.getWarehouseID().equalsIgnoreCase("4200")){
+					apiLine.setManufacturerCode(MFR_NAME_V11);
+					apiLine.setManufacturerName(MFR_NAME_V11);
+				} else if(apiHeader.getWarehouseID().equalsIgnoreCase("4300")){
+                    apiLine.setManufacturerCode(MFR_NAME_V12);
+                    apiLine.setManufacturerName(MFR_NAME_V12);
+                }
+				apiLine.setManufacturerFullName(soLine.getManufacturerFullName());
+				apiLine.setStoreID(salesOrderHeader.getStoreID());
+				apiLine.setRefField1ForOrderType(soLine.getOrderType());
+				apiLine.setCustomerType("INVOICE");								//HardCoded
+				if (salesOrderHeader.getOrderType() != null) {
+					apiLine.setOutboundOrderTypeID(Long.valueOf(salesOrderHeader.getOrderType()));
+				} else {
+					apiLine.setOutboundOrderTypeID(OB_PL_ORD_TYP_ID);
+				}
+//				barcodeId = soLine.getBarcodeId() != null ? soLine.getBarcodeId() : soLine.getSku().trim();
+				if(soLine.getBarcodeId() != null) {
+					apiLine.setBarcodeId(soLine.getBarcodeId());
+				}
+				apiLine.setLineReference(soLine.getLineReference());            // IB_LINE_NO
+				apiLine.setItemCode(soLine.getSku().trim());                    // ITM_CODE
+				apiLine.setItemText(soLine.getSkuDescription());                // ITEM_TEXT
+				apiLine.setOrderedQty(soLine.getOrderedQty());                    // ORD_QTY
+				apiLine.setUom(soLine.getUom());                                // ORD_UOM
+				apiLine.setRefField1ForOrderType(soLine.getOrderType());        // ORDER_TYPE
+				apiLine.setOrderId(apiHeader.getOrderId());
+				apiLine.setSalesOrderNo(soLine.getSalesOrderNo());
+				apiLine.setPickListNo(soLine.getPickListNo());
+
+				apiLine.setMiddlewareId(soLine.getMiddlewareId());
+				apiLine.setMiddlewareHeaderId(soLine.getMiddlewareHeaderId());
+				apiLine.setMiddlewareTable(soLine.getMiddlewareTable());
+
+				orderLines.add(apiLine);
+			}
+			apiHeader.setLine(orderLines);
+			apiHeader.setOrderProcessedOn(new Date());
+
+			if (salesOrder.getSalesOrderLine() != null && !salesOrder.getSalesOrderLine().isEmpty()) {
+				apiHeader.setProcessedStatusId(0L);
+				apiHeader.setExecuted(0L);
+				log.info("apiHeader : " + apiHeader);
+				OutboundOrderV2 createdOrder = createOutboundOrdersV9(apiHeader);
+				log.info("SalesOrder Order Success: " + createdOrder);
+				return apiHeader;
+			} else if (salesOrder.getSalesOrderLine() == null || salesOrder.getSalesOrderLine().isEmpty()) {
+				// throw the error as Lines are Empty and set the Indicator as '100'
+				apiHeader.setProcessedStatusId(100L);
+				log.info("apiHeader : " + apiHeader);
+				OutboundOrderV2 createdOrder = createOutboundOrdersV9(apiHeader);
+				log.info("SalesOrder Order Failed: " + createdOrder);
+				throw new BadRequestException("SalesOrder Order doesn't contain any Lines.");
+			}
+		} catch (Exception e) {
+			throw new BadRequestException("Exception while saving sales Order-PickList - " + e.toString());
+		}
+		return null;
+	}
+
+	//==============BF=====================
+	public OutboundOrderV2 createOutboundOrdersV9(OutboundOrderV2 newOutboundOrder) throws ParseException {
+		OutboundOrderV2 dbOutboundOrder = outboundOrderV2Repository.
+				findByRefDocumentNoAndOutboundOrderTypeID(newOutboundOrder.getOrderId(), newOutboundOrder.getOutboundOrderTypeID());
+		if (dbOutboundOrder != null) {
+			throw new BadRequestException("Order is getting Duplicated");
+		}
+		newOutboundOrder.setUpdatedOn(new Date());
+		return outboundOrderV2Repository.save(newOutboundOrder);
+	}
+
+//	/**
+//	 * @param
+//	 * @return
+//	 * @throws Exception
+//	 */
+//	public void postInterWarehouseTransferOutboundV9(InterWarehouseTransferOutV2 interWarehouseTransferOutV2) {
+//
+//		OutboundOrderV2 outboundOrderV2 = saveIWHTransferV9(interWarehouseTransferOutV2);
+//		log.info("order processed Created successfully ");
+//		InterWarehouseTransferOutHeaderV2 interWhTransferOutHeader = interWarehouseTransferOutV2.getInterWarehouseTransferOutHeader();
+//
+//		String idMasterAuthToken = getIDMasterAuthToken();
+//		String preOutboundNo = getNextRangeNumber(9L, interWhTransferOutHeader.getFromCompanyCode(), interWhTransferOutHeader.getFromBranchCode(),
+//				getLanguageId(), interWhTransferOutHeader.getFromWarehouseId(), idMasterAuthToken);
+//
+//		PreOutboundHeaderV2 preOutboundHeader = new PreOutboundHeaderV2();
+//		BeanUtils.copyProperties(interWhTransferOutHeader, preOutboundHeader, CommonUtils.getNullPropertyNames(interWhTransferOutHeader));
+//		preOutboundHeader.setCompanyCodeId(interWhTransferOutHeader.getFromCompanyCode());
+//		preOutboundHeader.setPlantId(interWhTransferOutHeader.getFromBranchCode());
+//		preOutboundHeader.setWarehouseId(interWhTransferOutHeader.getFromWarehouseId());
+//		preOutboundHeader.setLanguageId(getLanguageId());
+//
+//		preOutboundHeader.setPartnerCode(interWhTransferOutHeader.getToBranchCode());
+//		preOutboundHeader.setFromBranchCode(interWhTransferOutHeader.getFromBranchCode());
+//		preOutboundHeader.setTargetBranchCode(interWhTransferOutHeader.getToBranchCode());
+//		//To Wh-Id
+//		preOutboundHeader.setReferenceField1(interWhTransferOutHeader.getToWarehouseId());
+//		preOutboundHeader.setOutboundOrderTypeId(1L);
+//		preOutboundHeader.setStatusId(5L);
+//		preOutboundHeader.setReferenceDocumentType("Transfer Out");
+//		preOutboundHeader.setCustomerName("TRANSVERSE");
+//		preOutboundHeader.setStatusDescription("RECEIPT IN PROGRESS");
+//		preOutboundHeader.setMiddlewareId(interWhTransferOutHeader.getMiddlewareId());
+//		preOutboundHeader.setMiddlewareTable(interWhTransferOutHeader.getMiddlewareTable());
+//		preOutboundHeader.setDeletionIndicator(0L);
+//
+//		if (outboundOrderV2 != null) {
+//			preOutboundHeader.setCompanyDescription(outboundOrderV2.getCompanyName());
+//			preOutboundHeader.setPlantDescription(outboundOrderV2.getBranchName());
+//			preOutboundHeader.setWarehouseDescription(outboundOrderV2.getWarehouseName());
+//		}
+//		try {
+//			Date reqDate = DateUtils.convertStringToDate2(interWhTransferOutHeader.getRequiredDeliveryDate());
+//			preOutboundHeader.setRequiredDeliveryDate(reqDate);
+//		} catch (Exception e) {
+//			throw new OutboundOrderRequestException("Date format should be MM-dd-yyyy");
+//		}        preOutboundHeader.setPreOutboundNo(preOutboundNo);
+//
+//		if (outboundOrderV2 != null) {
+//			preOutboundHeader.setRefDocNumber(outboundOrderV2.getOrderId());
+//		}
+//		preOutboundHeader.setCreatedOn(new Date());
+//
+//		if(interWhTransferOutHeader.getFromWarehouseId().equalsIgnoreCase("4100")){
+//			preOutboundHeader.setCreatedBy(MFR_NAME_V9);
+//		} else {
+//			preOutboundHeader.setCreatedBy(MFR_NAME_V11);
+//		}
+//		preOutboundHeaderV2Repository.save(preOutboundHeader);
+//		log.info("preOutboundHeader Saved successfully");
+//
+//		List<InterWarehouseTransferOutLineV2> interWarehouseTransferOutLines = interWarehouseTransferOutV2.getInterWarehouseTransferOutLine();
+//		List<PreOutboundLineV2> preOutboundLines = new ArrayList<>();
+//		for (InterWarehouseTransferOutLineV2 iwhTransferLine : interWarehouseTransferOutLines) {
+//
+//			PreOutboundLineV2 preOutboundLine = new PreOutboundLineV2();
+//			BeanUtils.copyProperties(iwhTransferLine, preOutboundLine, CommonUtils.getNullPropertyNames(iwhTransferLine));
+//			preOutboundLine.setCompanyCodeId(interWhTransferOutHeader.getFromCompanyCode());
+//			preOutboundLine.setPlantId(interWhTransferOutHeader.getFromBranchCode());
+//			preOutboundLine.setWarehouseId(interWhTransferOutHeader.getFromWarehouseId());
+//			preOutboundLine.setLanguageId(getLanguageId());
+//			preOutboundLine.setTargetBranchCode(interWhTransferOutHeader.getToBranchCode());
+//			preOutboundLine.setPreOutboundNo(preOutboundNo);
+//
+//			// REF DOC Number
+//			preOutboundLine.setRefDocNumber(preOutboundHeader.getRefDocNumber());
+//
+//			// PARTNER_CODE
+//			preOutboundLine.setPartnerCode(interWhTransferOutHeader.getToBranchCode());
+//
+//			// IB__LINE_NO
+//			preOutboundLine.setLineNumber(1L);
+//
+//			// ITM_CODE
+//			preOutboundLine.setItemCode(iwhTransferLine.getSku());
+//
+//			// ITM_TEXT
+//			preOutboundLine.setDescription(iwhTransferLine.getSkuDescription());
+//
+//			// OB_ORD_TYP_ID
+//			preOutboundLine.setOutboundOrderTypeId(1L);
+//
+//			// STATUS_ID
+//			preOutboundLine.setStatusId(5L);
+//			preOutboundLine.setStatusDescription(preOutboundHeader.getStatusDescription());
+//
+//			// STCK_TYP_ID
+//			preOutboundLine.setStockTypeId(1L);
+//
+//			// SP_ST_IND_ID
+//			preOutboundLine.setSpecialStockIndicatorId(1L);
+//
+//			//To Wh-Id
+//			preOutboundLine.setReferenceField1(interWhTransferOutHeader.getToWarehouseId());
+//
+//			preOutboundLine.setReferenceDocumentType(preOutboundHeader.getReferenceDocumentType());
+//
+//			if (outboundOrderV2 != null) {
+//				preOutboundLine.setCompanyDescription(outboundOrderV2.getCompanyName());
+//				preOutboundLine.setPlantDescription(outboundOrderV2.getBranchName());
+//				preOutboundLine.setWarehouseDescription(outboundOrderV2.getWarehouseName());
+//			}
+//
+//			// ORD_QTY
+//			preOutboundLine.setOrderQty(iwhTransferLine.getOrderedQty());
+//
+//			// ORD_UOM
+//			preOutboundLine.setOrderUom(iwhTransferLine.getUom());
+//
+////             REQ_DEL_DATE
+//			preOutboundLine.setRequiredDeliveryDate(preOutboundHeader.getRequiredDeliveryDate());
+//
+//			preOutboundLine.setDeletionIndicator(0L);
+//			preOutboundLine.setCreatedBy(preOutboundHeader.getCreatedBy());
+//			preOutboundLine.setCreatedOn(new Date());
+//			preOutboundLines.add(preOutboundLine);
+//		}
+//
+//		preOutboundLineV2Repository.saveAll(preOutboundLines);
+//		log.info("preOutboundLine Saved Successfully");
+//	}
+//	/**
+//	 * @param iWhTransferOutV2
+//	 * @return
+//	 */
+//	private OutboundOrderV2 saveIWHTransferV9(InterWarehouseTransferOutV2 iWhTransferOutV2) {
+//		try {
+//			InterWarehouseTransferOutHeaderV2 interWhTransferOutHeader =
+//					iWhTransferOutV2.getInterWarehouseTransferOutHeader();
+//
+//			List<InterWarehouseTransferOutLineV2> interWarehouseTransferOutLines = iWhTransferOutV2.getInterWarehouseTransferOutLine();
+//
+//			OutboundOrderV2 apiHeader = new OutboundOrderV2();
+//
+//			// Get Warehouse
+//			Optional<Warehouse> dbWarehouse =
+//					warehouseRepository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndDeletionIndicator(
+//							interWhTransferOutHeader.getFromCompanyCode(),
+//							interWhTransferOutHeader.getFromBranchCode(),
+//							"EN",
+//							0L
+//					);
+//			log.info("dbWarehouse : " + dbWarehouse);
+//			apiHeader.setWarehouseID(dbWarehouse.get().getWarehouseId());
+//
+//			apiHeader.setBranchCode(interWhTransferOutHeader.getFromBranchCode());
+//			apiHeader.setCompanyCode(interWhTransferOutHeader.getFromCompanyCode());
+//			apiHeader.setLanguageId(interWhTransferOutHeader.getLanguageId());
+////			apiHeader.setWarehouseID(interWhTransferOutHeader.getFromWarehouseId());
+//
+//			apiHeader.setFromBranchCode(interWhTransferOutHeader.getFromBranchCode());
+//			apiHeader.setOrderId(interWhTransferOutHeader.getTransferOrderNumber());
+//			apiHeader.setPartnerCode(interWhTransferOutHeader.getToBranchCode());
+//
+//			apiHeader.setSourceCompanyCode(interWhTransferOutHeader.getFromCompanyCode());
+//			apiHeader.setTargetCompanyCode(interWhTransferOutHeader.getToCompanyCode());
+//			apiHeader.setTargetBranchCode(interWhTransferOutHeader.getToBranchCode());
+//
+//			//To Wh-Id
+//			apiHeader.setIsCompleted(interWhTransferOutHeader.getToWarehouseId());
+//
+//			apiHeader.setRefDocumentNo(interWhTransferOutHeader.getTransferOrderNumber());
+//			apiHeader.setOutboundOrderTypeID(1L);                             // Hardcoded Value "1"
+//			apiHeader.setRefDocumentType("WMS to WMS");                            // Hardcoded value "WH to WH"
+//			apiHeader.setCustomerType("TRANSVERSE");                                //HardCoded
+//			apiHeader.setOrderReceivedOn(new Date());
+//			apiHeader.setRefDocumentType("Transfer Out");
+//
+//			apiHeader.setMiddlewareId(interWhTransferOutHeader.getMiddlewareId());
+//			apiHeader.setMiddlewareTable(interWhTransferOutHeader.getMiddlewareTable());
+//
+//
+//			try {
+//				Date reqDate = DateUtils.convertStringToDate2(interWhTransferOutHeader.getRequiredDeliveryDate());
+//				apiHeader.setRequiredDeliveryDate(reqDate);
+//			} catch (Exception e) {
+//				throw new OutboundOrderRequestException("Date format should be MM-dd-yyyy");
+//			}
+//
+//			IKeyValuePair iKeyValuePair = outboundOrderV2Repository.getV2Description(
+//					interWhTransferOutHeader.getFromCompanyCode(),
+//					interWhTransferOutHeader.getFromBranchCode(),
+//					interWhTransferOutHeader.getFromWarehouseId());
+//			if (iKeyValuePair != null) {
+//				apiHeader.setCompanyName(iKeyValuePair.getCompanyDesc());
+//				apiHeader.setBranchName(iKeyValuePair.getPlantDesc());
+//				apiHeader.setWarehouseName(iKeyValuePair.getWarehouseDesc());
+//			}
+//			Set<OutboundOrderLineV2> orderLines = new HashSet<>();
+//			for (InterWarehouseTransferOutLineV2 iwhTransferLine : interWarehouseTransferOutLines) {
+//				OutboundOrderLineV2 apiLine = new OutboundOrderLineV2();
+//
+//				apiLine.setBrand(iwhTransferLine.getBrand());
+//				apiLine.setOrigin(iwhTransferLine.getOrigin());
+//				apiLine.setPackQty(iwhTransferLine.getPackQty());
+//				apiLine.setExpectedQty(iwhTransferLine.getExpectedQty());
+//				apiLine.setSupplierName(iwhTransferLine.getSupplierName());
+//				apiLine.setSourceBranchCode(interWhTransferOutHeader.getFromBranchCode());
+//				apiLine.setCountryOfOrigin(iwhTransferLine.getCountryOfOrigin());
+//				apiLine.setFromCompanyCode(interWhTransferOutHeader.getFromCompanyCode());
+//				apiLine.setStoreID(iwhTransferLine.getStoreID());
+//
+//				apiLine.setLineReference(iwhTransferLine.getLineReference());            // IB_LINE_NO
+//				apiLine.setItemCode(iwhTransferLine.getSku());                            // ITM_CODE
+//				apiLine.setItemText(iwhTransferLine.getSkuDescription());                // ITEM_TEXT
+//				apiLine.setOrderedQty(iwhTransferLine.getOrderedQty());                    // ORD_QTY
+//				apiLine.setUom(iwhTransferLine.getUom());                                // ORD_UOM
+//				apiLine.setRefField1ForOrderType(iwhTransferLine.getOrderType());        // ORDER_TYPE
+//				apiLine.setManufacturerCode(iwhTransferLine.getManufacturerCode());
+//				apiLine.setManufacturerName(iwhTransferLine.getManufacturerName());
+//				apiLine.setOrderId(apiHeader.getOrderId());
+//				apiLine.setCustomerType("TRANSVERSE");                                //HardCoded
+//				apiLine.setRefField1ForOrderType("Transfer Out");
+//				apiLine.setOutboundOrderTypeID(1L);
+//				apiLine.setMiddlewareId(iwhTransferLine.getMiddlewareId());
+//				apiLine.setMiddlewareHeaderId(iwhTransferLine.getMiddlewareHeaderId());
+//				apiLine.setMiddlewareTable(iwhTransferLine.getMiddlewareTable());
+//				//To Wh-Id
+//				apiLine.setIsCompleted(interWhTransferOutHeader.getToWarehouseId());
+//				apiLine.setTransferOrderNumber(interWhTransferOutHeader.getTransferOrderNumber());
+//
+//				orderLines.add(apiLine);
+//			}
+//			apiHeader.setLine(orderLines);
+//			apiHeader.setOrderProcessedOn(new Date());
+//
+//			if (iWhTransferOutV2.getInterWarehouseTransferOutLine() != null &&
+//					!iWhTransferOutV2.getInterWarehouseTransferOutLine().isEmpty()) {
+//				apiHeader.setProcessedStatusId(0L);
+//				log.info("apiHeader: " + apiHeader);
+//				OutboundOrderV2 createdOrder = orderService.createOutboundOrdersV9(apiHeader);
+//				log.info("InterWarehouseTransferOut Order Success: " + createdOrder);
+//				return apiHeader;
+//			} else if (iWhTransferOutV2.getInterWarehouseTransferOutLine() == null ||
+//					iWhTransferOutV2.getInterWarehouseTransferOutLine().isEmpty()) {
+//				// throw the error as Lines are Empty and set the Indicator as '100'
+//				apiHeader.setProcessedStatusId(100L);
+//				log.info("apiHeader : " + apiHeader);
+//				OutboundOrderV2 createdOrder = orderService.createOutboundOrdersV9(apiHeader);
+//				log.info("InterWarehouseTransferOut Order Failed: " + createdOrder);
+//				throw new BadRequestException("InterWarehouseTransferOut Order doesn't contain any Lines.");
+//			}
+//		} catch (Exception e) {
+//			throw new RuntimeException(e);
+//		}
+//		return null;
+//	}
 }

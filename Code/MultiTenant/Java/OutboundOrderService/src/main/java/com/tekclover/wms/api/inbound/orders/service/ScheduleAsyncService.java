@@ -61,4 +61,11 @@ public class ScheduleAsyncService {
         return CompletableFuture.completedFuture(outboundOrder);
     }
 
+
+    @Async("asyncTaskExecutor")
+    public CompletableFuture<WarehouseApiResponse> processOutboundOrderV10() throws InterruptedException, InvocationTargetException, IllegalAccessException, ParseException {
+        WarehouseApiResponse outboundOrder = transactionService.processOutboundOrder("SPAREX");
+        return CompletableFuture.completedFuture(outboundOrder);
+    }
+
 }

@@ -9,10 +9,12 @@ import java.util.stream.Stream;
 import javax.validation.Valid;
 
 import com.tekclover.wms.api.outbound.transaction.config.dynamicConfig.DataBaseContextHolder;
+import com.tekclover.wms.api.outbound.transaction.model.dto.AssignPickerId;
 import com.tekclover.wms.api.outbound.transaction.model.outbound.ordermangement.v2.AssignPickerV2;
 import com.tekclover.wms.api.outbound.transaction.model.outbound.ordermangement.v2.OrderManagementLineImpl;
 import com.tekclover.wms.api.outbound.transaction.model.outbound.ordermangement.v2.OrderManagementLineV2;
 import com.tekclover.wms.api.outbound.transaction.model.outbound.ordermangement.v2.SearchOrderManagementLineV2;
+import com.tekclover.wms.api.outbound.transaction.model.outbound.v2.OutboundLineV2;
 import com.tekclover.wms.api.outbound.transaction.repository.DbConfigRepository;
 import com.tekclover.wms.api.outbound.transaction.service.AsyncService;
 import com.tekclover.wms.api.outbound.transaction.service.OrderManagementLineService;
@@ -381,10 +383,23 @@ public class OrderManagementLineController {
                                 ordermangementlineService.doAllocationV7(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber,
                                         itemCode, loginUserID);
                         break;
-
+                    case "BF":
+                        updatedOrderManagementLine =
+                                ordermangementlineService.doAllocationV9(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber,
+                                        itemCode, loginUserID);
+                        break;
+                    case "KKF":
+                        updatedOrderManagementLine =
+                                ordermangementlineService.doAllocationV9(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber,
+                                        itemCode, loginUserID);
+                        break;
                     default:
                         updatedOrderManagementLine =
                                 ordermangementlineService.doAllocationV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber,
+                                        itemCode, loginUserID);
+                    case "KSP":
+                        updatedOrderManagementLine =
+                                ordermangementlineService.doAllocationV9(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber,
                                         itemCode, loginUserID);
                 }
             }
@@ -529,6 +544,56 @@ public class OrderManagementLineController {
             DataBaseContextHolder.clear();
             DataBaseContextHolder.setCurrentDb(routingDb);
             return ordermangementlineService.findOrderManagementLinesV2(searchOrderManagementLine);
+        } finally {
+            DataBaseContextHolder.clear();
+        }
+    }
+
+    // BF && KKF - APIS
+    @ApiOperation(response = AssignPickerId.class, value = "Allocate") // label for swagger
+    @PatchMapping("/assignPicker/v9")
+    public ResponseEntity<?> assignPickerV9(@RequestBody List<AssignPickerId> assignPicker, @RequestParam String assignedPickerId,
+                                            @RequestParam String loginUserID) throws Exception {
+        try {
+            DataBaseContextHolder.setCurrentDb("MT");
+            String routingDb = dbConfigRepository.getDbName(assignPicker.get(0).getCompanyId(), assignPicker.get(0).getPlantId(), assignPicker.get(0).getWarehouseId());
+            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(routingDb);
+            List<AssignPickerId> result = ordermangementlineService.assignPickerIdV9(assignPicker,assignedPickerId,loginUserID);
+            return new ResponseEntity<>(result,HttpStatus.OK);
+        } finally {
+            DataBaseContextHolder.clear();
+        }
+    }
+
+    @ApiOperation(response = OutboundLineV2.class, value = "OrderReAllocation") // label for swagger
+    @PostMapping("/order/reallocation/v9")
+    public ResponseEntity<?> reAllocation(@RequestBody List<OutboundLineV2> outboundLineV2List, @RequestParam String loginUserID) throws Exception {
+        try {
+            DataBaseContextHolder.setCurrentDb("MT");
+            String routingDb = dbConfigRepository.getDbName(outboundLineV2List.get(0).getCompanyCodeId(), outboundLineV2List.get(0).getPlantId(), outboundLineV2List.get(0).getWarehouseId());
+            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(routingDb);
+            List<OutboundLineV2> result = ordermangementlineService.orderReAllocation(outboundLineV2List, loginUserID);
+            return new ResponseEntity<>(result,HttpStatus.OK);
+        } finally {
+            DataBaseContextHolder.clear();
+        }
+    }
+
+    @ApiOperation(response = OrderManagementLineV2.class, value = "OrderReAllocation") // label for swagger
+    @PostMapping("/reallocation/orderlines")
+    public ResponseEntity<?> reAllocationOrderV9(@RequestBody List<OrderManagementLineV2> reAllocationLines, @RequestParam String loginUserID) throws Exception {
+        try {
+            DataBaseContextHolder.setCurrentDb("MT");
+            String routingDb = dbConfigRepository.getDbName(reAllocationLines.get(0).getCompanyCodeId(), reAllocationLines.get(0).getPlantId(), reAllocationLines.get(0).getWarehouseId());
+            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(routingDb);
+            List<OrderManagementLineV2> result = ordermangementlineService.reAllocationOrderV9(reAllocationLines, loginUserID);
+            return new ResponseEntity<>(result,HttpStatus.OK);
         } finally {
             DataBaseContextHolder.clear();
         }

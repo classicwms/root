@@ -133,4 +133,36 @@ public class InhouseTransferHeaderController {
 			DataBaseContextHolder.clear();
 		}
 	}
+
+    //=============SPAREX InHouseTransferHeader =====================
+    @ApiOperation(response = InhouseTransferHeader.class, value = "Create InHouseTransferHeader") // label for swagger
+    @PostMapping("/v10/inHousetransferheader")
+    public ResponseEntity<?> postInHouseTransferHeaderV10(@Valid @RequestBody AddInhouseTransferHeader newInHouseTransferHeader, @RequestParam String loginUserID)
+            throws IllegalAccessException, InvocationTargetException, ParseException {
+        try {
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb("SPAREX");
+            InhouseTransferHeaderEntity createdInHouseTransferHeader =
+                    inHouseTransferHeaderService.createInHouseTransferHeaderV10(newInHouseTransferHeader, loginUserID);
+            return new ResponseEntity<>(createdInHouseTransferHeader, HttpStatus.OK);
+        } finally {
+            DataBaseContextHolder.clear();
+        }
+    }
+
+    //===========SPAREX Replenishment ==========================
+    @ApiOperation(response = InhouseTransferHeader.class, value = "Create Replenishment") // label for swagger
+    @PostMapping("/v10/replenishment")
+    public ResponseEntity<?> postReplenishmentV10(@Valid @RequestBody AddInhouseTransferHeader newInHouseTransferHeader, @RequestParam String loginUserID)
+            throws IllegalAccessException, InvocationTargetException, ParseException {
+        try {
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb("SPAREX");
+            InhouseTransferHeaderEntity createdInHouseTransferHeader =
+                    inHouseTransferHeaderService.createReplenishmentV10(newInHouseTransferHeader, loginUserID);
+            return new ResponseEntity<>(createdInHouseTransferHeader, HttpStatus.OK);
+        } finally {
+            DataBaseContextHolder.clear();
+        }
+    }
 }

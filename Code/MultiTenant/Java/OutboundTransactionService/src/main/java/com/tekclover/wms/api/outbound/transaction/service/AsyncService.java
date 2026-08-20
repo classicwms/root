@@ -1,6 +1,7 @@
 package com.tekclover.wms.api.outbound.transaction.service;
 
 import com.tekclover.wms.api.outbound.transaction.config.dynamicConfig.DataBaseContextHolder;
+import com.tekclover.wms.api.outbound.transaction.kafka.event.*;
 import com.tekclover.wms.api.outbound.transaction.model.IKeyValuePair;
 import com.tekclover.wms.api.outbound.transaction.model.inventory.v2.InventoryV2;
 import com.tekclover.wms.api.outbound.transaction.model.mnc.AddInhouseTransferHeader;
@@ -40,6 +41,12 @@ public class AsyncService extends BaseService {
 
     @Autowired
     DbConfigRepository dbConfigRepository;
+
+//    @Autowired
+//    ProducerService producerService;
+
+    @Autowired
+    StorageBinV2Repository storageBinV2Repository;
 
     @Autowired
     InhouseTransferHeaderService inHouseTransferHeaderService;
@@ -166,11 +173,11 @@ public class AsyncService extends BaseService {
 
     /**
      *
-     * @param newPickupLine pickupLine
+//     * @param newPickupLine pickupLine
      * @param loginUserID userID
      * @throws Exception
      */
-//    @Async("asyncTaskExecutor")
+    @Async("asyncTaskExecutor")
     public void processPickupLine(List<AddPickupLine> newPickupLine, String loginUserID) throws Exception {
 
         try {
@@ -200,6 +207,228 @@ public class AsyncService extends BaseService {
             DataBaseContextHolder.clear();
         }
     }
+
+//    /**
+//     * @param companyCodeId
+//     * @param plantId
+//     * @param languageId
+//     * @param warehouseId
+//     * @param itemCode
+//     * @param refDocNumber
+//     * @param dbPickupLine
+//     * @param loginUserID
+//     */
+//    public void modifyInventoryForMatchingBarcodeIdV4(String companyCodeId, String plantId, String languageId, String warehouseId,
+//                                                      String itemCode, String refDocNumber, PickupLineV2 dbPickupLine, String loginUserID) {
+//
+//        InventoryV2 inventory = inventoryService.getOutboundInventoryV4(companyCodeId, plantId, languageId, warehouseId, itemCode,
+//                dbPickupLine.getManufacturerName(), dbPickupLine.getBarcodeId(),
+//                dbPickupLine.getPickedStorageBin(), dbPickupLine.getAlternateUom());
+//        log.info("inventory record queried: " + inventory);
+//        if (inventory != null) {
+//            if (dbPickupLine.getAllocatedQty() > 0D) {
+//                try {
+//                    log.info("UOM,ALTUOM: " + dbPickupLine.getPickUom() + "|" + dbPickupLine.getAlternateUom());
+//                    double[] inventoryQty = null;
+//                    inventoryQty = calculateInventoryV6(dbPickupLine.getAllocatedQty(), dbPickupLine.getPickConfirmQty(), dbPickupLine.getNoBags(), inventory.getInventoryQuantity(), inventory.getAllocatedQuantity());
+//                    if (inventoryQty != null && inventoryQty.length > 3) {
+//                        inventory.setInventoryQuantity(inventoryQty[0]);
+//                        inventory.setAllocatedQuantity(inventoryQty[1]);
+//                        inventory.setReferenceField4(inventoryQty[2]);
+//                        //                        inventory.setNoBags(inventoryQty[3]);
+//                    }
+//
+//                    if (inventory.getItemType() == null) {
+//                        IKeyValuePair itemType = getItemTypeAndDesc(companyCodeId, plantId, languageId, warehouseId, itemCode);
+//                        if (itemType != null) {
+//                            inventory.setItemType(itemType.getItemType());
+//                            inventory.setItemTypeDescription(itemType.getItemTypeDescription());
+//                        }
+//                    }
+//
+//                    InventoryV2 inventoryV2 = new InventoryV2();
+//                    BeanUtils.copyProperties(inventory, inventoryV2, CommonUtils.getNullPropertyNames(inventory));
+//
+//                    log.info("Bag Size -----------------> {}", dbPickupLine.getBagSize());
+//                    log.info("Bag Size Inventory -----------------> {}", inventoryV2.getBagSize());
+//                    log.info("Inventory Quantity -----------------> {}", inventoryV2.getInventoryQuantity());
+//
+//                    if (dbPickupLine.getBagSize() > inventoryV2.getInventoryQuantity()) {
+//                        log.info("Opened Case");
+//                        inventoryV2.setLoosePack(true);
+//                    } else if (inventoryV2.getBagSize() > inventoryV2.getInventoryQuantity()) {
+//                        log.info("Opened Case");
+//                        inventoryV2.setLoosePack(true);
+//                    } else {
+//                        log.info("Closed Case");
+//                        inventoryV2.setLoosePack(false);
+//                    }
+//
+//                    inventoryV2.setReferenceDocumentNo(refDocNumber);
+//                    inventoryV2.setReferenceOrderNo(refDocNumber);
+//                    inventoryV2.setUpdatedOn(new Date());
+//                    try {
+////                        inventoryV2 = inventoryV2Repository.save(inventoryV2);
+//                        log.info("Publishing createdInventory Save Event to Kafka RefDocNo is -------------------> {} ", refDocNumber);
+//                        InventorySaveEvent event = new InventorySaveEvent(inventoryV2);
+//                        producerService.saveInventory(event);
+//                        log.info("Published createdInventory Saved Completed to Kafka RefDOcNo is -------------------> {}", refDocNumber);
+//
+////                        pickupLineV2Repository.updateExpDate(inventoryV2.getCompanyCodeId(), inventoryV2.getPlantId(), inventoryV2.getLanguageId(),
+////                                inventoryV2.getWarehouseId(), inventoryV2.getReferenceDocumentNo(), inventoryV2.getItemCode(), inventoryV2.getBarcodeId(),
+////                                inventoryV2.getExpiryDate());
+//
+//                        log.info("Kafka UpdateExpDateEvent Update Event is being published to Kafka for RefDocNo : {} ", inventoryV2.getReferenceDocumentNo());
+//                        UpdateExpDateEvent obStatusEvent = new UpdateExpDateEvent(inventoryV2.getCompanyCodeId(), inventoryV2.getPlantId(), inventoryV2.getLanguageId(),
+//                                inventoryV2.getWarehouseId(), inventoryV2.getReferenceDocumentNo(), inventoryV2.getItemCode(), inventoryV2.getBarcodeId(),
+//                                inventoryV2.getExpiryDate());
+//                        producerService.UpdatePickupLineExpDate(obStatusEvent);
+//                        log.info("Kafka UpdateExpDateEvent Update Event published to Kafka for RefDocNo : {} ", inventoryV2.getReferenceDocumentNo());
+//
+//
+//                        log.info("PickupLine Exp_Date Updated ---------------> " + inventoryV2.getBarcodeId());
+//
+//                        log.info("-----Inventory2 updated-------: " + inventoryV2);
+//                    } catch (Exception e) {
+//                        log.error("--ERROR--updateInventoryV3----level1--inventory--error----> :" + e.toString());
+//                        e.printStackTrace();
+//                        InventoryTrans newInventoryTrans = new InventoryTrans();
+//                        BeanUtils.copyProperties(inventory, newInventoryTrans, CommonUtils.getNullPropertyNames(inventory));
+//                        newInventoryTrans.setReRun(0L);
+//                        InventoryTrans inventoryTransCreated = inventoryTransRepository.save(newInventoryTrans);
+//                        log.error("inventoryTransCreated -------- :" + inventoryTransCreated);
+//                    }
+//
+//                    if (inventory.getReferenceField4() == 0) {
+//                        // Setting up statusId = 0
+//                        try {
+//                            // Check whether Inventory has record or not for that storageBin
+//                            Double inventoryByStBin = inventoryService.getInventoryByStorageBinV4(companyCodeId, plantId, languageId, warehouseId, inventory.getStorageBin());
+//                            if (inventoryByStBin == null) {
+//                                // Setting up statusId = 0
+////                                pickuplineService.updateStorageBinEmptyStatus(companyCodeId, plantId, languageId, warehouseId, inventory.getStorageBin(), loginUserID);
+////                                storageBinV2Repository.updateStorageBinStatus(companyCodeId, plantId,
+////                                        languageId, warehouseId, inventory.getStorageBin(),
+////                                        0L, loginUserID);
+//
+//                                log.info("Kafka StorageBinStatus Update Event is being published to Kafka for RefDocNo : {} ", dbPickupLine.getRefDocNumber());
+//                                UpdateStorageBinStatusEvent obStatusEvent1 = new UpdateStorageBinStatusEvent(companyCodeId, plantId, languageId, warehouseId,
+//                                        0L, inventory.getStorageBin(), loginUserID);
+//                                producerService.updateStorageBinStatus(obStatusEvent1);
+//                                log.info("Kafka StorageBinStatus Update Event published to Kafka for RefDocNo : {} ", dbPickupLine.getRefDocNumber());
+//
+//                            }
+//                        } catch (Exception e) {
+//                            log.error("updateStorageBin Error :" + e.toString());
+//                            e.printStackTrace();
+//                        }
+//                    }
+//                } catch (Exception e) {
+//                    log.error("Inventory Update :" + e.toString());
+//                    e.printStackTrace();
+//                }
+//            }
+//
+//            if (dbPickupLine.getAllocatedQty() == null || dbPickupLine.getAllocatedQty() == 0D) {
+//                try {
+//                    log.info("UOM,ALTUOM: " + dbPickupLine.getPickUom() + "|" + dbPickupLine.getAlternateUom());
+//                    double[] inventoryQty = null;
+//                    if (dbPickupLine.getPickUom().equalsIgnoreCase(dbPickupLine.getAlternateUom())) {
+//                        inventoryQty = calculateUOMInventory(dbPickupLine.getAllocatedQty(), dbPickupLine.getPickConfirmQty(), dbPickupLine.getNoBags(), inventory.getInventoryQuantity(), inventory.getAllocatedQuantity());
+//                    } else {
+//                        inventoryQty = calculateInventoryV6(dbPickupLine.getAllocatedQty(), dbPickupLine.getPickConfirmQty(), dbPickupLine.getNoBags(), inventory.getInventoryQuantity(), inventory.getAllocatedQuantity());
+//                    }
+//                    if (inventoryQty != null && inventoryQty.length > 3) {
+//                        inventory.setInventoryQuantity(inventoryQty[0]);
+//                        inventory.setAllocatedQuantity(inventoryQty[1]);
+//                        inventory.setReferenceField4(inventoryQty[2]);
+//                        //                        inventory.setNoBags(inventoryQty[3]);
+//                    }
+//
+//                    if (inventory.getItemType() == null) {
+//                        IKeyValuePair itemType = getItemTypeAndDesc(companyCodeId, plantId, languageId, warehouseId, itemCode);
+//                        if (itemType != null) {
+//                            inventory.setItemType(itemType.getItemType());
+//                            inventory.setItemTypeDescription(itemType.getItemTypeDescription());
+//                        }
+//                    }
+//
+//                    InventoryV2 newInventoryV2 = new InventoryV2();
+//                    BeanUtils.copyProperties(inventory, newInventoryV2, CommonUtils.getNullPropertyNames(inventory));
+//
+//                    log.info("Bag Size -----------------> {}", dbPickupLine.getBagSize());
+//                    log.info("Bag Size Inventory -----------------> {}", newInventoryV2.getBagSize());
+//                    log.info("Inventory Quantity -----------------> {}", newInventoryV2.getInventoryQuantity());
+//
+//                    if (dbPickupLine.getBagSize() > newInventoryV2.getInventoryQuantity()) {
+//                        log.info("Opened Case");
+//                        newInventoryV2.setLoosePack(true);
+//                    } else if (newInventoryV2.getBagSize() > newInventoryV2.getInventoryQuantity()) {
+//                        log.info("Opened Case");
+//                        newInventoryV2.setLoosePack(true);
+//                    } else {
+//                        log.info("Closed Case");
+//                        newInventoryV2.setLoosePack(false);
+//                    }
+//
+//                    newInventoryV2.setReferenceDocumentNo(refDocNumber);
+//                    newInventoryV2.setReferenceOrderNo(refDocNumber);
+//                    newInventoryV2.setUpdatedOn(new Date());
+//                    try {
+//                        InventoryV2 createdInventoryV2 = inventoryV2Repository.save(newInventoryV2);
+////                        log.info("Publishing createdInventory Save Event to Kafka RefDocNo is -------------------> {} ", refDocNumber);
+////                        InventorySaveEvent event = new InventorySaveEvent(newInventoryV2);
+////                        producerService.saveInventory(event);
+////                        log.info("Published createdInventory Saved Completed to Kafka RefDOcNo is -------------------> {}", refDocNumber);
+//
+////                        log.info("InventoryV2 created : " + createdInventoryV2);
+//
+////                        pickupLineV2Repository.updateExpDate(createdInventoryV2.getCompanyCodeId(), createdInventoryV2.getPlantId(), createdInventoryV2.getLanguageId(),
+////                                createdInventoryV2.getWarehouseId(), createdInventoryV2.getReferenceDocumentNo(), createdInventoryV2.getItemCode(), createdInventoryV2.getBarcodeId(),
+////                                createdInventoryV2.getExpiryDate());
+//
+//                        log.info("Kafka UpdateExpDateEvent Update Event is being published to Kafka for RefDocNo : {} ", createdInventoryV2.getReferenceDocumentNo());
+//                        UpdateExpDateEvent obStatusEvent = new UpdateExpDateEvent(createdInventoryV2.getCompanyCodeId(), createdInventoryV2.getPlantId(), createdInventoryV2.getLanguageId(),
+//                                createdInventoryV2.getWarehouseId(), createdInventoryV2.getReferenceDocumentNo(), createdInventoryV2.getItemCode(), createdInventoryV2.getBarcodeId(),
+//                                createdInventoryV2.getExpiryDate());
+//                        producerService.UpdatePickupLineExpDate(obStatusEvent);
+//                        log.info("Kafka UpdateExpDateEvent Update Event published to Kafka for RefDocNo : {} ", createdInventoryV2.getReferenceDocumentNo());
+//
+//                        log.info("PickupLine Exp_Date Updated -------------------------> V4");
+//                        if (createdInventoryV2.getReferenceField4() == 0) {
+//                            //-------------------------------------------------------------------
+//                            // PASS PickedConfirmedStBin, WH_ID to inventory
+//                            // 	If inv_qty && alloc_qty is zero or null then do the below logic.
+//                            //-------------------------------------------------------------------
+//                            // Check whether Inventory has record or not for that storageBin
+//                            Double inventoryByStBin = inventoryService.getInventoryByStorageBinV4(companyCodeId, plantId, languageId, warehouseId, inventory.getStorageBin());
+//                            if (inventoryByStBin == null) {
+//                                // Setting up statusId = 0
+////                                pickuplineService.updateStorageBinEmptyStatus(companyCodeId, plantId, languageId, warehouseId, inventory.getStorageBin(), loginUserID);
+//                                log.info("Kafka StorageBinStatus Update Event is being published to Kafka for RefDocNo : {} ", dbPickupLine.getRefDocNumber());
+//                                UpdateStorageBinStatusEvent obStatusEvent1 = new UpdateStorageBinStatusEvent(companyCodeId, plantId, languageId, warehouseId,
+//                                        0L, inventory.getStorageBin(), loginUserID);
+//                                producerService.updateStorageBinStatus(obStatusEvent1);
+//                                log.info("Kafka StorageBinStatus Update Event published to Kafka for RefDocNo : {} ", dbPickupLine.getRefDocNumber());
+//
+//                            }
+//                        }
+//                    } catch (Exception e) {
+//                        log.error("--ERROR--updateInventoryV3----level1--inventory--error----> :" + e.toString());
+//                        e.printStackTrace();
+////                        InventoryTrans newInventoryTrans = new InventoryTrans();
+////                        BeanUtils.copyProperties(inventory, newInventoryTrans, CommonUtils.getNullPropertyNames(inventory));
+////                        newInventoryTrans.setReRun(0L);
+////                        InventoryTrans inventoryTransCreated = inventoryTransRepository.save(newInventoryTrans);
+////                        log.error("inventoryTransCreated -------- :" + inventoryTransCreated);
+//                    }
+//                } catch (Exception e1) {
+//                    log.error("Inventory cum StorageBin update: Error :" + e1.toString());
+//                    e1.printStackTrace();
+//                }
+//            }
+//        }
+//    }
 
     /**
      * @param companyCodeId
@@ -380,6 +609,7 @@ public class AsyncService extends BaseService {
         }
     }
 
+
     @Async("asyncTaskExecutor")
     public void processInhouseTransferHeaderAsync(AddInhouseTransferHeader newInHouseTransferHeader, String loginUserID) throws Exception {
         if (newInHouseTransferHeader == null) {
@@ -487,6 +717,15 @@ public class AsyncService extends BaseService {
                         break;
                     case "KNOWELL":
                         updatupdatedOrderManagementLine = ordermangementlineService.doAssignPickerV7(assignPicker, assignedPickerId, loginUserID);
+                        break;
+                    case "BF":
+                        updatupdatedOrderManagementLine = ordermangementlineService.doAssignPickerV9(assignPicker, assignedPickerId, loginUserID);
+                        break;
+                    case "KKF":
+                        updatupdatedOrderManagementLine = ordermangementlineService.doAssignPickerV9(assignPicker, assignedPickerId, loginUserID);
+                        break;
+                    case "KSP":
+                        updatupdatedOrderManagementLine = ordermangementlineService.doAssignPickerV9(assignPicker, assignedPickerId, loginUserID);
                         break;
                 }
             }

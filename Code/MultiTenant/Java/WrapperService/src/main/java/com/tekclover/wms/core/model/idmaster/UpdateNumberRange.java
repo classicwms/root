@@ -10,4 +10,6 @@ public class UpdateNumberRange {
     private Long numberRangeTo;
     private String numberRangeCurrent;
     private Long deletionIndicator;
+
+    private String updatedBy;
 }

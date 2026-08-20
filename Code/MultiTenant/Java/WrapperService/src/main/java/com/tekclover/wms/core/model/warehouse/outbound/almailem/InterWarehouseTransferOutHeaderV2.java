@@ -24,6 +24,12 @@ public class InterWarehouseTransferOutHeaderV2 {
     @NotBlank(message = "Transfer Order Number is mandatory")
     private String transferOrderNumber;
 
+    @NotBlank(message = "From Warehouse Id is mandatory")
+    private String fromWarehouseId;
+
+    @NotBlank(message = "To Warehouse Id is mandatory")
+    private String toWarehouseId;
+
     @NotBlank(message = "Required Delivery Date is mandatory")
     private String requiredDeliveryDate;
     private String warehouseId;

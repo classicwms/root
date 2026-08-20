@@ -664,4 +664,20 @@ public class DateUtils {
 			throw e;
 		}
 	}
+
+    /**
+     * SPAREX
+     *
+     * @param strDate
+     * @return
+     * @throws ParseException
+     */
+    public static Date convertStringToDateV10(String strDate) throws ParseException {
+        LocalTime time = LocalTime.now();
+        System.out.println("---------> " + time);
+        strDate = strDate + " " + time.getHour() + ":" + time.getMinute() + ":" + time.getSecond();
+        Date date = new SimpleDateFormat("dd-MM-yyyy, hh:mm a").parse(strDate);
+//		log.info("convertStringToDate-------> : " + date);
+        return date;
+    }
 }

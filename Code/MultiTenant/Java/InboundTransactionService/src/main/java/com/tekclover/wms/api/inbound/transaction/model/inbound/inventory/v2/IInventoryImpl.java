@@ -159,4 +159,15 @@ public interface IInventoryImpl {
     Double getQtyInCase();
     Double getQtyInPiece();
     Double getQtyInCreate();
+
+    public Date getFromDate();
+
+    public Date getToDate();
+
+    String getSelfLife();
+
+    String getRemainingDays();
+
+    Long getRemainingSelfLifePercentage();
+
 }

@@ -101,4 +101,11 @@ public class StagingLineV2 {
     private String vehicleNo;
     private Date vehicleReportingDate;
     private Date vehicleUnloadingDate;
+    private String barcodeId;
+    private Boolean crossDock;
+    private String goodsReceiptNo;
+    private String parentProductionOrderNo;
+
+    private String storageSectionId;
+    private String materialNo;
 }

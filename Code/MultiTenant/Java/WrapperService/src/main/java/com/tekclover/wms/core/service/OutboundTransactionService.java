@@ -2,8 +2,9 @@ package com.tekclover.wms.core.service;
 
 
 import com.tekclover.wms.core.config.PropertiesConfig;
+import com.tekclover.wms.core.exception.BadRequestException;
 import com.tekclover.wms.core.model.auth.AuthToken;
-import com.tekclover.wms.core.model.dto.PickupHeaderGroupByDto;
+import com.tekclover.wms.core.model.dto.*;
 import com.tekclover.wms.core.model.masters.ImPartner;
 import com.tekclover.wms.core.model.transaction.*;
 import com.tekclover.wms.core.model.warehouse.cyclecount.periodic.Periodic;
@@ -6343,4 +6344,639 @@ public class OutboundTransactionService {
         }
     }
 
+
+    //=======================SPAREX========================================================
+    public WarehouseApiResponse[] postSalesOrderUploadV10(@Valid List<SalesOrderV2> salesOrderV2, String authToken) {
+        AuthToken authTokens = authTokenService.getOutboundOrderServiceAuthToken();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        headers.add("User-Agent", "ClassicWMS RestTemplate");
+        headers.add("Authorization", "Bearer " + authTokens.getAccess_token());
+        UriComponentsBuilder builder = UriComponentsBuilder
+                .fromHttpUrl(getOutboundOrderServiceApiUrl() + "outboundorder/outbound/upload/salesorderv10");
+        HttpEntity<?> entity = new HttpEntity<>(salesOrderV2, headers);
+        ResponseEntity<WarehouseApiResponse[]> result =
+                getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, WarehouseApiResponse[].class);
+        log.info("result: " + result.getStatusCode());
+        return result.getBody();
+    }
+
+    public PackingLineRes[] findPackingLineV10(FindPackingLine findPackingLine, String authToken) throws Exception {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            UriComponentsBuilder builder = UriComponentsBuilder
+                    .fromHttpUrl(getOutboundTransactionServiceApiUrl() + "packingline/find/packingline");
+            HttpEntity<?> entity = new HttpEntity<>(findPackingLine, headers);
+            ResponseEntity<PackingLineRes[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST,
+                    entity, PackingLineRes[].class);
+
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    public PickupLineV2[] updateOutboundV10(List<PickupLineV2> updateOutboundLines,
+                                            String loginUserID, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS-Almailem RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+            HttpEntity<?> entity = new HttpEntity<>(updateOutboundLines, headers);
+
+            HttpClient client = HttpClients.createDefault();
+            RestTemplate restTemplate = getRestTemplate();
+            restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
+
+            UriComponentsBuilder builder = UriComponentsBuilder
+                    .fromHttpUrl(getOutboundTransactionServiceApiUrl() + "outboundline/outbound/update/v10")
+                    .queryParam("loginUserID", loginUserID);
+            ResponseEntity<PickupLineV2[]> result = restTemplate.exchange(builder.toUriString(),
+                    HttpMethod.PATCH, entity, PickupLineV2[].class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    //---------------Delivery-Confirmattion-Outbound-v10-----------------------------------------------
+    public OutboundLineV2[] deliveryConfirmationV10(List<OutboundLineV2> outboundLine, String loginUserID, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            UriComponentsBuilder builder = UriComponentsBuilder
+                    .fromHttpUrl(getOutboundTransactionServiceApiUrl() + "outboundline/delivery/confirmation/v10")
+                    .queryParam("loginUserID", loginUserID);
+            HttpEntity<?> entity = new HttpEntity<>(outboundLine, headers);
+            ResponseEntity<OutboundLineV2[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST,
+                    entity, OutboundLineV2[].class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    //---------------Outbound-Cancellation v10-----------------------------------------------
+    public WarehouseApiResponse outboundCancellationV10(List<OutboundCancellation> outboundCancellation, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS-Almailem RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            HttpEntity<?> entity = new HttpEntity<>(outboundCancellation,headers);
+            HttpClient client = HttpClients.createDefault();
+            RestTemplate restTemplate = getRestTemplate();
+            restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
+
+            UriComponentsBuilder builder =
+                    UriComponentsBuilder.fromHttpUrl(getOutboundTransactionServiceApiUrl() + "outboundline/outboundcancellation/v10");
+
+            ResponseEntity<WarehouseApiResponse> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, WarehouseApiResponse.class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    //---------------Outbound-Cancellation v10-----------------------------------------------
+    public WarehouseApiResponse outboundReversalV10(List<OutboundCancellation> outboundCancellation, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS-Almailem RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            HttpEntity<?> entity = new HttpEntity<>(outboundCancellation,headers);
+            HttpClient client = HttpClients.createDefault();
+            RestTemplate restTemplate = getRestTemplate();
+            restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
+
+            UriComponentsBuilder builder =
+                    UriComponentsBuilder.fromHttpUrl(getOutboundTransactionServiceApiUrl() + "outboundline/outboundreversal/v10");
+
+            ResponseEntity<WarehouseApiResponse> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, WarehouseApiResponse.class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    //---------------Pickup Update & Reversal v10-----------------------------------------------
+    public WarehouseApiResponse pickupReversalV10(List<PickupNewUpdate> pickupNewUpdate, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS-Almailem RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            HttpEntity<?> entity = new HttpEntity<>(pickupNewUpdate,headers);
+            HttpClient client = HttpClients.createDefault();
+            RestTemplate restTemplate = getRestTemplate();
+            restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
+
+            UriComponentsBuilder builder =
+                    UriComponentsBuilder.fromHttpUrl(getOutboundTransactionServiceApiUrl() + "outboundline/pickupReversal/v10");
+
+            ResponseEntity<WarehouseApiResponse> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, WarehouseApiResponse.class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    // POST
+    public PackingLine[] createPackingLineV10(@Valid List<AddPickupLine> newPackingLine, String loginUserID,
+                                              String authToken) throws Exception {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getOutboundTransactionServiceApiUrl() + "packingline/packing/create/list")
+                    .queryParam("loginUserID", loginUserID);
+            HttpEntity<?> entity = new HttpEntity<>(newPackingLine, headers);
+            ResponseEntity<PackingLine[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity,
+                    PackingLine[].class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            throw new BadRequestException(e.getMessage());
+        }
+    }
+
+    // POST - findPickupLine
+    public PickupLineV2[] findPickupLineV10(SearchPickupLineV2 searchPickupLine, String authToken) throws Exception {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            UriComponentsBuilder builder = UriComponentsBuilder
+                    .fromHttpUrl(getOutboundTransactionServiceApiUrl() + "pickupline/v10/findPickupLine");
+            HttpEntity<?> entity = new HttpEntity<>(searchPickupLine, headers);
+            ResponseEntity<PickupLineV2[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST,
+                    entity, PickupLineV2[].class);
+
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    //===========SPAREX========================
+    public PickupHeaderV2 updatePickupHeaderV10(String loginUserID, PickupHeaderV2 updatePickupHeader, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS-Almailem RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+            HttpEntity<?> entity = new HttpEntity<>(updatePickupHeader, headers);
+            HttpClient client = HttpClients.createDefault();
+            RestTemplate restTemplate = getRestTemplate();
+            restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
+
+            UriComponentsBuilder builder = UriComponentsBuilder
+                    .fromHttpUrl(getOutboundTransactionServiceApiUrl() + "pickupheader/v10")
+                    .queryParam("loginUserID", loginUserID);
+            ResponseEntity<PickupHeaderV2> result = restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH, entity,
+                    PickupHeaderV2.class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    public OrderManagementLineV2[] orderAllocationManualV10(@Valid List<OrderManagementLineV2> orderManagementLineV2List, String loginUserID, String authToken) {
+        AuthToken authTokens = authTokenService.getOutboundOrderServiceAuthToken();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        headers.add("User-Agent", "ClassicWMS RestTemplate");
+        headers.add("Authorization", "Bearer " + authTokens.getAccess_token());
+        UriComponentsBuilder builder = UriComponentsBuilder
+                .fromHttpUrl(getOutboundOrderServiceApiUrl() + "outboundorder/outbound/allocate/manual/v10")
+                .queryParam("loginUserID", loginUserID);
+        HttpEntity<?> entity = new HttpEntity<>(orderManagementLineV2List, headers);
+        ResponseEntity<OrderManagementLineV2[]> result =
+                getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, OrderManagementLineV2[].class);
+        log.info("result: " + result.getStatusCode());
+        return result.getBody();
+    }
+
+    // BF Post SalesOrderV2 - Upload
+    public WarehouseApiResponse[] postSalesOrderUploadV9(@Valid List<SalesOrderV2> salesOrderV2, String authToken) {
+        AuthToken authTokens = authTokenService.getOutboundOrderServiceAuthToken();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        headers.add("User-Agent", "ClassicWMS RestTemplate");
+        headers.add("Authorization", "Bearer " + authTokens.getAccess_token());
+        UriComponentsBuilder builder = UriComponentsBuilder
+                .fromHttpUrl(getOutboundOrderServiceApiUrl() + "outboundorder/outbound/salesorderv9");
+//        UriComponentsBuilder builder = UriComponentsBuilder
+//                .fromHttpUrl(getOutboundTransactionServiceApiUrl() + "warehouse/outbound/upload/salesorderv9");
+        HttpEntity<?> entity = new HttpEntity<>(salesOrderV2, headers);
+        ResponseEntity<WarehouseApiResponse[]> result =
+                getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, WarehouseApiResponse[].class);
+        log.info("result: " + result.getStatusCode());
+        return result.getBody();
+    }
+    // POST - V2
+    public InhouseTransferHeader createInhouseTransferHeaderV9(InhouseTransferHeader newInhouseTransferHeader,
+                                                               String loginUserID, String authToken) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        headers.add("User-Agent", "ClassicWMS RestTemplate");
+        headers.add("Authorization", "Bearer " + authToken);
+
+        UriComponentsBuilder builder = UriComponentsBuilder
+                .fromHttpUrl(getOutboundTransactionServiceApiUrl() + "inhousetransferheader/v9")
+                .queryParam("loginUserID", loginUserID);
+        HttpEntity<?> entity = new HttpEntity<>(newInhouseTransferHeader, headers);
+        ResponseEntity<InhouseTransferHeader> result = getRestTemplate().exchange(builder.toUriString(),
+                HttpMethod.POST, entity, InhouseTransferHeader.class);
+        log.info("result : " + result.getStatusCode());
+        return result.getBody();
+    }
+
+    public WarehouseApiResponse outboundReversalByPallet(OutboundReversalInputNew outboundReversalInput, String authToken) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        headers.add("User-Agent", "RestTemplate");
+        headers.add("Authorization", "Bearer " + authToken);
+        UriComponentsBuilder builder =
+                UriComponentsBuilder.fromHttpUrl(getOutboundTransactionServiceApiUrl() + "reports/outboundreversal/pallet");
+        HttpEntity<?> entity = new HttpEntity<>(outboundReversalInput, headers);
+        ResponseEntity<WarehouseApiResponse> result =
+                getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, WarehouseApiResponse.class);
+        return result.getBody();
+    }
+
+    //--------------------------------------------Outbound Cancellation----------------------------------------------
+
+    public WarehouseApiResponse outboundCancellation(OutboundReversalInput outboundReversalInput, String authToken) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        headers.add("User-Agent", "RestTemplate");
+        headers.add("Authorization", "Bearer " + authToken);
+        UriComponentsBuilder builder =
+                UriComponentsBuilder.fromHttpUrl(getOutboundTransactionServiceApiUrl() + "reports/outboundcancellation");
+        HttpEntity<?> entity = new HttpEntity<>(outboundReversalInput, headers);
+        ResponseEntity<WarehouseApiResponse> result =
+                getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, WarehouseApiResponse.class);
+        return result.getBody();
+    }
+
+
+
+    public WarehouseApiResponse[] processOutboundOrderV9(List<PreOutboundLineV2> preOutboundLineV2List) {
+        AuthToken authToken = authTokenService.getOutboundOrderServiceAuthToken();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        headers.add("User-Agent", "RestTemplate");
+        headers.add("Authorization", "Bearer " + authToken.getAccess_token());
+        UriComponentsBuilder builder =
+                UriComponentsBuilder.fromHttpUrl(getOutboundOrderServiceApiUrl() + "outboundorder/bf/order/process/v9");
+        HttpEntity<?> entity = new HttpEntity<>(preOutboundLineV2List, headers);
+        ResponseEntity<WarehouseApiResponse[]> result =
+                getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, WarehouseApiResponse[].class);
+        return result.getBody();
+    }
+
+    public AssignPickerId[] assignPickerV9(List<AssignPickerId> assignPicker, String assignedPickerId,
+                                           String loginUserID, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS-Almailem RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+            HttpEntity<?> entity = new HttpEntity<>(assignPicker, headers);
+
+            HttpClient client = HttpClients.createDefault();
+            RestTemplate restTemplate = getRestTemplate();
+            restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
+
+            UriComponentsBuilder builder = UriComponentsBuilder
+                    .fromHttpUrl(getOutboundTransactionServiceApiUrl() + "ordermanagementline/assignPicker/v9")
+                    .queryParam("assignedPickerId", assignedPickerId).queryParam("loginUserID", loginUserID);
+            ResponseEntity<AssignPickerId[]> result = restTemplate.exchange(builder.toUriString(),
+                    HttpMethod.PATCH, entity, AssignPickerId[].class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+    //=====================================BF Post InterWarehouseTransferOut==============================
+    public WarehouseApiResponse postInterWhTransferOutV9(@Valid InterWarehouseTransferOutV2 iWhTransferOutV2, String authToken) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        headers.add("User-Agent", "ClassicWMS RestTemplate");
+        headers.add("Authorization", "Bearer " + authToken);
+        UriComponentsBuilder builder =
+                UriComponentsBuilder.fromHttpUrl(getOutboundTransactionServiceApiUrl() + "warehouse/outbound/interwarehousetransferout/v9");
+        HttpEntity<?> entity = new HttpEntity<>(iWhTransferOutV2, headers);
+        ResponseEntity<WarehouseApiResponse> result =
+                getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, WarehouseApiResponse.class);
+        log.info("result: " + result.getStatusCode());
+        return result.getBody();
+    }
+
+    //====================================BF-PATCH=======================================================
+    public PreOutboundLineV2 updatePreOutboundLineV2(String loginUserID, @Valid UpdatePreOutboundLine updatePreOutboundLine, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS-Almailem RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+            HttpEntity<?> entity = new HttpEntity<>(updatePreOutboundLine, headers);
+
+            HttpClient client = HttpClients.createDefault();
+            RestTemplate restTemplate = getRestTemplate();
+            restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
+
+            UriComponentsBuilder builder = UriComponentsBuilder
+                    .fromHttpUrl(getOutboundTransactionServiceApiUrl() + "preoutboundline/v2/update")
+                    .queryParam("loginUserID", loginUserID);
+            ResponseEntity<PreOutboundLineV2> result = restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH, entity,
+                    PreOutboundLineV2.class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+
+    //===============================================ContainerReceiptOutboundLine==========================================//
+
+    // ContainerReceiptOutboundLine
+    public ContainerReceiptOutboundLine[] getContainerReceiptOutboundLine(FindContainerReceiptInboundLine findContainerReceiptInboundLine, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            UriComponentsBuilder builder = UriComponentsBuilder
+                    .fromHttpUrl(getOutboundTransactionServiceApiUrl() + "reports/containerReceiptOutboundLine/v9");
+            HttpEntity<?> entity = new HttpEntity<>(findContainerReceiptInboundLine, headers);
+            ResponseEntity<ContainerReceiptOutboundLine[]> result = getRestTemplate().exchange(builder.toUriString(),
+                    HttpMethod.POST, entity, ContainerReceiptOutboundLine[].class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+
+    //===============================================ContainerReceiptOutboundLine==========================================//
+
+    // ContainerReceiptOutboundLine
+    public ContainerReceiptOutboundLine[] getContainerReceiptOutboundLineReport(FindContainerReceiptInboundLine findContainerReceiptInboundLine, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            UriComponentsBuilder builder = UriComponentsBuilder
+                    .fromHttpUrl(getOutboundTransactionServiceApiUrl() + "reports/containerReceiptOutboundLine/report/v9");
+            HttpEntity<?> entity = new HttpEntity<>(findContainerReceiptInboundLine, headers);
+            ResponseEntity<ContainerReceiptOutboundLine[]> result = getRestTemplate().exchange(builder.toUriString(),
+                    HttpMethod.POST, entity, ContainerReceiptOutboundLine[].class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    // ContainerReceiptOutboundLine
+    public PickerDenial[] updatePickerDenialV9(List<PickerDenial> pickerDenialList, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            UriComponentsBuilder builder = UriComponentsBuilder
+                    .fromHttpUrl(getOutboundTransactionServiceApiUrl() + "ordermanagementline/pickerdenial");
+            HttpEntity<?> entity = new HttpEntity<>(pickerDenialList, headers);
+            ResponseEntity<PickerDenial[]> result = getRestTemplate().exchange(builder.toUriString(),
+                    HttpMethod.POST, entity, PickerDenial[].class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    // ContainerReceiptOutboundLine
+    public OutboundLineV2[] orderReAllocation(List<OutboundLineV2> pickerDenialList, String loginUserID, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            UriComponentsBuilder builder = UriComponentsBuilder
+                    .fromHttpUrl(getOutboundTransactionServiceApiUrl() + "ordermanagementline/order/reallocation/v9")
+                    .queryParam("loginUserID", loginUserID);
+            HttpEntity<?> entity = new HttpEntity<>(pickerDenialList, headers);
+            ResponseEntity<OutboundLineV2[]> result = getRestTemplate().exchange(builder.toUriString(),
+                    HttpMethod.POST, entity, OutboundLineV2[].class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    public InventoryStockReport[] closingStockReportV9(FindImBasicData1 findImBasicData1, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            UriComponentsBuilder builder = UriComponentsBuilder
+                    .fromHttpUrl(getOutboundTransactionServiceApiUrl() + "reports/closingstock/v2");
+
+            HttpEntity<?> entity = new HttpEntity<>(findImBasicData1, headers);
+            ResponseEntity<InventoryStockReport[]> result = getRestTemplate().exchange(builder.toUriString(),
+                    HttpMethod.POST, entity, InventoryStockReport[].class);
+            log.info("result : " + result.getBody());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+
+    public OutwardReportResponse[] outwardReportV9(OutwardReportInput inputs, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            UriComponentsBuilder builder = UriComponentsBuilder
+                    .fromHttpUrl(getOutboundTransactionServiceApiUrl() + "reports/outward/report");
+
+            HttpEntity<?> entity = new HttpEntity<>(inputs, headers);
+            ResponseEntity<OutwardReportResponse[]> result = getRestTemplate().exchange(builder.toUriString(),
+                    HttpMethod.POST, entity, OutwardReportResponse[].class);
+            log.info("result : " + result.getBody());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    public StockMovementLedgerReport[] stockMovementLedgerReportV9(LedgerReportInput inputs, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            UriComponentsBuilder builder = UriComponentsBuilder
+                    .fromHttpUrl(getOutboundTransactionServiceApiUrl() + "reports/stockmovement/ledger");
+
+            HttpEntity<?> entity = new HttpEntity<>(inputs, headers);
+            ResponseEntity<StockMovementLedgerReport[]> result = getRestTemplate().exchange(builder.toUriString(),
+                    HttpMethod.POST, entity, StockMovementLedgerReport[].class);
+            log.info("result : " + result.getBody());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    public UpdateOutboundOrder[] updateOutboundOrdersV9(List<UpdateOutboundOrder> inputs, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            UriComponentsBuilder builder = UriComponentsBuilder
+                    .fromHttpUrl(getOutboundTransactionServiceApiUrl() + "outboundheader/orders/update/v9");
+
+            HttpEntity<?> entity = new HttpEntity<>(inputs, headers);
+            ResponseEntity<UpdateOutboundOrder[]> result = getRestTemplate().exchange(builder.toUriString(),
+                    HttpMethod.POST, entity, UpdateOutboundOrder[].class);
+            log.info("result : " + result.getBody());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    // GET - BF - Opening Stock Report renamed to Transaction History Report
+    public InventoryStockReport[] getTransactionHistoryReportV9(FindImBasicData1 findImBasicData1, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            UriComponentsBuilder builder = UriComponentsBuilder
+                    .fromHttpUrl(getOutboundTransactionServiceApiUrl() + "reports/transactionHistoryReport/v9");
+
+            HttpEntity<?> entity = new HttpEntity<>(findImBasicData1, headers);
+            ResponseEntity<InventoryStockReport[]> result = getRestTemplate().exchange(builder.toUriString(),
+                    HttpMethod.POST, entity, InventoryStockReport[].class);
+            log.info("result : " + result.getBody());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    public OrderManagementLineV2[] reAllocationOrderV9(List<OrderManagementLineV2> reAllocationLines, String loginUserID, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            UriComponentsBuilder builder = UriComponentsBuilder
+                    .fromHttpUrl(getOutboundTransactionServiceApiUrl() + "ordermanagementline/reallocation/orderlines")
+                    .queryParam("loginUserID", loginUserID);
+            HttpEntity<?> entity = new HttpEntity<>(reAllocationLines, headers);
+            ResponseEntity<OrderManagementLineV2[]> result = getRestTemplate().exchange(builder.toUriString(),
+                    HttpMethod.POST, entity, OrderManagementLineV2[].class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+//==========================================BF POST - WH2WH Orders via upload======================================
+public WarehouseApiResponse[] postInterWarehouseTransferOutUploadV9(List<InterWarehouseTransferOutV2> interWarehouseTransferOutV2List,
+                                                                    String loginUserID, String authToken) {
+    HttpHeaders headers = new HttpHeaders();
+    headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+    headers.add("User-Agent", "RestTemplate");
+    headers.add("Authorization", "Bearer " + authToken);
+    UriComponentsBuilder builder =
+            UriComponentsBuilder.fromHttpUrl(getOutboundTransactionServiceApiUrl() + "warehouse/outbound/interWarehouseTransferOut/upload/v9")
+                    .queryParam("loginUserID", loginUserID);
+    HttpEntity<?> entity = new HttpEntity<>(interWarehouseTransferOutV2List, headers);
+    ResponseEntity<WarehouseApiResponse[]> result =
+            getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, WarehouseApiResponse[].class);
+    return result.getBody();
 }
+
+    //Post SalesOrderV2
+    public WarehouseApiResponse[] postSalesOrderV9(@Valid List<SalesOrderV2> salesOrderV2, String authTokens) {
+        AuthToken authToken = authTokenService.getOutboundOrderServiceAuthToken();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        headers.add("User-Agent", "ClassicWMS RestTemplate");
+        headers.add("Authorization", "Bearer " + authToken.getAccess_token());
+        UriComponentsBuilder builder = UriComponentsBuilder
+                .fromHttpUrl(getOutboundOrderServiceApiUrl() + "outboundorder/outbound/salesorderv9");
+        HttpEntity<?> entity = new HttpEntity<>(salesOrderV2, headers);
+        ResponseEntity<WarehouseApiResponse[]> result =
+                getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, WarehouseApiResponse[].class);
+        log.info("result: " + result.getStatusCode());
+        return result.getBody();
+    }
+
+}
+

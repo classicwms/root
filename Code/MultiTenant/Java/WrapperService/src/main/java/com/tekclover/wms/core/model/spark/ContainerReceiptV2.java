@@ -87,4 +87,45 @@ public class ContainerReceiptV2 {
     private String middlewareId;
 
     private String middlewareTable;
+
+    private Timestamp referenceField11;
+
+    private Timestamp referenceField12;
+
+    private Timestamp referenceField13;
+
+    private Timestamp referenceField14;
+
+    private Timestamp referenceField15;
+
+    private Timestamp referenceField16;
+
+    private Timestamp referenceField17;
+
+    private Timestamp referenceField18;
+
+    private Timestamp referenceField19;
+
+    private Timestamp referenceField20;
+
+    private String referenceField21;
+
+    private String referenceField22;
+
+    private String referenceField23;
+
+    private String referenceField24;
+
+    private String referenceField25;
+
+    private String referenceField26;
+
+    private String referenceField27;
+
+    private String referenceField28;
+
+    private String referenceField29;
+
+    private String referenceField30;
+
 }

@@ -5487,5 +5487,66 @@ public class MastersService {
             throw e;
         }
     }
+
+    public WarehouseApiResponse[] postImBasicDataUpload(List<ImBasicData1V2> imBasicData,
+                                                        String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+            UriComponentsBuilder builder =
+                    UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "imbasicdata1/upload/imbasicdata/");
+            HttpEntity<?> entity = new HttpEntity<>(imBasicData, headers);
+            ResponseEntity<WarehouseApiResponse[]> result =
+                    getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, WarehouseApiResponse[].class);
+            return result.getBody();
+        }catch (Exception e){
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+
+    public WarehouseApiResponse[] postAlternateUom(List<ImAlternateUom> alternateUoms, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+            UriComponentsBuilder builder =
+                    UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "imalternateuom/upload/alternateuom/");
+            HttpEntity<?> entity = new HttpEntity<>(alternateUoms, headers);
+            ResponseEntity<WarehouseApiResponse[]> result =
+                    getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, WarehouseApiResponse[].class);
+            return result.getBody();
+        }catch (Exception e){
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    //===========================BusinessPartner Upload===============================================
+    public WarehouseApiResponse[] postBusinessPartner(List<BusinessPartnerV2> businessPartner, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            UriComponentsBuilder builder =
+                    UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "businesspartner/upload/businesspartner");
+            HttpEntity<?> entity = new HttpEntity<>(businessPartner, headers);
+            ResponseEntity<WarehouseApiResponse[]> result =
+                    getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, WarehouseApiResponse[].class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
 }
 		

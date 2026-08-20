@@ -4,7 +4,7 @@ import com.tekclover.wms.api.outbound.transaction.model.auth.AuthToken;
 import com.tekclover.wms.api.outbound.transaction.model.cyclecount.periodic.v2.PeriodicLineV2;
 import com.tekclover.wms.api.outbound.transaction.model.inventory.InventoryMovement;
 import com.tekclover.wms.api.outbound.transaction.model.inventory.v2.InventoryV2;
-import com.tekclover.wms.api.outbound.transaction.repository.PickupLineRepository;
+import com.tekclover.wms.api.outbound.transaction.repository.*;
 import com.tekclover.wms.api.outbound.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.outbound.transaction.model.cyclecount.perpetual.v2.PerpetualLineV2;
 import com.tekclover.wms.api.outbound.transaction.model.cyclecount.stockadjustment.SearchStockAdjustment;
@@ -15,9 +15,6 @@ import com.tekclover.wms.api.outbound.transaction.model.dto.StorageBinV2;
 import com.tekclover.wms.api.outbound.transaction.model.inventory.v2.IInventoryImpl;
 import com.tekclover.wms.api.outbound.transaction.model.outbound.StorageBinPutAway;
 import com.tekclover.wms.api.outbound.transaction.model.warehouse.inbound.WarehouseApiResponse;
-import com.tekclover.wms.api.outbound.transaction.repository.InventoryMovementRepository;
-import com.tekclover.wms.api.outbound.transaction.repository.InventoryV2Repository;
-import com.tekclover.wms.api.outbound.transaction.repository.StockAdjustmentRepository;
 import com.tekclover.wms.api.outbound.transaction.repository.specification.StockAdjustmentSpecification;
 import com.tekclover.wms.api.outbound.transaction.util.CommonUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -59,6 +56,9 @@ public class StockAdjustmentService extends BaseService {
 
     @Autowired
     InhouseTransferHeaderService inhouseTransferHeaderService;
+
+    @Autowired
+    ImBasicData1V2Repository imBasicData1V2Repository;
 
     String statusDescription = null;
     String LANG_ID = "EN";
@@ -2089,4 +2089,112 @@ public class StockAdjustmentService extends BaseService {
         return new double[] {INV_QTY, ALLOC_QTY, TOT_QTY, NO_OF_BAGS};
     }
 
+
+    /**
+     *
+     * @param periodicLines
+     * @param loginUserId
+     */
+    public void createStockAdjustmentV9(List<PeriodicLineV2> periodicLines, String loginUserId) throws Exception {
+        try {
+            String movementQtyValue = null;
+            if (periodicLines != null && !periodicLines.isEmpty()) {
+                AuthToken idMasterServiceAuthToken = authTokenService.getIDMasterServiceAuthToken();
+                for (PeriodicLineV2 periodicLine : periodicLines) {
+                    if (periodicLine.getVarianceQty() != 0) {
+                        InventoryV2 dbInventory = inventoryService.getOutboundInventoryV9(
+                                periodicLine.getCompanyCode(), periodicLine.getPlantId(), periodicLine.getLanguageId(),
+                                periodicLine.getWarehouseId(), periodicLine.getItemCode(), periodicLine.getManufacturerName(),
+                                periodicLine.getBarcodeId(), periodicLine.getStorageBin(), periodicLine.getAlternateUom());
+                        log.info("Stock Adjustment Inventory: " + dbInventory);
+
+                        if (dbInventory != null) {
+                            InventoryV2 newInventory = new InventoryV2();
+                            BeanUtils.copyProperties(dbInventory, newInventory, CommonUtils.getNullPropertyNames(dbInventory));
+
+                            double[] inventoryQty = calculateStockAdjustmentInventory(periodicLine.getVarianceQty(), newInventory.getBagSize(),
+                                    newInventory.getInventoryQuantity(), newInventory.getAllocatedQuantity());
+                            if (inventoryQty != null && inventoryQty.length > 3) {
+                                newInventory.setInventoryQuantity(inventoryQty[0]);
+                                newInventory.setAllocatedQuantity(inventoryQty[1]);
+                                newInventory.setReferenceField4(inventoryQty[2]);
+                                newInventory.setNoBags(inventoryQty[3]);
+                            }
+
+                            InventoryV2 inventorySource = inhouseTransferHeaderService.setAlternateUomQuantitiesV9(newInventory);
+                            newInventory.setQtyInCase(inventorySource.getQtyInCase());
+                            newInventory.setQtyInPiece(inventorySource.getQtyInPiece());
+                            newInventory.setQtyInCreate(inventorySource.getQtyInCreate());
+                            newInventory.setManufacturerCode(dbInventory.getManufacturerCode());
+                            newInventory.setSelfLife(dbInventory.getSelfLife());
+                            newInventory.setRemainingDays(dbInventory.getRemainingDays());
+                            newInventory.setManufacturerDate(dbInventory.getManufacturerDate());
+                            newInventory.setExpiryDate(dbInventory.getExpiryDate());
+                            newInventory.setRemainingSelfLifePercentage(dbInventory.getRemainingSelfLifePercentage());
+                            newInventory.setManufacturerCode(dbInventory.getManufacturerCode());
+                            newInventory.setManufacturerName(dbInventory.getManufacturerName());
+
+                            String customerId = imBasicData1V2Repository.getCustomerIdV9(newInventory.getCompanyCodeId(), newInventory.getLanguageId(),
+                                    newInventory.getPlantId(), newInventory.getWarehouseId(), newInventory.getItemCode(), newInventory.getManufacturerName());
+                            newInventory.setMaterialNo(customerId);
+                            log.info("CustomerId-----> "+customerId);
+
+                            inventoryV2Repository.save(newInventory);
+
+                            //StockAdjustment Record Insert
+                            StockAdjustment dbStockAdjustment = new StockAdjustment();
+                            BeanUtils.copyProperties(newInventory, dbStockAdjustment, CommonUtils.getNullPropertyNames(newInventory));
+
+                            String lineNo = idmasterService.getNextNumberRange(28L, periodicLine.getWarehouseId(),
+                                    periodicLine.getCompanyCode(), periodicLine.getPlantId(), periodicLine.getLanguageId(), idMasterServiceAuthToken.getAccess_token());
+
+                            dbStockAdjustment.setStockAdjustmentId(Long.valueOf(lineNo));
+                            dbStockAdjustment.setAdjustmentQty(periodicLine.getVarianceQty());
+                            dbStockAdjustment.setBranchCode(periodicLine.getPlantId());
+                            dbStockAdjustment.setItemDescription(periodicLine.getItemDesc());
+                            dbStockAdjustment.setBeforeAdjustment(dbInventory.getReferenceField4());
+                            dbStockAdjustment.setAfterAdjustment(newInventory.getReferenceField4());
+                            dbStockAdjustment.setBranchName(newInventory.getPlantDescription());
+                            dbStockAdjustment.setDateOfAdjustment(new Date());
+                            dbStockAdjustment.setUnitOfMeasure(periodicLine.getInventoryUom());
+                            dbStockAdjustment.setStockAdjustmentKey(newInventory.getInventoryId());
+
+//                            PeriodicHeaderV2 periodicHeaderV2 = periodicHeaderV2Repository.getPeriodicHeaderV9(periodicLine.getCompanyCode(), periodicLine.getPlantId(),
+//                                    periodicLine.getLanguageId(), periodicLine.getWarehouseId(), periodicLine.getCycleCountNo());
+                            dbStockAdjustment.setReferenceField1(periodicLine.getReferenceField2());
+                            dbStockAdjustment.setOrigin(periodicLine.getReferenceField3());
+
+                            dbStockAdjustment.setCompanyCode(periodicLine.getCompanyCode());
+                            dbStockAdjustment.setBranchCode(periodicLine.getPlantId());
+                            dbStockAdjustment.setWarehouseId(periodicLine.getWarehouseId());
+
+                            dbStockAdjustment.setStatusId(88L);                 //Hard Code - StockAdjustment Done/Closed
+                            statusDescription = getStatusDescription(88L, dbInventory.getLanguageId());
+                            dbStockAdjustment.setStatusDescription(statusDescription);
+
+                            dbStockAdjustment.setDeletionIndicator(0L);
+                            dbStockAdjustment.setCreatedOn(new Date());
+                            dbStockAdjustment.setIsCompleted("Y");
+                            dbStockAdjustment.setCreatedBy(loginUserId);
+                            dbStockAdjustment.setManufacturerDate(dbInventory.getManufacturerDate());
+                            dbStockAdjustment.setExpiryDate(dbInventory.getExpiryDate());
+
+                            StockAdjustment createStockAdjustment = stockAdjustmentRepository.save(dbStockAdjustment);
+                            log.info("createdStockAdjustment: " + createStockAdjustment);
+                            if (dbStockAdjustment.getAdjustmentQty() < 0) {
+                                movementQtyValue = "N";
+                            }
+                            if (dbStockAdjustment.getAdjustmentQty() > 0) {
+                                movementQtyValue = "P";
+                            }
+                            createInventoryMovementV2(createStockAdjustment, movementQtyValue);
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("Exception while creating Stock Adjustment Create : " + e.toString());
+            throw e;
+        }
+    }
 }

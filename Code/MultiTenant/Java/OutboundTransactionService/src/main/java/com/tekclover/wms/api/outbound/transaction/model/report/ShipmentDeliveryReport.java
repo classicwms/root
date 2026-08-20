@@ -28,4 +28,8 @@ public class ShipmentDeliveryReport {
 	private String reasons;
 	private Date expiryDate;
 
+	//BF
+	private String barcodeId;
+	private Date manufacturerDate;
+
 }

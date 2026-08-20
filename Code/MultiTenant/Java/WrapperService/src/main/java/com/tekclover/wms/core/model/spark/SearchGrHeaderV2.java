@@ -24,5 +24,6 @@ public class SearchGrHeaderV2 {
     private List<String> plantId;
     private List<String> customerId;
     private List<String> customerName;
+    private List<String> inventoryOwner;
 }
 

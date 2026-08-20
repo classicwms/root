@@ -91,4 +91,28 @@ public interface StagingHeaderV2Repository extends JpaRepository<StagingHeaderV2
     @Query(value = "update tblstagingheader set is_deleted = 1 where REF_DOC_NO = :refDocNumber AND PRE_IB_NO = :preInboundNo ",nativeQuery = true)
     void softDeleteByRefDocNo(@Param("refDocNumber") String refDocNumber,
                               @Param("preInboundNo") String preInboundNo);
+
+    @Modifying(clearAutomatically = true)
+    @Query(value = "UPDATE tblstagingheader\r\n"
+            + "	SET STATUS_ID = :statusId, STATUS_TEXT = :statusDescription, \r\n"
+            + "	ST_CNF_BY = :updatedBy, ST_CNF_ON = :updatedOn\r\n"
+            + "	WHERE IS_DELETED = 0 AND \r\n"
+            + "			C_ID = :companyCodeId AND PLANT_ID = :plantId AND LANG_ID = :languageId AND WH_ID = :warehouseId AND \r\n"
+            + "			REF_DOC_NO = :refDocNumber AND PRE_IB_NO = :preInboundNo", nativeQuery = true)
+    void updateStagingHeaderStatusOnPartialConfirmationV10(
+            @Param("companyCodeId") String companyCode,
+            @Param("plantId") String plantId,
+            @Param("languageId") String languageId,
+            @Param("warehouseId") String warehouseId,
+            @Param("refDocNumber") String refDocNumber,
+            @Param("preInboundNo") String preInboundNo,
+            @Param("statusId") Long statusId,
+            @Param("statusDescription") String statusDescription,
+            @Param("updatedBy") String updatedBy,
+            @Param("updatedOn") Date updatedOn);
+
+    void deleteByCompanyCodeAndPlantIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
+            String companyCode, String plantId, String warehouseId, String refDocNumber, String preInboundNo, Long deletionIndicator);
+
+
 }

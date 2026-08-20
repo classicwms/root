@@ -5,6 +5,7 @@ import com.tekclover.wms.api.inbound.transaction.config.dynamicConfig.DataBaseCo
 import com.tekclover.wms.api.inbound.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.inbound.transaction.model.dto.StorageBinV2;
 import com.tekclover.wms.api.inbound.transaction.model.inbound.gr.StorageBinPutAway;
+import com.tekclover.wms.api.inbound.transaction.repository.DbConfigRepository;
 import com.tekclover.wms.api.inbound.transaction.repository.StorageBinV2Repository;
 import com.tekclover.wms.api.inbound.transaction.util.CommonUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +25,8 @@ public class StorageBinService extends BaseService {
     @Autowired
     private StorageBinV2Repository storageBinV2Repository;
 
+    @Autowired
+    DbConfigRepository dbConfigRepository;
 
     /**
      * @param storageBinPutAway
@@ -590,4 +593,194 @@ public class StorageBinService extends BaseService {
                 companyCodeId, plantId, languageId, warehouseId, storageBin, binClassIds, 0L);
 
     }
+
+    //=========SPAREX===========================
+    /**
+     * @param storageBinPutAway
+     * @return
+     */
+    public StorageBinV2 getExistingProposedStorageBin1NonCBMV10(StorageBinPutAway storageBinPutAway,  Long binClassId) {
+
+        StorageBinV2 storagebin = null;
+        log.info("StorageBin inputs {} ", storageBinPutAway);
+        if (storageBinPutAway.getBinClassId() != 5L && storageBinPutAway.getStorageSectionIds() != null) {
+            storagebin = storageBinV2Repository.getStorageBin1V10(
+                    storageBinPutAway.getCompanyCodeId(),
+                    storageBinPutAway.getPlantId(),
+                    storageBinPutAway.getLanguageId(),
+                    storageBinPutAway.getWarehouseId(),
+                    storageBinPutAway.getStorageBin(),
+                    binClassId);
+            log.info("Inventory Existing StorageBin: " + storagebin);
+            return storagebin;
+        }
+        if (storageBinPutAway.getBinClassId() != 5L) {
+            storagebin = storageBinV2Repository.getStorageBin1V10(
+                    storageBinPutAway.getCompanyCodeId(),
+                    storageBinPutAway.getPlantId(),
+                    storageBinPutAway.getLanguageId(),
+                    storageBinPutAway.getWarehouseId(),
+                    storageBinPutAway.getStorageBin(),
+                    binClassId);
+            log.info("Inventory Existing StorageBin: " + storagebin);
+            return storagebin;
+        }
+        if (storageBinPutAway.getBinClassId() == 5L) {
+            storagebin = storageBinV2Repository.getStorageBin1V10(
+                    storageBinPutAway.getCompanyCodeId(),
+                    storageBinPutAway.getPlantId(),
+                    storageBinPutAway.getLanguageId(),
+                    storageBinPutAway.getWarehouseId(),
+                    storageBinPutAway.getStorageBin(),
+                    binClassId);
+            log.info("Inventory Existing StorageBin: " + storagebin);
+            return storagebin;
+        }
+        return null;
+    }
+
+    //==========SPAREX===========================
+    /**
+     * @param storageBinPutAway
+     * @return
+     */
+    public StorageBinV2 getExistingProposedStorageBinNonCBMV10(StorageBinPutAway storageBinPutAway, Long binClassId) {
+
+        StorageBinV2 storagebin = null;
+        if (storageBinPutAway.getBinClassId() != 1 && storageBinPutAway.getStorageSectionIds() != null) {
+            storagebin = storageBinV2Repository.getStorageBinV10(
+                    storageBinPutAway.getCompanyCodeId(),
+                    storageBinPutAway.getPlantId(),
+                    storageBinPutAway.getLanguageId(),
+                    storageBinPutAway.getWarehouseId(),
+                    binClassId);
+            log.info("Inventory Existing StorageBin: " + storagebin);
+            return storagebin;
+        }
+        if (storageBinPutAway.getBinClassId() != 1) {
+            storagebin = storageBinV2Repository.getStorageBinV10(
+                    storageBinPutAway.getCompanyCodeId(),
+                    storageBinPutAway.getPlantId(),
+                    storageBinPutAway.getLanguageId(),
+                    storageBinPutAway.getWarehouseId(),
+                    binClassId);
+            log.info("Inventory Existing StorageBin: " + storagebin);
+            return storagebin;
+        }
+        if (storageBinPutAway.getBinClassId() == 1) {
+            storagebin = storageBinV2Repository.getStorageBinV10(
+                    storageBinPutAway.getCompanyCodeId(),
+                    storageBinPutAway.getPlantId(),
+                    storageBinPutAway.getLanguageId(),
+                    storageBinPutAway.getWarehouseId(),
+                    binClassId);
+            log.info("Inventory Existing StorageBin: " + storagebin);
+            return storagebin;
+        }
+        return null;
+    }
+
+    //===========SPAREX===============================
+    /**
+     * @param warehouseId
+     * @param binClassId
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @return
+     */
+    public StorageBinV2 getStorageBinByBinClassId1V10(String warehouseId, String storageBins, Long binClassId, String companyCodeId, String plantId, String languageId) {
+
+        Optional<StorageBinV2> storageBin = storageBinV2Repository.getBinClass1V10(storageBins,binClassId, companyCodeId, plantId, warehouseId, languageId);
+
+        if (storageBin.isEmpty()) {
+            throw new BadRequestException("The Given Values: " +
+                    "storageBin " + storageBins +
+                    "binClassId " + binClassId +
+                    "companyCodeId " + companyCodeId +
+                    "plantId " + plantId +
+                    "warehouseId " + warehouseId + " doesn't exist:");
+        }
+        return storageBin.get();
+    }
+
+    //===========SPAREX===============================
+    /**
+     * @param warehouseId
+     * @param binClassId
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @return
+     */
+    public StorageBinV2 getStorageBinByBinClassIdV10(String warehouseId, Long binClassId, String companyCodeId, String plantId, String languageId) {
+
+        Optional<StorageBinV2> storageBin = storageBinV2Repository.getStorageBin(binClassId, companyCodeId, plantId, warehouseId, languageId);
+
+        if (storageBin.isEmpty()) {
+            throw new BadRequestException("The Given Values: " +
+                    "binClassId " + binClassId +
+                    "companyCodeId " + companyCodeId +
+                    "plantId " + plantId +
+                    "warehouseId " + warehouseId + " doesn't exist:");
+        }
+        return storageBin.get();
+    }
+
+    //================================================BF===========================================
+    /**
+     * @param storageBin
+     * @param companyCodeId
+     * @param plantId
+     * @param warehouseId
+     * @param languageId
+     * @return
+     */
+    public StorageBinV2 getStorageBinEmptyCrateV9(String companyCodeId, String plantId, String languageId, String warehouseId, String storageBin) {
+        DataBaseContextHolder.clear();
+        DataBaseContextHolder.setCurrentDb("MT");
+        String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
+        DataBaseContextHolder.clear();
+        DataBaseContextHolder.setCurrentDb(routingDb);
+        log.info("Current Routing Db " + routingDb);
+        Optional<StorageBinV2> storagebin = storageBinV2Repository.getStorageBinEmptyCrate(storageBin, companyCodeId, plantId, languageId, warehouseId);
+        if (storagebin == null) {
+            throw new BadRequestException("The Given Values: " +
+                    "storageBin" + storageBin +
+                    "companyCodeId " + companyCodeId +
+                    "plantId " + plantId +
+                    "warehouseId " + warehouseId + " doesn't exist:");
+        }
+        return storagebin.get();
+    }
+
+    //================================================BF===========================================
+    /**
+     * @param storageBin
+     * @param companyCodeId
+     * @param plantId
+     * @param warehouseId
+     * @param languageId
+     * @return
+     */
+    public StorageBinV2 getStorageBinV9(String companyCodeId, String plantId, String languageId, String warehouseId, String storageBin) {
+        DataBaseContextHolder.clear();
+        DataBaseContextHolder.setCurrentDb("MT");
+        String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
+        DataBaseContextHolder.clear();
+        DataBaseContextHolder.setCurrentDb(routingDb);
+        log.info("Current Routing Db " + routingDb);
+        Optional<StorageBinV2> storagebin = storageBinV2Repository.getStorageBinV5(storageBin, companyCodeId, plantId, languageId, warehouseId);
+
+        log.info("StorageBin------>" + storagebin);
+        if (storagebin == null) {
+            throw new BadRequestException("The Given Values: " +
+                    "storageBin" + storageBin +
+                    "companyCodeId " + companyCodeId +
+                    "plantId " + plantId +
+                    "warehouseId " + warehouseId + " doesn't exist:");
+        }
+        return storagebin.get();
+    }
+
 }

@@ -2,22 +2,21 @@ package com.tekclover.wms.core.controller;
 
 import com.tekclover.wms.core.batch.scheduler.BatchJobScheduler;
 import com.tekclover.wms.core.exception.CustomErrorResponse;
-import com.tekclover.wms.core.model.dto.InventoryBinItmGroupInput;
-import com.tekclover.wms.core.model.dto.InventoryGroupByBinItm;
-import com.tekclover.wms.core.model.dto.MultiDbInput;
-import com.tekclover.wms.core.model.dto.StagingLineUpdate;
+import com.tekclover.wms.core.model.auth.AuthToken;
+import com.tekclover.wms.core.model.dto.*;
+import com.tekclover.wms.core.model.errorlog.ErrorLog;
+import com.tekclover.wms.core.model.errorlog.FindErrorLog;
+import com.tekclover.wms.core.model.masters.EMailDetails;
 import com.tekclover.wms.core.model.masters.ImPartner;
 import com.tekclover.wms.core.model.transaction.*;
 import com.tekclover.wms.core.model.warehouse.cyclecount.periodic.Periodic;
 import com.tekclover.wms.core.model.warehouse.cyclecount.perpetual.Perpetual;
 import com.tekclover.wms.core.model.warehouse.inbound.ASN;
+import com.tekclover.wms.core.model.warehouse.inbound.ASNV9;
 import com.tekclover.wms.core.model.warehouse.inbound.WarehouseApiResponse;
 import com.tekclover.wms.core.model.warehouse.inbound.almailem.*;
 import com.tekclover.wms.core.model.warehouse.outbound.almailem.*;
-import com.tekclover.wms.core.service.CommonService;
-import com.tekclover.wms.core.service.FileStorageService;
-import com.tekclover.wms.core.service.InboundTransactionService;
-import com.tekclover.wms.core.service.OutboundTransactionService;
+import com.tekclover.wms.core.service.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.SwaggerDefinition;
@@ -25,14 +24,14 @@ import io.swagger.annotations.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.expression.ParseException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
+import org.springframework.http.HttpHeaders;
 import javax.validation.Valid;
 import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -58,13 +57,16 @@ public class InboundTransactionServiceController {
     @Autowired
     BatchJobScheduler batchJobScheduler;
 
+    @Autowired
+    AuthTokenService authTokenService;
+
 
     /*
      * --------------------------------ContainerReceipt---------------------------------------------------------------
      */
     @ApiOperation(response = ContainerReceipt.class, value = "Get all ContainerReceipt details") // label for swagger
     @GetMapping("/containerreceipt")
-    public ResponseEntity<?> getContainerReceipts(@RequestParam String authToken) throws Exception {
+    public ResponseEntity<?> getContainerReceipts( @RequestHeader(value = "AuthToken") String authToken) throws Exception {
         ContainerReceipt[] containerReceiptNoList = transactionService.getContainerReceipts(authToken);
         return new ResponseEntity<>(containerReceiptNoList, HttpStatus.OK);
     }
@@ -73,7 +75,7 @@ public class InboundTransactionServiceController {
     @ApiOperation(response = ContainerReceipt.class, value = "Search ContainerReceipt New") // label for swagger
     @PostMapping("/containerreceipt/findContainerReceiptNew")
     public ContainerReceipt[] findContainerReceiptNew(@RequestBody SearchContainerReceipt searchContainerReceipt,
-                                                      @RequestParam String authToken) throws Exception {
+                                                       @RequestHeader(value = "AuthToken") String authToken) throws Exception {
         return transactionService.findContainerReceiptNew(searchContainerReceipt, authToken);
     }
 
@@ -82,7 +84,7 @@ public class InboundTransactionServiceController {
      */
     @ApiOperation(response = PreInboundHeader.class, value = "Get all PreInboundHeader details") // label for swagger
     @GetMapping("/preinboundheader")
-    public ResponseEntity<?> getPreInboundHeaders(@RequestParam String authToken) throws Exception {
+    public ResponseEntity<?> getPreInboundHeaders( @RequestHeader(value = "AuthToken") String authToken) throws Exception {
         PreInboundHeader[] preinboundheaderList = transactionService.getPreInboundHeaders(authToken);
         return new ResponseEntity<>(preinboundheaderList, HttpStatus.OK);
     }
@@ -91,7 +93,7 @@ public class InboundTransactionServiceController {
     @ApiOperation(response = PreInboundHeader.class, value = "Search PreInboundHeader New") // label for swagger
     @PostMapping("/preinboundheader/findPreInboundHeaderNew")
     public PreInboundHeader[] findPreInboundHeaderNew(@RequestBody SearchPreInboundHeader searchPreInboundHeader,
-                                                      @RequestParam String authToken) throws Exception {
+                                                       @RequestHeader(value = "AuthToken") String authToken) throws Exception {
         return transactionService.findPreInboundHeaderNew(searchPreInboundHeader, authToken);
     }
 
@@ -99,7 +101,7 @@ public class InboundTransactionServiceController {
     // label for swagger
     @GetMapping("/preinboundheader/{warehouseId}/inboundconfirm")
     public ResponseEntity<?> getPreInboundHeader(@PathVariable String warehouseId,
-                                                 @RequestParam String authToken) throws Exception {
+                                                  @RequestHeader(value = "AuthToken") String authToken) throws Exception {
         PreInboundHeader[] preinboundheader =
                 transactionService.getPreInboundHeaderWithStatusId(warehouseId, authToken);
         log.info("PreInboundHeader : " + preinboundheader);
@@ -109,7 +111,7 @@ public class InboundTransactionServiceController {
     @ApiOperation(response = PreInboundHeader.class, value = "Process ASN") // label for swagger
     @PostMapping("/preinboundheader/processASN")
     public ResponseEntity<?> processASN(@RequestBody List<PreInboundLine> newPreInboundLine, @RequestParam String loginUserID,
-                                        @RequestParam String authToken)
+                                         @RequestHeader(value = "AuthToken") String authToken)
             throws IllegalAccessException, InvocationTargetException {
         StagingHeader createdStagingHeader = transactionService.processASN(newPreInboundLine, loginUserID, authToken);
         return new ResponseEntity<>(createdStagingHeader, HttpStatus.OK);
@@ -120,7 +122,7 @@ public class InboundTransactionServiceController {
      */
     @ApiOperation(response = InboundHeader.class, value = "Get all InboundHeader details") // label for swagger
     @GetMapping("/inboundheader")
-    public ResponseEntity<?> getInboundHeaders(@RequestParam String authToken) throws Exception {
+    public ResponseEntity<?> getInboundHeaders( @RequestHeader(value = "AuthToken") String authToken) throws Exception {
         InboundHeader[] refDocNumberList = transactionService.getInboundHeaders(authToken);
         return new ResponseEntity<>(refDocNumberList, HttpStatus.OK);
     }
@@ -129,13 +131,13 @@ public class InboundTransactionServiceController {
     @ApiOperation(response = InboundHeader.class, value = "Search InboundHeader New") // label for swagger
     @PostMapping("/inboundheader/findInboundHeaderNew")
     public InboundHeader[] findInboundHeaderNew(@RequestBody SearchInboundHeader searchInboundHeader,
-                                                @RequestParam String authToken) throws Exception {
+                                                 @RequestHeader(value = "AuthToken") String authToken) throws Exception {
         return transactionService.findInboundHeaderNew(searchInboundHeader, authToken);
     }
 
     @ApiOperation(response = InboundHeader.class, value = "Get a InboundHeader") // label for swagger
     @GetMapping("/inboundheader/inboundconfirm")
-    public ResponseEntity<?> getInboundHeader(@RequestParam String warehouseId, @RequestParam String authToken) throws Exception {
+    public ResponseEntity<?> getInboundHeader(@RequestParam String warehouseId,  @RequestHeader(value = "AuthToken") String authToken) throws Exception {
         InboundHeaderEntity[] inboundheaderEntity = transactionService.getInboundHeaderWithStatusId(warehouseId, authToken);
         log.info("PreInboundHeader : " + inboundheaderEntity);
         return new ResponseEntity<>(inboundheaderEntity, HttpStatus.OK);
@@ -144,7 +146,7 @@ public class InboundTransactionServiceController {
     @ApiOperation(response = InboundHeader.class, value = "Create InboundHeader") // label for swagger
     @PostMapping("/inboundheader")
     public ResponseEntity<?> postInboundHeader(@Valid @RequestBody InboundHeader newInboundHeader, @RequestParam String loginUserID,
-                                               @RequestParam String authToken) throws IllegalAccessException, InvocationTargetException {
+                                                @RequestHeader(value = "AuthToken") String authToken) throws IllegalAccessException, InvocationTargetException {
         InboundHeader createdInboundHeader = transactionService.createInboundHeader(newInboundHeader, loginUserID, authToken);
         return new ResponseEntity<>(createdInboundHeader, HttpStatus.OK);
     }
@@ -152,7 +154,7 @@ public class InboundTransactionServiceController {
     // -------------------StagingHeader----------------------------------------------------------------------------------------------
     @ApiOperation(response = StagingHeader.class, value = "Get all StagingHeader details") // label for swagger
     @GetMapping("/stagingheader")
-    public ResponseEntity<?> getStagingHeaders(@RequestParam String authToken) throws Exception {
+    public ResponseEntity<?> getStagingHeaders( @RequestHeader(value = "AuthToken") String authToken) throws Exception {
         StagingHeader[] stagingheaderList = transactionService.getStagingHeaders(authToken);
         return new ResponseEntity<>(stagingheaderList, HttpStatus.OK);
     }
@@ -161,7 +163,7 @@ public class InboundTransactionServiceController {
 //    @GetMapping("/stagingheader/{stagingNo}")
 //    public ResponseEntity<?> getStagingHeader(@PathVariable String stagingNo, @RequestParam String languageId,
 //                                              @RequestParam String companyCodeId, @RequestParam String plantId, @RequestParam String warehouseId,
-//                                              @RequestParam String preInboundNo, @RequestParam String refDocNumber, @RequestParam String authToken) throws Exception {
+//                                              @RequestParam String preInboundNo, @RequestParam String refDocNumber,  @RequestHeader(value = "AuthToken") String authToken) throws Exception {
 //        StagingHeader stagingheader = transactionService.getStagingHeader(warehouseId, preInboundNo, refDocNumber, stagingNo, authToken);
 //        log.info("StagingHeader : " + stagingheader);
 //        return new ResponseEntity<>(stagingheader, HttpStatus.OK);
@@ -170,7 +172,7 @@ public class InboundTransactionServiceController {
     //Stream
     @ApiOperation(response = StagingHeader.class, value = "Search StagingHeader New") // label for swagger
     @PostMapping("/stagingheader/findStagingHeaderNew")
-    public StagingHeader[] findStagingHeaderNew(@RequestBody SearchStagingHeader searchStagingHeader, @RequestParam String authToken)
+    public StagingHeader[] findStagingHeaderNew(@RequestBody SearchStagingHeader searchStagingHeader,  @RequestHeader(value = "AuthToken") String authToken)
             throws Exception {
         return transactionService.findStagingHeaderNew(searchStagingHeader, authToken);
     }
@@ -182,7 +184,7 @@ public class InboundTransactionServiceController {
     @ApiOperation(response = StagingHeader.class, value = "Get Barcodes") // label for swagger 
     @GetMapping("/stagingheader/{numberOfCases}/barcode")
     public ResponseEntity<?> getStagingHeader(@PathVariable Long numberOfCases, @RequestParam String warehouseId,
-                                              @RequestParam String authToken) {
+                                               @RequestHeader(value = "AuthToken") String authToken) {
         String[] stagingheader = transactionService.generateNumberRanges(numberOfCases, warehouseId, authToken);
         log.info("StagingHeader : " + stagingheader);
         return new ResponseEntity<>(stagingheader, HttpStatus.OK);
@@ -193,7 +195,7 @@ public class InboundTransactionServiceController {
      */
     @ApiOperation(response = StagingLine.class, value = "Get all StagingLine details") // label for swagger
     @GetMapping("/stagingline")
-    public ResponseEntity<?> getStagingLines(@RequestParam String authToken) throws Exception {
+    public ResponseEntity<?> getStagingLines( @RequestHeader(value = "AuthToken") String authToken) throws Exception {
         StagingLineEntity[] palletCodeList = transactionService.getStagingLines(authToken);
         return new ResponseEntity<>(palletCodeList, HttpStatus.OK);
     }
@@ -203,7 +205,7 @@ public class InboundTransactionServiceController {
      */
     @ApiOperation(response = GrHeader.class, value = "Get all GrHeader details") // label for swagger
     @GetMapping("/grheader")
-    public ResponseEntity<?> getGrHeaders(@RequestParam String authToken) throws Exception {
+    public ResponseEntity<?> getGrHeaders( @RequestHeader(value = "AuthToken") String authToken) throws Exception {
         GrHeader[] goodsReceiptNoList = transactionService.getGrHeaders(authToken);
         return new ResponseEntity<>(goodsReceiptNoList, HttpStatus.OK);
     }
@@ -211,7 +213,7 @@ public class InboundTransactionServiceController {
     //Stream - JPA
     @ApiOperation(response = GrHeader.class, value = "Search GrHeader New") // label for swagger
     @PostMapping("/grheader/findGrHeaderNew")
-    public GrHeader[] findGrHeaderNew(@RequestBody SearchGrHeader searchGrHeader, @RequestParam String authToken)
+    public GrHeader[] findGrHeaderNew(@RequestBody SearchGrHeader searchGrHeader,  @RequestHeader(value = "AuthToken") String authToken)
             throws Exception {
         return transactionService.findGrHeaderNew(searchGrHeader, authToken);
     }
@@ -221,7 +223,7 @@ public class InboundTransactionServiceController {
      */
     @ApiOperation(response = GrLine.class, value = "Get all GrLine details") // label for swagger
     @GetMapping("/grline")
-    public ResponseEntity<?> getGrLines(@RequestParam String authToken) throws Exception {
+    public ResponseEntity<?> getGrLines( @RequestHeader(value = "AuthToken") String authToken) throws Exception {
         GrLine[] itemCodeList = transactionService.getGrLines(authToken);
         return new ResponseEntity<>(itemCodeList, HttpStatus.OK);
     }
@@ -231,7 +233,7 @@ public class InboundTransactionServiceController {
 //    public ResponseEntity<?> getGrLine(@PathVariable Long lineNo, @RequestParam String warehouseId,
 //                                       @RequestParam String preInboundNo, @RequestParam String refDocNumber, @RequestParam String goodsReceiptNo,
 //                                       @RequestParam String palletCode, @RequestParam String caseCode, @RequestParam String packBarcodes,
-//                                       @RequestParam String itemCode, @RequestParam String authToken) throws Exception {
+//                                       @RequestParam String itemCode,  @RequestHeader(value = "AuthToken") String authToken) throws Exception {
 //        GrLine dbGrLine =
 //                transactionService.getGrLine(warehouseId, preInboundNo, refDocNumber, goodsReceiptNo, palletCode, caseCode,
 //                        packBarcodes, lineNo, itemCode, authToken);
@@ -241,7 +243,7 @@ public class InboundTransactionServiceController {
 
     @ApiOperation(response = GrLine.class, value = "Search GrLine") // label for swagger
     @PostMapping("/findGrLine")
-    public GrLine[] findGrLine(@RequestBody SearchGrLine searchGrLine, @RequestParam String authToken)
+    public GrLine[] findGrLine(@RequestBody SearchGrLine searchGrLine,  @RequestHeader(value = "AuthToken") String authToken)
             throws Exception {
         return transactionService.findGrLine(searchGrLine, authToken);
     }
@@ -251,7 +253,7 @@ public class InboundTransactionServiceController {
     public ResponseEntity<?> patchGrLine(@RequestParam Long lineNo, @RequestParam String warehouseId, @RequestParam String preInboundNo,
                                          @RequestParam String refDocNumber, @RequestParam String goodsReceiptNo, @RequestParam String palletCode,
                                          @RequestParam String caseCode, @RequestParam String packBarcodes, @RequestParam String itemCode,
-                                         @RequestParam String loginUserID, @RequestParam String authToken, @Valid @RequestBody GrLine updateGrLine)
+                                         @RequestParam String loginUserID,  @RequestHeader(value = "AuthToken") String authToken, @Valid @RequestBody GrLine updateGrLine)
             throws IllegalAccessException, InvocationTargetException {
         GrLine updatedGrLine =
                 transactionService.updateGrLine(warehouseId, preInboundNo, refDocNumber, goodsReceiptNo, palletCode, caseCode,
@@ -265,7 +267,7 @@ public class InboundTransactionServiceController {
      */
     @ApiOperation(response = PutAwayHeader.class, value = "Get all PutAwayHeader details") // label for swagger
     @GetMapping("/putawayheader")
-    public ResponseEntity<?> getPutAwayHeaders(@RequestParam String authToken) throws Exception {
+    public ResponseEntity<?> getPutAwayHeaders( @RequestHeader(value = "AuthToken") String authToken) throws Exception {
         PutAwayHeader[] putAwayNumberList = transactionService.getPutAwayHeaders(authToken);
         return new ResponseEntity<>(putAwayNumberList, HttpStatus.OK);
     }
@@ -273,7 +275,7 @@ public class InboundTransactionServiceController {
     //Stream
     @ApiOperation(response = PutAwayHeader.class, value = "Search PutAwayHeader New") // label for swagger
     @PostMapping("/putawayheader/findPutAwayHeaderNew")
-    public PutAwayHeader[] findPutAwayHeaderNew(@RequestBody SearchPutAwayHeader searchPutAwayHeader, @RequestParam String authToken)
+    public PutAwayHeader[] findPutAwayHeaderNew(@RequestBody SearchPutAwayHeader searchPutAwayHeader,  @RequestHeader(value = "AuthToken") String authToken)
             throws Exception {
         return transactionService.findPutAwayHeaderNew(searchPutAwayHeader, authToken);
     }
@@ -283,7 +285,7 @@ public class InboundTransactionServiceController {
     public ResponseEntity<?> patchPutAwayHeader(@PathVariable String putAwayNumber, @RequestParam String warehouseId, @RequestParam String preInboundNo, @RequestParam String refDocNumber,
                                                 @RequestParam String goodsReceiptNo, @RequestParam String palletCode, @RequestParam String caseCode, @RequestParam String packBarcodes,
                                                 @RequestParam String proposedStorageBin, @Valid @RequestBody PutAwayHeader updatePutAwayHeader, @RequestParam String loginUserID,
-                                                @RequestParam String authToken)
+                                                 @RequestHeader(value = "AuthToken") String authToken)
             throws IllegalAccessException, InvocationTargetException {
         PutAwayHeader updatedPutAwayHeader =
                 transactionService.updatePutAwayHeader(warehouseId, preInboundNo,
@@ -294,7 +296,7 @@ public class InboundTransactionServiceController {
     @ApiOperation(response = PutAwayHeader.class, value = "Update PutAwayHeader Bulk") // label for swagger
     @RequestMapping(value = "/putawayheader/bulkupdate", method = RequestMethod.PATCH)
     public ResponseEntity<?> patchPutAwayHeader(@Valid @RequestBody List<PutAwayHeaderV2> updatePutAwayHeader, @RequestParam String loginUserID,
-                                                @RequestParam String authToken)
+                                                 @RequestHeader(value = "AuthToken") String authToken)
             throws IllegalAccessException, InvocationTargetException {
         PutAwayHeader[] updatedPutAwayHeader =
                 transactionService.updatePutAwayHeaderV2(updatePutAwayHeader, loginUserID, authToken);
@@ -306,7 +308,7 @@ public class InboundTransactionServiceController {
      */
     @ApiOperation(response = PutAwayLine.class, value = "Get all PutAwayLine details") // label for swagger
     @GetMapping("/putawayline/confirmedStorageBin")
-    public ResponseEntity<?> getPutAwayLines(@RequestParam String authToken) throws Exception {
+    public ResponseEntity<?> getPutAwayLines( @RequestHeader(value = "AuthToken") String authToken) throws Exception {
         PutAwayLine[] confirmedStorageBinList = transactionService.getPutAwayLines(authToken);
         return new ResponseEntity<>(confirmedStorageBinList, HttpStatus.OK);
     }
@@ -317,7 +319,7 @@ public class InboundTransactionServiceController {
      */
     @ApiOperation(response = InventoryMovement.class, value = "Get all InventoryMovement details") // label for swagger
     @GetMapping("/inventorymovement")
-    public ResponseEntity<?> getInventoryMovements(@RequestParam String authToken) throws Exception {
+    public ResponseEntity<?> getInventoryMovements( @RequestHeader(value = "AuthToken") String authToken) throws Exception {
         InventoryMovement[] movementTypeList = transactionService.getInventoryMovements(authToken);
         return new ResponseEntity<>(movementTypeList, HttpStatus.OK);
     }
@@ -326,7 +328,7 @@ public class InboundTransactionServiceController {
     @GetMapping("/inventorymovement/{movementType}")
     public ResponseEntity<?> getInventoryMovement(@PathVariable Long movementType, @RequestParam String warehouseId, @RequestParam Long submovementType,
                                                   @RequestParam String packBarcodes, @RequestParam String itemCode, @RequestParam String batchSerialNumber, @RequestParam String movementDocumentNo,
-                                                  @RequestParam String authToken) throws Exception {
+                                                   @RequestHeader(value = "AuthToken") String authToken) throws Exception {
         InventoryMovement dbInventoryMovement = transactionService.getInventoryMovement(warehouseId, movementType, submovementType,
                 packBarcodes, itemCode, batchSerialNumber, movementDocumentNo, authToken);
         log.info("InventoryMovement : " + dbInventoryMovement);
@@ -336,14 +338,14 @@ public class InboundTransactionServiceController {
     @ApiOperation(response = InventoryMovement.class, value = "Search InventoryMovement") // label for swagger
     @PostMapping("/inventorymovement/findInventoryMovement")
     public InventoryMovement[] findInventoryMovement(@RequestBody SearchInventoryMovement searchInventoryMovement,
-                                                     @RequestParam String authToken) throws Exception {
+                                                      @RequestHeader(value = "AuthToken") String authToken) throws Exception {
         return transactionService.findInventoryMovement(searchInventoryMovement, authToken);
     }
 
     @ApiOperation(response = InventoryMovement.class, value = "Create InventoryMovement") // label for swagger
     @PostMapping("/inventorymovement")
     public ResponseEntity<?> postInventoryMovement(@Valid @RequestBody InventoryMovement newInventoryMovement, @RequestParam String loginUserID,
-                                                   @RequestParam String authToken) throws IllegalAccessException, InvocationTargetException {
+                                                    @RequestHeader(value = "AuthToken") String authToken) throws IllegalAccessException, InvocationTargetException {
         InventoryMovement createdInventoryMovement = transactionService.createInventoryMovement(newInventoryMovement, loginUserID, authToken);
         return new ResponseEntity<>(createdInventoryMovement, HttpStatus.OK);
     }
@@ -353,7 +355,7 @@ public class InboundTransactionServiceController {
     public ResponseEntity<?> patchInventoryMovement(@PathVariable Long movementType, @RequestParam String languageId,
                                                     @RequestParam String companyCodeId, @RequestParam String plantId, @RequestParam String warehouseId, @RequestParam Long submovementType,
                                                     @RequestParam String packBarcodes, @RequestParam String itemCode, @RequestParam String batchSerialNumber, @RequestParam String movementDocumentNo,
-                                                    @RequestParam String loginUserID, @RequestParam String authToken, @Valid @RequestBody InventoryMovement updateInventoryMovement)
+                                                    @RequestParam String loginUserID,  @RequestHeader(value = "AuthToken") String authToken, @Valid @RequestBody InventoryMovement updateInventoryMovement)
             throws IllegalAccessException, InvocationTargetException {
         InventoryMovement updatedInventoryMovement =
                 transactionService.updateInventoryMovement(warehouseId, movementType, submovementType, packBarcodes, itemCode, batchSerialNumber, movementDocumentNo, updateInventoryMovement,
@@ -365,7 +367,7 @@ public class InboundTransactionServiceController {
     @DeleteMapping("/inventorymovement/{movementType}")
     public ResponseEntity<?> deleteInventoryMovement(@PathVariable Long movementType, @RequestParam String warehouseId, @RequestParam Long submovementType,
                                                      @RequestParam String packBarcodes, @RequestParam String itemCode, @RequestParam String batchSerialNumber, @RequestParam String movementDocumentNo,
-                                                     @RequestParam String loginUserID, @RequestParam String authToken) {
+                                                     @RequestParam String loginUserID,  @RequestHeader(value = "AuthToken") String authToken) {
         transactionService.deleteInventoryMovement(warehouseId, movementType, submovementType, packBarcodes, itemCode, batchSerialNumber, movementDocumentNo, loginUserID, authToken);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
@@ -375,7 +377,7 @@ public class InboundTransactionServiceController {
      */
     @ApiOperation(response = Inventory.class, value = "Get all Inventory details") // label for swagger
     @GetMapping("/inventory")
-    public ResponseEntity<?> getInventorys(@RequestParam String authToken) throws Exception {
+    public ResponseEntity<?> getInventorys( @RequestHeader(value = "AuthToken") String authToken) throws Exception {
         Inventory[] stockTypeIdList = transactionService.getInventorys(authToken);
         return new ResponseEntity<>(stockTypeIdList, HttpStatus.OK);
     }
@@ -384,7 +386,7 @@ public class InboundTransactionServiceController {
     @GetMapping("/inventory/{stockTypeId}")
     public ResponseEntity<?> getInventory(@PathVariable Long stockTypeId, @RequestParam String warehouseId,
                                           @RequestParam String packBarcodes, @RequestParam String itemCode, @RequestParam String storageBin,
-                                          @RequestParam Long specialStockIndicatorId, @RequestParam String authToken) throws Exception {
+                                          @RequestParam Long specialStockIndicatorId,  @RequestHeader(value = "AuthToken") String authToken) throws Exception {
         Inventory dbInventory =
                 transactionService.getInventory(warehouseId, packBarcodes, itemCode, storageBin, stockTypeId, specialStockIndicatorId, authToken);
         log.info("Inventory : " + dbInventory);
@@ -394,7 +396,7 @@ public class InboundTransactionServiceController {
     @ApiOperation(response = Inventory.class, value = "Get a Inventory For Transfer") // label for swagger
     @GetMapping("/inventory/transfer")
     public ResponseEntity<?> getInventory(@RequestParam String warehouseId, @RequestParam String packBarcodes,
-                                          @RequestParam String itemCode, @RequestParam String storageBin, @RequestParam String authToken) throws Exception {
+                                          @RequestParam String itemCode, @RequestParam String storageBin,  @RequestHeader(value = "AuthToken") String authToken) throws Exception {
         Inventory inventory =
                 transactionService.getInventory(warehouseId, packBarcodes, itemCode, storageBin, authToken);
         log.info("Inventory : " + inventory);
@@ -406,14 +408,14 @@ public class InboundTransactionServiceController {
     @ApiOperation(response = Inventory.class, value = "Search Inventory New") // label for swagger
     @PostMapping("/inventory/findInventoryNew")
     public Inventory[] findInventoryNew(@RequestBody SearchInventory searchInventory,
-                                        @RequestParam String authToken) throws Exception {
+                                         @RequestHeader(value = "AuthToken") String authToken) throws Exception {
         return transactionService.findInventoryNew(searchInventory, authToken);
     }
 
     @ApiOperation(response = Inventory.class, value = "Search Inventory by quantity validation") // label for swagger
     @PostMapping("/get-all-validated-inventory")
     public Inventory[] getQuantityValidatedInventory(@RequestBody SearchInventory searchInventory,
-                                                     @RequestParam String authToken) throws Exception {
+                                                      @RequestHeader(value = "AuthToken") String authToken) throws Exception {
         return transactionService.getQuantityValidatedInventory(searchInventory, authToken);
     }
 
@@ -424,7 +426,7 @@ public class InboundTransactionServiceController {
                                          @RequestParam(defaultValue = "0") Integer pageNo,
                                          @RequestParam(defaultValue = "10") Integer pageSize,
                                          @RequestParam(defaultValue = "itemCode") String sortBy,
-                                         @RequestParam String authToken) throws Exception {
+                                          @RequestHeader(value = "AuthToken") String authToken) throws Exception {
         return transactionService.findInventory(searchInventory, pageNo, pageSize, sortBy, authToken);
     }
 
@@ -435,7 +437,7 @@ public class InboundTransactionServiceController {
     @ApiOperation(response = InhouseTransferHeader.class, value = "Get all InHouseTransferHeader details")
     // label for swagger
     @GetMapping("/inhousetransferheader")
-    public ResponseEntity<?> getInHouseTransferHeaders(@RequestParam String authToken) throws Exception {
+    public ResponseEntity<?> getInHouseTransferHeaders( @RequestHeader(value = "AuthToken") String authToken) throws Exception {
         InhouseTransferHeader[] transferNumberList = transactionService.getInhouseTransferHeaders(authToken);
         return new ResponseEntity<>(transferNumberList, HttpStatus.OK);
     }
@@ -443,7 +445,7 @@ public class InboundTransactionServiceController {
     @ApiOperation(response = InhouseTransferHeader.class, value = "Get a InHouseTransferHeader") // label for swagger
     @GetMapping("/inhousetransferheader/{transferNumber}")
     public ResponseEntity<?> getInHouseTransferHeader(@PathVariable String transferNumber, @RequestParam String warehouseId,
-                                                      @RequestParam Long transferTypeId, @RequestParam String authToken) throws Exception {
+                                                      @RequestParam Long transferTypeId,  @RequestHeader(value = "AuthToken") String authToken) throws Exception {
         InhouseTransferHeader dbInHouseTransferHeader =
                 transactionService.getInhouseTransferHeader(warehouseId, transferNumber, transferTypeId, authToken);
         log.info("InHouseTransferHeader : " + dbInHouseTransferHeader);
@@ -453,7 +455,7 @@ public class InboundTransactionServiceController {
     @ApiOperation(response = InhouseTransferHeader.class, value = "Search InHouseTransferHeader") // label for swagger
     @PostMapping("/inhousetransferheader/findInHouseTransferHeader")
     public InhouseTransferHeader[] findInHouseTransferHeader(@RequestBody SearchInhouseTransferHeader searchInHouseTransferHeader,
-                                                             @RequestParam String authToken) throws Exception {
+                                                              @RequestHeader(value = "AuthToken") String authToken) throws Exception {
         return transactionService.findInHouseTransferHeader(searchInHouseTransferHeader, authToken);
     }
 
@@ -462,14 +464,14 @@ public class InboundTransactionServiceController {
     // label for swagger
     @PostMapping("/inhousetransferheader/findInHouseTransferHeaderNew")
     public InhouseTransferHeader[] findInHouseTransferHeaderNew(@RequestBody SearchInhouseTransferHeader searchInHouseTransferHeader,
-                                                                @RequestParam String authToken) throws Exception {
+                                                                 @RequestHeader(value = "AuthToken") String authToken) throws Exception {
         return transactionService.findInHouseTransferHeaderNew(searchInHouseTransferHeader, authToken);
     }
 
     @ApiOperation(response = InhouseTransferHeader.class, value = "Create InHouseTransferHeader") // label for swagger
     @PostMapping("/inhousetransferheader")
     public ResponseEntity<?> postInHouseTransferHeader(@Valid @RequestBody InhouseTransferHeader newInHouseTransferHeader, @RequestParam String loginUserID,
-                                                       @RequestParam String authToken) throws IllegalAccessException, InvocationTargetException {
+                                                        @RequestHeader(value = "AuthToken") String authToken) throws IllegalAccessException, InvocationTargetException {
         InhouseTransferHeader createdInHouseTransferHeader = transactionService.createInhouseTransferHeader(newInHouseTransferHeader, loginUserID, authToken);
         return new ResponseEntity<>(createdInHouseTransferHeader, HttpStatus.OK);
     }
@@ -480,7 +482,7 @@ public class InboundTransactionServiceController {
     @ApiOperation(response = InhouseTransferLine.class, value = "Get all InHouseTransferLine details")
     // label for swagger
     @GetMapping("/inhousetransferline")
-    public ResponseEntity<?> getInHouseTransferLines(@RequestParam String authToken) throws Exception {
+    public ResponseEntity<?> getInHouseTransferLines( @RequestHeader(value = "AuthToken") String authToken) throws Exception {
         InhouseTransferLine[] transferNumberList = transactionService.getInhouseTransferLines(authToken);
         return new ResponseEntity<>(transferNumberList, HttpStatus.OK);
     }
@@ -488,7 +490,7 @@ public class InboundTransactionServiceController {
     @ApiOperation(response = InhouseTransferLine.class, value = "Get a InHouseTransferLine") // label for swagger
     @GetMapping("/inhousetransferline/{transferNumber}")
     public ResponseEntity<?> getInHouseTransferLine(@PathVariable String transferNumber, @RequestParam String warehouseId,
-                                                    @RequestParam String sourceItemCode, @RequestParam String authToken) throws Exception {
+                                                    @RequestParam String sourceItemCode,  @RequestHeader(value = "AuthToken") String authToken) throws Exception {
         InhouseTransferLine dbInHouseTransferLine =
                 transactionService.getInhouseTransferLine(warehouseId, transferNumber, sourceItemCode, authToken);
         log.info("InHouseTransferLine : " + dbInHouseTransferLine);
@@ -498,14 +500,14 @@ public class InboundTransactionServiceController {
     @ApiOperation(response = InhouseTransferLine.class, value = "Search InhouseTransferLine") // label for swagger
     @PostMapping("/inhousetransferline/findInhouseTransferLine")
     public InhouseTransferLine[] findInhouseTransferLine(@RequestBody SearchInhouseTransferLine searchInhouseTransferLine,
-                                                         @RequestParam String authToken) throws Exception {
+                                                          @RequestHeader(value = "AuthToken") String authToken) throws Exception {
         return transactionService.findInhouseTransferLine(searchInhouseTransferLine, authToken);
     }
 
     @ApiOperation(response = InhouseTransferLine.class, value = "Create InHouseTransferLine") // label for swagger
     @PostMapping("/inhousetransferline")
     public ResponseEntity<?> postInHouseTransferLine(@Valid @RequestBody InhouseTransferLine newInHouseTransferLine, @RequestParam String loginUserID,
-                                                     @RequestParam String authToken) throws IllegalAccessException, InvocationTargetException {
+                                                      @RequestHeader(value = "AuthToken") String authToken) throws IllegalAccessException, InvocationTargetException {
         InhouseTransferLine createdInHouseTransferLine = transactionService.createInhouseTransferLine(newInHouseTransferLine, loginUserID, authToken);
         return new ResponseEntity<>(createdInHouseTransferLine, HttpStatus.OK);
     }
@@ -514,21 +516,21 @@ public class InboundTransactionServiceController {
     //-----------------------------------------ORDER APIs---------------------------------------------------------
     @ApiOperation(response = InboundOrder.class, value = "Get all InboundOrder Sucess Orders") // label for swagger
     @GetMapping("/orders/inbound/success")
-    public ResponseEntity<?> getAll(@RequestParam String authToken) {
+    public ResponseEntity<?> getAll( @RequestHeader(value = "AuthToken") String authToken) {
         InboundOrder[] inboundOrderList = transactionService.getInboundOrders(authToken);
         return new ResponseEntity<>(inboundOrderList, HttpStatus.OK);
     }
 
     @ApiOperation(response = InboundOrder.class, value = "Get inbound Order by id ") // label for swagger
     @GetMapping("/orders/inbound/{orderId}")
-    public ResponseEntity<?> getInboundOrdersById(@PathVariable String orderId, @RequestParam String authToken) {
+    public ResponseEntity<?> getInboundOrdersById(@PathVariable String orderId,  @RequestHeader(value = "AuthToken") String authToken) {
         InboundOrder orders = transactionService.getInboundOrderById(orderId, authToken);
         return new ResponseEntity<>(orders, HttpStatus.OK);
     }
 
     @ApiOperation(response = InboundIntegrationLog.class, value = "Get Failed Orders") // label for swagger
     @GetMapping("/orders/inbound/failed")
-    public ResponseEntity<?> getFailedInbounOrders(@RequestParam String authToken) throws Exception {
+    public ResponseEntity<?> getFailedInbounOrders( @RequestHeader(value = "AuthToken") String authToken) throws Exception {
         InboundIntegrationLog[] orders = transactionService.getFailedInboundOrders(authToken);
         return new ResponseEntity<>(orders, HttpStatus.OK);
     }
@@ -537,7 +539,7 @@ public class InboundTransactionServiceController {
     @ApiOperation(response = InboundOrderV2[].class, value = "Find InboundOrderV2")//label for swagger
     @PostMapping("/findInboundOrder")
     public ResponseEntity<?> findInboundOrderV2(@RequestBody FindInboundOrderV2 findInboundOrderV2,
-                                                @RequestParam String authToken) {
+                                                 @RequestHeader(value = "AuthToken") String authToken) {
         InboundOrderV2[] inboundOrderV2 = transactionService.findInboundOrderV2(findInboundOrderV2, authToken);
         return new ResponseEntity<>(inboundOrderV2, HttpStatus.OK);
     }
@@ -551,7 +553,7 @@ public class InboundTransactionServiceController {
 //    @GetMapping("/containerreceipt/{containerReceiptNo}")
 //    public ResponseEntity<?> getContainerReceipt(@PathVariable String containerReceiptNo, @RequestParam String companyCode,
 //                                                 @RequestParam String plantId, @RequestParam String languageId,
-//                                                 @RequestParam String warehouseId, @RequestParam String authToken) throws java.text.ParseException {
+//                                                 @RequestParam String warehouseId,  @RequestHeader(value = "AuthToken") String authToken) throws java.text.ParseException {
 //        ContainerReceiptV2 containerreceipt =
 //                transactionService.getContainerReceiptV2(companyCode, plantId, languageId, warehouseId, containerReceiptNo, authToken);
 //        log.info("ContainerReceipt : " + containerreceipt);
@@ -565,7 +567,7 @@ public class InboundTransactionServiceController {
                                                  @RequestParam String plantId, @RequestParam String languageId,
                                                  @RequestParam String preInboundNo, @RequestParam String refDocNumber,
                                                  @RequestParam String loginUserID,
-                                                 @RequestParam String warehouseId, @RequestParam String authToken) throws java.text.ParseException {
+                                                 @RequestParam String warehouseId,  @RequestHeader(value = "AuthToken") String authToken) throws java.text.ParseException {
         ContainerReceiptV2 containerreceipt =
                 transactionService.getContainerReceiptV2(companyCode, plantId, languageId, warehouseId,
                         preInboundNo, refDocNumber, containerReceiptNo, loginUserID, authToken);
@@ -577,7 +579,7 @@ public class InboundTransactionServiceController {
     @ApiOperation(response = ContainerReceiptV2.class, value = "Search ContainerReceipt V2") // label for swagger
     @PostMapping("/containerreceipt/findContainerReceipt")
     public ContainerReceiptV2[] findContainerReceiptV2(@RequestBody SearchContainerReceiptV2 searchContainerReceipt,
-                                                       @RequestParam String authToken) throws Exception {
+                                                        @RequestHeader(value = "AuthToken") String authToken) throws Exception {
         return transactionService.findContainerReceiptV2(searchContainerReceipt, authToken);
     }
 
@@ -585,7 +587,7 @@ public class InboundTransactionServiceController {
     @ApiOperation(response = ContainerReceiptV2.class, value = "Create ContainerReceipt V2") // label for swagger
     @PostMapping("/containerreceipt")
     public ResponseEntity<?> postContainerReceiptV2(@Valid @RequestBody ContainerReceiptV2 newContainerReceipt, @RequestParam String loginUserID,
-                                                    @RequestParam String authToken) throws IllegalAccessException, InvocationTargetException {
+                                                     @RequestHeader(value = "AuthToken") String authToken) throws IllegalAccessException, InvocationTargetException {
         ContainerReceiptV2 createdContainerReceipt = transactionService.createContainerReceiptV2(newContainerReceipt, loginUserID, authToken);
         return new ResponseEntity<>(createdContainerReceipt, HttpStatus.OK);
     }
@@ -596,7 +598,7 @@ public class InboundTransactionServiceController {
     public ResponseEntity<?> patchContainerReceiptV2(@PathVariable String containerReceiptNo, @RequestParam String companyCode,
                                                      @RequestParam String plantId, @RequestParam String languageId, @RequestParam String warehouseId,
                                                      @Valid @RequestBody ContainerReceiptV2 updateContainerReceipt, @RequestParam String loginUserID,
-                                                     @RequestParam String authToken) throws IllegalAccessException, InvocationTargetException {
+                                                      @RequestHeader(value = "AuthToken") String authToken) throws IllegalAccessException, InvocationTargetException {
         ContainerReceiptV2 updatedContainerReceipt =
                 transactionService.updateContainerReceiptV2(companyCode, plantId, languageId, warehouseId,
                         containerReceiptNo, loginUserID, updateContainerReceipt, authToken);
@@ -609,8 +611,19 @@ public class InboundTransactionServiceController {
     public ResponseEntity<?> deleteContainerReceiptV2(@PathVariable String containerReceiptNo, @RequestParam String companyCode,
                                                       @RequestParam String plantId, @RequestParam String languageId,
                                                       @RequestParam String preInboundNo, @RequestParam String refDocNumber,
-                                                      @RequestParam String warehouseId, @RequestParam String loginUserID, @RequestParam String authToken) {
+                                                      @RequestParam String warehouseId, @RequestParam String loginUserID,  @RequestHeader(value = "AuthToken") String authToken) {
         transactionService.deleteContainerReceiptV2(companyCode, plantId, languageId, warehouseId, preInboundNo, refDocNumber, containerReceiptNo, loginUserID, authToken);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    //Delete - New BF and KKF
+    @ApiOperation(response = ContainerReceiptV2.class, value = "Delete ContainerReceiptV2") // label for swagger
+    @DeleteMapping("/containerreceipt-new/{containerReceiptNo}")
+    public ResponseEntity<?> deleteContainerReceiptV9New(@PathVariable String containerReceiptNo, @RequestParam String companyCode,
+                                                      @RequestParam String plantId, @RequestParam String languageId,
+                                                      @RequestParam String refDocNumber,
+                                                      @RequestParam String warehouseId, @RequestParam String loginUserID, @RequestHeader(value = "AuthToken") String authToken) {
+        transactionService.deleteContainerReceiptV9New(companyCode, plantId, languageId, warehouseId, refDocNumber, containerReceiptNo, loginUserID, authToken);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
@@ -623,7 +636,7 @@ public class InboundTransactionServiceController {
     @GetMapping("/preinboundheader/{preInboundNo}")
     public ResponseEntity<?> getPreInboundHeaderV2(@PathVariable String preInboundNo, @RequestParam String warehouseId,
                                                    @RequestParam String companyCode, @RequestParam String plantId,
-                                                   @RequestParam String languageId, @RequestParam String authToken) throws java.text.ParseException {
+                                                   @RequestParam String languageId,  @RequestHeader(value = "AuthToken") String authToken) throws java.text.ParseException {
         PreInboundHeaderV2 preinboundheader = transactionService.getPreInboundHeaderV2(preInboundNo, warehouseId, companyCode, plantId, languageId, authToken);
         log.info("PreInboundHeader : " + preinboundheader);
         return new ResponseEntity<>(preinboundheader, HttpStatus.OK);
@@ -633,7 +646,7 @@ public class InboundTransactionServiceController {
     @ApiOperation(response = PreInboundHeaderV2.class, value = "Search PreInboundHeader v2") // label for swagger
     @PostMapping("/preinboundheader/findPreInboundHeader")
     public PreInboundHeaderV2[] findPreInboundHeaderV2(@RequestBody SearchPreInboundHeaderV2 searchPreInboundHeader,
-                                                       @RequestParam String authToken) throws Exception {
+                                                        @RequestHeader(value = "AuthToken") String authToken) throws Exception {
         return transactionService.findPreInboundHeaderV2(searchPreInboundHeader, authToken);
     }
 
@@ -642,7 +655,7 @@ public class InboundTransactionServiceController {
     // label for swagger
     @GetMapping("/preinboundheader/inboundconfirm")
     public ResponseEntity<?> getPreInboundHeaderV2(@RequestParam String warehouseId, @RequestParam String companyCode,
-                                                   @RequestParam String plantId, @RequestParam String languageId, @RequestParam String authToken) throws java.text.ParseException {
+                                                   @RequestParam String plantId, @RequestParam String languageId,  @RequestHeader(value = "AuthToken") String authToken) throws java.text.ParseException {
         PreInboundHeaderV2[] preinboundheader =
                 transactionService.getPreInboundHeaderWithStatusIdV2(warehouseId, companyCode, plantId, languageId, authToken);
         log.info("PreInboundHeader : " + preinboundheader);
@@ -653,7 +666,7 @@ public class InboundTransactionServiceController {
     @ApiOperation(response = PreInboundHeaderV2.class, value = "Create PreInboundHeaderV2") // label for swagger
     @PostMapping("/preinboundheader")
     public ResponseEntity<?> postPreInboundHeaderV2(@Valid @RequestBody PreInboundHeaderV2 newPreInboundHeader, @RequestParam String loginUserID,
-                                                    @RequestParam String authToken) throws IllegalAccessException, InvocationTargetException {
+                                                     @RequestHeader(value = "AuthToken") String authToken) throws IllegalAccessException, InvocationTargetException {
         PreInboundHeaderV2 createdPreInboundHeader = transactionService.createPreInboundHeaderV2(newPreInboundHeader, loginUserID, authToken);
         return new ResponseEntity<>(createdPreInboundHeader, HttpStatus.OK);
     }
@@ -664,7 +677,7 @@ public class InboundTransactionServiceController {
     public ResponseEntity<?> patchPreInboundHeaderV2(@PathVariable String preInboundNo, @RequestParam String warehouseId,
                                                      @RequestParam String companyCode, @RequestParam String plantId, @RequestParam String languageId,
                                                      @Valid @RequestBody PreInboundHeaderV2 updatePreInboundHeader,
-                                                     @RequestParam String loginUserID, @RequestParam String authToken)
+                                                     @RequestParam String loginUserID,  @RequestHeader(value = "AuthToken") String authToken)
             throws IllegalAccessException, InvocationTargetException {
         PreInboundHeaderV2 createdPreInboundHeader =
                 transactionService.updatePreInboundHeaderV2(preInboundNo, warehouseId, companyCode, plantId, languageId,
@@ -678,7 +691,7 @@ public class InboundTransactionServiceController {
     public ResponseEntity<?> deletePreInboundHeaderV2(@PathVariable String preInboundNo, @RequestParam String warehouseId,
                                                       @RequestParam String companyCode, @RequestParam String plantId,
                                                       @RequestParam String languageId, @RequestParam String loginUserID,
-                                                      @RequestParam String authToken) {
+                                                       @RequestHeader(value = "AuthToken") String authToken) {
         transactionService.deletePreInboundHeaderV2(preInboundNo, warehouseId, companyCode, plantId, languageId, loginUserID, authToken);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
@@ -693,7 +706,7 @@ public class InboundTransactionServiceController {
     public ResponseEntity<?> postPreInboundLineBOMV2(@RequestParam String preInboundNo, @RequestParam String warehouseId,
                                                      @RequestParam String companyCode, @RequestParam String plantId, @RequestParam String languageId,
                                                      @RequestParam String refDocNumber, @RequestParam String itemCode,
-                                                     @RequestParam Long lineNo, @RequestParam String loginUserID, @RequestParam String authToken)
+                                                     @RequestParam Long lineNo, @RequestParam String loginUserID,  @RequestHeader(value = "AuthToken") String authToken)
             throws IllegalAccessException, InvocationTargetException {
         PreInboundLineV2[] createdPreInboundLine =
                 transactionService.createPreInboundLineBOMV2(preInboundNo, warehouseId, refDocNumber,
@@ -705,7 +718,7 @@ public class InboundTransactionServiceController {
     //Get
     @ApiOperation(response = PreInboundLineV2.class, value = "Get a PreInboundLine V2") // label for swagger
     @GetMapping("/preinboundline/{preInboundNo}")
-    public ResponseEntity<?> getPreInboundLineV2(@PathVariable String preInboundNo, @RequestParam String authToken) throws java.text.ParseException {
+    public ResponseEntity<?> getPreInboundLineV2(@PathVariable String preInboundNo,  @RequestHeader(value = "AuthToken") String authToken) throws java.text.ParseException {
         PreInboundLine[] preinboundline = transactionService.getPreInboundLineV2(preInboundNo, authToken);
         log.info("PreInboundLine : " + preinboundline);
         return new ResponseEntity<>(preinboundline, HttpStatus.OK);
@@ -718,7 +731,7 @@ public class InboundTransactionServiceController {
                                                    @RequestParam String plantId, @RequestParam String languageId,
                                                    @RequestParam String refDocNumber, @RequestParam Long lineNo, @RequestParam String itemCode,
                                                    @Valid @RequestBody PreInboundLineV2 updatePreInboundLine, @RequestParam String loginUserID,
-                                                   @RequestParam String authToken) throws java.text.ParseException {
+                                                    @RequestHeader(value = "AuthToken") String authToken) throws java.text.ParseException {
         PreInboundLine preinboundline = transactionService.patchPreInboundLineV2(
                 companyCode, plantId, warehouseId, languageId, preInboundNo, refDocNumber, lineNo, itemCode, loginUserID, updatePreInboundLine, authToken);
         log.info("PreInboundLine : " + preinboundline);
@@ -731,7 +744,7 @@ public class InboundTransactionServiceController {
     @ApiOperation(response = InboundHeaderEntityV2.class, value = "Search InboundHeader V2") // label for swagger
     @PostMapping("/inboundheader/findInboundHeader")
     public InboundHeaderEntityV2[] findInboundHeaderV2(@RequestBody SearchInboundHeaderV2 searchInboundHeader,
-                                                       @RequestParam String authToken) throws Exception {
+                                                        @RequestHeader(value = "AuthToken") String authToken) throws Exception {
         return transactionService.findInboundHeaderV2(searchInboundHeader, authToken);
     }
 
@@ -739,7 +752,7 @@ public class InboundTransactionServiceController {
     @ApiOperation(response = InboundHeaderEntityV2.class, value = "Search InboundHeader Stream V2") // label for swagger
     @PostMapping("/inboundheader/findInboundHeader/stream")
     public InboundHeaderEntityV2[] findInboundHeaderstreamV2(@RequestBody SearchInboundHeaderV2 searchInboundHeader,
-                                                             @RequestParam String authToken) throws Exception {
+                                                              @RequestHeader(value = "AuthToken") String authToken) throws Exception {
         return transactionService.findInboundHeaderStreamV2(searchInboundHeader, authToken);
     }
 
@@ -747,7 +760,7 @@ public class InboundTransactionServiceController {
     @ApiOperation(response = InboundHeaderEntityV2.class, value = "Replace ASN V2") // label for swagger
     @GetMapping("/inboundheader/replaceASN")
     public ResponseEntity<?> replaceASNV2(@RequestParam String refDocNumber, @RequestParam String preInboundNo,
-                                          @RequestParam String asnNumber, @RequestParam String authToken)
+                                          @RequestParam String asnNumber,  @RequestHeader(value = "AuthToken") String authToken)
             throws IllegalAccessException, InvocationTargetException {
         transactionService.replaceASNV2(refDocNumber, preInboundNo, asnNumber, authToken);
         return new ResponseEntity<>(HttpStatus.OK);
@@ -758,7 +771,7 @@ public class InboundTransactionServiceController {
     public ResponseEntity<?> getInboundHeaderV2(@PathVariable String refDocNumber, @RequestParam String warehouseId,
                                                 @RequestParam String preInboundNo, @RequestParam String companyCode,
                                                 @RequestParam String plantId, @RequestParam String languageId,
-                                                @RequestParam String authToken) throws Exception {
+                                                 @RequestHeader(value = "AuthToken") String authToken) throws Exception {
         InboundHeaderEntityV2 dbInboundHeader = transactionService.getInboundHeaderV2(companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, authToken);
         log.info("InboundHeader : " + dbInboundHeader);
         return new ResponseEntity<>(dbInboundHeader, HttpStatus.OK);
@@ -769,7 +782,7 @@ public class InboundTransactionServiceController {
     public ResponseEntity<?> patchInboundHeaderConfirmV2(@RequestParam String warehouseId, @RequestParam String preInboundNo,
                                                          @RequestParam String companyCode, @RequestParam String plantId,
                                                          @RequestParam String languageId, @RequestParam String refDocNumber,
-                                                         @RequestParam String loginUserID, @RequestParam String authToken)
+                                                         @RequestParam String loginUserID,  @RequestHeader(value = "AuthToken") String authToken)
             throws IllegalAccessException, InvocationTargetException {
         AXApiResponse createdInboundHeaderResponse =
                 transactionService.updateInboundHeaderConfirmV2(companyCode, plantId, languageId, warehouseId, preInboundNo, refDocNumber, loginUserID, authToken);
@@ -782,7 +795,7 @@ public class InboundTransactionServiceController {
     public ResponseEntity<?> patchInboundHeaderPartialConfirmV2(@RequestParam String warehouseId, @RequestParam String preInboundNo,
                                                                 @RequestParam String companyCode, @RequestParam String plantId,
                                                                 @RequestParam String languageId, @RequestParam String refDocNumber,
-                                                                @RequestParam String loginUserID, @RequestParam String authToken) {
+                                                                @RequestParam String loginUserID,  @RequestHeader(value = "AuthToken") String authToken) {
         AXApiResponse createdInboundHeaderResponse =
                 transactionService.updateInboundHeaderPartialConfirmV2(companyCode, plantId, languageId, warehouseId, preInboundNo, refDocNumber, loginUserID, authToken);
         return new ResponseEntity<>(createdInboundHeaderResponse, HttpStatus.OK);
@@ -794,7 +807,7 @@ public class InboundTransactionServiceController {
     public ResponseEntity<?> patchInboundHeaderPartialWithInboundLinesConfirmV2(@RequestBody List<InboundLineV2> inboundLineList, @RequestParam String warehouseId,
                                                                                 @RequestParam String preInboundNo, @RequestParam String companyCode, @RequestParam String plantId,
                                                                                 @RequestParam String languageId, @RequestParam String refDocNumber,
-                                                                                @RequestParam String loginUserID, @RequestParam String authToken) {
+                                                                                @RequestParam String loginUserID,  @RequestHeader(value = "AuthToken") String authToken) {
         AXApiResponse createdInboundHeaderResponse =
                 transactionService.updateInboundHeaderWithIbLinePartialConfirmV2(inboundLineList, companyCode, plantId, languageId, warehouseId, preInboundNo, refDocNumber, loginUserID, authToken);
         return new ResponseEntity<>(createdInboundHeaderResponse, HttpStatus.OK);
@@ -804,7 +817,7 @@ public class InboundTransactionServiceController {
     @RequestMapping(value = "/inboundheader/{refDocNumber}", method = RequestMethod.PATCH)
     public ResponseEntity<?> patchInboundHeaderV2(@PathVariable String refDocNumber, @RequestParam String companyCode, @RequestParam String plantId,
                                                   @RequestParam String languageId, @RequestParam String warehouseId,
-                                                  @RequestParam String preInboundNo, @RequestParam String loginUserID, @RequestParam String authToken,
+                                                  @RequestParam String preInboundNo, @RequestParam String loginUserID,  @RequestHeader(value = "AuthToken") String authToken,
                                                   @Valid @RequestBody InboundHeaderV2 updateInboundHeader)
             throws IllegalAccessException, InvocationTargetException {
         InboundHeaderEntityV2 updatedInboundHeader =
@@ -816,7 +829,7 @@ public class InboundTransactionServiceController {
     @DeleteMapping("/inboundheader/{refDocNumber}")
     public ResponseEntity<?> deleteInboundHeaderV2(@PathVariable String refDocNumber, @RequestParam String companyCode, @RequestParam String plantId,
                                                    @RequestParam String languageId, @RequestParam String warehouseId,
-                                                   @RequestParam String preInboundNo, @RequestParam String loginUserID, @RequestParam String authToken) {
+                                                   @RequestParam String preInboundNo, @RequestParam String loginUserID,  @RequestHeader(value = "AuthToken") String authToken) {
         transactionService.deleteInboundHeaderV2(companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, loginUserID, authToken);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
@@ -826,7 +839,7 @@ public class InboundTransactionServiceController {
      */
     @ApiOperation(response = InboundLineV2.class, value = "Get all InboundLine details V2") // label for swagger
     @GetMapping("/inboundline")
-    public ResponseEntity<?> getInboundLinesV2(@RequestParam String authToken) throws Exception {
+    public ResponseEntity<?> getInboundLinesV2( @RequestHeader(value = "AuthToken") String authToken) throws Exception {
         InboundLineV2[] lineNoList = transactionService.getInboundLinesV2(authToken);
         return new ResponseEntity<>(lineNoList, HttpStatus.OK);
     }
@@ -836,7 +849,7 @@ public class InboundTransactionServiceController {
     public ResponseEntity<?> getInboundLineV2(@PathVariable Long lineNo, @RequestParam String languageId, @RequestParam String companyCode,
                                               @RequestParam String plantId, @RequestParam String warehouseId, @RequestParam String refDocNumber,
                                               @RequestParam String preInboundNo, @RequestParam String itemCode,
-                                              @RequestParam String authToken) throws Exception {
+                                               @RequestHeader(value = "AuthToken") String authToken) throws Exception {
         InboundLineV2 dbInboundLine =
                 transactionService.getInboundLineV2(companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, lineNo, itemCode, authToken);
         log.info("InboundLine : " + dbInboundLine);
@@ -846,14 +859,14 @@ public class InboundTransactionServiceController {
     @ApiOperation(response = InboundLineV2.class, value = "Search InboundLine V2") // label for swagger
     @PostMapping("/inboundline/findInboundLine")
     public InboundLineV2[] findInboundLineV2(@RequestBody SearchInboundLineV2 searchInboundLine,
-                                             @RequestParam String authToken) throws Exception {
+                                              @RequestHeader(value = "AuthToken") String authToken) throws Exception {
         return transactionService.findInboundLineV2(searchInboundLine, authToken);
     }
 
     @ApiOperation(response = InboundLineV2.class, value = "Create InboundLine V2") // label for swagger
     @PostMapping("/inboundline")
     public ResponseEntity<?> postInboundLineV2(@Valid @RequestBody InboundLineV2 newInboundLine, @RequestParam String loginUserID,
-                                               @RequestParam String authToken) throws IllegalAccessException, InvocationTargetException {
+                                                @RequestHeader(value = "AuthToken") String authToken) throws IllegalAccessException, InvocationTargetException {
         InboundLineV2 createdInboundLine = transactionService.createInboundLineV2(newInboundLine, loginUserID, authToken);
         return new ResponseEntity<>(createdInboundLine, HttpStatus.OK);
     }
@@ -863,7 +876,7 @@ public class InboundTransactionServiceController {
     public ResponseEntity<?> patchInboundLineV2(@RequestParam Long lineNo, @RequestParam String languageId, @RequestParam String companyCode,
                                                 @RequestParam String plantId, @RequestParam String warehouseId, @RequestParam String refDocNumber,
                                                 @RequestParam String preInboundNo, @RequestParam String itemCode, @RequestParam String loginUserID,
-                                                @RequestParam String authToken, @Valid @RequestBody InboundLineV2 updateInboundLine)
+                                                 @RequestHeader(value = "AuthToken") String authToken, @Valid @RequestBody InboundLineV2 updateInboundLine)
             throws IllegalAccessException, InvocationTargetException {
         InboundLineV2 updatedInboundLine =
                 transactionService.updateInboundLineV2(companyCode, plantId, languageId, warehouseId, refDocNumber,
@@ -874,7 +887,7 @@ public class InboundTransactionServiceController {
     //Batch Update Process
     @ApiOperation(response = InboundLineV2.class, value = "Batch Update InboundLines V2") // label for swagger
     @RequestMapping(value = "/inboundline/batchUpdateInboundLines", method = RequestMethod.PATCH)
-    public ResponseEntity<?> batchUpdateInboundLineV2(@RequestParam String loginUserID, @RequestParam String authToken,
+    public ResponseEntity<?> batchUpdateInboundLineV2(@RequestParam String loginUserID,  @RequestHeader(value = "AuthToken") String authToken,
                                                       @Valid @RequestBody List<InboundLineV2> updateInboundLines) {
         InboundLineV2[] updatedInboundLines = transactionService.batchUpdateInboundLineV2(updateInboundLines, loginUserID, authToken);
         return new ResponseEntity<>(updatedInboundLines, HttpStatus.OK);
@@ -885,7 +898,7 @@ public class InboundTransactionServiceController {
     public ResponseEntity<?> deleteInboundLineV2(@PathVariable Long lineNo, @RequestParam String languageId, @RequestParam String companyCode,
                                                  @RequestParam String plantId, @RequestParam String warehouseId,
                                                  @RequestParam String refDocNumber, @RequestParam String preInboundNo, @RequestParam String itemCode,
-                                                 @RequestParam String loginUserID, @RequestParam String authToken) {
+                                                 @RequestParam String loginUserID,  @RequestHeader(value = "AuthToken") String authToken) {
         transactionService.deleteInboundLineV2(companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, lineNo, itemCode, loginUserID, authToken);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
@@ -898,7 +911,7 @@ public class InboundTransactionServiceController {
     @GetMapping("/stagingheader/{stagingNo}")
     public ResponseEntity<?> getStagingHeaderV2(@PathVariable String stagingNo, @RequestParam String languageId, @RequestParam String companyCode,
                                                 @RequestParam String plantId, @RequestParam String warehouseId, @RequestParam String preInboundNo,
-                                                @RequestParam String refDocNumber, @RequestParam String authToken) throws java.text.ParseException {
+                                                @RequestParam String refDocNumber,  @RequestHeader(value = "AuthToken") String authToken) throws java.text.ParseException {
         StagingHeaderV2 stagingheader = transactionService.getStagingHeaderV2(companyCode, plantId, languageId, warehouseId,
                 preInboundNo, refDocNumber, stagingNo, authToken);
         log.info("StagingHeader : " + stagingheader);
@@ -908,7 +921,7 @@ public class InboundTransactionServiceController {
     //Find
     @ApiOperation(response = StagingHeaderV2.class, value = "Search StagingHeader V2") // label for swagger
     @PostMapping("/stagingheader/findStagingHeader")
-    public StagingHeaderV2[] findStagingHeaderV2(@RequestBody SearchStagingHeaderV2 searchStagingHeader, @RequestParam String authToken)
+    public StagingHeaderV2[] findStagingHeaderV2(@RequestBody SearchStagingHeaderV2 searchStagingHeader,  @RequestHeader(value = "AuthToken") String authToken)
             throws Exception {
         return transactionService.findStagingHeaderV2(searchStagingHeader, authToken);
     }
@@ -917,7 +930,7 @@ public class InboundTransactionServiceController {
     @ApiOperation(response = StagingHeaderV2.class, value = "Create StagingHeader V2") // label for swagger
     @PostMapping("/stagingheader")
     public ResponseEntity<?> postStagingHeaderV2(@Valid @RequestBody StagingHeaderV2 newStagingHeader,
-                                                 @RequestParam String loginUserID, @RequestParam String authToken)
+                                                 @RequestParam String loginUserID,  @RequestHeader(value = "AuthToken") String authToken)
             throws IllegalAccessException, InvocationTargetException {
         StagingHeaderV2 createdStagingHeader = transactionService.createStagingHeaderV2(newStagingHeader, loginUserID, authToken);
         return new ResponseEntity<>(createdStagingHeader, HttpStatus.OK);
@@ -930,7 +943,7 @@ public class InboundTransactionServiceController {
                                                   @RequestParam String companyCode, @RequestParam String plantId,
                                                   @RequestParam String warehouseId, @RequestParam String preInboundNo,
                                                   @RequestParam String refDocNumber, @Valid @RequestBody StagingHeaderV2 updateStagingHeader,
-                                                  @RequestParam String loginUserID, @RequestParam String authToken)
+                                                  @RequestParam String loginUserID,  @RequestHeader(value = "AuthToken") String authToken)
             throws IllegalAccessException, InvocationTargetException {
         StagingHeaderV2 createdStagingHeader =
                 transactionService.updateStagingHeaderV2(companyCode, plantId, languageId, warehouseId,
@@ -946,7 +959,7 @@ public class InboundTransactionServiceController {
                                                    @RequestParam String companyCode, @RequestParam String plantId,
                                                    @RequestParam String warehouseId, @RequestParam String preInboundNo,
                                                    @RequestParam String refDocNumber, @RequestParam String loginUserID,
-                                                   @RequestParam String authToken) {
+                                                    @RequestHeader(value = "AuthToken") String authToken) {
         transactionService.deleteStagingHeaderV2(companyCode, plantId, languageId, warehouseId,
                 preInboundNo, refDocNumber, stagingNo, loginUserID, authToken);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -963,7 +976,7 @@ public class InboundTransactionServiceController {
                                             @RequestParam String plantId, @RequestParam String languageId, @RequestParam String warehouseId,
                                             @RequestParam String refDocNumber, @RequestParam String stagingNo, @RequestParam String palletCode,
                                             @RequestParam String caseCode, @RequestParam String preInboundNo,
-                                            @RequestParam String itemCode, @RequestParam String authToken) throws java.text.ParseException {
+                                            @RequestParam String itemCode,  @RequestHeader(value = "AuthToken") String authToken) throws java.text.ParseException {
         StagingLineEntityV2 dbStagingLine =
                 transactionService.getStagingLineV2(companyCode, plantId, languageId, warehouseId,
                         preInboundNo, refDocNumber, stagingNo, palletCode,
@@ -976,7 +989,7 @@ public class InboundTransactionServiceController {
     @ApiOperation(response = StagingLineEntityV2.class, value = "Search StagingLine V2") // label for swagger
     @PostMapping("/stagingline/findStagingLine")
     public StagingLineEntityV2[] findStagingLineV2(@RequestBody SearchStagingLineV2 searchStagingLine,
-                                                   @RequestParam String authToken) throws Exception {
+                                                    @RequestHeader(value = "AuthToken") String authToken) throws Exception {
         return transactionService.findStagingLineV2(searchStagingLine, authToken);
     }
 
@@ -986,7 +999,7 @@ public class InboundTransactionServiceController {
     public ResponseEntity<?> postStagingLineV2(@Valid @RequestBody List<PreInboundLineV2> newStagingLine,
                                                @RequestParam String warehouseId, @RequestParam String companyCodeId,
                                                @RequestParam String plantId, @RequestParam String languageId,
-                                               @RequestParam String loginUserID, @RequestParam String authToken) throws IllegalAccessException, InvocationTargetException {
+                                               @RequestParam String loginUserID,  @RequestHeader(value = "AuthToken") String authToken) throws IllegalAccessException, InvocationTargetException {
         StagingLineEntityV2[] createdStagingLine =
                 transactionService.createStagingLineV2(newStagingLine, warehouseId, companyCodeId, plantId, languageId, loginUserID, authToken);
         return new ResponseEntity<>(createdStagingLine, HttpStatus.OK);
@@ -1000,7 +1013,7 @@ public class InboundTransactionServiceController {
                                                 @RequestParam String stagingNo, @RequestParam String palletCode, @RequestParam String caseCode,
                                                 @RequestParam String preInboundNo, @RequestParam String itemCode,
                                                 @Valid @RequestBody StagingLineEntityV2 updateStagingLine, @RequestParam String loginUserID,
-                                                @RequestParam String authToken)
+                                                 @RequestHeader(value = "AuthToken") String authToken)
             throws IllegalAccessException, InvocationTargetException {
         StagingLineEntityV2 updatedStagingLine =
                 transactionService.updateStagingLineV2(companyCode, plantId, languageId, warehouseId,
@@ -1010,9 +1023,20 @@ public class InboundTransactionServiceController {
     }
 
     //Update
+    @ApiOperation(response = StagingLineEntityV2.class, value = "Update StagingLine V2") // label for swagger
+    @RequestMapping(value = "/stagingline/V9", method = RequestMethod.PATCH)
+    public ResponseEntity<?> patchStagingLineV9(@Valid @RequestBody StagingLineEntityV2 updateStagingLine, @RequestParam String loginUserID,
+                                                @RequestHeader(value = "AuthToken") String authToken)
+            throws IllegalAccessException, InvocationTargetException {
+        StagingLineEntityV2 updatedStagingLine =
+                transactionService.updateStagingLineV9(loginUserID, updateStagingLine, authToken);
+        return new ResponseEntity<>(updatedStagingLine, HttpStatus.OK);
+    }
+
+    //Update
     @ApiOperation(response = StagingLineUpdate.class, value = "Update ExpiryMfr")
     @PostMapping(value = "/stagingline/updateExpiryMfr")
-    public ResponseEntity<?> updateExpiryMfr(@RequestBody List<StagingLineUpdate> input, @RequestParam String authToken) {
+    public ResponseEntity<?> updateExpiryMfr(@RequestBody List<StagingLineUpdate> input,  @RequestHeader(value = "AuthToken") String authToken) {
         StagingLineUpdate[] updatedStagingLine =
                 transactionService.updateExpiryMfr(input, authToken);
         return new ResponseEntity<>(updatedStagingLine, HttpStatus.OK);
@@ -1024,7 +1048,7 @@ public class InboundTransactionServiceController {
     @PatchMapping("/stagingline/caseConfirmation")
     public ResponseEntity<?> patchStagingLineForCaseConfirmationV2(@RequestBody List<CaseConfirmation> caseConfirmations, @RequestParam String companyCode,
                                                                    @RequestParam String plantId, @RequestParam String languageId,
-                                                                   @RequestParam String caseCode, @RequestParam String loginUserID, @RequestParam String authToken)
+                                                                   @RequestParam String caseCode, @RequestParam String loginUserID,  @RequestHeader(value = "AuthToken") String authToken)
             throws IllegalAccessException, InvocationTargetException {
         StagingLineEntityV2[] createdStagingLine =
                 transactionService.caseConfirmationV2(companyCode, plantId, languageId, caseConfirmations, caseCode, loginUserID, authToken);
@@ -1039,7 +1063,7 @@ public class InboundTransactionServiceController {
                                                @RequestParam String warehouseId, @RequestParam String refDocNumber,
                                                @RequestParam String stagingNo, @RequestParam String palletCode,
                                                @RequestParam String caseCode, @RequestParam String preInboundNo,
-                                               @RequestParam String itemCode, @RequestParam String loginUserID, @RequestParam String authToken) {
+                                               @RequestParam String itemCode, @RequestParam String loginUserID,  @RequestHeader(value = "AuthToken") String authToken) {
         transactionService.deleteStagingLineV2(companyCode, plantId, languageId, warehouseId,
                 preInboundNo, refDocNumber, stagingNo, palletCode, caseCode, lineNo,
                 itemCode, loginUserID, authToken);
@@ -1051,7 +1075,7 @@ public class InboundTransactionServiceController {
     @DeleteMapping("/stagingline/{lineNo}/cases")
     public ResponseEntity<?> deleteCasesV2(@PathVariable Long lineNo, @RequestParam String preInboundNo,
                                            @RequestParam String caseCode, @RequestParam String itemCode,
-                                           @RequestParam String loginUserID, @RequestParam String authToken) {
+                                           @RequestParam String loginUserID,  @RequestHeader(value = "AuthToken") String authToken) {
         transactionService.deleteCasesV2(preInboundNo, lineNo, itemCode, caseCode, loginUserID, authToken);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
@@ -1062,7 +1086,7 @@ public class InboundTransactionServiceController {
     public ResponseEntity<?> assignHHTUserV2(@RequestBody List<AssignHHTUser> assignHHTUsers, @RequestParam String companyCode,
                                              @RequestParam String plantId, @RequestParam String languageId,
                                              @RequestParam String assignedUserId, @RequestParam String loginUserID,
-                                             @RequestParam String authToken) throws IllegalAccessException,
+                                              @RequestHeader(value = "AuthToken") String authToken) throws IllegalAccessException,
             InvocationTargetException {
         StagingLineEntityV2[] updatedStagingLine =
                 transactionService.assignHHTUserV2(companyCode, plantId, languageId, assignHHTUsers, assignedUserId, loginUserID, authToken);
@@ -1079,7 +1103,7 @@ public class InboundTransactionServiceController {
     public ResponseEntity<?> getGrHeaderV2(@PathVariable String goodsReceiptNo, @RequestParam String companyCode,
                                            @RequestParam String plantId, @RequestParam String languageId, @RequestParam String warehouseId,
                                            @RequestParam String preInboundNo, @RequestParam String refDocNumber, @RequestParam String stagingNo,
-                                           @RequestParam String palletCode, @RequestParam String caseCode, @RequestParam String authToken) throws java.text.ParseException {
+                                           @RequestParam String palletCode, @RequestParam String caseCode,  @RequestHeader(value = "AuthToken") String authToken) throws java.text.ParseException {
         GrHeaderV2 dbGrHeader =
                 transactionService.getGrHeaderV2(companyCode, plantId, languageId, warehouseId,
                         preInboundNo, refDocNumber, stagingNo, goodsReceiptNo, palletCode,
@@ -1091,7 +1115,7 @@ public class InboundTransactionServiceController {
     //Find
     @ApiOperation(response = GrHeaderV2.class, value = "Search GrHeader V2") // label for swagger
     @PostMapping("/grheader/findGrHeader")
-    public GrHeaderV2[] findGrHeaderV2(@RequestBody SearchGrHeaderV2 searchGrHeader, @RequestParam String authToken)
+    public GrHeaderV2[] findGrHeaderV2(@RequestBody SearchGrHeaderV2 searchGrHeader,  @RequestHeader(value = "AuthToken") String authToken)
             throws Exception {
         return transactionService.findGrHeaderV2(searchGrHeader, authToken);
     }
@@ -1100,7 +1124,7 @@ public class InboundTransactionServiceController {
     @ApiOperation(response = GrHeaderV2.class, value = "Create GrHeader V2") // label for swagger
     @PostMapping("/grheader")
     public ResponseEntity<?> postGrHeaderV2(@Valid @RequestBody GrHeaderV2 newGrHeader, @RequestParam String loginUserID,
-                                            @RequestParam String authToken) throws IllegalAccessException, InvocationTargetException {
+                                             @RequestHeader(value = "AuthToken") String authToken) throws IllegalAccessException, InvocationTargetException {
         GrHeaderV2 createdGrHeader = transactionService.createGrHeaderV2(newGrHeader, loginUserID, authToken);
         return new ResponseEntity<>(createdGrHeader, HttpStatus.OK);
     }
@@ -1114,7 +1138,7 @@ public class InboundTransactionServiceController {
                                              @RequestParam String refDocNumber, @RequestParam String stagingNo,
                                              @RequestParam String palletCode, @RequestParam String caseCode,
                                              @Valid @RequestBody GrHeaderV2 updateGrHeader,
-                                             @RequestParam String loginUserID, @RequestParam String authToken)
+                                             @RequestParam String loginUserID,  @RequestHeader(value = "AuthToken") String authToken)
             throws IllegalAccessException, InvocationTargetException {
         GrHeaderV2 updatedGrHeader =
                 transactionService.updateGrHeaderV2(companyCode, plantId, languageId, warehouseId,
@@ -1130,7 +1154,7 @@ public class InboundTransactionServiceController {
                                               @RequestParam String plantId, @RequestParam String languageId, @RequestParam String warehouseId,
                                               @RequestParam String preInboundNo, @RequestParam String refDocNumber, @RequestParam String stagingNo,
                                               @RequestParam String palletCode, @RequestParam String caseCode, @RequestParam String loginUserID,
-                                              @RequestParam String authToken) {
+                                               @RequestHeader(value = "AuthToken") String authToken) {
         transactionService.deleteGrHeaderV2(companyCode, plantId, languageId, warehouseId,
                 preInboundNo, refDocNumber, stagingNo, goodsReceiptNo,
                 palletCode, caseCode, loginUserID, authToken);
@@ -1148,7 +1172,7 @@ public class InboundTransactionServiceController {
                                          @RequestParam String plantId, @RequestParam String languageId, @RequestParam String warehouseId,
                                          @RequestParam String preInboundNo, @RequestParam String refDocNumber, @RequestParam String goodsReceiptNo,
                                          @RequestParam String palletCode, @RequestParam String caseCode, @RequestParam String packBarcodes,
-                                         @RequestParam String itemCode, @RequestParam String authToken) throws java.text.ParseException {
+                                         @RequestParam String itemCode,  @RequestHeader(value = "AuthToken") String authToken) throws java.text.ParseException {
         GrLineV2 dbGrLine =
                 transactionService.getGrLineV2(companyCode, plantId, languageId, warehouseId,
                         preInboundNo, refDocNumber, goodsReceiptNo, palletCode, caseCode,
@@ -1165,7 +1189,7 @@ public class InboundTransactionServiceController {
                                          @RequestParam String plantId, @RequestParam String languageId,
                                          @RequestParam String preInboundNo, @RequestParam String refDocNumber,
                                          @RequestParam String packBarcodes, @RequestParam String itemCode,
-                                         @RequestParam String authToken) throws java.text.ParseException {
+                                          @RequestHeader(value = "AuthToken") String authToken) throws java.text.ParseException {
         GrLineV2[] grline = transactionService.getGrLineV2(companyCode, plantId, languageId, preInboundNo, refDocNumber, packBarcodes, lineNo, itemCode, authToken);
         log.info("GrLine : " + grline);
         return new ResponseEntity<>(grline, HttpStatus.OK);
@@ -1174,7 +1198,7 @@ public class InboundTransactionServiceController {
     //Find
     @ApiOperation(response = GrLineV2.class, value = "Search GrLine V2") // label for swagger
     @PostMapping("/grline/findGrLine")
-    public GrLineV2[] findGrLineV2(@RequestBody SearchGrLineV2 searchGrLine, @RequestParam String authToken)
+    public GrLineV2[] findGrLineV2(@RequestBody SearchGrLineV2 searchGrLine,  @RequestHeader(value = "AuthToken") String authToken)
             throws Exception {
         return transactionService.findGrLineV2(searchGrLine, authToken);
     }
@@ -1182,7 +1206,7 @@ public class InboundTransactionServiceController {
     //Find
     @ApiOperation(response = GrLineV2.class, value = "Search GrLine - SQL for report V2") // label for swagger
     @PostMapping("/grline/findGrLineNew")
-    public GrLineV2[] findGrLineNewV2(@RequestBody SearchGrLineV2 searchGrLine, @RequestParam String authToken)
+    public GrLineV2[] findGrLineNewV2(@RequestBody SearchGrLineV2 searchGrLine,  @RequestHeader(value = "AuthToken") String authToken)
             throws Exception {
         return transactionService.findGrLineSQLV2(searchGrLine, authToken);
     }
@@ -1191,7 +1215,7 @@ public class InboundTransactionServiceController {
     @ApiOperation(response = GrLineV2.class, value = "Create GrLine V2") // label for swagger
     @PostMapping("/grline")
     public ResponseEntity<?> postGrLineV2(@Valid @RequestBody List<AddGrLineV2> newGrLine, @RequestParam String loginUserID,
-                                          @RequestParam String authToken) throws IllegalAccessException, InvocationTargetException {
+                                           @RequestHeader(value = "AuthToken") String authToken) throws IllegalAccessException, InvocationTargetException {
         GrLineV2[] createdGrLine = transactionService.createGrLineV2(newGrLine, loginUserID, authToken);
         return new ResponseEntity<>(createdGrLine, HttpStatus.OK);
     }
@@ -1205,7 +1229,7 @@ public class InboundTransactionServiceController {
                                            @RequestParam String refDocNumber, @RequestParam String goodsReceiptNo,
                                            @RequestParam String palletCode, @RequestParam String caseCode, @RequestParam String packBarcodes,
                                            @RequestParam String itemCode, @Valid @RequestBody GrLineV2 updateGrLine,
-                                           @RequestParam String loginUserID, @RequestParam String authToken)
+                                           @RequestParam String loginUserID,  @RequestHeader(value = "AuthToken") String authToken)
             throws IllegalAccessException, InvocationTargetException {
         GrLineV2 updatedGrLine =
                 transactionService.updateGrLineV2(companyCode, plantId, languageId, warehouseId,
@@ -1221,7 +1245,7 @@ public class InboundTransactionServiceController {
                                             @RequestParam String languageId, @RequestParam String warehouseId, @RequestParam String preInboundNo,
                                             @RequestParam String refDocNumber, @RequestParam String goodsReceiptNo, @RequestParam String palletCode,
                                             @RequestParam String caseCode, @RequestParam String packBarcodes, @RequestParam String itemCode,
-                                            @RequestParam String loginUserID, @RequestParam String authToken) {
+                                            @RequestParam String loginUserID,  @RequestHeader(value = "AuthToken") String authToken) {
         transactionService.deleteGrLineV2(companyCode, plantId, languageId, warehouseId,
                 preInboundNo, refDocNumber, goodsReceiptNo, palletCode,
                 caseCode, packBarcodes, lineNo, itemCode, loginUserID, authToken);
@@ -1234,7 +1258,7 @@ public class InboundTransactionServiceController {
     public ResponseEntity<?> getPackBarcodeV2(@RequestParam Long acceptQty, @RequestParam Long damageQty,
                                               @RequestParam String warehouseId, @RequestParam String companyCodeId,
                                               @RequestParam String plantId, @RequestParam String languageId,
-                                              @RequestParam String loginUserID, @RequestParam String authToken) {
+                                              @RequestParam String loginUserID,  @RequestHeader(value = "AuthToken") String authToken) {
         PackBarcode[] packBarcodes =
                 transactionService.generatePackBarcodeV2(companyCodeId, plantId, languageId, acceptQty,
                         damageQty, warehouseId, loginUserID, authToken);
@@ -1253,7 +1277,7 @@ public class InboundTransactionServiceController {
                                                 @RequestParam String plantId, @RequestParam String languageId,
                                                 @RequestParam String preInboundNo, @RequestParam String refDocNumber, @RequestParam String goodsReceiptNo,
                                                 @RequestParam String palletCode, @RequestParam String caseCode, @RequestParam String packBarcodes,
-                                                @RequestParam String proposedStorageBin, @RequestParam String authToken) throws java.text.ParseException {
+                                                @RequestParam String proposedStorageBin,  @RequestHeader(value = "AuthToken") String authToken) throws java.text.ParseException {
         PutAwayHeaderV2 dbPutAwayHeader = transactionService.getPutAwayHeaderV2(companyCode, plantId, languageId, warehouseId,
                 preInboundNo, refDocNumber, goodsReceiptNo, palletCode, caseCode, packBarcodes, putAwayNumber, proposedStorageBin, authToken);
         log.info("PutAwayHeader : " + dbPutAwayHeader);
@@ -1264,7 +1288,7 @@ public class InboundTransactionServiceController {
     @ApiOperation(response = PutAwayHeaderV2.class, value = "Get a PutAwayHeader V2") // label for swagger
     @GetMapping("/putawayheader/{refDocNumber}/inboundreversal/asn")
     public ResponseEntity<?> getPutAwayHeaderForASNV2(@RequestParam String companyCode, @RequestParam String plantId,
-                                                      @RequestParam String languageId, @PathVariable String refDocNumber, @RequestParam String authToken) throws java.text.ParseException {
+                                                      @RequestParam String languageId, @PathVariable String refDocNumber,  @RequestHeader(value = "AuthToken") String authToken) throws java.text.ParseException {
         PutAwayHeaderV2[] putawayheader = transactionService.getPutAwayHeaderV2(companyCode, plantId, languageId, refDocNumber, authToken);
         log.info("PutAwayHeader : " + putawayheader);
         return new ResponseEntity<>(putawayheader, HttpStatus.OK);
@@ -1273,7 +1297,7 @@ public class InboundTransactionServiceController {
     //Find
     @ApiOperation(response = PutAwayHeaderV2.class, value = "Search PutAwayHeader V2") // label for swagger
     @PostMapping("/putawayheader/findPutAwayHeader")
-    public PutAwayHeaderV2[] findPutAwayHeaderV2(@RequestBody SearchPutAwayHeaderV2 searchPutAwayHeader, @RequestParam String authToken)
+    public PutAwayHeaderV2[] findPutAwayHeaderV2(@RequestBody SearchPutAwayHeaderV2 searchPutAwayHeader,  @RequestHeader(value = "AuthToken") String authToken)
             throws Exception {
         return transactionService.findPutAwayHeaderV2(searchPutAwayHeader, authToken);
     }
@@ -1282,7 +1306,7 @@ public class InboundTransactionServiceController {
     @ApiOperation(response = PutAwayHeaderV2.class, value = "Create PutAwayHeader V2") // label for swagger
     @PostMapping("/putawayheader")
     public ResponseEntity<?> postPutAwayHeaderV2(@Valid @RequestBody PutAwayHeaderV2 newPutAwayHeader, @RequestParam String loginUserID,
-                                                 @RequestParam String authToken) throws IllegalAccessException, InvocationTargetException {
+                                                  @RequestHeader(value = "AuthToken") String authToken) throws IllegalAccessException, InvocationTargetException {
         PutAwayHeaderV2 createdPutAwayHeader = transactionService.createPutAwayHeaderV2(newPutAwayHeader, loginUserID, authToken);
         return new ResponseEntity<>(createdPutAwayHeader, HttpStatus.OK);
     }
@@ -1295,7 +1319,7 @@ public class InboundTransactionServiceController {
                                                 @RequestParam String preInboundNo, @RequestParam String refDocNumber, @RequestParam String goodsReceiptNo,
                                                 @RequestParam String palletCode, @RequestParam String caseCode, @RequestParam String packBarcodes,
                                                 @RequestParam String proposedStorageBin, @Valid @RequestBody PutAwayHeaderV2 updatePutAwayHeader,
-                                                @RequestParam String loginUserID, @RequestParam String authToken)
+                                                @RequestParam String loginUserID,  @RequestHeader(value = "AuthToken") String authToken)
             throws IllegalAccessException, InvocationTargetException {
         PutAwayHeaderV2 updatedPutAwayHeader =
                 transactionService.updatePutAwayHeaderV2(companyCode, plantId, languageId, warehouseId, preInboundNo,
@@ -1309,7 +1333,7 @@ public class InboundTransactionServiceController {
     @PatchMapping("/putawayheader/{refDocNumber}/reverse")
     public ResponseEntity<?> patchPutAwayHeaderV2(@PathVariable String refDocNumber, @RequestParam String packBarcodes, @RequestParam String warehouseId,
                                                   @RequestParam String companyCode, @RequestParam String plantId, @RequestParam String languageId,
-                                                  @RequestParam String loginUserID, @RequestParam String authToken)
+                                                  @RequestParam String loginUserID,  @RequestHeader(value = "AuthToken") String authToken)
             throws IllegalAccessException, InvocationTargetException {
         transactionService.updatePutAwayHeaderV2(companyCode, plantId, languageId, warehouseId, refDocNumber, packBarcodes, loginUserID, authToken);
         return new ResponseEntity<>(HttpStatus.OK);
@@ -1319,7 +1343,7 @@ public class InboundTransactionServiceController {
     @ApiOperation(response = PutAwayHeaderV2.class, value = "batch PutAwayHeaderV2 Reversal") // label for swagger
     @PatchMapping("/putawayheader/reverse/batch")
     public ResponseEntity<?> batchPutAwayHeaderReversalV2(@RequestBody List<InboundReversalInput> inboundReversalInput,
-                                                          @RequestParam String loginUserID, @RequestParam String authToken) {
+                                                          @RequestParam String loginUserID,  @RequestHeader(value = "AuthToken") String authToken) {
         transactionService.batchPutAwayHeaderReversalV2(inboundReversalInput, loginUserID, authToken);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -1331,7 +1355,7 @@ public class InboundTransactionServiceController {
                                                    @RequestParam String companyCode, @RequestParam String plantId, @RequestParam String languageId,
                                                    @RequestParam String preInboundNo, @RequestParam String refDocNumber, @RequestParam String goodsReceiptNo,
                                                    @RequestParam String palletCode, @RequestParam String caseCode, @RequestParam String packBarcodes,
-                                                   @RequestParam String proposedStorageBin, @RequestParam String loginUserID, @RequestParam String authToken) {
+                                                   @RequestParam String proposedStorageBin, @RequestParam String loginUserID,  @RequestHeader(value = "AuthToken") String authToken) {
         transactionService.deletePutAwayHeaderV2(companyCode, plantId, languageId, warehouseId,
                 preInboundNo, refDocNumber, goodsReceiptNo, palletCode, caseCode, packBarcodes, putAwayNumber,
                 proposedStorageBin, loginUserID, authToken);
@@ -1349,7 +1373,7 @@ public class InboundTransactionServiceController {
                                               @RequestParam String plantId, @RequestParam String languageId, @RequestParam String warehouseId,
                                               @RequestParam String goodsReceiptNo, @RequestParam String preInboundNo, @RequestParam String refDocNumber,
                                               @RequestParam String putAwayNumber, @RequestParam Long lineNo, @RequestParam String itemCode,
-                                              @RequestParam String proposedStorageBin, @RequestParam String authToken) throws java.text.ParseException {
+                                              @RequestParam String proposedStorageBin,  @RequestHeader(value = "AuthToken") String authToken) throws java.text.ParseException {
         PutAwayLineV2 dbPutAwayLine = transactionService.getPutAwayLineV2(companyCode, plantId, languageId, warehouseId,
                 goodsReceiptNo, preInboundNo, refDocNumber, putAwayNumber, lineNo, itemCode,
                 proposedStorageBin, confirmedStorageBin, authToken);
@@ -1361,7 +1385,7 @@ public class InboundTransactionServiceController {
     @ApiOperation(response = PutAwayLineV2.class, value = "Get a PutAwayLine V2") // label for swagger
     @GetMapping("/putawayline/{refDocNumber}/inboundreversal/palletId")
     public ResponseEntity<?> getPutAwayLineForInboundLineV2(@PathVariable String refDocNumber, @RequestParam String companyCode,
-                                                            @RequestParam String plantId, @RequestParam String languageId, @RequestParam String authToken) throws java.text.ParseException {
+                                                            @RequestParam String plantId, @RequestParam String languageId,  @RequestHeader(value = "AuthToken") String authToken) throws java.text.ParseException {
         PutAwayLineV2[] putawayline = transactionService.getPutAwayLineV2(companyCode, plantId, languageId, refDocNumber, authToken);
         log.info("PutAwayLine : " + putawayline);
         return new ResponseEntity<>(putawayline, HttpStatus.OK);
@@ -1371,7 +1395,7 @@ public class InboundTransactionServiceController {
     @ApiOperation(response = PutAwayLineV2.class, value = "Search PutAwayLine V2") // label for swagger
     @PostMapping("/putawayline/findPutAwayLine")
     public PutAwayLineV2[] findPutAwayLineV2(@RequestBody SearchPutAwayLineV2 searchPutAwayLine,
-                                             @RequestParam String authToken) throws Exception {
+                                              @RequestHeader(value = "AuthToken") String authToken) throws Exception {
         return transactionService.findPutAwayLineV2(searchPutAwayLine, authToken);
     }
 
@@ -1379,7 +1403,7 @@ public class InboundTransactionServiceController {
     @ApiOperation(response = PutAwayLineV2.class, value = "Create PutAwayLine V2") // label for swagger
     @PostMapping("/putawayline")
     public ResponseEntity<?> postPutAwayLineV2(@Valid @RequestBody List<PutAwayLineV2> newPutAwayLine, @RequestParam String loginUserID,
-                                               @RequestParam String authToken) throws IllegalAccessException, InvocationTargetException {
+                                                @RequestHeader(value = "AuthToken") String authToken) throws IllegalAccessException, InvocationTargetException {
         PutAwayLineV2[] createdPutAwayLine = transactionService.createPutAwayLineV2(newPutAwayLine, loginUserID, authToken);
         return new ResponseEntity<>(createdPutAwayLine, HttpStatus.OK);
     }
@@ -1392,7 +1416,7 @@ public class InboundTransactionServiceController {
                                                 @RequestParam String goodsReceiptNo, @RequestParam String preInboundNo, @RequestParam String refDocNumber,
                                                 @RequestParam String putAwayNumber, @RequestParam Long lineNo, @RequestParam String itemCode,
                                                 @RequestParam String proposedStorageBin, @Valid @RequestBody PutAwayLineV2 updatePutAwayLine,
-                                                @RequestParam String loginUserID, @RequestParam String authToken)
+                                                @RequestParam String loginUserID,  @RequestHeader(value = "AuthToken") String authToken)
             throws IllegalAccessException, InvocationTargetException {
         PutAwayLineV2 updatedPutAwayLine =
                 transactionService.updatePutAwayLineV2(companyCode, plantId, languageId, warehouseId,
@@ -1410,7 +1434,7 @@ public class InboundTransactionServiceController {
                                                  @RequestParam String preInboundNo, @RequestParam String refDocNumber,
                                                  @RequestParam String putAwayNumber, @RequestParam Long lineNo,
                                                  @RequestParam String itemCode, @RequestParam String proposedStorageBin,
-                                                 @RequestParam String loginUserID, @RequestParam String authToken) {
+                                                 @RequestParam String loginUserID,  @RequestHeader(value = "AuthToken") String authToken) {
         transactionService.deletePutAwayLineV2(companyCode, plantId, languageId, warehouseId,
                 goodsReceiptNo, preInboundNo, refDocNumber, putAwayNumber, lineNo, itemCode, proposedStorageBin,
                 confirmedStorageBin, loginUserID, authToken);
@@ -1421,14 +1445,14 @@ public class InboundTransactionServiceController {
     @ApiOperation(response = InventoryV2.class, value = "Search Inventory V2") // label for swagger
     @PostMapping("/inventory/findInventory")
     public InventoryV2[] findInventoryV2(@RequestBody SearchInventoryV2 searchInventory,
-                                         @RequestParam String authToken) throws Exception {
+                                          @RequestHeader(value = "AuthToken") String authToken) throws Exception {
         return transactionService.findInventoryV2(searchInventory, authToken);
     }
 
     @ApiOperation(response = InventoryV2.class, value = "Create Inventory V2") // label for swagger
     @PostMapping("/inventory")
     public ResponseEntity<?> postInventoryV2(@Valid @RequestBody InventoryV2 newInventory, @RequestParam String loginUserID,
-                                             @RequestParam String authToken) throws IllegalAccessException, InvocationTargetException {
+                                              @RequestHeader(value = "AuthToken") String authToken) throws IllegalAccessException, InvocationTargetException {
         InventoryV2 createdInventory = transactionService.createInventoryV2(newInventory, loginUserID, authToken);
         return new ResponseEntity<>(createdInventory, HttpStatus.OK);
     }
@@ -1439,7 +1463,7 @@ public class InboundTransactionServiceController {
                                               @RequestParam String languageId, @RequestParam String warehouseId, @RequestParam String packBarcodes,
                                               @RequestParam String itemCode, @RequestParam String manufacturerName, @RequestParam String storageBin,
                                               @RequestParam Long specialStockIndicatorId, @RequestParam String loginUserID,
-                                              @RequestParam String authToken, @Valid @RequestBody InventoryV2 updateInventory)
+                                               @RequestHeader(value = "AuthToken") String authToken, @Valid @RequestBody InventoryV2 updateInventory)
             throws IllegalAccessException, InvocationTargetException {
         InventoryV2 updatedInventory =
                 transactionService.updateInventoryV2(companyCodeId, plantId, languageId, warehouseId, packBarcodes, itemCode,
@@ -1452,7 +1476,7 @@ public class InboundTransactionServiceController {
     public ResponseEntity<?> deleteInventoryV2(@PathVariable Long stockTypeId, @RequestParam String companyCodeId, @RequestParam String plantId,
                                                @RequestParam String languageId, @RequestParam String warehouseId, @RequestParam String packBarcodes,
                                                @RequestParam String itemCode, @RequestParam String manufacturerName, @RequestParam String storageBin,
-                                               @RequestParam Long specialStockIndicatorId, @RequestParam String loginUserID, @RequestParam String authToken) {
+                                               @RequestParam Long specialStockIndicatorId, @RequestParam String loginUserID,  @RequestHeader(value = "AuthToken") String authToken) {
         transactionService.deleteInventoryV2(companyCodeId, plantId, languageId, warehouseId, manufacturerName,
                 packBarcodes, itemCode, storageBin, stockTypeId, specialStockIndicatorId, loginUserID, authToken);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -1462,7 +1486,7 @@ public class InboundTransactionServiceController {
 
     @ApiOperation(response = ASNV2.class, value = "Create ASNV2 Order") // label for swagger
     @PostMapping("/warehouse/inbound/asn/v2")
-    public ResponseEntity<?> postASN(@Valid @RequestBody ASNV2 asnv2, @RequestParam String authToken)
+    public ResponseEntity<?> postASN(@Valid @RequestBody ASNV2 asnv2,  @RequestHeader(value = "AuthToken") String authToken)
             throws IllegalAccessException, InvocationTargetException {
         try {
             log.info("Inbound ASN Order ------------------ {} ", asnv2);
@@ -1486,7 +1510,7 @@ public class InboundTransactionServiceController {
 
     @ApiOperation(response = StockReceiptHeader.class, value = "Create StockReceipt Order") // label for swagger
     @PostMapping("/warehouse/inbound/stockReceipt")
-    public ResponseEntity<?> postStockReceipt(@Valid @RequestBody StockReceiptHeader stockReceipt, @RequestParam String authToken)
+    public ResponseEntity<?> postStockReceipt(@Valid @RequestBody StockReceiptHeader stockReceipt,  @RequestHeader(value = "AuthToken") String authToken)
             throws IllegalAccessException, InvocationTargetException {
         WarehouseApiResponse createdStockReceipt = transactionService.postStockReceipt(stockReceipt, authToken);
         return new ResponseEntity<>(createdStockReceipt, HttpStatus.OK);
@@ -1511,6 +1535,10 @@ public class InboundTransactionServiceController {
                 response = fileStorageService.processInboundOrdersV5(companyCodeId, plantId, languageId, warehouseId, inboundOrderTypeId, loginUserID, file);
             } else if (companyCodeId.equals("2000")) {
                 response = fileStorageService.processInboundOrdersV7(companyCodeId, plantId, languageId, warehouseId, inboundOrderTypeId, loginUserID, file);
+            }else if(companyCodeId.equals("5100")){
+                response = fileStorageService.processAsnExcelFileV10(companyCodeId, plantId, languageId, warehouseId,inboundOrderTypeId, loginUserID, file);
+            }else if (companyCodeId.equals("2100")) {
+                response = fileStorageService.processInboundOrdersV9(companyCodeId, plantId, languageId, warehouseId, inboundOrderTypeId, loginUserID, file);
             }
         }
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -1527,7 +1555,7 @@ public class InboundTransactionServiceController {
     // SO ReturnV2
     @ApiOperation(response = SaleOrderReturnV2.class, value = "Sales Order Return V2") // label for swagger
     @PostMapping("/warehouse/inbound/soreturn/v2")
-    public ResponseEntity<?> postSoReturnV2(@RequestBody SaleOrderReturnV2 saleOrderReturnV2, @RequestParam String authToken)
+    public ResponseEntity<?> postSoReturnV2(@RequestBody SaleOrderReturnV2 saleOrderReturnV2,  @RequestHeader(value = "AuthToken") String authToken)
             throws IllegalAccessException, InvocationTargetException {
         log.info("saleOrderReturnV2 input ------> {}", saleOrderReturnV2);
         try {
@@ -1552,7 +1580,7 @@ public class InboundTransactionServiceController {
     // B2b Transfer IN
     @ApiOperation(response = B2bTransferIn.class, value = "B2b Transfer In") // label for swagger
     @PostMapping("/warehouse/inbound/b2bTransferIn")
-    public ResponseEntity<?> postB2bTransferIn(@Valid @RequestBody B2bTransferIn b2bTransferIn, @RequestParam String authToken)
+    public ResponseEntity<?> postB2bTransferIn(@Valid @RequestBody B2bTransferIn b2bTransferIn,  @RequestHeader(value = "AuthToken") String authToken)
             throws IllegalAccessException, InvocationTargetException {
         WarehouseApiResponse createdSO = transactionService.postB2bTransferIn(b2bTransferIn, authToken);
         return new ResponseEntity<>(createdSO, HttpStatus.OK);
@@ -1562,7 +1590,7 @@ public class InboundTransactionServiceController {
     @ApiOperation(response = InterWarehouseTransferInV2.class, value = "InterWarehouse TransferIn V2")
     // label for swagger
     @PostMapping("/warehouse/inbound/interWarehouseTransferIn/v2")
-    public ResponseEntity<?> postInterWarehouseTransferInV2(@Valid @RequestBody InterWarehouseTransferInV2 interWarehouseTransferInV2, @RequestParam String authToken)
+    public ResponseEntity<?> postInterWarehouseTransferInV2(@Valid @RequestBody InterWarehouseTransferInV2 interWarehouseTransferInV2,  @RequestHeader(value = "AuthToken") String authToken)
             throws IllegalAccessException, InvocationTargetException {
         WarehouseApiResponse createdSO = transactionService.postInterWarehouseTransferInV2(interWarehouseTransferInV2, authToken);
         return new ResponseEntity<>(createdSO, HttpStatus.OK);
@@ -1573,7 +1601,7 @@ public class InboundTransactionServiceController {
     // label for swagger
     @PostMapping("/inhousetransferheader/v2")
     public ResponseEntity<?> postInHouseTransferHeaderV2(@Valid @RequestBody InhouseTransferHeader newInHouseTransferHeader, @RequestParam String loginUserID,
-                                                         @RequestParam String authToken) throws IllegalAccessException, InvocationTargetException {
+                                                          @RequestHeader(value = "AuthToken") String authToken) throws IllegalAccessException, InvocationTargetException {
         InhouseTransferHeader createdInHouseTransferHeader = transactionService.createInhouseTransferHeaderV2(newInHouseTransferHeader, loginUserID, authToken);
         return new ResponseEntity<>(createdInHouseTransferHeader, HttpStatus.OK);
     }
@@ -1584,7 +1612,7 @@ public class InboundTransactionServiceController {
     // GET ALL
     @ApiOperation(response = DeliveryHeader.class, value = "Get all DeliveryHeader details") // label for swagger
     @GetMapping("/deliveryheader")
-    public ResponseEntity<?> getAllDeliveryHeader(@RequestParam String authToken) {
+    public ResponseEntity<?> getAllDeliveryHeader( @RequestHeader(value = "AuthToken") String authToken) {
         DeliveryHeader[] deliveryHeaders = transactionService.getAllDeliveryHeader(authToken);
         return new ResponseEntity<>(deliveryHeaders, HttpStatus.OK);
     }
@@ -1594,7 +1622,7 @@ public class InboundTransactionServiceController {
     @GetMapping("/deliveryheader/{deliveryNo}")
     public ResponseEntity<?> getHhtUser(@PathVariable Long deliveryNo, @RequestParam String companyCodeId,
                                         @RequestParam String languageId, @RequestParam String plantId,
-                                        @RequestParam String warehouseId, @RequestParam String authToken) {
+                                        @RequestParam String warehouseId,  @RequestHeader(value = "AuthToken") String authToken) {
         DeliveryHeader dbDeliveryHeader
                 = transactionService.getDeliveryHeader(warehouseId, deliveryNo, companyCodeId, languageId, plantId, authToken);
 
@@ -1606,7 +1634,7 @@ public class InboundTransactionServiceController {
     @ApiOperation(response = DeliveryHeader.class, value = "Create DeliveryHeader") // label for swagger
     @PostMapping("/deliveryheader")
     public ResponseEntity<?> postDeliveryHeader(@Valid @RequestBody AddDeliveryHeader addDeliveryHeader,
-                                                @RequestParam String loginUserID, @RequestParam String authToken)
+                                                @RequestParam String loginUserID,  @RequestHeader(value = "AuthToken") String authToken)
             throws IllegalAccessException, InvocationTargetException {
 
         DeliveryHeader createdDeliveryHeader
@@ -1621,7 +1649,7 @@ public class InboundTransactionServiceController {
                                                  @RequestParam String companyCodeId, @RequestParam String languageId,
                                                  @RequestParam String plantId, @RequestParam String loginUserID,
                                                  @Valid @RequestBody UpdateDeliveryHeader updateDeliveryHeader,
-                                                 @RequestParam String authToken)
+                                                  @RequestHeader(value = "AuthToken") String authToken)
             throws IllegalAccessException, InvocationTargetException {
 
         DeliveryHeader dbDeliveryHeader = transactionService.updateDeliveryHeader(warehouseId, deliveryNo, companyCodeId,
@@ -1635,7 +1663,7 @@ public class InboundTransactionServiceController {
     public ResponseEntity<?> deleteHhtUser(@PathVariable Long deliveryNo, @RequestParam String warehouseId,
                                            @RequestParam String companyCodeId, @RequestParam String plantId,
                                            @RequestParam String languageId, @RequestParam String loginUserID,
-                                           @RequestParam String authToken) {
+                                            @RequestHeader(value = "AuthToken") String authToken) {
 
         transactionService.deleteDeliveryHeader(warehouseId, deliveryNo, companyCodeId,
                 languageId, plantId, loginUserID, authToken);
@@ -1646,7 +1674,7 @@ public class InboundTransactionServiceController {
     @ApiOperation(response = DeliveryHeader[].class, value = "Find DeliveryHeader")//label for swagger
     @PostMapping("/deliveryheader/findDeliveryHeader")
     public DeliveryHeader[] findDeliveryHeader(@RequestBody SearchDeliveryHeader searchDeliveryHeader,
-                                               @RequestParam String authToken) throws Exception {
+                                                @RequestHeader(value = "AuthToken") String authToken) throws Exception {
         return transactionService.findDeliveryHeader(searchDeliveryHeader, authToken);
     }
 
@@ -1658,7 +1686,7 @@ public class InboundTransactionServiceController {
     // GET ALL
     @ApiOperation(response = DeliveryLine.class, value = "Get all DeliveryLine details") // label for swagger
     @GetMapping("/deliveryline")
-    public ResponseEntity<?> getAllDeliveryLine(@RequestParam String authToken) {
+    public ResponseEntity<?> getAllDeliveryLine( @RequestHeader(value = "AuthToken") String authToken) {
         DeliveryLine[] deliveryLines = transactionService.getAllDeliveryLine(authToken);
         return new ResponseEntity<>(deliveryLines, HttpStatus.OK);
     }
@@ -1667,7 +1695,7 @@ public class InboundTransactionServiceController {
     @ApiOperation(response = DeliveryLine.class, value = "Create DeliveryLine") // label for swagger
     @PostMapping("/deliveryline")
     public ResponseEntity<?> postDeliveryLine(@Valid @RequestBody List<AddDeliveryLine> addDeliveryLine,
-                                              @RequestParam String loginUserID, @RequestParam String authToken)
+                                              @RequestParam String loginUserID,  @RequestHeader(value = "AuthToken") String authToken)
             throws IllegalAccessException, InvocationTargetException {
 
         DeliveryLine[] createDeliveryLine = transactionService.createDeliveryLine(addDeliveryLine, loginUserID, authToken);
@@ -1682,7 +1710,7 @@ public class InboundTransactionServiceController {
                                         @RequestParam String invoiceNumber, @RequestParam String refDocNumber,
                                         @RequestParam String languageId, @RequestParam String plantId,
                                         @RequestParam String itemCode, @RequestParam Long lineNumber,
-                                        @RequestParam String warehouseId, @RequestParam String authToken) {
+                                        @RequestParam String warehouseId,  @RequestHeader(value = "AuthToken") String authToken) {
 
         DeliveryLine dbDeliveryLine = transactionService.getDeliveryLine(warehouseId, deliveryNo, itemCode, lineNumber,
                 companyCodeId, languageId, plantId, invoiceNumber, refDocNumber, authToken);
@@ -1694,7 +1722,7 @@ public class InboundTransactionServiceController {
     //PATCH
     @ApiOperation(response = DeliveryLine.class, value = "Update DeliveryLine") // label for swagger
     @RequestMapping(value = "/deliveryline", method = RequestMethod.PATCH)
-    public ResponseEntity<?> patchDeliveryLine(@RequestParam String loginUserID, @RequestParam String authToken,
+    public ResponseEntity<?> patchDeliveryLine(@RequestParam String loginUserID,  @RequestHeader(value = "AuthToken") String authToken,
                                                @Valid @RequestBody List<UpdateDeliveryLine> updateDeliveryLine)
             throws IllegalAccessException, InvocationTargetException {
 
@@ -1710,7 +1738,7 @@ public class InboundTransactionServiceController {
                                                 @RequestParam String languageId, @RequestParam String itemCode,
                                                 @RequestParam Long lineNumber, @RequestParam String invoiceNumber,
                                                 @RequestParam String refDocNumber, @RequestParam String loginUserID,
-                                                @RequestParam String authToken) {
+                                                 @RequestHeader(value = "AuthToken") String authToken) {
 
         transactionService.deleteDeliveryLine(warehouseId, deliveryNo, itemCode, lineNumber, refDocNumber, invoiceNumber,
                 companyCodeId, languageId, plantId, loginUserID, authToken);
@@ -1721,7 +1749,7 @@ public class InboundTransactionServiceController {
     @ApiOperation(response = DeliveryLine[].class, value = "Find DeliveryLine")//label for swagger
     @PostMapping("/deliveryline/findDeliveryLine")
     public DeliveryLine[] findDeliveryLine(@RequestBody SearchDeliveryLine searchDeliveryLine,
-                                           @RequestParam String authToken) throws Exception {
+                                            @RequestHeader(value = "AuthToken") String authToken) throws Exception {
         return transactionService.findDeliveryLine(searchDeliveryLine, authToken);
     }
 
@@ -1730,7 +1758,7 @@ public class InboundTransactionServiceController {
     @GetMapping("/deliveryline/count")
     public ResponseEntity<?> getDeliveryLineCount(@RequestParam String companyCodeId, @RequestParam String languageId,
                                                   @RequestParam String plantId, @RequestParam String warehouseId,
-                                                  @RequestParam String driverId, @RequestParam String authToken) {
+                                                  @RequestParam String driverId,  @RequestHeader(value = "AuthToken") String authToken) {
 
         DeliveryLineCount dbDeliveryLine = transactionService.getDeliveryLineCount(companyCodeId, plantId, languageId, warehouseId, driverId, authToken);
         return new ResponseEntity<>(dbDeliveryLine, HttpStatus.OK);
@@ -1740,13 +1768,13 @@ public class InboundTransactionServiceController {
     @ApiOperation(response = DeliveryLineCount.class, value = "Find DeliveryLineCount")//label for swagger
     @PostMapping("/deliveryline/findDeliveryLineCount")
     public DeliveryLineCount findDeliveryLineCount(@RequestBody FindDeliveryLineCount findDeliveryLineCount,
-                                                   @RequestParam String authToken) throws Exception {
+                                                    @RequestHeader(value = "AuthToken") String authToken) throws Exception {
         return transactionService.findDeliveryLineCount(findDeliveryLineCount, authToken);
     }
 
     @ApiOperation(response = ASN.class, value = "Create ASN Order") // label for swagger
     @PostMapping("/warehouse/inbound/asn")
-    public ResponseEntity<?> postASN(@Valid @RequestBody ASN asn, @RequestParam String authToken)
+    public ResponseEntity<?> postASN(@Valid @RequestBody ASN asn,  @RequestHeader(value = "AuthToken") String authToken)
             throws IllegalAccessException, InvocationTargetException {
         WarehouseApiResponse createdSO = transactionService.postASN(asn, authToken);
         return new ResponseEntity<>(createdSO, HttpStatus.OK);
@@ -1755,7 +1783,7 @@ public class InboundTransactionServiceController {
     //----------------------Orders------------------------------------------------------------------
     @ApiOperation(response = ShipmentOrder.class, value = "Create Shipment Order") // label for swagger
     @PostMapping("/warehouse/outbound/so")
-    public ResponseEntity<?> postShipmenOrder(@Valid @RequestBody ShipmentOrder shipmenOrder, @RequestParam String authToken)
+    public ResponseEntity<?> postShipmenOrder(@Valid @RequestBody ShipmentOrder shipmenOrder,  @RequestHeader(value = "AuthToken") String authToken)
             throws IllegalAccessException, InvocationTargetException {
         WarehouseApiResponse createdSO = transactionService.postSO(shipmenOrder, authToken);
         return new ResponseEntity<>(createdSO, HttpStatus.OK);
@@ -1767,7 +1795,7 @@ public class InboundTransactionServiceController {
     @GetMapping("/reports/receiptConfirmation")
     public ResponseEntity<?> getReceiptConfimationReportNew(@RequestParam String asnNumber, @RequestParam String preInboundNo, @RequestParam String companyCodeId,
                                                             @RequestParam String plantId, @RequestParam String languageId, @RequestParam String warehouseId,
-                                                            @RequestParam String authToken) throws Exception {
+                                                             @RequestHeader(value = "AuthToken") String authToken) throws Exception {
         ReceiptConfimationReport receiptConfimationReport = transactionService.getReceiptConfimationReportV2(asnNumber, preInboundNo, companyCodeId, plantId, languageId, warehouseId, authToken);
         return new ResponseEntity<>(receiptConfimationReport, HttpStatus.OK);
     }
@@ -1776,7 +1804,7 @@ public class InboundTransactionServiceController {
     @ApiOperation(response = PreInboundLineOutputV2.class, value = "Search PreInboundLine v2") // label for swagger
     @PostMapping("/preinboundline/findPreInboundLine")
     public PreInboundLineOutputV2[] findPreInboundLineV2(@RequestBody SearchPreInboundLineV2 searchPreInboundLine,
-                                                         @RequestParam String authToken) throws Exception {
+                                                          @RequestHeader(value = "AuthToken") String authToken) throws Exception {
         return transactionService.findPreInboundLineV2(searchPreInboundLine, authToken);
     }
 
@@ -1786,14 +1814,23 @@ public class InboundTransactionServiceController {
     @ApiOperation(response = GrLineV2.class, value = "Create GrLine V2") // label for swagger
     @PostMapping("/crossdock/grline")
     public ResponseEntity<?> postCrossDockGrLineV2(@Valid @RequestBody CrossDockGrLineOrderManagementLine crossDockGrLineOrderManagementLine, @RequestParam String loginUserID,
-                                                   @RequestParam String authToken) throws IllegalAccessException, InvocationTargetException {
+                                                   @RequestHeader(value = "AuthToken") String authToken) throws IllegalAccessException, InvocationTargetException {
         CrossDockEntity crossDockEntity = transactionService.crossDockGrLineConfirm(crossDockGrLineOrderManagementLine, authToken, loginUserID);
         return new ResponseEntity<>(crossDockEntity, HttpStatus.OK);
     }
 
+    //Create
+    @ApiOperation(response = CrossDockResponseV9.class, value = "Create GrLine V2") // label for swagger
+    @PostMapping("/v9/crossDock")
+    public ResponseEntity<?> postCrossDockStagingLine(@Valid @RequestBody CrossDockInputV9 crossDockInputV9, @RequestParam String loginUserID,
+                                                      @RequestHeader(value = "AuthToken") String authToken) throws IllegalAccessException, InvocationTargetException {
+        CrossDockResponseV9 crossDockResponse = transactionService.crossDockStagingLine(crossDockInputV9, authToken, loginUserID);
+        return new ResponseEntity<>(crossDockResponse, HttpStatus.OK);
+    }
+
     @ApiOperation(response = PutAwayLineV2.class, value = "Find Cross-Dock")
     @PostMapping("/find/cross-dock")
-    public ResponseEntity<?> findCrossDock(@RequestBody MultiDbInput input, @RequestParam String authToken) {
+    public ResponseEntity<?> findCrossDock(@RequestBody MultiDbInput input,  @RequestHeader(value = "AuthToken") String authToken) {
         CrossDock crossDock = transactionService.findCrossDock(input, authToken);
         return new ResponseEntity<>(crossDock, HttpStatus.OK);
     }
@@ -1801,14 +1838,14 @@ public class InboundTransactionServiceController {
 //    @ApiOperation(response = PeriodicHeaderEntityV2[].class, value = "Search PeriodicHeader V2") // label for swagger
 //    @PostMapping("/periodicheader/v2/findPeriodicHeaderWithLines")
 //    public PeriodicHeaderEntityV2[] findPeriodicHeaderEntityV2(@RequestBody SearchPeriodicHeader searchPeriodicHeader,
-//                                                               @RequestParam String authToken) throws Exception {
+//                                                                @RequestHeader(value = "AuthToken") String authToken) throws Exception {
 //        return transactionService.findPeriodicHeaderEntityV2(searchPeriodicHeader, authToken);
 //    }
 
 
 //    @ApiOperation(response = ASNV2.class, value = "Create ASNV2 Order") // label for swagger
 //    @PostMapping("/warehouse/inbound/asn/v4")
-//    public ResponseEntity<?> postASN_V4(@Valid @RequestBody ASNV2 asnv2, @RequestParam String authToken)
+//    public ResponseEntity<?> postASN_V4(@Valid @RequestBody ASNV2 asnv2,  @RequestHeader(value = "AuthToken") String authToken)
 //            throws IllegalAccessException, InvocationTargetException {
 //        try {
 //            WarehouseApiResponse createdSO  = transactionService.postASNV4(asnv2, authToken);
@@ -1836,7 +1873,7 @@ public class InboundTransactionServiceController {
     // label for swagger
     @PostMapping("/dashBoard/storageBinDashboard")
     public StorageBinDashBoardImpl[] getStorageBinDashBoard(@RequestBody StorageBinDashBoardInput storageBinDashBoardInput,
-                                                            @RequestParam String authToken) throws Exception {
+                                                             @RequestHeader(value = "AuthToken") String authToken) throws Exception {
         return transactionService.getStorageBinDashBoard(storageBinDashBoardInput, authToken);
     }
 
@@ -1857,7 +1894,7 @@ public class InboundTransactionServiceController {
     // label for swagger
     @PostMapping("/inboundheader/findInboundHeaderWithLines/v2")
     public InboundHeaderEntityV2[] findInboundHeaderWithLinesV2(@RequestBody SearchInboundHeaderV2 searchInboundHeader,
-                                                                @RequestParam String authToken) throws Exception {
+                                                                 @RequestHeader(value = "AuthToken") String authToken) throws Exception {
         return transactionService.findInboundHeaderWithLinesV2(searchInboundHeader, authToken);
     }
 
@@ -1868,15 +1905,34 @@ public class InboundTransactionServiceController {
     @PatchMapping("/reports/inboundReversal")
     public ResponseEntity<?> inboundReversal(@RequestParam String companyCodeId, @RequestParam String plantId,
                                              @RequestParam String warehouseId, @RequestParam String refDocNumber,
-                                             @RequestParam String preInboundNo, @RequestParam String authToken) {
+                                             @RequestParam String preInboundNo,  @RequestHeader(value = "AuthToken") String authToken) {
         WarehouseApiResponse response = transactionService.inboundReversal(companyCodeId, plantId, warehouseId, refDocNumber, preInboundNo, authToken);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    //---------------------------------------------Inbound Reversal BF------------------------------------------------------------
+    //Update
+    @ApiOperation(response = PutAwayLineV2.class, value = "Inbound Reversal") // label for swagger
+    @PatchMapping("/reports/inboundReversal/V9")
+    public ResponseEntity<?> inboundReversalV9(@RequestParam String companyCodeId, @RequestParam String plantId,
+                                               @RequestParam String warehouseId, @RequestParam String refDocNumber, @RequestParam String preInboundNo, @RequestHeader(value = "AuthToken") String authToken) {
+        WarehouseApiResponse response = transactionService.inboundReversalV9(companyCodeId, plantId, warehouseId, refDocNumber, preInboundNo, authToken);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    //---------------------------------------------Inbound Cancellation------------------------------------------------------------
+    @ApiOperation(response = PutAwayLineV2.class, value = "Inbound Cancellation") // label for swagger
+    @GetMapping("/reports/inboundCancellation/V9")
+    public ResponseEntity<?> inboundCancellation(@RequestParam String companyCodeId, @RequestParam String plantId,
+                                                 @RequestParam String warehouseId, @RequestParam String refDocNumber, @RequestParam String preInboundNo, @RequestHeader(value = "AuthToken") String authToken) {
+        WarehouseApiResponse response = transactionService.inboundCancellationV9(companyCodeId, plantId, warehouseId, refDocNumber, preInboundNo, authToken);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     //=========================================Update=====================================================================
     @ApiOperation(response = InboundOrder.class, value = "Update InboundOrder details")
     @PatchMapping("/orders/update/inboundOrder")
-    public ResponseEntity<?> updateInboundOrder(@RequestParam String orderId, @RequestBody UpdateInboundOrder updateInboundOrder, @RequestParam String authToken) throws Exception {
+    public ResponseEntity<?> updateInboundOrder(@RequestParam String orderId, @RequestBody UpdateInboundOrder updateInboundOrder,  @RequestHeader(value = "AuthToken") String authToken) throws Exception {
         InboundOrder inboundOrder = transactionService.updateInboundOrder(orderId, updateInboundOrder, authToken);
         return new ResponseEntity<>(inboundOrder, HttpStatus.OK);
     }
@@ -1885,7 +1941,7 @@ public class InboundTransactionServiceController {
 
     @ApiOperation(response = InboundOrder.class, value = " Delete InboundOrder details")
     @DeleteMapping("/orders/delete/inboundOrder")
-    public ResponseEntity<?> deleteInboundOrder(@RequestParam String orderId, @RequestParam String authToken) throws Exception {
+    public ResponseEntity<?> deleteInboundOrder(@RequestParam String orderId,  @RequestHeader(value = "AuthToken") String authToken) throws Exception {
         transactionService.deleteInboundOrder(orderId, authToken);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
@@ -1895,9 +1951,203 @@ public class InboundTransactionServiceController {
     @ApiOperation(response = InventoryGroupByBinItm.class, value = "Get Inventory by Item and Bin") // label for swagger
     @PostMapping("/inventory/groupByBinItem/v7")
     public InventoryGroupByBinItm[] getInventoryByBinItemGroupByV7(@RequestBody InventoryBinItmGroupInput inventoryBinItmGroupInput,
-                                                                   @RequestParam String authToken) throws Exception {
+                                                                    @RequestHeader(value = "AuthToken") String authToken) throws Exception {
         return transactionService.getInventoryByBinItemGroupByV7(inventoryBinItmGroupInput, authToken);
     }
 
+    //=====================================================File-Update-Upload==========================================
+    // File Upload - Update
+    @ApiOperation(response = Inventory.class, value = "Update Upload File") // label for swagger
+    @PostMapping("/update/Upload/file")
+    public ResponseEntity<?> fileUpdateUpload(@RequestParam String companyCodeId, @RequestParam String plantId,
+                                              @RequestParam String languageId, @RequestParam String warehouseId,
+                                              @RequestParam String loginUserID, @RequestParam("file") MultipartFile file, @RequestHeader(value="AuthToken") String authToken) throws Exception {
+        Map<String, String> response = fileStorageService.fileUpdateUpload(companyCodeId, plantId, languageId, warehouseId, loginUserID, file,authToken);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 
+    //----------SPAREX-----Inbound Cancel And Reprocess---------------------------
+    @ApiOperation(response = InboundOrder.class, value = "Inbound Cancel And Reprocess") // label for swagger
+    @PostMapping("/order/inboundCancellation/V10")
+    public ResponseEntity<?> inboundCancellation(@RequestBody List<InboundCancellation> inboundCancellation, @RequestHeader(value="AuthToken") String authToken){
+        WarehouseApiResponse response = transactionService.inboundCancellationV10(inboundCancellation,authToken);
+        return new ResponseEntity<>(response,HttpStatus.OK);
+    }
+
+    //----------SPAREX-----B2b Transfer IN---------------------------------------------
+    @ApiOperation(response = B2bTransferIn.class, value = "B2b Transfer In") // label for swagger
+    @PostMapping("/inbound/b2bTransferIn/v10")
+    public ResponseEntity<?> postB2bTransferInV10(@Valid @RequestBody B2bTransferIn b2bTransferIn, @RequestHeader(value = "AuthToken") String authToken)
+            throws IllegalAccessException, InvocationTargetException {
+        WarehouseApiResponse createdSO = transactionService.postB2bTransferInV10(b2bTransferIn, authToken);
+        return new ResponseEntity<>(createdSO, HttpStatus.OK);
+    }
+
+    //===========SPAREX  InhouseTransferHeader============================================
+    @ApiOperation(response = InhouseTransferHeader.class, value = "Create InHouseTransferHeader V10")// label for swagger
+    @PostMapping("/inhousetransferheader/v10")
+    public ResponseEntity<?> postInHouseTransferHeaderV10(@Valid @RequestBody InhouseTransferHeader newInHouseTransferHeader, @RequestParam String loginUserID,
+                                                          @RequestHeader(value = "AuthToken") String authToken) throws IllegalAccessException, InvocationTargetException {
+        InhouseTransferHeader createdInHouseTransferHeader = transactionService.createInhouseTransferHeaderV10(newInHouseTransferHeader, loginUserID, authToken);
+        return new ResponseEntity<>(createdInHouseTransferHeader, HttpStatus.OK);
+    }
+
+    //===========SPAREX  Replenishment============================================
+    @ApiOperation(response = InhouseTransferHeader.class, value = "Create Replenishment V10")// label for swagger
+    @PostMapping("/replenishment/v10")
+    public ResponseEntity<?> postReplenishmentV10(@Valid @RequestBody InhouseTransferHeader newInHouseTransferHeader, @RequestParam String loginUserID,
+                                                  @RequestHeader(value = "AuthToken") String authToken) throws IllegalAccessException, InvocationTargetException {
+        InhouseTransferHeader createdInHouseTransferHeader = transactionService.createReplenishmentV10(newInHouseTransferHeader, loginUserID, authToken);
+        return new ResponseEntity<>(createdInHouseTransferHeader, HttpStatus.OK);
+    }
+
+    // Pdf Upload - Orders V10
+    @ApiOperation(response = ASNV2.class, value = "ASN V10 Pdf Upload") // label for swagger
+    @PostMapping("/inbound/pdf/upload/v10")
+    public ResponseEntity<?> posInboundUploadV10(@RequestParam String companyCodeId, @RequestParam String plantId,
+                                                 @RequestParam String languageId, @RequestParam String warehouseId,
+                                                 @RequestParam String loginUserID, @RequestParam Long inboundOrderTypeId,
+                                                 @RequestParam("file") MultipartFile file) throws Exception {
+        Map<String, String> response = null;
+        String profile = companyCodeId;
+        log.info("Inbound Upload In {}", profile);
+
+        response = fileStorageService.processAsnPdfFileV10(companyCodeId, plantId, languageId, warehouseId,inboundOrderTypeId, loginUserID, file);
+
+        if (response.containsKey("errors")) {
+            String res = response.getOrDefault("errors", response.get("errors"));
+            return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
+        } else {
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
+    }
+
+    @ApiOperation(response = PreInboundLineV2.class, value = "Create PreInboundLineV2") // label for swagger
+    @PostMapping("/create/preInboundLine")
+    public ResponseEntity<?> postPreInboundLineV2(@Valid @RequestBody List<PreInboundLineV2> preInboundLineV2s, @RequestParam String loginUserID,
+                                                  @RequestHeader(value = "AuthToken") String authToken) throws IllegalAccessException, InvocationTargetException {
+        PreInboundLineV2[] createdpreInboundLine = transactionService.createPreInboundLine(preInboundLineV2s, loginUserID, authToken);
+        return new ResponseEntity<>(createdpreInboundLine, HttpStatus.OK);
+    }
+
+    //========================================Inventory Upload====================================
+    @ApiOperation(response = EMailDetails.class, value = "Inventory Upload") // label for swagger
+    @PostMapping("/upload/inventory")
+    public ResponseEntity<?> postInventory(@RequestParam String companyCodeId, @RequestParam String plantId,
+                                           @RequestParam String languageID, @RequestParam String warehouseId,
+                                           @RequestParam String loginUserID, @RequestParam("file") MultipartFile file) throws Exception {
+
+        Map<String, String> response = null;
+        String profile = companyCodeId;
+        log.info("Inventory Upload In {}", profile);
+        if (profile != null) {
+            if (companyCodeId.equals("RPPL")) {
+                response = fileStorageService.processInventoryBP(companyCodeId, plantId, languageID, warehouseId, loginUserID, file);
+            } else if (companyCodeId.equals("5100")) {
+                response = fileStorageService.processInventorySPAREX(companyCodeId, plantId, languageID, warehouseId, loginUserID, file);
+            } else {
+                response = fileStorageService.processInventory(companyCodeId, plantId, languageID, warehouseId, loginUserID, file);
+            }
+        }
+        if (response.containsKey("errors")) {
+            String res = response.getOrDefault("errors", response.get("errors"));
+            return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
+        } else {
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
+    }
+
+    @ApiOperation(response = InventoryV2.class, value = "Inventory Rewinding") // label for swagger
+    @PostMapping("/inventory/rewinding")
+    public ResponseEntity<?> postInventoryRewinding(@Valid @RequestBody RewindingInput rewindingInput, @RequestParam String loginUserID,
+                                                    @RequestHeader(value = "AuthToken") String authToken) throws IllegalAccessException, InvocationTargetException, ParseException {
+        InventoryV2 rewindingInventory = transactionService.createInventoryRewind(rewindingInput, loginUserID, authToken);
+        return new ResponseEntity<>(rewindingInventory, HttpStatus.OK);
+    }
+
+    @ApiOperation(response = ASNV9.class, value = "Create ASN Order") // label for swagger
+    @PostMapping("/warehouse/inbound/asn/V9")
+    public ResponseEntity<?> postASNV9(@Valid @RequestBody List<ASNV9> asn, @RequestHeader(value = "AuthToken") String authToken)
+            throws IllegalAccessException, InvocationTargetException {
+        WarehouseApiResponse[] createdASN = transactionService.postASNV9(asn, authToken);
+        return new ResponseEntity<>(createdASN, HttpStatus.OK);
+    }
+
+    //========================================BF OrderProcess======================================================
+    @ApiOperation(response = InboundHeaderEntityV2.class, value = "Create inbound") // label for swagger
+    @PostMapping("/bf/order/process/v9")
+    public ResponseEntity<?> processInboundOrderV9(@RequestBody List<PreInboundLineV2> preInboundLine,
+                                                   @RequestHeader(value = "AuthToken") String authToken) {
+        WarehouseApiResponse[] response = transactionService.processInboundOrderV9(preInboundLine);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    //====================================BF Transfer IN=====================================
+    @ApiOperation(response = InterWarehouseTransferInV2.class, value = "InterWarehouse TransferIn V2")
+    @PostMapping("/warehouse/inbound/interWarehouseTransferIn/v9")
+    public ResponseEntity<?> postInterWarehouseTransferInV9(@Valid @RequestBody InterWarehouseTransferInV2 interWarehouseTransferInV2, @RequestHeader(value = "AuthToken") String authToken)
+            throws IllegalAccessException, InvocationTargetException {
+        WarehouseApiResponse createdSO = transactionService.postInterWarehouseTransferInV9(interWarehouseTransferInV2, authToken);
+        return new ResponseEntity<>(createdSO, HttpStatus.OK);
+    }
+
+    //V2
+    @ApiOperation(response = InventoryV2.class, value = "Search Inventory V9") // label for swagger
+    @PostMapping("/inventory/findInventory/v9")
+    public InventoryV2[] findInventoryV9(@RequestBody FindInventoryV9 searchInventory,
+                                         @RequestHeader(value="AuthToken") String authToken) throws Exception {
+        AuthToken authTokenForInboundTransaction = authTokenService.getInboundTransactionServiceAuthToken();
+        return transactionService.findInventoryV9(searchInventory, authTokenForInboundTransaction.getAccess_token());
+    }
+
+    //========================================BF Receipt Confirmation For GRLine=====================================================
+
+
+    @ApiOperation(response = ReceiptConfimationReport.class, value = "Get ReceiptConfimation ReportV9")
+    // label for swagger
+    @GetMapping("/reports/receiptConfirmationGrLine/v9")
+    public ResponseEntity<?> getReceiptConfimationReportGrLineV9New(@RequestParam String asnNumber, @RequestParam String preInboundNo, @RequestParam String companyCodeId,
+                                                                    @RequestParam String plantId, @RequestParam String languageId, @RequestParam String warehouseId,
+                                                                    @RequestHeader(value = "AuthToken") String authToken) throws Exception {
+        ReceiptConfimationReport receiptConfimationReport = transactionService.getReceiptConfimationReportGrLineV9(asnNumber, preInboundNo, companyCodeId, plantId, languageId, warehouseId, authToken);
+        return new ResponseEntity<>(receiptConfimationReport, HttpStatus.OK);
+    }
+    //-------------------------------------------------ErrorLog--------------------------------------
+
+    @ApiOperation(response = ErrorLog.class, value = "Find ErrorLog")
+    @PostMapping("/errorlog/find")
+    public ResponseEntity<?> findErrorLog(@RequestBody FindErrorLog findErrorLog, @RequestHeader(value = "AuthToken") String authToken) throws Exception {
+        ErrorLog[] errorlog = transactionService.findErrorlog(findErrorLog, authToken);
+        return new ResponseEntity<>(errorlog, HttpStatus.OK);
+    }
+
+    @ApiOperation(response = InboundOrderMobileApp.class, value = "New InboundOrder MobileApp")
+    @PostMapping("inboundOrder/mobileApp")
+    public ResponseEntity<?> postInboundOrderMobileApp(@RequestBody InboundOrderMobileApp inboundOrderMobileApp, @RequestHeader(value = "AuthToken") String authToken) {
+        log.info("Mobile App Inputs --------------------------> " + inboundOrderMobileApp);
+        InboundOrderMobileApp mobileApp1 = transactionService.postInboundOrderMobileApp(inboundOrderMobileApp, authToken);
+        return new ResponseEntity<>(mobileApp1, HttpStatus.OK);
+    }
+    //========================================BF Pallet Report=====================================================
+    @ApiOperation(response = PalletReportResponse[].class, value = "Pallet Report")    // label for swagger
+    @PostMapping("/pallet/report")
+    public ResponseEntity<?> findPalletReport(@RequestBody PalletReportInput findPalletReport, @RequestHeader(value="AuthToken") String authToken) throws Exception {
+        PalletReportResponse[] palletReports = transactionService.findPalletReport(findPalletReport, authToken);
+        return new ResponseEntity<>(palletReports, HttpStatus.OK);
+    }
+
+    //========================================BF Pallet Report=====================================================
+    @ApiOperation(response = InventoryOwner.class, value = "Merging Pallet Report")    // label for swagger
+    @PostMapping("/merging/report")
+    public ResponseEntity<?> findMergingPalletReport(@RequestBody MergingPelletReportInput findPalletReport, @RequestHeader(value="AuthToken") String authToken) throws Exception {
+        InventoryOwner[] mergingPalletReport = transactionService.findMergingPalletReport(findPalletReport, authToken);
+        return new ResponseEntity<>(mergingPalletReport, HttpStatus.OK);
+    }
+
+    @ApiOperation(response = InventoryV2.class, value = "Search Inventory Like Bin") // label for swagger
+    @PostMapping("/findInventory/like/bin")
+    public InventoryV2[] findInventoryLikeBin(@RequestBody SearchInventoryV2 searchInventory,
+                                              @RequestHeader(value="AuthToken") String authToken) throws Exception {
+        return transactionService.findInventoryLikeBin(searchInventory, authToken);
+    }
 }

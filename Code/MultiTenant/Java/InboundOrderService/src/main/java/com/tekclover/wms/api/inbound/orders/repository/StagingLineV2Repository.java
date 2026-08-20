@@ -5,6 +5,7 @@ import com.tekclover.wms.api.inbound.orders.model.inbound.staging.v2.StagingLine
 import com.tekclover.wms.api.inbound.orders.repository.fragments.StreamableJpaSpecificationRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.data.repository.query.Param;
@@ -407,6 +408,30 @@ public interface StagingLineV2Repository extends JpaRepository<StagingLineEntity
                                          @Param(value = "languageId") String languageId,
                                          @Param(value = "warehouseId") String warehouseId,
                                          @Param(value = "itemTypeId") Long itemTypeId);
+
+    @Modifying
+    @Query(value = "UPDATE TH SET TH.INV_QTY = IQ.invQty FROM tblstagingline TH \n" +
+            "INNER JOIN (SELECT ti.ITM_CODE, ti.MFR_NAME, ti.C_ID, ti.PLANT_ID, \n " +
+            "ti.LANG_ID, ti.WH_ID, SUM(ti.REF_FIELD_4) AS invQty FROM tblinventory ti \n " +
+            "INNER JOIN (SELECT MAX(INV_ID) AS inventoryId,ITM_CODE, MFR_NAME, ST_BIN, \n " +
+            "C_ID, PLANT_ID, LANG_ID, WH_ID FROM tblinventory \n " +
+            "WHERE IS_DELETED = 0 AND BIN_CL_ID IN (1,7) \n " +
+            "GROUP BY ITM_CODE, MFR_NAME, ST_BIN, C_ID, PLANT_ID, LANG_ID, WH_ID) lt \n " +
+            "ON ti.INV_ID = lt.inventoryId \n " +
+            "GROUP BY ti.ITM_CODE, ti.MFR_NAME, ti.C_ID, ti.PLANT_ID, ti.LANG_ID, ti.WH_ID) IQ \n " +
+            "ON IQ.ITM_CODE = TH.ITM_CODE AND IQ.MFR_NAME = TH.MFR_NAME \n " +
+            "AND IQ.C_ID = TH.C_ID AND IQ.PLANT_ID = TH.PLANT_ID \n " +
+            "AND IQ.LANG_ID = TH.LANG_ID AND IQ.WH_ID = TH.WH_ID \n " +
+            "WHERE  TH.C_ID = :companyCodeId AND TH.PLANT_ID = :plantId \n " +
+            "AND TH.LANG_ID = :languageId  AND TH.WH_ID = :warehouseId \n " +
+            "AND TH.REF_DOC_NO = :refDocNumber  AND TH.PRE_IB_NO = :preInboundNo", nativeQuery = true )
+    public void updateStagingLineInvQtyUpdateV10(
+            @Param("companyCodeId") String companyCodeId,
+            @Param("plantId") String plantId,
+            @Param("languageId") String languageId,
+            @Param("warehouseId") String warehouseId,
+            @Param("refDocNumber") String refDocNumber,
+            @Param("preInboundNo") String preInboundNo);
 
     @Query(value = "select tc.imt_grp from \n" +
             "tblitemgroupid tc\n" +

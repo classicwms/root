@@ -55,6 +55,12 @@ public class OutboundOrderV2 {
     private Date orderProcessedOn;
     private Long processedStatusId;			// processed_status_id
     private Long outboundOrderTypeID;
+    // Order_Processing
+    private Long preOutboundHeader = 0L;
+    private Long outboundHeader = 0L;
+    private Long orderManagementHeader = 0L;
+    private Long pickupHeader = 0L;
+    private String orderText;
     private Set<OutboundOrderLineV2> line;
     private String transferOrderNumber;
     private Date transferOrderDate;

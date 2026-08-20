@@ -178,4 +178,100 @@ public interface GrHeaderV2Repository extends JpaRepository<GrHeaderV2, Long>, J
                                 @Param("refDocNo") String refDocNo,
                                 @Param("statusId") Long statusId,
                                 @Param("statusText") String statusText);
+
+    @Modifying
+    @Query(value = "UPDATE tblgrheader " +
+            "SET STATUS_ID = :statusId, STATUS_TEXT = :statusDescription, GR_CNF_ON = :updatedOn " +
+            "WHERE IS_DELETED = 0 AND C_ID = :companyCodeId AND PLANT_ID = :plantId AND LANG_ID = :languageId " +
+            "AND WH_ID = :warehouseId AND REF_DOC_NO = :refDocNumber AND PRE_IB_NO = :preInboundNo  and GR_NO = :goodsReceiptNo ", nativeQuery = true)
+    void updateGrHeaderV10(
+            @Param("companyCodeId") String companyCodeId,
+            @Param("plantId") String plantId,
+            @Param("languageId") String languageId,
+            @Param("warehouseId") String warehouseId,
+            @Param("refDocNumber") String refDocNumber,
+            @Param("preInboundNo") String preInboundNo,
+            @Param("goodsReceiptNo") String goodsReceiptNo,
+            @Param("statusId") Long statusId,
+            @Param("statusDescription") String statusDescription,
+            @Param("updatedOn") Date updatedOn);
+
+    @Modifying
+    @Query(value = "UPDATE tblstagingline " +
+            "SET STATUS_ID = :statusId, STATUS_TEXT = :statusDescription,  ST_CNF_ON = :updatedOn " +
+            "WHERE IS_DELETED = 0 AND C_ID = :companyCodeId AND PLANT_ID = :plantId AND LANG_ID = :languageId " +
+            "AND WH_ID = :warehouseId AND REF_DOC_NO = :refDocNumber AND PRE_IB_NO = :preInboundNo ", nativeQuery = true)
+    void updateStagingLineV10(
+            @Param("companyCodeId") String companyCodeId,
+            @Param("plantId") String plantId,
+            @Param("languageId") String languageId,
+            @Param("warehouseId") String warehouseId,
+            @Param("refDocNumber") String refDocNumber,
+            @Param("preInboundNo") String preInboundNo,
+            @Param("statusId") Long statusId,
+            @Param("statusDescription") String statusDescription,
+            @Param("updatedOn") Date updatedOn);
+
+    @Modifying
+    @Query(value = "UPDATE tblinboundline " +
+            "SET STATUS_ID = :statusId, STATUS_TEXT = :statusDescription, IB_CNF_ON = :updatedOn " +
+            "WHERE IS_DELETED = 0 AND C_ID = :companyCodeId AND PLANT_ID = :plantId AND LANG_ID = :languageId " +
+            "AND WH_ID = :warehouseId AND REF_DOC_NO = :refDocNumber AND PRE_IB_NO = :preInboundNo ", nativeQuery = true)
+    void updateInboundLineV10(
+            @Param("companyCodeId") String companyCodeId,
+            @Param("plantId") String plantId,
+            @Param("languageId") String languageId,
+            @Param("warehouseId") String warehouseId,
+            @Param("refDocNumber") String refDocNumber,
+            @Param("preInboundNo") String preInboundNo,
+            @Param("statusId") Long statusId,
+            @Param("statusDescription") String statusDescription,
+            @Param("updatedOn") Date updatedOn);
+
+    @Modifying(clearAutomatically = true)
+    @Query(value = "UPDATE tblgrheader \r\n"
+            + "	SET STATUS_ID = :statusId, STATUS_TEXT = :statusDescription, \r\n"
+            + "	GR_CNF_BY = :updatedBy, GR_CNF_ON = :updatedOn\r\n"
+            + "	WHERE IS_DELETED = 0 AND \r\n"
+            + "			C_ID = :companyCodeId AND PLANT_ID = :plantId AND LANG_ID = :languageId AND WH_ID = :warehouseId AND \r\n"
+            + "			REF_DOC_NO = :refDocNumber AND PRE_IB_NO = :preInboundNo", nativeQuery = true)
+    void updateGRHeaderStatusOnPartialConfirmationV10(
+            @Param("companyCodeId") String companyCode,
+            @Param("plantId") String plantId,
+            @Param("languageId") String languageId,
+            @Param("warehouseId") String warehouseId,
+            @Param("refDocNumber") String refDocNumber,
+            @Param("preInboundNo") String preInboundNo,
+            @Param("statusId") Long statusId,
+            @Param("statusDescription") String statusDescription,
+            @Param("updatedBy") String updatedBy,
+            @Param("updatedOn") Date updatedOn);
+
+    void deleteByCompanyCodeAndPlantIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
+            String companyCode, String plantId, String warehouseId, String refDocNumber, String preInboundNo, Long deletionIndicator);
+
+
+    @Modifying
+    @Query(value = "UPDATE tblgrheader \n" +
+            "SET status_id = :statusId, status_text = :statusText \n" +
+            "WHERE ref_doc_no = :refDocNo and c_id = :companyId and plant_id = :plantId and lang_id = :languageId and wh_id = :warehouseId and is_deleted = 0 \n" +
+            "AND (select sum(gr_qty) from tblgrline where REF_DOC_NO = :refDocNo and is_deleted = 0) = (select sum(ord_qty) from tblstagingline where REF_DOC_NO = :refDocNo and is_deleted = 0)", nativeQuery = true)
+    int updateGrHeaderStatusV9(@Param("companyId") String companyId,
+                               @Param("plantId") String plantId,
+                               @Param("languageId") String languageId,
+                               @Param("warehouseId") String warehouseId,
+                               @Param("refDocNo") String refDocNo,
+                               @Param("statusId") Long statusId,
+                               @Param("statusText") String statusText);
+
+
+    @Query(value = "SELECT GR_NO FROM tblgrheader WHERE LANG_ID = :languageId AND C_ID = :companyCode AND PLANT_ID = :plantId AND WH_ID = :warehouseId \r\n"
+            + "AND PRE_IB_NO = :preInboundNo AND REF_DOC_NO = :refDocNumber AND IS_DELETED = 0", nativeQuery = true)
+    String getGrNo(@Param("companyCode") String companyCode,
+                   @Param("plantId") String plantId,
+                   @Param("warehouseId") String warehouseId,
+                   @Param("preInboundNo") String preInboundNo,
+                   @Param("refDocNumber") String refDocNumber,
+                   @Param("languageId") String languageId);
+
 }

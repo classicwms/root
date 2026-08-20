@@ -23,6 +23,13 @@ public class BaseService {
     protected static final String LANG_ID = "EN";
     protected static final String MFR_NAME = "NAMRATHA";
     protected static final String MFR_NAME_V5 = "REEFERON";
+    protected static final String MFR_NAME_V10 = "SPAREX";
+    protected static final String MFR_NAME_V9 = "BF";
+    protected static final String MFR_NAME_V11 = "KKF";
+    protected static final String MFR_NAME_V12 = "KSP";
+
+    protected String MW_BFS = "BF";
+
     protected static final String ACTIVE = "Active";
     protected static final String IN_ACTIVE = "InActive";
     protected String stockTypeDesc = null;

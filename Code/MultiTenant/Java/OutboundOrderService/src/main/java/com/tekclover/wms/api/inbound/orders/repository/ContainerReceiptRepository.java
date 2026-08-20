@@ -10,6 +10,8 @@ import com.tekclover.wms.api.inbound.orders.model.inbound.containerreceipt.Conta
 import com.tekclover.wms.api.inbound.orders.repository.fragments.StreamableJpaSpecificationRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -44,4 +46,9 @@ public interface ContainerReceiptRepository extends JpaRepository<ContainerRecei
 	public Optional<ContainerReceipt> findByContainerReceiptNoAndDeletionIndicator(String containerReceiptNo, Long deletionIndicator);
 
 	long countByWarehouseIdAndContainerReceivedDateBetweenAndRefDocNumberIsNull(String warehouseId, Date fromDate, Date toDate);
+
+	@Query(value = "SELECT REF_FIELD_2 from tblimbasicdata1 where ITM_CODE = :itemCode AND MFR_PART = :manufactureName  \n" +
+			"AND IS_DELETED = 0", nativeQuery = true)
+	String getInventoryOwnerV9(@Param("itemCode") String itemCode,
+							   @Param("manufactureName") String manufactureName);
 }

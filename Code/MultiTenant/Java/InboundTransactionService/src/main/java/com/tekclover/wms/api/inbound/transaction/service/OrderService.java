@@ -2,7 +2,9 @@ package com.tekclover.wms.api.inbound.transaction.service;
 
 import com.tekclover.wms.api.inbound.transaction.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.inbound.transaction.controller.exception.BadRequestException;
+import com.tekclover.wms.api.inbound.transaction.model.IKeyValuePair;
 import com.tekclover.wms.api.inbound.transaction.model.inbound.preinbound.InboundIntegrationLog;
+import com.tekclover.wms.api.inbound.transaction.model.outbound.pickup.v2.PickupHeaderV2;
 import com.tekclover.wms.api.inbound.transaction.model.warehouse.inbound.InboundOrder;
 import com.tekclover.wms.api.inbound.transaction.model.warehouse.inbound.UpdateInboundOrder;
 import com.tekclover.wms.api.inbound.transaction.model.warehouse.inbound.v2.FindInboundOrderLineV2;
@@ -32,6 +34,19 @@ public class OrderService {
 
     @Autowired
     InboundIntegrationLogRepository inboundIntegrationLogRepository;
+
+    @Autowired
+    OutboundLineV2Repository outboundLineV2Repository;
+
+
+    @Autowired
+    PickupHeaderV2Repository pickupHeaderV2Repository;
+
+    @Autowired
+    StagingLineV2Repository stagingLineV2Repository;
+
+    String statusDescription = null;
+
 
     //------------------------------------------------------------------------------------------------
 
@@ -267,5 +282,92 @@ public class OrderService {
 
         return null;
     }
+
+    /**
+     * @param newInboundOrderV2
+     * @return
+     */
+    public InboundOrderV2 createInboundOrdersV10(InboundOrderV2 newInboundOrderV2) {
+        InboundOrderV2 dbInboundOrder = inboundOrderV2Repository.
+                findByRefDocumentNoAndInboundOrderTypeId(newInboundOrderV2.getOrderId(), newInboundOrderV2.getInboundOrderTypeId());
+        if (dbInboundOrder != null) {
+            throw new BadRequestException("Order is getting Duplicated");
+        }
+        return inboundOrderV2Repository.save(newInboundOrderV2);
+    }
+
+    /**
+     * @param newPickupHeader
+     * @param loginUserID
+     * @return
+     * @throws Exception
+     */
+    public PickupHeaderV2 createOutboundOrderProcessingPickupHeaderV9(PickupHeaderV2 newPickupHeader, String loginUserID) throws Exception {
+        try {
+            PickupHeaderV2 dbPickupHeader = new PickupHeaderV2();
+            log.info("newPickupHeader : " + newPickupHeader);
+            BeanUtils.copyProperties(newPickupHeader, dbPickupHeader, CommonUtils.getNullPropertyNames(newPickupHeader));
+
+            IKeyValuePair description = stagingLineV2Repository.getDescription(dbPickupHeader.getCompanyCodeId(),
+                    dbPickupHeader.getLanguageId(),
+                    dbPickupHeader.getPlantId(),
+                    dbPickupHeader.getWarehouseId());
+
+            if (dbPickupHeader.getStatusId() != null) {
+                statusDescription = stagingLineV2Repository.getStatusDescription(dbPickupHeader.getStatusId(), dbPickupHeader.getLanguageId());
+                dbPickupHeader.setStatusDescription(statusDescription);
+            }
+
+            dbPickupHeader.setCompanyDescription(description.getCompanyDesc());
+            dbPickupHeader.setPlantDescription(description.getPlantDesc());
+            dbPickupHeader.setWarehouseDescription(description.getWarehouseDesc());
+
+            statusDescription = stagingLineV2Repository.getStatusDescription(48L, dbPickupHeader.getLanguageId());
+            outboundLineV2Repository.updateOutboundLineV2(dbPickupHeader.getCompanyCodeId(),
+                    dbPickupHeader.getPlantId(),
+                    dbPickupHeader.getLanguageId(),
+                    dbPickupHeader.getWarehouseId(),
+                    dbPickupHeader.getPreOutboundNo(),
+                    dbPickupHeader.getRefDocNumber(),
+                    dbPickupHeader.getPartnerCode(),
+                    dbPickupHeader.getLineNumber(),
+                    dbPickupHeader.getItemCode(),
+                    48L,
+                    statusDescription,
+                    dbPickupHeader.getAssignedPickerId(),
+                    dbPickupHeader.getManufacturerName(),
+                    loginUserID,
+                    new Date());
+
+            String customerName = getCustomerName(dbPickupHeader.getCompanyCodeId(), dbPickupHeader.getPlantId(),
+                    dbPickupHeader.getLanguageId(), dbPickupHeader.getWarehouseId(),
+                    dbPickupHeader.getCustomerCode());
+            if (customerName != null) {
+                dbPickupHeader.setCustomerName(customerName);
+            }
+            dbPickupHeader.setDeletionIndicator(0L);
+            dbPickupHeader.setPickupCreatedBy(loginUserID);
+            dbPickupHeader.setPickupCreatedOn(new Date());
+            PickupHeaderV2 pickupHeaderV2 = pickupHeaderV2Repository.save(dbPickupHeader);
+
+            return pickupHeaderV2;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    /**
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param customerCode
+     * @return
+     */
+    public String getCustomerName(String companyCodeId, String plantId, String languageId, String warehouseId, String customerCode) {
+        return stagingLineV2Repository.getCustomerName(companyCodeId, plantId, languageId, warehouseId, customerCode);
+    }
+
 
 }

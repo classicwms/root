@@ -172,5 +172,8 @@ public class InventoryV2 extends Inventory {
     @Column(name = "RECEIVINGVARIANCE")
     private String receivingVariance;
 
+    @Column(name = "PALLET_ID")
+    private String palletId;
+
 
 }

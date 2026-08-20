@@ -1,5 +1,6 @@
 package com.tekclover.wms.api.outbound.transaction.service;
 
+import com.tekclover.wms.api.outbound.transaction.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.outbound.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.outbound.transaction.model.IKeyValuePair;
 import com.tekclover.wms.api.outbound.transaction.model.auth.AuthToken;
@@ -11,7 +12,9 @@ import com.tekclover.wms.api.outbound.transaction.model.impl.ShipmentDispatchSum
 import com.tekclover.wms.api.outbound.transaction.model.impl.StockReportImpl;
 import com.tekclover.wms.api.outbound.transaction.model.inventory.Inventory;
 import com.tekclover.wms.api.outbound.transaction.model.inventory.SearchInventory;
+import com.tekclover.wms.api.outbound.transaction.model.inventory.v2.InventoryV2;
 import com.tekclover.wms.api.outbound.transaction.model.outbound.*;
+import com.tekclover.wms.api.outbound.transaction.model.outbound.pickup.v2.PickupHeaderV2;
 import com.tekclover.wms.api.outbound.transaction.model.outbound.pickup.v2.PickupLineV2;
 import com.tekclover.wms.api.outbound.transaction.model.outbound.v2.OutboundHeaderV2;
 import com.tekclover.wms.api.outbound.transaction.model.outbound.v2.OutboundLineV2;
@@ -20,6 +23,7 @@ import com.tekclover.wms.api.outbound.transaction.repository.*;
 import com.tekclover.wms.api.outbound.transaction.repository.specification.StockMovementReportNewSpecification;
 import com.tekclover.wms.api.outbound.transaction.repository.specification.StockReportOutputSpecification;
 import com.tekclover.wms.api.outbound.transaction.repository.specification.TransactionHistoryReportSpecification;
+import com.tekclover.wms.api.outbound.transaction.util.CommonUtils;
 import com.tekclover.wms.api.outbound.transaction.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -47,6 +51,10 @@ import java.util.stream.Stream;
 public class ReportsService extends BaseService {
     @Autowired
     private OutboundLineV2Repository outboundLineV2Repository;
+
+    @Autowired
+    PackingLineRepository packingLineRepository;
+
     @Autowired
     private PeriodicLineRepository periodicLineRepository;
     @Autowired
@@ -156,6 +164,15 @@ public class ReportsService extends BaseService {
 
     @Autowired
     PickupLineV2Repository pickupLineV2Repository;
+
+    @Autowired
+    StagingLineV2Repository stagingLineV2Repository;
+
+    @Autowired
+    StorageBinRepository storageBinRepository;
+
+    @Autowired
+    DbConfigRepository dbConfigRepository;
 
     /**
      * Stock Report ---------------------
@@ -3042,6 +3059,1237 @@ public class ReportsService extends BaseService {
 
         }
 
+    }
+
+
+    //==========SPAREX===============================
+    /**
+     *
+     * @param searchStockReport
+     * @return
+     */
+    public List<StockReportOutput> stockReportV10(SearchStockReportInput searchStockReport) {
+
+        List<StockReportOutput> reportList = new ArrayList<>();
+        if (searchStockReport.getCompanyCodeId() == null) {
+            throw new BadRequestException("Company Code Cannot be Null");
+        }
+
+        if (searchStockReport.getPlantId() == null) {
+            throw new BadRequestException("Plant Cannot be Null");
+        }
+
+        if (searchStockReport.getLanguageId() == null) {
+            throw new BadRequestException("Language Cannot be Null");
+        }
+
+        if (searchStockReport.getWarehouseId() == null) {
+            throw new BadRequestException("warehouse Cannot be Null");
+        }
+
+        if (searchStockReport.getStockTypeText() == null || searchStockReport.getStockTypeText().equalsIgnoreCase("ALL")) {
+            searchStockReport.setStockTypeText("0");
+        }
+        if (searchStockReport.getStockTypeText().equalsIgnoreCase("ONHAND") || searchStockReport.getStockTypeText().equalsIgnoreCase("OnHand")) {
+            searchStockReport.setStockTypeText("1");
+        }
+        if (searchStockReport.getStockTypeText().equalsIgnoreCase("DAMAGED") || searchStockReport.getStockTypeText().equalsIgnoreCase("Damaged")) {
+            searchStockReport.setStockTypeText("7");
+        }
+        if (searchStockReport.getItemCode() == null) {
+            searchStockReport.setItemCode("0");
+        }
+        if (searchStockReport.getManufacturerName() == null) {
+            searchStockReport.setManufacturerName("0");
+        }
+
+        if (searchStockReport.getItemText() == null) {
+            searchStockReport.setItemText("0");
+        }
+        log.info("Strock Report Search Input: " + searchStockReport);
+
+
+        List<StockReportRes> reportList1 =  stockReportOutputRepository.updateStockReportV10(
+                searchStockReport.getCompanyCodeId(),
+                searchStockReport.getPlantId(),
+                searchStockReport.getLanguageId(),
+                searchStockReport.getWarehouseId(),
+                searchStockReport.getItemCode(),
+                searchStockReport.getManufacturerName(),
+                searchStockReport.getItemText(),
+                searchStockReport.getStockTypeText());
+
+        for(StockReportRes stockRes : reportList1){
+            StockReportOutput stockOutput = new StockReportOutput();
+            stockOutput.setCompanyCodeId(stockRes.getCompanyCodeId());
+            stockOutput.setPlantId(stockRes.getPlantId());
+            stockOutput.setWarehouseId(stockRes.getWarehouseId());
+            stockOutput.setLanguageId(stockRes.getLanguageId());
+            stockOutput.setItemCode(stockRes.getItemCode());
+            stockOutput.setItemText(stockRes.getItemText());
+            stockOutput.setManufacturerName(stockRes.getManufacturerName());
+            stockOutput.setInvQty(stockRes.getInvQty());
+            stockOutput.setAllocQty(stockRes.getAllocQty());
+            stockOutput.setTotalQty(stockRes.getTotalQty());
+            IKeyValuePair description = pickupLineRepository.getDescription(stockRes.getCompanyCodeId(),
+                    stockRes.getLanguageId(),
+                    stockRes.getPlantId(),
+                    stockRes.getWarehouseId());
+            stockOutput.setCompanyDescription(description.getCompanyDesc());
+            stockOutput.setPlantDescription(description.getPlantDesc());
+            stockOutput.setWarehouseDescription(description.getWarehouseDesc());
+            reportList.add(stockOutput);
+        }
+        return reportList;
+    }
+
+
+    /**
+     * @param searchImBasicData1
+     * @return
+     */
+    public List<HistoryReport> getTransactionHistoryReportV6(FindImBasicData1 searchImBasicData1) {
+        try {
+            if (searchImBasicData1.getFromCreatedOn() != null && searchImBasicData1.getToCreatedOn() != null) {
+                Date[] dates = DateUtils.addTimeToDatesForSearch(searchImBasicData1.getFromCreatedOn(),
+                        searchImBasicData1.getToCreatedOn());
+                searchImBasicData1.setFromCreatedOn(dates[0]);
+                searchImBasicData1.setToCreatedOn(dates[1]);
+            }
+
+
+            Date openingStockDateFrom = null;
+            Date openingStockDateTo = null;
+            Date closingStockDateFrom = null;
+            Date closingStockDateTo = null;
+
+            try {
+                openingStockDateFrom = DateUtils.convertStringToDateByYYYYMMDD("2022-06-20");
+                Date[] dates = DateUtils.addTimeToDatesForSearch(openingStockDateFrom, searchImBasicData1.getFromCreatedOn());
+                openingStockDateFrom = dates[0];
+                openingStockDateTo = DateUtils.dateSubtract(dates[1]);
+                log.info("----Opening Stock----> dateFrom & dateTo---> : " + openingStockDateFrom + "," + openingStockDateTo);
+            } catch (java.text.ParseException e) {
+                e.printStackTrace();
+            }
+
+            try {
+                Date[] dates = DateUtils.addTimeToDatesForSearch(searchImBasicData1.getFromCreatedOn(),
+                        searchImBasicData1.getToCreatedOn());
+                closingStockDateFrom = dates[0];
+                closingStockDateTo = dates[1];
+                log.info("----Closing Stock----> dateFrom & dateTo---> : " + closingStockDateFrom + "," + closingStockDateTo);
+            } catch (java.text.ParseException e) {
+                e.printStackTrace();
+            }
+
+            return transactionHistoryResultRepository.findTransactionHistoryReportV6(
+                    searchImBasicData1.getCompanyCodeId(),
+                    searchImBasicData1.getPlantId(),
+                    searchImBasicData1.getLanguageId(),
+                    searchImBasicData1.getWarehouseId(),
+                    searchImBasicData1.getItemCode(),
+                    openingStockDateFrom,
+                    openingStockDateTo,
+                    closingStockDateFrom,
+                    closingStockDateTo);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * @param searchImBasicData1
+     * @return
+     */
+    public List<HistoryReport> getTransactionHistoryReportV10(FindImBasicData1 searchImBasicData1) {
+        try {
+            if (searchImBasicData1.getFromCreatedOn() != null && searchImBasicData1.getToCreatedOn() != null) {
+                Date[] dates = DateUtils.addTimeToDatesForSearch(searchImBasicData1.getFromCreatedOn(),
+                        searchImBasicData1.getToCreatedOn());
+                searchImBasicData1.setFromCreatedOn(dates[0]);
+                searchImBasicData1.setToCreatedOn(dates[1]);
+            }
+
+
+            Date openingStockDateFrom = null;
+            Date openingStockDateTo = null;
+            Date closingStockDateFrom = null;
+            Date closingStockDateTo = null;
+
+            try {
+                openingStockDateFrom = DateUtils.convertStringToDateByYYYYMMDD("2022-06-20");
+                Date[] dates = DateUtils.addTimeToDatesForSearch(openingStockDateFrom, searchImBasicData1.getFromCreatedOn());
+                openingStockDateFrom = dates[0];
+                openingStockDateTo = DateUtils.dateSubtract(dates[1]);
+                log.info("----Opening Stock----> dateFrom & dateTo---> : " + openingStockDateFrom + "," + openingStockDateTo);
+            } catch (java.text.ParseException e) {
+                e.printStackTrace();
+            }
+
+            try {
+                Date[] dates = DateUtils.addTimeToDatesForSearch(searchImBasicData1.getFromCreatedOn(),
+                        searchImBasicData1.getToCreatedOn());
+                closingStockDateFrom = dates[0];
+                closingStockDateTo = dates[1];
+                log.info("----Closing Stock----> dateFrom & dateTo---> : " + closingStockDateFrom + "," + closingStockDateTo);
+            } catch (java.text.ParseException e) {
+                e.printStackTrace();
+            }
+
+            return transactionHistoryResultRepository.findTransactionHistoryReportV10(
+                    searchImBasicData1.getCompanyCodeId(),
+                    searchImBasicData1.getPlantId(),
+                    searchImBasicData1.getLanguageId(),
+                    searchImBasicData1.getWarehouseId(),
+                    searchImBasicData1.getItemCode(),
+                    searchImBasicData1.getManufacturerName(),
+                    openingStockDateFrom,
+                    openingStockDateTo,
+                    closingStockDateFrom,
+                    closingStockDateTo);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+    /**
+     * @param searchImBasicData1
+     * @return
+     */
+    public List<HistoryReport> getTransactionHistoryReportV2(FindImBasicData1 searchImBasicData1) {
+        try {
+            if (searchImBasicData1.getFromCreatedOn() != null && searchImBasicData1.getToCreatedOn() != null) {
+                Date[] dates = DateUtils.addTimeToDatesForSearch(searchImBasicData1.getFromCreatedOn(),
+                        searchImBasicData1.getToCreatedOn());
+                searchImBasicData1.setFromCreatedOn(dates[0]);
+                searchImBasicData1.setToCreatedOn(dates[1]);
+            }
+
+
+            Date openingStockDateFrom = null;
+            Date openingStockDateTo = null;
+            Date closingStockDateFrom = null;
+            Date closingStockDateTo = null;
+
+            try {
+                openingStockDateFrom = DateUtils.convertStringToDateByYYYYMMDD("2022-06-20");
+                Date[] dates = DateUtils.addTimeToDatesForSearch(openingStockDateFrom, searchImBasicData1.getFromCreatedOn());
+                openingStockDateFrom = dates[0];
+                openingStockDateTo = DateUtils.dateSubtract(dates[1]);
+                log.info("----Opening Stock----> dateFrom & dateTo---> : " + openingStockDateFrom + "," + openingStockDateTo);
+            } catch (java.text.ParseException e) {
+                e.printStackTrace();
+            }
+
+            try {
+                Date[] dates = DateUtils.addTimeToDatesForSearch(searchImBasicData1.getFromCreatedOn(),
+                        searchImBasicData1.getToCreatedOn());
+                closingStockDateFrom = dates[0];
+                closingStockDateTo = dates[1];
+                log.info("----Closing Stock----> dateFrom & dateTo---> : " + closingStockDateFrom + "," + closingStockDateTo);
+            } catch (java.text.ParseException e) {
+                e.printStackTrace();
+            }
+
+            return transactionHistoryResultRepository.findTransactionHistoryReport(
+                    searchImBasicData1.getCompanyCodeId(),
+                    searchImBasicData1.getPlantId(),
+                    searchImBasicData1.getLanguageId(),
+                    searchImBasicData1.getWarehouseId(),
+                    searchImBasicData1.getItemCode(),
+                    searchImBasicData1.getManufacturerName(),
+                    openingStockDateFrom,
+                    openingStockDateTo,
+                    closingStockDateFrom,
+                    closingStockDateTo);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * Bharath Package
+     *
+     * @param findMobileDashBoard
+     * @return
+     * @throws Exception
+     */
+    public MobileDashboard findMobileDashBoardCountV6(FindMobileDashBoard findMobileDashBoard) throws Exception {
+
+        log.info("findMobileDashBoard -----> {}", findMobileDashBoard);
+
+        MobileDashboard mobileDashboard = new MobileDashboard();
+
+        List<String> companyCode = findMobileDashBoard.getCompanyCode();
+        List<String> plantId = findMobileDashBoard.getPlantId();
+        List<String> warehouseId = findMobileDashBoard.getWarehouseId();
+        List<String> languageId = findMobileDashBoard.getLanguageId();
+        List<String> userId = findMobileDashBoard.getUserID();
+
+        /*--------------Inbound--------------------------------*/
+        MobileDashboard.InboundCount inboundCount = mobileDashboard.new InboundCount();
+
+        Long grHeaders = grHeaderRepository.grHeaderCountV6(companyCode, plantId, languageId, warehouseId, 16L);
+        inboundCount.setCases(grHeaders);
+
+        // -------------Putaway----------------------------------
+        List<Long> orderTypeId = Arrays.asList(1L, 3L, 4L, 5L, 6L, 7L, 8L, 12L);
+        Long putAwayHeaderList = putAwayHeaderRepository.getPutAwayHeaderCount(companyCode, plantId, warehouseId, languageId, 19L, orderTypeId);
+        inboundCount.setPutaway(putAwayHeaderList);
+
+        // -------------Reversals-------------------------------
+        orderTypeId = Arrays.asList(2L);
+        Long putAwayHeaderReversals = putAwayHeaderRepository.getPutAwayHeaderCount(companyCode, plantId, warehouseId, languageId, 19L, orderTypeId);
+        inboundCount.setReversals(putAwayHeaderReversals);
+
+        /*--------------Outbound--------------------------------*/
+        MobileDashboard.OutboundCount outboundCount = mobileDashboard.new OutboundCount();
+
+        //Get LevelId from User HHtUser
+//        String levelId = pickupLineRepository.getLevelIdForUserId(companyCode, plantId, languageId, warehouseId, userId);
+
+        // --------------Picking---------------------------------------------------------------------------
+        orderTypeId = Arrays.asList(0L, 1L, 3L, 5L, 6L, 4L);
+//        List<PickupHeaderV2> pickupHeaderList =
+//                pickupHeaderService.getPickupHeaderCount(companyCode, plantId, languageId, warehouseId, levelId, orderTypeId);
+        Long pickupHeaderList = pickupHeaderRepository.getPickupHeaderCountV6(companyCode, plantId, warehouseId, languageId, 48L, orderTypeId);
+        outboundCount.setPicking(pickupHeaderList);
+
+        // -------------Reversals-------------------------------------------------------------------------
+        orderTypeId = Arrays.asList(2L);                //Returns
+        Long pickupHeaderListReversal = pickupHeaderRepository.getPickupHeaderCountV6(companyCode, plantId, warehouseId, languageId, 48L, orderTypeId);
+        outboundCount.setReversals(pickupHeaderListReversal);
+
+        // -----------Quality-----------------------------------------------------------------------------
+        Long qualityHeaderCount = qualityHeaderRepository.getQualityCount(companyCode, plantId, languageId, warehouseId, 54L);
+//        Long quality = qualityHeaderCount.stream().count();
+        outboundCount.setQuality(qualityHeaderCount);
+
+        outboundCount.setPacking(0L);
+        // -----------Tracking-----------------------------------------------------------------------------
+        List<Long> statusId = Arrays.asList(48L, 50L, 57L);
+        Long tracking = outboundLineV2Repository.gettrackingCount(companyCode, plantId, languageId, warehouseId, statusId);
+        outboundCount.setTracking(tracking);
+        /*--------------StockCount--------------------------------*/
+        MobileDashboard.StockCount stockCount = mobileDashboard.new StockCount();
+
+        List<Long> status2 = Arrays.asList(72L, 75L);
+
+        Long perpetualLines = perpetualLineRepository.getPerpetualLineCount(companyCode, plantId, warehouseId, languageId, status2, userId);
+        Long periodicLines = periodicLineRepository.getPeriodicLineCount(companyCode, plantId, warehouseId, languageId, status2, userId);
+
+        stockCount.setPerpertual(perpetualLines);
+        stockCount.setPeriodic(periodicLines);
+
+        mobileDashboard.setInboundCount(inboundCount);
+        mobileDashboard.setOutboundCount(outboundCount);
+        mobileDashboard.setStockCount(stockCount);
+        return mobileDashboard;
+
+    }
+
+    //==========SPAREX================================
+    /**
+     * SPAREX
+     *
+     * @param findMobileDashBoard
+     * @return
+     * @throws Exception
+     */
+    public MobileDashboard findMobileDashBoardCountV10(FindMobileDashBoard findMobileDashBoard) throws Exception {
+
+        log.info("findMobileDashBoard -----> {}", findMobileDashBoard);
+
+        MobileDashboard mobileDashboard = new MobileDashboard();
+
+        List<String> companyCode = findMobileDashBoard.getCompanyCode();
+        List<String> plantId = findMobileDashBoard.getPlantId();
+        List<String> warehouseId = findMobileDashBoard.getWarehouseId();
+        List<String> languageId = findMobileDashBoard.getLanguageId();
+        List<String> userId = findMobileDashBoard.getUserID();
+
+        /*--------------Inbound--------------------------------*/
+        MobileDashboard.InboundCount inboundCount = mobileDashboard.new InboundCount();
+
+        Long grHeaders = grHeaderRepository.grHeaderCountV10(companyCode, plantId, languageId, warehouseId, 16L);
+        inboundCount.setCases(grHeaders);
+
+        // -------------Putaway----------------------------------
+        List<Long> orderTypeId = Arrays.asList(1L, 3L, 4L, 5L, 6L, 7L, 8L, 12L);
+        Long putAwayHeaderList = putAwayHeaderRepository.getPutAwayHeaderCount(companyCode, plantId, warehouseId, languageId, 19L, orderTypeId);
+        inboundCount.setPutaway(putAwayHeaderList);
+
+        // -------------Reversals-------------------------------
+        orderTypeId = Arrays.asList(2L);
+        Long putAwayHeaderReversals = putAwayHeaderRepository.getPutAwayHeaderCount(companyCode, plantId, warehouseId, languageId, 19L, orderTypeId);
+        inboundCount.setReversals(putAwayHeaderReversals);
+
+        /*--------------Outbound--------------------------------*/
+        MobileDashboard.OutboundCount outboundCount = mobileDashboard.new OutboundCount();
+
+        //Get LevelId from User HHtUser
+//        String levelId = pickupLineRepository.getLevelIdForUserId(companyCode, plantId, languageId, warehouseId, userId);
+
+        // --------------Picking---------------------------------------------------------------------------
+        orderTypeId = Arrays.asList(0L, 1L, 3L, 5L, 6L, 4L);
+//        List<PickupHeaderV2> pickupHeaderList =
+//                pickupHeaderService.getPickupHeaderCount(companyCode, plantId, languageId, warehouseId, levelId, orderTypeId);
+        Long pickupHeaderList = pickupHeaderRepository.getPickupHeaderCountV10(companyCode, plantId, warehouseId, languageId, 48L, orderTypeId);
+        outboundCount.setPicking(pickupHeaderList);
+
+        // -------------Reversals-------------------------------------------------------------------------
+        orderTypeId = Arrays.asList(2L);                //Returns
+        Long pickupHeaderListReversal = pickupHeaderRepository.getPickupHeaderCountV10(companyCode, plantId, warehouseId, languageId, 48L, orderTypeId);
+        outboundCount.setReversals(pickupHeaderListReversal);
+
+        // -----------Quality-----------------------------------------------------------------------------
+        Long qualityHeaderCount = qualityHeaderRepository.getQualityCount(companyCode, plantId, languageId, warehouseId, 54L);
+//        Long quality = qualityHeaderCount.stream().count();
+        outboundCount.setQuality(qualityHeaderCount);
+
+        // -----------PACKING-----------------------------------------------------------------------------
+        Long packingLineCount = packingLineRepository.getPackingLineCountV10(companyCode, plantId,warehouseId, languageId, 52L);
+//        Long quality = qualityHeaderCount.stream().count();
+        outboundCount.setPacking(packingLineCount);
+
+
+        // -----------Tracking-----------------------------------------------------------------------------
+        List<Long> statusId = Arrays.asList(48L, 50L, 57L);
+        Long tracking = outboundLineV2Repository.gettrackingCount(companyCode, plantId, languageId, warehouseId, statusId);
+        outboundCount.setTracking(tracking);
+        /*--------------StockCount--------------------------------*/
+        MobileDashboard.StockCount stockCount = mobileDashboard.new StockCount();
+
+        List<Long> status2 = Arrays.asList(72L, 75L);
+
+        Long perpetualLines = perpetualLineRepository.getPerpetualLineCount(companyCode, plantId, warehouseId, languageId, status2, userId);
+        Long periodicLines = periodicLineRepository.getPeriodicLineCount(companyCode, plantId, warehouseId, languageId, status2, userId);
+
+        stockCount.setPerpertual(perpetualLines);
+        stockCount.setPeriodic(periodicLines);
+
+        mobileDashboard.setInboundCount(inboundCount);
+        mobileDashboard.setOutboundCount(outboundCount);
+        mobileDashboard.setStockCount(stockCount);
+        return mobileDashboard;
+
+    }
+
+    // BF
+    public List<StockReportOutput> stockReportUsingStoredProcedureV9(SearchStockReportInput searchStockReport) {
+
+        if (searchStockReport.getCompanyCodeId() == null) {
+            throw new BadRequestException("Company Code Cannot be Null");
+        }
+
+        if (searchStockReport.getPlantId() == null) {
+            throw new BadRequestException("Plant Cannot be Null");
+        }
+
+        if (searchStockReport.getLanguageId() == null) {
+            throw new BadRequestException("Language Cannot be Null");
+        }
+
+        if (searchStockReport.getWarehouseId() == null) {
+            throw new BadRequestException("warehouse Cannot be Null");
+        }
+
+        if (searchStockReport.getStockTypeText() == null || searchStockReport.getStockTypeText().equalsIgnoreCase("ALL")) {
+            searchStockReport.setStockTypeText("0");
+        }
+        if (searchStockReport.getStockTypeText().equalsIgnoreCase("ONHAND") || searchStockReport.getStockTypeText().equalsIgnoreCase("OnHand")) {
+            searchStockReport.setStockTypeText("1");
+        }
+        if (searchStockReport.getStockTypeText().equalsIgnoreCase("DAMAGED") || searchStockReport.getStockTypeText().equalsIgnoreCase("Damaged")) {
+            searchStockReport.setStockTypeText("7");
+        }
+        if (searchStockReport.getItemCode() == null) {
+            searchStockReport.setItemCode("0");
+        }
+        if (searchStockReport.getManufacturerName() == null) {
+            searchStockReport.setManufacturerName("0");
+        }
+
+        if (searchStockReport.getItemText() == null) {
+            searchStockReport.setItemText("0");
+        }
+        log.info("Strock Report Search Input: " + searchStockReport);
+
+        try {
+            stockReportOutputRepository.updateSpStockReportV5( // Changed coz inv_id max is not required while calculating inv_qty
+                    searchStockReport.getCompanyCodeId(),
+                    searchStockReport.getPlantId(),
+                    searchStockReport.getLanguageId(),
+                    searchStockReport.getWarehouseId(),
+                    searchStockReport.getItemCode(),
+                    searchStockReport.getManufacturerName(),
+                    searchStockReport.getItemText(),
+                    searchStockReport.getStockTypeText()
+            );
+        } catch (Exception e) {
+            log.info("Exception while executing sp_stock_report Stored Procedure msg ----> {}", e.toString());
+        }
+        log.info("Report Generated successfully through Stored Procedure");
+        StockReportOutputSpecification specification = new StockReportOutputSpecification();
+        List<StockReportOutput> reportList = stockReportOutputRepository.findAll(specification);
+        log.info("Stock Report Output -----> {}", reportList);
+        return reportList;
+    }
+
+    // BF
+    public List<ShipmentDeliveryReport> getShipmentDeliveryReportV9(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                                                    String fromDeliveryDate, String toDeliveryDate, String storeCode,
+                                                                    List<String> soType, String orderNumber, String preOutboundNo)
+            throws ParseException, java.text.ParseException {
+        try {
+            // WH_ID
+            if (warehouseId == null) {
+                throw new BadRequestException("WarehouseId can't be blank.");
+            }
+
+            if (orderNumber == null) {
+                throw new BadRequestException("OrderNumber can't be blank.");
+            }
+
+            SearchOutboundLineReportV2 searchOutboundLineReport = new SearchOutboundLineReportV2();
+            searchOutboundLineReport.setWarehouseId(warehouseId);
+            searchOutboundLineReport.setRefDocNumber(orderNumber);
+            searchOutboundLineReport.setCompanyCodeId(Collections.singletonList(companyCodeId));
+            searchOutboundLineReport.setPlantId(Collections.singletonList(plantId));
+            searchOutboundLineReport.setLanguageId(Collections.singletonList(languageId));
+            searchOutboundLineReport.setPreOutboundNo(preOutboundNo);
+
+            if (!storeCode.isEmpty()) {
+                searchOutboundLineReport.setPartnerCode(storeCode);
+                log.info("storeCode: " + storeCode);
+            }
+
+            if (!soType.isEmpty()) {
+                searchOutboundLineReport.setSoTypeRefField1(soType);
+                log.info("soType: " + soType);
+            }
+
+            if (fromDeliveryDate != null && fromDeliveryDate.trim().length() > 0 && toDeliveryDate != null
+                    && toDeliveryDate.trim().length() > 0) {
+                log.info("fromDeliveryDate : " + fromDeliveryDate);
+                log.info("toDeliveryDate : " + toDeliveryDate);
+
+                Date fromDeliveryDate_d = DateUtils.convertStringToDate(fromDeliveryDate);
+                fromDeliveryDate_d = DateUtils.addTimeToDate(fromDeliveryDate_d);
+
+                Date toDeliveryDate_d = DateUtils.convertStringToDate(toDeliveryDate);
+                toDeliveryDate_d = DateUtils.addDayEndTimeToDate(toDeliveryDate_d);
+
+                log.info("Date: " + fromDeliveryDate_d + "," + toDeliveryDate_d);
+
+                searchOutboundLineReport.setStartConfirmedOn(fromDeliveryDate_d);
+                searchOutboundLineReport.setEndConfirmedOn(toDeliveryDate_d);
+                log.info("fromDeliveryDate_d : " + fromDeliveryDate_d);
+            }
+
+            List<OutboundLineV2> outboundLineSearchResults = outboundLineService.findOutboundLineReportV2(searchOutboundLineReport);
+            log.info("outboundLineSearchResults : " + outboundLineSearchResults);
+            double total = 0;
+            if (outboundLineSearchResults.isEmpty() || outboundLineSearchResults == null) {
+                log.info("Resultset is EMPTY");
+                return Collections.emptyList();
+            }
+
+            Map<String, List<OutboundLineV2>> groupedMap =
+                    outboundLineSearchResults.stream()
+                            .filter(o -> o.getDeliveryQty() != null)
+                            .collect(Collectors.groupingBy(
+                                    o -> o.getItemCode() + "|" + o.getBarcodeId() + "|" + o.getReferenceField2() + "|" + o.getReferenceField8()
+                            ));
+
+
+            List<ShipmentDeliveryReport> shipmentDeliveryList = new ArrayList<>();
+
+            for (Map.Entry<String, List<OutboundLineV2>> entry : groupedMap.entrySet()) {
+
+                List<OutboundLineV2> group = entry.getValue();
+                OutboundLineV2 outboundLine = group.get(0); // representative row
+
+                double totalQty = group.stream()
+                        .mapToDouble(OutboundLineV2::getDeliveryQty)
+                        .sum();
+
+                ShipmentDeliveryReport shipmentDelivery = new ShipmentDeliveryReport();
+                shipmentDelivery.setDeliveryDate(outboundLine.getDeliveryConfirmedOn());
+                shipmentDelivery.setDeliveryTo(outboundLine.getPartnerCode());
+                shipmentDelivery.setOrderType(getOutboundOrderTypeDesc(outboundLine.getOutboundOrderTypeId()));
+                shipmentDelivery.setCustomerRef(outboundLine.getRefDocNumber());
+                shipmentDelivery.setCommodity(outboundLine.getItemCode());
+                shipmentDelivery.setDescription(outboundLine.getItemText());
+                shipmentDelivery.setManfCode(outboundLine.getManufacturerName());
+                shipmentDelivery.setPartnerName(outboundLine.getCustomerId() + " - " + outboundLine.getCustomerName());
+                shipmentDelivery.setTargetBranch(outboundLine.getTargetBranchCode());
+                shipmentDelivery.setMrp(outboundLine.getMrp());
+                shipmentDelivery.setRemarks(outboundLine.getRemarks());
+                shipmentDelivery.setDriverName(outboundLine.getDriverName());
+                shipmentDelivery.setVehicleNo(outboundLine.getVehicleNO());
+                shipmentDelivery.setOrderQty(outboundLine.getOrderQty());
+                shipmentDelivery.setReasons(outboundLine.getReferenceField6());
+                shipmentDelivery.setBarcodeId(outboundLine.getBarcodeId());
+                shipmentDelivery.setDescription(outboundLine.getDescription());
+
+                shipmentDelivery.setTotal(
+                        BigDecimal.valueOf(totalQty)
+                                .setScale(2, RoundingMode.HALF_UP)
+                                .doubleValue()
+                );
+
+                shipmentDelivery.setQuantity(
+                        BigDecimal.valueOf(totalQty)
+                                .setScale(2, RoundingMode.HALF_UP)
+                                .doubleValue()
+                );
+
+                // No of Bags
+                Long noOfBags = pickupLineRepository.getPickupLineCountForBags(
+                        outboundLine.getCompanyCodeId(),
+                        outboundLine.getPlantId(),
+                        outboundLine.getLanguageId(),
+                        outboundLine.getWarehouseId(),
+                        outboundLine.getRefDocNumber(),
+                        outboundLine.getItemCode()
+                );
+                shipmentDelivery.setNoOfBags(Double.valueOf(noOfBags));
+
+                // Dates
+                Date expDate = DateUtils.convertStringToDate2(outboundLine.getReferenceField8());
+                Date mfrDate = DateUtils.convertStringToDate2(outboundLine.getReferenceField2());
+
+                shipmentDelivery.setExpiryDate(expDate);
+                shipmentDelivery.setManufacturerDate(mfrDate);
+
+                shipmentDeliveryList.add(shipmentDelivery);
+            }
+
+            return shipmentDeliveryList;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * @param input Outbound Reversal
+     */
+    public void outboundReversalV9(OutboundReversalInput input) {
+
+        try {
+            log.info("OutboundReversalInput ------> {}", input);
+            List<Long> statusIdList = Arrays.asList(59L, 50L);
+            boolean pickUpConfirm = pickupHeaderV2Repository.existsByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndStatusIdInAndDeletionIndicatorAndAssignedPickerIdIsNotNull(
+                    input.getCompanyCodeId(), input.getPlantId(), input.getWarehouseId(),
+                    input.getRefDocNumber(), input.getPreOutboundNo(), statusIdList, 0L);
+            log.info("PickupHeader Status Checking " + pickUpConfirm);
+            if (pickUpConfirm) {
+                throw new BadRequestException("This Order Already PickList Confirm --------> RefDocNo is " + input.getRefDocNumber());
+            }
+
+            log.info("Inventory Reverse Logic Started");
+            List<PickupLineV2> pickUpLine = pickupLineV2Repository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
+                    input.getCompanyCodeId(), input.getPlantId(), "EN", input.getWarehouseId(), input.getRefDocNumber(), input.getPreOutboundNo(), 0L);
+
+            for (PickupLineV2 dbPickup : pickUpLine) {
+
+                log.info("Processing dbPickup -----> {}", dbPickup);
+
+                log.info("Barcode Id is --> {} ", dbPickup.getBarcodeId());
+                log.info("ItemCode is --> {} ", dbPickup.getItemCode());
+                log.info("ConfirmedStorageBin --> {} ", dbPickup.getPickedStorageBin());
+                log.info("Qty is --> {} ", dbPickup.getPickConfirmQty());
+
+                InventoryV2 inv = inventoryV2Repository.getInventoryListV9(dbPickup.getCompanyCodeId(), dbPickup.getLanguageId(),
+                        dbPickup.getPlantId(), dbPickup.getWarehouseId(), dbPickup.getBarcodeId(), dbPickup.getItemCode(),
+                        dbPickup.getManufacturerName(), dbPickup.getPickedStorageBin(), dbPickup.getReferenceField2());
+
+                log.info("InventoryV2 data -------> {}", inv);
+
+                if (inv != null) {
+                    Double pickedQty = dbPickup.getPickConfirmQty();
+                    Double inventoryQty = inv.getInventoryQuantity();
+                    Double allocateQty;
+                    if (inv.getAllocatedQuantity() == null) {
+                        allocateQty = 0D;
+                    } else {
+                        allocateQty = inv.getAllocatedQuantity();
+                    }
+
+                    Double INV_QTY = inventoryQty;
+                    Double ALL_QTY = allocateQty - pickedQty;
+
+                    log.info("Inventory Qty ------------V9 -------> " + INV_QTY);
+                    log.info("Allocated Qty ------------V9 --------> " + ALL_QTY);
+                    InventoryV2 newInventory = new InventoryV2();
+                    BeanUtils.copyProperties(inv, newInventory, CommonUtils.getNullPropertyNames(inv));
+                    newInventory.setReferenceDocumentNo(dbPickup.getRefDocNumber());
+                    newInventory.setInventoryQuantity(INV_QTY);
+                    newInventory.setAllocatedQuantity(ALL_QTY);
+                    newInventory.setReferenceField4(INV_QTY + ALL_QTY);
+                    Long statusId = null;
+                    if (INV_QTY == 0) {
+                        newInventory.setReferenceField7("1");
+                        statusId = 0L;
+                    } else {
+                        statusId = 10L;
+                        newInventory.setReferenceField7("0");
+                    }
+
+                    // Explicitly setting inv_id null
+                    newInventory.setInventoryId(null);
+
+                    InventoryV2 createdBinCls1Inventory = inventoryV2Repository.save(newInventory);
+
+                    int stBinCount = storageBinRepository.updateStorageBinStatus(statusId, newInventory.getStorageBin(), newInventory.getCompanyCodeId(), newInventory.getPlantId(), newInventory.getWarehouseId());
+                    log.info("StorageBin StatusUpdated Count --------> " + stBinCount);
+
+                    // BinClsId 5 inventory Record
+                    InventoryV2 bin5Inv = new InventoryV2();
+                    BeanUtils.copyProperties(createdBinCls1Inventory, bin5Inv, CommonUtils.getNullPropertyNames(createdBinCls1Inventory));
+                    Double INV_BIN5_QTY = pickedQty;
+                    if (INV_BIN5_QTY < 0) {
+                        INV_BIN5_QTY = 0D;
+                    }
+
+                    log.info("INV_BIN5_QTY -------> {}", INV_BIN5_QTY);
+                    bin5Inv.setInventoryId(null);
+                    bin5Inv.setBinClassId(5L);
+                    String binDesc = inventoryV2Repository.getBinClassIdDecription(bin5Inv.getBinClassId(), bin5Inv.getCompanyCodeId(), bin5Inv.getPlantId(), bin5Inv.getLanguageId());
+                    bin5Inv.setStorageBin(binDesc);
+                    bin5Inv.setInventoryQuantity(INV_BIN5_QTY);
+                    bin5Inv.setReferenceField4(INV_BIN5_QTY);
+                    inventoryV2Repository.save(bin5Inv);
+                    log.info("InvQty Set as PICK_CNF_QTY in Inventory BIN_CL_ID 5 Saved -----> " + bin5Inv);
+//                }
+
+                    log.info("PickUpLine Deleted Process ------------> RefDocNo is {} ", input.getRefDocNumber());
+                    int deleteLine = pickupLineV2Repository.deletePickupLineByPallet(input.getRefDocNumber(), dbPickup.getReferenceField2());
+                    log.info("PickupLine Status Delete Process Completed---> Affected Rows -->  {} ", deleteLine);
+
+                    log.info("OutboundLine Updated Process ------------> RefDocNo is {}", input.getRefDocNumber());
+                    int updatedOutboundLines = outboundLineV2Repository.updateOutboundLineWithoutPalletV9(input.getRefDocNumber());
+                    log.info("OutboundLine Status Update Process Completed---> Affected Rows --> {}", updatedOutboundLines);
+
+                    int qualityHeader = qualityHeaderRepository.qualityHeader(input.getRefDocNumber(), input.getCompanyCodeId(), input.getPlantId(), "EN", input.getWarehouseId());
+                    log.info("QualityHeader Deleted Successfully ------> RefDocNo is {} Affected Rows -->  {} ", input.getRefDocNumber(), qualityHeader);
+
+                    statusDescription = stagingLineV2Repository.getStatusDescription(48L, "EN");
+                    int pickupHeader = pickupHeaderV2Repository.updatePickupHeaderStatusV9(input.getCompanyCodeId(), input.getPlantId(), input.getWarehouseId(), input.getRefDocNumber(), 48L, statusDescription);
+                    log.info("PickupHeader Status Update Process Completed---> Affected Rows -->  {} ", pickupHeader);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * @param input Outbound Reversal
+     */
+    public OutboundReversalInputNew outboundReversalV9New(OutboundReversalInputNew input) {
+
+        try {
+            log.info("OutboundReversalInput ------> {}", input);
+            if (input.getPalletCode() == null || input.getPalletCode().isEmpty()) {
+                throw new BadRequestException("PalletCode is mandatory for processing");
+            }
+            List<Long> statusIdList = Arrays.asList(59L, 50L);
+            boolean pickUpConfirm = pickupHeaderV2Repository.existsByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndReferenceField2AndPickupNumberAndPreOutboundNoAndStatusIdInAndDeletionIndicator(
+                    input.getCompanyCodeId(), input.getPlantId(), input.getWarehouseId(),
+                    input.getRefDocNumber(), input.getPalletCode(),input.getPickupNumber(), input.getPreOutboundNo(), statusIdList, 0L);
+            log.info("PickupHeader Status Checking " + pickUpConfirm);
+            if (pickUpConfirm) {
+                throw new BadRequestException("This Order Already PickList Confirm --------> RefDocNo is " + input.getRefDocNumber());
+            }
+
+            log.info("Inventory Reverse Logic Started");
+            PickupLineV2 dbPickup = pickupLineV2Repository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndReferenceField2AndPickupNumberAndPreOutboundNoAndDeletionIndicator(
+                    input.getCompanyCodeId(), input.getPlantId(), "EN", input.getWarehouseId(), input.getRefDocNumber(), input.getPalletCode(), input.getPickupNumber(), input.getPreOutboundNo(), 0L);
+
+//            for(PickupLineV2 dbPickup : pickUpLine) {
+
+            log.info("Processing dbPickup -----> {}", dbPickup);
+
+            log.info("Barcode Id is --> {} ", dbPickup.getBarcodeId());
+            log.info("ItemCode is --> {} ", dbPickup.getItemCode());
+            log.info("ConfirmedStorageBin --> {} ", dbPickup.getPickedStorageBin());
+            log.info("Qty is --> {} ", dbPickup.getPickConfirmQty());
+
+//                InventoryV2 inv = inventoryV2Repository.getInventoryListV9(dbPickup.getCompanyCodeId(), dbPickup.getLanguageId(),
+//                        dbPickup.getPlantId(), dbPickup.getWarehouseId(),dbPickup.getBarcodeId(), dbPickup.getItemCode(), dbPickup.getManufacturerName(), dbPickup.getPickedStorageBin());
+
+            InventoryV2 inv = inventoryV2Repository.findInventoryIdForPickerDenialV9(dbPickup.getCompanyCodeId(), dbPickup.getPlantId(), dbPickup.getLanguageId(),
+                    dbPickup.getWarehouseId(), dbPickup.getItemCode(), dbPickup.getBarcodeId(), dbPickup.getReferenceField2(), dbPickup.getPickedStorageBin());
+
+            log.info("InventoryV2 data -------> {}", inv);
+
+            if(inv != null) {
+                Double pickedQty = dbPickup.getPickConfirmQty();
+                Double inventoryQty = inv.getInventoryQuantity();
+                Double allocateQty;
+                if (inv.getAllocatedQuantity() == null) {
+                    allocateQty = 0D;
+                } else {
+                    allocateQty = inv.getAllocatedQuantity();
+                }
+
+                Double INV_QTY = inventoryQty;
+                Double ALL_QTY = allocateQty - pickedQty;
+
+                log.info("Inventory Qty ------------V9 -------> " + INV_QTY);
+                log.info("Allocated Qty ------------V9 --------> " + ALL_QTY);
+                InventoryV2 newInventory = new InventoryV2();
+                BeanUtils.copyProperties(inv, newInventory, CommonUtils.getNullPropertyNames(inv));
+                newInventory.setReferenceDocumentNo(dbPickup.getRefDocNumber());
+                newInventory.setInventoryQuantity(INV_QTY);
+                newInventory.setAllocatedQuantity(ALL_QTY);
+                newInventory.setReferenceField4(INV_QTY + ALL_QTY);
+                Long statusId = null;
+                if (INV_QTY == 0) {
+                    newInventory.setReferenceField7("1");
+                    statusId = 0L;
+                } else {
+                    statusId = 10L;
+                    newInventory.setReferenceField7("0");
+                }
+
+                // Explicitly setting inv_id null
+                newInventory.setInventoryId(null);
+
+                InventoryV2 createdBinCls1Inventory = inventoryV2Repository.save(newInventory);
+
+                int stBinCount = storageBinRepository.updateStorageBinStatus(statusId, newInventory.getStorageBin(), newInventory.getCompanyCodeId(), newInventory.getPlantId(), newInventory.getWarehouseId());
+                log.info("StorageBin StatusUpdated Count --------> " + stBinCount);
+
+                // BinClsId 5 inventory Record
+                InventoryV2 bin5Inv = new InventoryV2();
+                BeanUtils.copyProperties(createdBinCls1Inventory, bin5Inv, CommonUtils.getNullPropertyNames(createdBinCls1Inventory));
+                Double INV_BIN5_QTY = pickedQty;
+                if (INV_BIN5_QTY < 0) {
+                    INV_BIN5_QTY = 0D;
+                }
+
+                log.info("INV_BIN5_QTY -------> {}", INV_BIN5_QTY);
+                bin5Inv.setInventoryId(null);
+                bin5Inv.setBinClassId(5L);
+                String binDesc = inventoryV2Repository.getBinClassIdDecription(bin5Inv.getBinClassId(), bin5Inv.getCompanyCodeId(), bin5Inv.getPlantId(), bin5Inv.getLanguageId());
+                bin5Inv.setStorageBin(binDesc);
+                bin5Inv.setAllocatedQuantity(0D);
+                bin5Inv.setInventoryQuantity(INV_BIN5_QTY);
+                bin5Inv.setReferenceField4(INV_BIN5_QTY);
+                inventoryV2Repository.save(bin5Inv);
+                log.info("InvQty Set as PICK_CNF_QTY in Inventory BIN_CL_ID 5 Saved -----> " + bin5Inv);
+//            }
+
+                log.info("PickUpLine Deleted Process ------------> RefDocNo is {} ", input.getRefDocNumber());
+                int deleteLine = pickupLineV2Repository.deletePickupLineByPallets(input.getRefDocNumber(), input.getPalletCode(),input.getPickupNumber());
+                log.info("PickupLine Status Delete Process Completed---> Affected Rows -->  {} ", deleteLine);
+
+                log.info("OutboundLine Updated Process ------------> RefDocNo is {}, {}", input.getRefDocNumber(), input.getPalletCode());
+                int updatedOutboundLines = outboundLineV2Repository.updateOutboundLineV9(input.getRefDocNumber(), input.getPalletCode());
+                log.info("OutboundLine Status Update Process Completed---> Affected Rows --> {}", updatedOutboundLines);
+
+                int qualityHeader = qualityHeaderRepository.qualityHeader(input.getRefDocNumber(), input.getCompanyCodeId(), input.getPlantId(), "EN", input.getWarehouseId());
+                log.info("QualityHeader Deleted Successfully ------> RefDocNo is {} Affected Rows -->  {} ", input.getRefDocNumber(), qualityHeader);
+
+                statusDescription = stagingLineV2Repository.getStatusDescription(48L, "EN");
+                int pickupHeader = pickupHeaderV2Repository.updatePickupHeaderStatusByPalletV9(input.getCompanyCodeId(), input.getPlantId(), input.getWarehouseId(), input.getRefDocNumber(), 48L, statusDescription, input.getPalletCode(),input.getPickupNumber());
+                log.info("PickupHeader Status Update Process Completed---> Affected Rows -->  {} ", pickupHeader);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return input;
+    }
+
+
+    /**
+     * @param outboundReversalInput Outbound Cancellation
+     */
+    public void outboundCancellation(OutboundReversalInput outboundReversalInput) {
+
+        log.info("OutboundCancellationInput ------> {}", outboundReversalInput);
+        List<Long> statusIdList = Arrays.asList(57L, 50L);
+        boolean pickUpConfirm = pickupHeaderV2Repository.existsByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndStatusIdInAndDeletionIndicator(
+                outboundReversalInput.getCompanyCodeId(), outboundReversalInput.getPlantId(), outboundReversalInput.getWarehouseId(),
+                outboundReversalInput.getRefDocNumber(), outboundReversalInput.getPreOutboundNo(), statusIdList, 0L);
+        log.info("PickupHeader Status Checking " + pickUpConfirm);
+        if (pickUpConfirm) {
+            throw new BadRequestException("This Order Already PickList Confirm --------> RefDocNo is " + outboundReversalInput.getRefDocNumber());
+        }
+
+        preOutboundHeaderV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
+                outboundReversalInput.getCompanyCodeId(), outboundReversalInput.getPlantId(), outboundReversalInput.getWarehouseId(),
+                outboundReversalInput.getRefDocNumber(), outboundReversalInput.getPreOutboundNo(), 0L);
+        log.info("PreOutboundHeader Deleted Successfully ---> RefDocNo is {}", outboundReversalInput.getRefDocNumber());
+
+        preOutboundLineV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
+                outboundReversalInput.getCompanyCodeId(), outboundReversalInput.getPlantId(), outboundReversalInput.getWarehouseId(),
+                outboundReversalInput.getRefDocNumber(), outboundReversalInput.getPreOutboundNo(), 0L);
+        log.info("PreOutboundLine Deleted Successfully ---> RefDocNo is {}", outboundReversalInput.getRefDocNumber());
+
+        outboundHeaderV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
+                outboundReversalInput.getCompanyCodeId(), outboundReversalInput.getPlantId(), outboundReversalInput.getWarehouseId(),
+                outboundReversalInput.getRefDocNumber(), outboundReversalInput.getPreOutboundNo(), 0L);
+        log.info("OutboundHeader Deleted Successfully ---> RefDocNo is {}", outboundReversalInput.getRefDocNumber());
+
+        outboundLineV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
+                outboundReversalInput.getCompanyCodeId(), outboundReversalInput.getPlantId(), outboundReversalInput.getWarehouseId(),
+                outboundReversalInput.getRefDocNumber(), outboundReversalInput.getPreOutboundNo(), 0L);
+        log.info("OutboundLine Deleted Successfully ---> RefDocNo is {}", outboundReversalInput.getRefDocNumber());
+
+        orderManagementHeaderV2Repository.deleteOrderManagementHeader(
+                outboundReversalInput.getCompanyCodeId(), outboundReversalInput.getPlantId(), outboundReversalInput.getWarehouseId(),
+                outboundReversalInput.getRefDocNumber(), outboundReversalInput.getPreOutboundNo());
+        log.info("OrderManagementHeader Deleted Successfully ---> RefDocNo is {}", outboundReversalInput.getRefDocNumber());
+
+        orderManagementLineV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
+                outboundReversalInput.getCompanyCodeId(), outboundReversalInput.getPlantId(), outboundReversalInput.getWarehouseId(),
+                outboundReversalInput.getRefDocNumber(), outboundReversalInput.getPreOutboundNo(), 0L);
+        log.info("OrderManagementLine Deleted Successfully ---> RefDocNo is {}", outboundReversalInput.getRefDocNumber());
+
+
+        pickupHeaderV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
+                outboundReversalInput.getCompanyCodeId(), outboundReversalInput.getPlantId(), outboundReversalInput.getWarehouseId(),
+                outboundReversalInput.getRefDocNumber(), outboundReversalInput.getPreOutboundNo(), 0L);
+        log.info("PickupHeader Deleted Successfully ---> RefDocNo is {}", outboundReversalInput.getRefDocNumber());
+
+        obOrderCancellation(outboundReversalInput.getRefDocNumber());
+
+    }
+
+
+    /**
+     * @param refDocNumber refDocNo
+     */
+    public void obOrderCancellation(String refDocNumber) {
+
+        if (refDocNumber != null) {
+            outboundOrderLinesV2Repository.deleteByOrderId(refDocNumber);
+            outboundOrderV2Repository.deleteByOrderId(refDocNumber);
+            log.info("OBOrder - OBOrderLines Deleted Successfully ----------------> OrderNo {}", refDocNumber);
+        }
+    }
+
+    /**
+     * @param findContainerReceiptInboundLine
+     * @return
+     * @throws Exception
+     */
+    public List<ContainerReceiptOutboundLine> getContainerReceiptOutboundLine(FindContainerReceiptInboundLine findContainerReceiptInboundLine) throws Exception {
+        List<ContainerReceiptOutboundLine> containerReceiptOutboundLineList = new ArrayList<>();
+        try {
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb("MT");
+            String routingDb = dbConfigRepository.getDbList(findContainerReceiptInboundLine.getCompanyCodeId(), findContainerReceiptInboundLine.getPlantId(), findContainerReceiptInboundLine.getWarehouseId());
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(routingDb);
+            log.info("Current Routing Db " + routingDb);
+            List<ContainerReceiptOutboundlineImpl> outboundLineV2 = outboundLineV2Repository.getOutboundLineContainerReceipt(findContainerReceiptInboundLine.getWarehouseId(), findContainerReceiptInboundLine.getCompanyCodeId(),
+                    findContainerReceiptInboundLine.getPlantId(), findContainerReceiptInboundLine.getLanguageId(), findContainerReceiptInboundLine.getRefDocNumber());
+            for (ContainerReceiptOutboundlineImpl outboundLine : outboundLineV2) {
+                ContainerReceiptOutboundLine containerReceiptOutboundLine = new ContainerReceiptOutboundLine();
+                BeanUtils.copyProperties(outboundLine, containerReceiptOutboundLine, CommonUtils.getNullPropertyNames(outboundLine));
+                containerReceiptOutboundLine.setInvoiceNo(outboundLine.getInvoiceNo());
+                containerReceiptOutboundLine.setCompanyCodeId(outboundLine.getCompanyCodeId());
+                containerReceiptOutboundLine.setRefDocNumber(outboundLine.getInvoiceNo());
+                containerReceiptOutboundLine.setReferenceField11(outboundLine.getReferenceField11());
+                containerReceiptOutboundLine.setReferenceField12(outboundLine.getReferenceField12());
+                containerReceiptOutboundLine.setReferenceField13(outboundLine.getReferenceField13());
+                containerReceiptOutboundLine.setReferenceField14(outboundLine.getReferenceField14());
+                containerReceiptOutboundLine.setReferenceField15(outboundLine.getReferenceField15());
+                containerReceiptOutboundLine.setReferenceField16(outboundLine.getReferenceField16());
+                containerReceiptOutboundLine.setReferenceField17(outboundLine.getReferenceField17());
+                containerReceiptOutboundLine.setReferenceField18(outboundLine.getReferenceField18());
+                containerReceiptOutboundLine.setReferenceField19(outboundLine.getReferenceField19());
+                containerReceiptOutboundLine.setReferenceField20(outboundLine.getReferenceField20());
+                containerReceiptOutboundLine.setObReferenceField1(outboundLine.getObReferenceField1());
+                containerReceiptOutboundLine.setObReferenceField2(String.valueOf(outboundLine.getObReferenceField2()));
+                containerReceiptOutboundLine.setObReferenceField3(outboundLine.getObReferenceField3());
+                containerReceiptOutboundLine.setObReferenceField4(outboundLine.getObReferenceField4());
+                containerReceiptOutboundLine.setObReferenceField5(outboundLine.getObReferenceField5());
+                containerReceiptOutboundLine.setObReferenceField6(outboundLine.getObReferenceField6());
+                containerReceiptOutboundLine.setObReferenceField7(outboundLine.getObReferenceField7());
+                containerReceiptOutboundLine.setObReferenceField8(String.valueOf(outboundLine.getObReferenceField8()));
+                containerReceiptOutboundLine.setObReferenceField9(outboundLine.getObReferenceField9());
+                containerReceiptOutboundLine.setObReferenceField10(outboundLine.getObReferenceField10());
+                containerReceiptOutboundLine.setLanguageId(outboundLine.getLanguageId());
+                containerReceiptOutboundLine.setWarehouseId(outboundLine.getWarehouseId());
+                containerReceiptOutboundLine.setPlantId(outboundLine.getPlantId());
+                containerReceiptOutboundLine.setContainerType(outboundLine.getContainerType());
+                containerReceiptOutboundLine.setBarcodeId(outboundLine.getBarcodeId());
+                containerReceiptOutboundLine.setItemCode(outboundLine.getItemCode());
+                containerReceiptOutboundLine.setPreOutboundNo(outboundLine.getPreOutboundNo());
+                containerReceiptOutboundLine.setLineNumber(outboundLine.getLineNumber());
+                containerReceiptOutboundLine.setOutboundOrderTypeId(outboundLine.getOutboundOrderTypeId());
+                containerReceiptOutboundLine.setDescription(outboundLine.getDescription());
+                containerReceiptOutboundLine.setOrderQty(outboundLine.getOrderQty());
+                containerReceiptOutboundLine.setOrderUom(outboundLine.getOrderUom());
+                containerReceiptOutboundLine.setDeliveryQty(outboundLine.getDeliveryQty());
+                containerReceiptOutboundLine.setDeliveryUom(outboundLine.getDeliveryUom());
+                containerReceiptOutboundLine.setQtyInCase(outboundLine.getQtyInCase());
+                containerReceiptOutboundLine.setQtyInCrate(outboundLine.getQtyInCrate());
+                containerReceiptOutboundLine.setMrp(outboundLine.getMrp());
+                containerReceiptOutboundLine.setPickConfirmQty(outboundLine.getPickConfirmQty());
+                containerReceiptOutboundLine.setInventoryQty(outboundLine.getInventoryQty());
+                containerReceiptOutboundLine.setPickStBin(outboundLine.getPickStBin());
+                containerReceiptOutboundLine.setAllocatedQty(outboundLine.getAllocatedQty());
+                containerReceiptOutboundLineList.add(containerReceiptOutboundLine);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return containerReceiptOutboundLineList;
+    }
+
+    /**
+     * @param searchImBasicData1
+     * @return
+     */
+    public List<HistoryReport> closingStockReportV9(FindImBasicData1 searchImBasicData1) {
+        try {
+            Date fromDate = null;
+            Date toDate = null;
+            if (searchImBasicData1.getFromCreatedOn() != null && searchImBasicData1.getToCreatedOn() != null) {
+                Date[] dates = DateUtils.addTimeToDatesForSearch(searchImBasicData1.getFromCreatedOn(),
+                        searchImBasicData1.getToCreatedOn());
+                fromDate = dates[0];
+                toDate = dates[1];
+            }
+
+            log.info("From Date -------> {} , To Date -------> " + fromDate, toDate);
+            List<HistoryReport> historyReportList = transactionHistoryResultRepository.findClosingStockV9(fromDate, toDate, searchImBasicData1.getInventoryOwner());
+            return historyReportList;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * @param inboundLine
+     * @return
+     * @throws Exception
+     */
+    public List<ContainerReceiptOutboundLine> getContainerReceiptOutboundLineReport(FindContainerReceiptInboundLine inboundLine) throws Exception {
+        List<ContainerReceiptOutboundLine> containerReceiptOutboundLineList = new ArrayList<>();
+        try {
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb("MT");
+            String routingDb = dbConfigRepository.getDbList(inboundLine.getCompanyCodeId(), inboundLine.getPlantId(), inboundLine.getWarehouseId());
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(routingDb);
+            log.info("Current Routing Db " + routingDb);
+            if (inboundLine.getFromDate() != null && inboundLine.getToDate() != null) {
+                Date[] dates = DateUtils.addTimeToDatesForSearch(inboundLine.getFromDate(),
+                        inboundLine.getToDate());
+                inboundLine.setFromDate(dates[0]);
+                inboundLine.setToDate(dates[1]);
+            }
+
+            List<ContainerReceiptOutboundlineImpl> outboundLineV2 = outboundLineV2Repository.getOutboundLineContainerReceiptReport(inboundLine.getWarehouseId(),
+                    inboundLine.getCompanyCodeId(),
+                    inboundLine.getPlantId(), inboundLine.getLanguageId(),
+                    inboundLine.getRefDocNumber(),inboundLine.getBarcodeId(),
+                    inboundLine.getItemCode(), inboundLine.getInventoryOwner(), inboundLine.getFromDate(), inboundLine.getToDate());
+            for (ContainerReceiptOutboundlineImpl outboundLine : outboundLineV2) {
+                ContainerReceiptOutboundLine containerReceiptOutboundLine = new ContainerReceiptOutboundLine();
+                BeanUtils.copyProperties(outboundLine, containerReceiptOutboundLine, CommonUtils.getNullPropertyNames(outboundLine));
+                containerReceiptOutboundLine.setInvoiceNo(outboundLine.getInvoiceNo());
+                containerReceiptOutboundLine.setCompanyCodeId(outboundLine.getCompanyCodeId());
+                containerReceiptOutboundLine.setRefDocNumber(outboundLine.getInvoiceNo());
+                containerReceiptOutboundLine.setReferenceField6(String.valueOf(outboundLine.getReferenceField6()));
+                containerReceiptOutboundLine.setReferenceField11(outboundLine.getReferenceField11());
+                containerReceiptOutboundLine.setReferenceField12(outboundLine.getReferenceField12());
+                containerReceiptOutboundLine.setReferenceField13(outboundLine.getReferenceField13());
+                containerReceiptOutboundLine.setReferenceField14(outboundLine.getReferenceField14());
+                containerReceiptOutboundLine.setReferenceField15(outboundLine.getReferenceField15());
+                containerReceiptOutboundLine.setReferenceField16(outboundLine.getReferenceField16());
+                containerReceiptOutboundLine.setReferenceField17(outboundLine.getReferenceField17());
+                containerReceiptOutboundLine.setReferenceField18(outboundLine.getReferenceField18());
+                containerReceiptOutboundLine.setReferenceField19(outboundLine.getReferenceField19());
+                containerReceiptOutboundLine.setReferenceField20(outboundLine.getReferenceField20());
+                containerReceiptOutboundLine.setObReferenceField1(outboundLine.getObReferenceField1());
+                containerReceiptOutboundLine.setObReferenceField2(String.valueOf(outboundLine.getObReferenceField2()));
+                containerReceiptOutboundLine.setObReferenceField3(outboundLine.getObReferenceField3());
+                containerReceiptOutboundLine.setObReferenceField4(outboundLine.getObReferenceField4());
+                containerReceiptOutboundLine.setObReferenceField5(outboundLine.getObReferenceField5());
+                containerReceiptOutboundLine.setObReferenceField6(outboundLine.getObReferenceField6());
+                containerReceiptOutboundLine.setObReferenceField7(outboundLine.getObReferenceField7());
+                containerReceiptOutboundLine.setObReferenceField8(String.valueOf(outboundLine.getObReferenceField8()));
+                containerReceiptOutboundLine.setObReferenceField9(outboundLine.getObReferenceField9());
+                containerReceiptOutboundLine.setObReferenceField10(outboundLine.getObReferenceField10());
+                containerReceiptOutboundLine.setLanguageId(outboundLine.getLanguageId());
+                containerReceiptOutboundLine.setWarehouseId(outboundLine.getWarehouseId());
+                containerReceiptOutboundLine.setPlantId(outboundLine.getPlantId());
+                containerReceiptOutboundLine.setContainerType(outboundLine.getContainerType());
+
+                // Added Container No
+                containerReceiptOutboundLine.setContainerNo(outboundLine.getContainerNo());
+
+                containerReceiptOutboundLine.setBarcodeId(outboundLine.getBarcodeId());
+                containerReceiptOutboundLine.setItemCode(outboundLine.getItemCode());
+                containerReceiptOutboundLine.setPreOutboundNo(outboundLine.getPreOutboundNo());
+                containerReceiptOutboundLine.setLineNumber(outboundLine.getLineNumber());
+                containerReceiptOutboundLine.setOutboundOrderTypeId(outboundLine.getOutboundOrderTypeId());
+                containerReceiptOutboundLine.setDescription(outboundLine.getDescription());
+                containerReceiptOutboundLine.setOrderQty(outboundLine.getOrderQty());
+                containerReceiptOutboundLine.setOrderUom(outboundLine.getOrderUom());
+                containerReceiptOutboundLine.setDeliveryQty(outboundLine.getDeliveryQty());
+                containerReceiptOutboundLine.setDeliveryUom(outboundLine.getDeliveryUom());
+                containerReceiptOutboundLine.setQtyInCase(outboundLine.getQtyInCase());
+                containerReceiptOutboundLine.setQtyInCrate(outboundLine.getQtyInCrate());
+                containerReceiptOutboundLine.setMrp(outboundLine.getMrp());
+                containerReceiptOutboundLine.setPickConfirmQty(outboundLine.getPickConfirmQty());
+                containerReceiptOutboundLine.setInventoryQty(outboundLine.getInventoryQty());
+                containerReceiptOutboundLine.setPickStBin(outboundLine.getPickStBin());
+                containerReceiptOutboundLine.setAllocatedQty(outboundLine.getAllocatedQty());
+                containerReceiptOutboundLine.setUomQty(outboundLine.getUomQty());
+                containerReceiptOutboundLine.setInventoryOwner(outboundLine.getInventoryOwner());
+
+                containerReceiptOutboundLine.setReferenceField21(outboundLine.getReferenceField21());
+                containerReceiptOutboundLine.setReferenceField22(outboundLine.getReferenceField22());
+                containerReceiptOutboundLine.setReferenceField23(outboundLine.getReferenceField23());
+                containerReceiptOutboundLine.setReferenceField24(outboundLine.getReferenceField24());
+                containerReceiptOutboundLine.setReferenceField25(outboundLine.getReferenceField25());
+                containerReceiptOutboundLine.setReferenceField26(outboundLine.getReferenceField26());
+                containerReceiptOutboundLine.setReferenceField27(outboundLine.getReferenceField27());
+                containerReceiptOutboundLine.setReferenceField28(outboundLine.getReferenceField28());
+                containerReceiptOutboundLine.setReferenceField29(outboundLine.getReferenceField29());
+                containerReceiptOutboundLine.setReferenceField30(outboundLine.getReferenceField30());
+
+                //Setting NetWeight and GrossWeight in ContainerReport
+                containerReceiptOutboundLine.setNetWeight(outboundLine.getNetWeight());
+                containerReceiptOutboundLine.setGrossWeight(outboundLine.getGrossWeight());
+
+                containerReceiptOutboundLine.setManufacturerDate(outboundLine.getManufacturerDate());
+                containerReceiptOutboundLine.setExpiryDate(outboundLine.getExpiryDate());
+
+                long qty = outboundLine.getNumberOfPallets();
+                containerReceiptOutboundLine.setNumberOfPallets(String.valueOf(qty));
+
+                containerReceiptOutboundLineList.add(containerReceiptOutboundLine);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return containerReceiptOutboundLineList;
+    }
+
+    /**
+     * @param input
+     * @return
+     * @throws java.text.ParseException
+     */
+    public List<OutwardReportResponse> outwardReportV9(OutwardReportInput input) throws java.text.ParseException {
+
+        List<OutwardReportResponse> responses = new ArrayList<>();
+        log.info("Input ---- {}", input);
+
+        if (input.getFromDate() != null && input.getToDate() != null) {
+            Date[] dates = DateUtils.addTimeToDatesForSearch(input.getFromDate(),
+                    input.getToDate());
+            input.setFromDate(dates[0]);
+            input.setToDate(dates[1]);
+        }
+
+        responses.addAll(outboundLineV2Repository.outwardReportGroupByItemBatchV9(input.getCompanyCodeId(), input.getPlantId(), input.getLanguageId(), input.getWarehouseId(),
+                input.getOrderNo(), input.getSku(), input.getBatchNo(), input.getStatusId(), input.getFromDate(), input.getToDate(), input.getCustomerName(), input.getInventoryOwner()));
+
+        log.info("responses --> {}", responses);
+        return responses;
+    }
+
+    /**
+     *
+     * @param input
+     * @return
+     * @throws java.text.ParseException
+     */
+    public List<StockMovementLedgerReport> stockMovementLedgerReportV9(LedgerReportInput input) throws java.text.ParseException {
+
+        log.info("Inputs ---->{}",input);
+        if (input.getFromDate() != null && input.getToDate() != null) {
+            Date[] dates = DateUtils.addTimeToDatesForSearch(input.getFromDate(),
+                    input.getToDate());
+            input.setFromDate(dates[0]);
+            input.setToDate(dates[1]);
+            log.info("From date -- {} and  To date -- {} ",input.getFromDate(),input.getToDate());
+        }else {
+            throw new RuntimeException("Date is Mandatory");
+        }
+        return outboundLineV2Repository.stockLedgerReportV9(input.getCompanyId(),input.getPlantId(),
+                input.getLanguageId(),input.getWarehouseId(),input.getFromDate(),input.getToDate(), input.getInventoryOwner());
+    }
+
+    /**
+     * @param searchImBasicData1
+     * @return
+     */
+    public List<HistoryReport> getTransactionHistoryReportV9(FindImBasicData1 searchImBasicData1) {
+        try {
+            if (searchImBasicData1.getFromCreatedOn() != null && searchImBasicData1.getToCreatedOn() != null) {
+                Date[] dates = DateUtils.addTimeToDatesForSearch(searchImBasicData1.getFromCreatedOn(),
+                        searchImBasicData1.getToCreatedOn());
+                searchImBasicData1.setFromCreatedOn(dates[0]);
+                searchImBasicData1.setToCreatedOn(dates[1]);
+            }
+
+
+            Date openingStockDateFrom = null;
+            Date openingStockDateTo = null;
+            Date closingStockDateFrom = null;
+            Date closingStockDateTo = null;
+
+            try {
+                openingStockDateFrom = DateUtils.convertStringToDateByYYYYMMDD("2022-06-20");
+                Date[] dates = DateUtils.addTimeToDatesForSearch(openingStockDateFrom, searchImBasicData1.getFromCreatedOn());
+                openingStockDateFrom = dates[0];
+                openingStockDateTo = DateUtils.dateSubtract(dates[1]);
+                log.info("----Opening Stock----> dateFrom & dateTo---> : " + openingStockDateFrom + "," + openingStockDateTo);
+            } catch (java.text.ParseException e) {
+                e.printStackTrace();
+            }
+
+            try {
+                Date[] dates = DateUtils.addTimeToDatesForSearch(searchImBasicData1.getFromCreatedOn(),
+                        searchImBasicData1.getToCreatedOn());
+                closingStockDateFrom = dates[0];
+                closingStockDateTo = dates[1];
+                log.info("----Closing Stock----> dateFrom & dateTo---> : " + closingStockDateFrom + "," + closingStockDateTo);
+            } catch (java.text.ParseException e) {
+                e.printStackTrace();
+            }
+
+            return transactionHistoryResultRepository.findTransactionHistoryReportV9(
+                    searchImBasicData1.getCompanyCodeId(),
+                    searchImBasicData1.getPlantId(),
+                    searchImBasicData1.getLanguageId(),
+                    searchImBasicData1.getWarehouseId(),
+                    searchImBasicData1.getItemCode(),
+                    searchImBasicData1.getManufacturerName(),
+                    openingStockDateFrom,
+                    openingStockDateTo,
+                    closingStockDateFrom,
+                    closingStockDateTo);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 }

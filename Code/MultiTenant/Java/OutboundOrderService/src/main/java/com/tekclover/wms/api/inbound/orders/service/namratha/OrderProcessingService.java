@@ -1778,4 +1778,260 @@ public class OrderProcessingService extends BaseService {
 
         return preOutboundLine;
     }
+
+    //========SPAREX================
+    /**
+     *
+     * @param companyCodeId c_id
+     * @param plantId plant_id
+     * @param warehouseId w_id
+     * @param refDocNumber ref_doc_no
+     *                 PickListCancellation code [27-06-25]
+     */
+    public void pickListCancellationV10(String companyCodeId, String plantId, String warehouseId, String refDocNumber) {
+
+        preOutboundHeaderV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
+                companyCodeId, plantId, warehouseId, refDocNumber, 0L);
+        log.info("PreOutboundHeader Deleted Successfully V10 ---> RefDocNo is {}", refDocNumber);
+
+        outboundHeaderV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
+                companyCodeId, plantId, warehouseId, refDocNumber, 0L);
+        log.info("OutboundHeader Deleted Successfully V10 ---> RefDocNo is {}", refDocNumber);
+
+        orderManagementHeaderV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
+                companyCodeId, plantId, warehouseId, refDocNumber, 0L);
+        log.info("OrderManagementHeader Deleted Successfully V10 ---> RefDocNo is {}", refDocNumber);
+
+        pickupHeaderV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
+                companyCodeId, plantId, warehouseId, refDocNumber, 0L);
+        log.info("PickupHeader Deleted Successfully V10 ---> RefDocNo is {}", refDocNumber);
+
+        preOutboundLineV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
+                companyCodeId, plantId, warehouseId, refDocNumber, 0L);
+        log.info("PreOutboundLine Deleted Successfully V10 ---> RefDocNo is {}", refDocNumber);
+
+        orderManagementLineV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
+                companyCodeId, plantId, warehouseId, refDocNumber, 0L);
+        log.info("OrderManagementLine Deleted Successfully V10 ---> RefDocNo is {}", refDocNumber);
+
+        outboundLineV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
+                companyCodeId, plantId, warehouseId, refDocNumber, 0L);
+        log.info("OrderManagementLine Deleted Successfully V0 ---> RefDocNo is {}", refDocNumber);
+    }
+
+
+    //=======SPAREX=====================
+    /**
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param preOutboundNo
+     * @param outboundIntegrationHeader
+     * @param refField1ForOrderType
+     * @param loginUserId
+     * @return
+     * @throws ParseException
+     */
+    public PreOutboundHeaderV2 createPreOutboundHeaderV10(String companyCodeId, String plantId, String languageId, String warehouseId, String preOutboundNo,
+                                                          OutboundIntegrationHeaderV2 outboundIntegrationHeader, String refField1ForOrderType, String loginUserId) throws ParseException {
+        PreOutboundHeaderV2 preOutboundHeader = new PreOutboundHeaderV2();
+        BeanUtils.copyProperties(outboundIntegrationHeader, preOutboundHeader, CommonUtils.getNullPropertyNames(outboundIntegrationHeader));
+        preOutboundHeader.setLanguageId(languageId);
+        preOutboundHeader.setCompanyCodeId(companyCodeId);
+        preOutboundHeader.setPlantId(plantId);
+        preOutboundHeader.setWarehouseId(warehouseId);
+        preOutboundHeader.setRefDocNumber(outboundIntegrationHeader.getRefDocumentNo());
+        preOutboundHeader.setConsignment(outboundIntegrationHeader.getRefDocumentNo());
+        preOutboundHeader.setPreOutboundNo(preOutboundNo);                                                // PRE_OB_NO
+        preOutboundHeader.setOutboundOrderTypeId(outboundIntegrationHeader.getOutboundOrderTypeID());    // Hardcoded value "0"
+        preOutboundHeader.setRefDocDate(new Date());
+        preOutboundHeader.setStatusId(39L);
+        preOutboundHeader.setRequiredDeliveryDate(outboundIntegrationHeader.getRequiredDeliveryDate());
+        preOutboundHeader.setCustomerId(outboundIntegrationHeader.getCustomerId());
+        preOutboundHeader.setCustomerName(outboundIntegrationHeader.getCustomerName());
+
+        // REF_FIELD_1
+        preOutboundHeader.setReferenceField1(refField1ForOrderType);
+
+        // DeliveryTo
+        preOutboundHeader.setReferenceField2(outboundIntegrationHeader.getTokenNumber());
+
+        description = getDescription(companyCodeId, plantId, languageId, warehouseId);
+        if (description != null) {
+            preOutboundHeader.setCompanyDescription(description.getCompanyDesc());
+            preOutboundHeader.setPlantDescription(description.getPlantDesc());
+            preOutboundHeader.setWarehouseDescription(description.getWarehouseDesc());
+        }
+        // Status Description
+//		StatusId idStatus = idmasterService.getStatus(39L, outboundIntegrationHeader.getWarehouseID(), authTokenForIDService.getAccess_token());
+        statusDescription = getStatusDescription(39L, languageId);
+        log.info("PreOutboundHeader StatusDescription: " + statusDescription);
+        // REF_FIELD_10
+        preOutboundHeader.setReferenceField10(statusDescription);
+        preOutboundHeader.setStatusDescription(statusDescription);
+        preOutboundHeader.setDeletionIndicator(0L);
+        preOutboundHeader.setCreatedBy(loginUserId);
+        preOutboundHeader.setCreatedOn(new Date());
+        PreOutboundHeaderV2 createdPreOutboundHeader = preOutboundHeaderV2Repository.save(preOutboundHeader);
+        log.info("createdPreOutboundHeader : " + createdPreOutboundHeader);
+
+        // Order_Text_Update
+        String text = "PreOutboundHeader Created";
+        outboundOrderV2Repository.updatePreOutBoundOrderText(preOutboundHeader.getOutboundOrderTypeId(), preOutboundHeader.getRefDocNumber(), text);
+        log.info("PreOutbound Header Status Updated Successfully");
+
+        return createdPreOutboundHeader;
+    }
+
+    //========SPAREX================
+
+    /**
+     * @param createdPreOutboundHeader
+     * @return
+     */
+    public OrderManagementHeaderV2 createOrderManagementHeaderV10(PreOutboundHeaderV2 createdPreOutboundHeader, String loginUserId) {
+        OrderManagementHeaderV2 newOrderManagementHeader = new OrderManagementHeaderV2();
+        BeanUtils.copyProperties(createdPreOutboundHeader, newOrderManagementHeader, CommonUtils.getNullPropertyNames(createdPreOutboundHeader));
+        newOrderManagementHeader.setStatusId(41L);    // Hard Coded Value "41"
+        statusDescription = getStatusDescription(41L, createdPreOutboundHeader.getLanguageId());
+        newOrderManagementHeader.setCustomerName(createdPreOutboundHeader.getCustomerName());
+        newOrderManagementHeader.setStatusDescription(statusDescription);
+        newOrderManagementHeader.setReferenceField7(statusDescription);
+        newOrderManagementHeader.setPickupCreatedBy(loginUserId);
+        newOrderManagementHeader.setPickupCreatedOn(new Date());
+
+        //DeliveryTo
+        newOrderManagementHeader.setReferenceField2(createdPreOutboundHeader.getReferenceField2());
+
+        // Order_Text_Update
+        String text = "OrderManagement Created";
+        outboundOrderV2Repository.updateOrderManagementText(newOrderManagementHeader.getOutboundOrderTypeId(), newOrderManagementHeader.getRefDocNumber(), text);
+        log.info("OrderManagement Header Status Updated Successfully");
+
+        return orderManagementHeaderV2Repository.save(newOrderManagementHeader);
+    }
+
+    //=======SPAREX===================
+    /**
+     * @param createdPreOutboundHeader
+     * @param statusId
+     * @return
+     * @throws ParseException
+     */
+    public OutboundHeaderV2 createOutboundHeaderV10(PreOutboundHeaderV2 createdPreOutboundHeader, Long statusId, OutboundIntegrationHeaderV2 outboundIntegrationHeader, String loginUserId) throws ParseException {
+
+        OutboundHeaderV2 outboundHeader = new OutboundHeaderV2();
+        BeanUtils.copyProperties(createdPreOutboundHeader, outboundHeader, CommonUtils.getNullPropertyNames(createdPreOutboundHeader));
+        outboundHeader.setRefDocNumber(outboundHeader.getRefDocNumber());
+        outboundHeader.setRefDocDate(new Date());
+        outboundHeader.setStatusId(statusId);
+        statusDescription = getStatusDescription(statusId, createdPreOutboundHeader.getLanguageId());
+        outboundHeader.setStatusDescription(statusDescription);
+        outboundHeader.setCustomerName(createdPreOutboundHeader.getCustomerName());
+        outboundHeader.setInvoiceDate(outboundIntegrationHeader.getRequiredDeliveryDate());
+        outboundHeader.setConsignment(outboundIntegrationHeader.getPickListNumber());
+        outboundHeader.setInvoiceNumber(outboundIntegrationHeader.getInvoice());
+        if (outboundHeader.getOutboundOrderTypeId() == 3L) {
+            outboundHeader.setCustomerType("INVOICE");
+        }
+        if (outboundHeader.getOutboundOrderTypeId() == 0L || outboundHeader.getOutboundOrderTypeId() == 1L) {
+            outboundHeader.setCustomerType("TRANSVERSE");
+        }
+        outboundHeader.setCreatedBy(loginUserId);
+        outboundHeader.setCreatedOn(new Date());
+
+        // DeliveryTo
+        outboundHeader.setReferenceField2(outboundHeader.getReferenceField2());
+
+        // Order_Text_Update
+        String text = "OutboundHeader Created";
+        outboundOrderV2Repository.updateOutboundHeaderText(outboundHeader.getOutboundOrderTypeId(), outboundHeader.getRefDocNumber(), text);
+        log.info("OutboundHeader Status Updated Successfully");
+
+        outboundHeader = outboundHeaderV2Repository.save(outboundHeader);
+        log.info("Created outboundHeader : " + outboundHeader);
+        return outboundHeader;
+    }
+
+    //=========SPAREX==============
+    /**
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param preOutboundNo
+     * @param outboundIntegrationHeader
+     * @param outboundIntegrationLine
+     * @param loginUserId
+     * @return
+     * @throws ParseException
+     */
+    public PreOutboundLineV2 createPreOutboundLineV10(String companyCodeId, String plantId, String languageId, String warehouseId, String preOutboundNo,
+                                                      OutboundIntegrationHeaderV2 outboundIntegrationHeader, OutboundIntegrationLineV2 outboundIntegrationLine, String loginUserId) throws ParseException {
+        PreOutboundLineV2 preOutboundLine = new PreOutboundLineV2();
+        BeanUtils.copyProperties(outboundIntegrationLine, preOutboundLine, CommonUtils.getNullPropertyNames(outboundIntegrationLine));
+        preOutboundLine.setLanguageId(languageId);
+        preOutboundLine.setCompanyCodeId(companyCodeId);
+        preOutboundLine.setPlantId(plantId);
+        preOutboundLine.setCustomerId(outboundIntegrationHeader.getCustomerId());
+        preOutboundLine.setCustomerName(outboundIntegrationHeader.getCustomerName());
+        preOutboundLine.setWarehouseId(warehouseId);
+        preOutboundLine.setRefDocNumber(outboundIntegrationHeader.getRefDocumentNo());
+        preOutboundLine.setPreOutboundNo(preOutboundNo);
+        preOutboundLine.setPartnerCode(outboundIntegrationHeader.getPartnerCode());
+        preOutboundLine.setLineNumber(outboundIntegrationLine.getLineReference());
+        preOutboundLine.setItemCode(outboundIntegrationLine.getItemCode());
+        preOutboundLine.setOutboundOrderTypeId(outboundIntegrationHeader.getOutboundOrderTypeID());
+
+        // Set DeliveryTo
+        preOutboundLine.setOrigin(outboundIntegrationHeader.getTokenNumber());
+
+        preOutboundLine.setStatusId(39L);
+        preOutboundLine.setStockTypeId(1L);
+        preOutboundLine.setSpecialStockIndicatorId(1L);
+        preOutboundLine.setManufacturerName(outboundIntegrationLine.getManufacturerName());
+        description = getDescription(preOutboundLine.getCompanyCodeId(), preOutboundLine.getPlantId(), preOutboundLine.getLanguageId(), preOutboundLine.getWarehouseId());
+        if (description != null) {
+            preOutboundLine.setCompanyDescription(description.getCompanyDesc());
+            preOutboundLine.setPlantDescription(description.getPlantDesc());
+            preOutboundLine.setWarehouseDescription(description.getWarehouseDesc());
+        }
+        statusDescription = stagingLineV2Repository.getStatusDescription(39L, languageId);
+        preOutboundLine.setStatusDescription(statusDescription);
+        preOutboundLine.setPickListNumber(outboundIntegrationLine.getPickListNo());
+        ImBasicData1V2 imBasicData1 = imBasicData1V2Repository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndDeletionIndicator(
+                languageId, companyCodeId, plantId, warehouseId,
+                outboundIntegrationLine.getItemCode().trim(), 0L);
+        log.info("imBasicData1 : " + imBasicData1);
+        if (imBasicData1 != null) {
+            preOutboundLine.setDescription(imBasicData1.getDescription());
+            if (imBasicData1.getItemType() != null && imBasicData1.getItemTypeDescription() == null) {
+                preOutboundLine.setItemType(getItemTypeDesc(companyCodeId, plantId, languageId, outboundIntegrationHeader.getWarehouseID(), imBasicData1.getItemType()));
+            } else {
+                preOutboundLine.setItemType(imBasicData1.getItemTypeDescription());
+            }
+            if (imBasicData1.getItemGroup() != null && imBasicData1.getItemGroupDescription() == null) {
+                preOutboundLine.setItemGroup(getItemGroupDesc(companyCodeId, plantId, languageId, outboundIntegrationHeader.getWarehouseID(), imBasicData1.getItemGroup()));
+            } else {
+                preOutboundLine.setItemGroup(imBasicData1.getItemGroupDescription());
+            }
+
+            preOutboundLine.setManufacturerCode(imBasicData1.getManufacturerCode());
+            preOutboundLine.setManufacturerName(imBasicData1.getManufacturerName());
+            preOutboundLine.setManufacturerFullName(imBasicData1.getManufacturerFullName());
+        } else {
+            preOutboundLine.setDescription(outboundIntegrationLine.getItemText());
+        }
+        preOutboundLine.setOrderQty(outboundIntegrationLine.getOrderedQty());
+        preOutboundLine.setOrderUom(outboundIntegrationLine.getUom());
+        preOutboundLine.setRequiredDeliveryDate(outboundIntegrationHeader.getRequiredDeliveryDate());
+        preOutboundLine.setReferenceField1(outboundIntegrationLine.getRefField1ForOrderType());
+        preOutboundLine.setDeletionIndicator(0L);
+        preOutboundLine.setCreatedBy(loginUserId);
+        preOutboundLine.setCreatedOn(new Date());
+        log.info("preOutboundLine : " + preOutboundLine);
+        return preOutboundLine;
+    }
+
 }

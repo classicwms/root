@@ -45,6 +45,9 @@ public class BatchJobScheduler {
 
         //MMF
 //        CompletableFuture<WarehouseApiResponse> inboundOrderV8 = scheduleAsyncService.processInboundOrderV8();
+
+        //SPAREX
+        CompletableFuture<WarehouseApiResponse> inboundOrderV10 = scheduleAsyncService.processInboundOrderV10();
     }
 
 

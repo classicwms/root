@@ -546,4 +546,42 @@ public class ContainerReceiptService extends BaseService {
         String nextNumberRange = idmasterService.getNextNumberRange(NUM_RAN_CODE, warehouseId, companyCodeId, plantId, languageId, accessToken);
         return nextNumberRange;
     }
+    /**
+     * @param refDocNumber
+     * @param containerReceiptNo
+     * @param warehouseId
+     * @return
+     */
+    public ContainerReceiptV2 getContainerReceiptV9New(String companyCode, String plantId, String languageId, String warehouseId,
+                                                       String refDocNumber, String containerReceiptNo) {
+        Optional<ContainerReceiptV2> containerReceipt =
+                containerReceiptV2Repository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndContainerReceiptNoAndDeletionIndicator(
+                        languageId, companyCode, plantId, warehouseId, refDocNumber,
+                        containerReceiptNo, 0L);
+        if (containerReceipt.isEmpty()) {
+            throw new BadRequestException("The given ContainerReceipt ID : " + containerReceiptNo + " doesn't exist.");
+        }
+        return containerReceipt.get();
+    }
+
+    /**
+     * deleteContainerReceipt v9
+     *
+     * @param loginUserID
+     * @param containerReceiptNo
+     */
+    public void deleteContainerReceiptV9New(String companyCode, String plantId, String languageId, String warehouseId,
+                                            String refDocNumber, String containerReceiptNo, String loginUserID) throws ParseException {
+        ContainerReceiptV2 containerReceipt = getContainerReceiptV9New(companyCode, plantId, languageId, warehouseId,
+                refDocNumber, containerReceiptNo);
+        if (containerReceipt != null) {
+            containerReceipt.setDeletionIndicator(1L);
+            containerReceipt.setUpdatedBy(loginUserID);
+            containerReceipt.setUpdatedOn(new Date());
+            containerReceiptV2Repository.delete(containerReceipt);
+            containerReceiptV2Repository.save(containerReceipt);
+        } else {
+            throw new EntityNotFoundException("Error in deleting Id: " + containerReceiptNo);
+        }
+    }
 }

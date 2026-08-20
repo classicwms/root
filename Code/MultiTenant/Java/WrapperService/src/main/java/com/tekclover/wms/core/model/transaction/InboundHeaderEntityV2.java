@@ -9,7 +9,7 @@ import java.util.List;
 public class InboundHeaderEntityV2 {
 
     private String languageId;
-    private String companyCode;
+    private String companyCodeId;
     private String plantId;
     private String warehouseId;
     private String refDocNumber;

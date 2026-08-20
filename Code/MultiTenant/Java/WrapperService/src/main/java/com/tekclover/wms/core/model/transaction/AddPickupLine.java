@@ -8,7 +8,7 @@ import lombok.Data;
 public class AddPickupLine {
 
 	private String languageId;
-	private Long companyCodeId;
+	private String companyCodeId;
 	private String plantId;
 	private String warehouseId;
 	private String preOutboundNo;
@@ -73,5 +73,16 @@ public class AddPickupLine {
 	private Double bagSize;
 	private Double NoBags;
 	private String orderUom;
+
+	private Double qtyInCase;
+	private Double qtyInPiece;
+
+	//BP
+	private Long outboundOrderTypeId;
+
+	private String storageSectionId;
+
+	private String size;
+
 
 }

@@ -31,4 +31,15 @@ public interface OutboundHeaderV2Repository extends JpaRepository<OutboundHeader
                                              @Param("preOutboundNo") String preOutboundNo,
                                              @Param("statusId") Long statusId,
                                              @Param("statusDescription") String statusDescription);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("Update OutboundHeaderV2 ob SET ob.statusId = :statusId, ob.statusDescription = :statusDescription \r\n "
+            + " WHERE ob.companyCodeId = :companyCodeId AND ob.plantId = :plantId AND ob.languageId = :languageId AND ob.warehouseId = :warehouseId AND ob.preOutboundNo = :preOutboundNo")
+    public void updateOutboundHeaderStatusV9(@Param("companyCodeId") String companyCodeId,
+                                             @Param("plantId") String plantId,
+                                             @Param("languageId") String languageId,
+                                             @Param("warehouseId") String warehouseId,
+                                             @Param("preOutboundNo") String preOutboundNo,
+                                             @Param("statusId") Long statusId,
+                                             @Param("statusDescription") String statusDescription);
 }

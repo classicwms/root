@@ -22,4 +22,13 @@ public class SearchInboundLineV2 extends SearchInboundLine {
 	private Date endCreatedOn;
 	private List<String> customerId;
 
+	private List<String> erpStatus;
+
+	private Date startConfirmedOn;
+	private Date endConfirmedOn;
+
+	private List<String> vehicleNo;
+	private List<String> materialNo;
+
+	private List<String> referenceDocumentType;
 }

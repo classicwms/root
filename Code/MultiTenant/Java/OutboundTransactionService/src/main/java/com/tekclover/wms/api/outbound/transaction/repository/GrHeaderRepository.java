@@ -95,4 +95,32 @@ public interface GrHeaderRepository extends JpaRepository<GrHeader, Long>, JpaSp
     List<GrHeader> findByCompanyCodeAndLanguageIdAndPlantIdAndWarehouseIdAndStatusIdInAndDeletionIndicator(
             String companyCode, String languageId, String plantId, String warehouseId,
             List<Long> statusId, Long deletionIndicator);
+
+    @Query(value = "SELECT COUNT(ref_doc_no) AS count FROM ( \n" +
+            " select distinct ref_doc_no from tblgrheader WHERE \n" +
+            " (:companyCode IS NULL OR c_id = :companyCode) AND \n" +
+            " (:plantId IS NULL OR plant_id = :plantId) AND \n" +
+            " (:warehouseId IS NULL OR wh_id = :warehouseId) AND \n" +
+            " (:languageId IS NULL OR lang_id = :languageId) AND \n" +
+            " (:statusId IS NULL OR status_id IN (:statusId)) AND \n" +
+            " is_deleted = 0 group by ref_doc_no) x ", nativeQuery = true)
+    Long grHeaderCountV6(@Param("companyCode") List<String> companyCode,
+                         @Param("plantId") List<String> plantId,
+                         @Param("languageId") List<String> languageId,
+                         @Param("warehouseId") List<String> warehouseId,
+                         @Param("statusId") Long statusId);
+
+    @Query(value = "SELECT COUNT(ref_doc_no) AS count FROM ( \n" +
+            " select distinct ref_doc_no from tblgrheader WHERE \n" +
+            " (:companyCode IS NULL OR c_id = :companyCode) AND \n" +
+            " (:plantId IS NULL OR plant_id = :plantId) AND \n" +
+            " (:warehouseId IS NULL OR wh_id = :warehouseId) AND \n" +
+            " (:languageId IS NULL OR lang_id = :languageId) AND \n" +
+            " (:statusId IS NULL OR status_id IN (:statusId)) AND \n" +
+            " is_deleted = 0 group by ref_doc_no) x ", nativeQuery = true)
+    Long grHeaderCountV10(@Param("companyCode") List<String> companyCode,
+                          @Param("plantId") List<String> plantId,
+                          @Param("languageId") List<String> languageId,
+                          @Param("warehouseId") List<String> warehouseId,
+                          @Param("statusId") Long statusId);
 }

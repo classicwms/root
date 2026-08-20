@@ -46,6 +46,16 @@ public class PreInboundLine {
 	private String referenceField8;
 	private String referenceField9;
 	private String referenceField10;
+	private String referenceField11;
+	private String referenceField12;
+	private String referenceField13;
+	private String referenceField14;
+	private String referenceField15;
+	private String referenceField16;
+	private String referenceField17;
+	private String referenceField18;
+	private String referenceField19;
+	private String referenceField20;
 	private Long deletionIndicator;
 	private String createdBy;
 	private Date createdOn = new Date();

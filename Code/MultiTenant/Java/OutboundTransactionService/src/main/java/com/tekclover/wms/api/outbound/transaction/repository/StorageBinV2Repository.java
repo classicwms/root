@@ -285,4 +285,18 @@ public interface StorageBinV2Repository extends JpaRepository<StorageBinV2, Long
                       @Param("plantId") String plantId,
                       @Param("warehouseId") String warehouseId,
                       @Param("statusId") Long statusId);
+
+
+    @Modifying
+    @Transactional
+    @Query(value = "UPDATE tblstoragebin SET STATUS_ID = :statusId, UTD_BY = :updatedBy, UTD_ON = GETDATE() " +
+                    "WHERE C_ID = :companyCodeId AND PLANT_ID = :plantId AND LANG_ID = :languageId " +
+                    "AND WH_ID = :warehouseId AND ST_BIN = :storageBin", nativeQuery = true)
+    int updateStorageBinStatus(@Param("companyCodeId") String companyCodeId,
+                               @Param("plantId") String plantId,
+                               @Param("languageId") String languageId,
+                               @Param("warehouseId") String warehouseId,
+                               @Param("storageBin") String storageBin,
+                               @Param("statusId") Long statusId,
+                               @Param("updatedBy") String updatedBy);
 }

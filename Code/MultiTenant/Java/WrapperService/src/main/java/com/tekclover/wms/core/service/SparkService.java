@@ -873,5 +873,74 @@ public class SparkService {
             throw e;
         }
     }
+
+    /**
+     * FindInventory
+     *
+     * @param findInventoryV3
+     * @return
+     */
+    public InventoryV9[] findInventoryV9(FindInventoryV3 findInventoryV3) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", " RestTemplate");
+//        headers.add("Authorization", "Bearer " + authToken);
+
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "inventory/new/v9");
+            HttpEntity<?> entity = new HttpEntity<>(findInventoryV3, headers);
+            ResponseEntity<InventoryV9[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, InventoryV9[].class);
+            log.info("result: " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+
+    //Find StagingLine
+    public StagingLineV2[] findStagingLineV6(FindStagingLineV2 findStagingLineV2) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", " RestTemplate");
+
+            UriComponentsBuilder builder =
+                    UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "stagingLine/new");
+            HttpEntity<?> entity = new HttpEntity<>(findStagingLineV2, headers);
+            ResponseEntity<StagingLineV2[]> result =
+                    getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, StagingLineV2[].class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    /**
+     * FindInventory
+     *
+     * @param findInventoryV3
+     * @return
+     */
+    public InventoryNewV9[] searchInventoryV9(FindInventoryV3 findInventoryV3) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", " RestTemplate");
+//        headers.add("Authorization", "Bearer " + authToken);
+
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "inventory/v9/new");
+            HttpEntity<?> entity = new HttpEntity<>(findInventoryV3, headers);
+            ResponseEntity<InventoryNewV9[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, InventoryNewV9[].class);
+            log.info("result: " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
 }
 

@@ -98,4 +98,36 @@ public interface PickupHeaderRepository extends JpaRepository<PickupHeader, Long
                                      @Param("statusId") Long statusId,
                                      @Param("orderTypeId") List<Long> orderTypeId);
 
+    @Query(value = "select count(ITM_CODE) as count from ( \n" +
+            " select ITM_CODE from tblpickupheader where  \n" +
+            " (:languageId IS NULL OR LANG_ID = :languageId) AND \n" +
+            " (:companyCode IS NULL OR C_ID = :companyCode) AND \n" +
+            " (:plantId IS NULL OR PLANT_ID = :plantId) AND \n" +
+            " (:warehouseId IS NULL OR WH_ID = :warehouseId) AND \n" +
+            " (STATUS_ID IN (:statusId)) AND \n" +
+            " (OB_ORD_TYP_ID IN (:orderTypeId)) AND \n" +
+            " IS_DELETED = 0 group by ITM_CODE,PARTNER_ITEM_BARCODE,PROP_ST_BIN) x ",nativeQuery = true)
+    public Long getPickupHeaderCountV6(@Param("companyCode") List<String> companyCode,
+                                       @Param("plantId") List<String> plantId,
+                                       @Param("warehouseId") List<String> warehouseId,
+                                       @Param("languageId") List<String> languageId,
+                                       @Param("statusId") Long statusId,
+                                       @Param("orderTypeId") List<Long> orderTypeId);
+
+    @Query(value = "select count(ITM_CODE) as count from ( \n" +
+            " select ITM_CODE from tblpickupheader where  \n" +
+            " (:languageId IS NULL OR LANG_ID = :languageId) AND \n" +
+            " (:companyCode IS NULL OR C_ID = :companyCode) AND \n" +
+            " (:plantId IS NULL OR PLANT_ID = :plantId) AND \n" +
+            " (:warehouseId IS NULL OR WH_ID = :warehouseId) AND \n" +
+            " (STATUS_ID IN (:statusId)) AND \n" +
+            " (OB_ORD_TYP_ID IN (:orderTypeId)) AND \n" +
+            " IS_DELETED = 0 group by ITM_CODE,PARTNER_ITEM_BARCODE,PROP_ST_BIN) x ",nativeQuery = true)
+    public Long getPickupHeaderCountV10(@Param("companyCode") List<String> companyCode,
+                                        @Param("plantId") List<String> plantId,
+                                        @Param("warehouseId") List<String> warehouseId,
+                                        @Param("languageId") List<String> languageId,
+                                        @Param("statusId") Long statusId,
+                                        @Param("orderTypeId") List<Long> orderTypeId);
+
 }

@@ -72,4 +72,29 @@ public interface QualityHeaderV2Repository extends JpaRepository<QualityHeaderV2
 
     List<QualityHeaderV2> findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
             String companyCodeId, String plantId, String languageId, String warehouseId, String refDocNumber, String preOutboundNo, Long deletionIndicator);
+
+    // BF
+    @Modifying
+    @Transactional
+    @Query(value = "delete tblqualityheader where PARTNER_ITEM_BARCODE = :barcodeId and REF_DOC_NO = :refDocNo and ref_field_4 = :itemCode and C_ID = :companyCode and \n" +
+            "plant_id = :plantId and wh_id = :warehouseId and is_deleted = 0", nativeQuery = true)
+    int deleteQualityHeader(@Param("barcodeId") String barcodeId,
+                            @Param("refDocNo") String refDocNo,
+                            @Param("itemCode") String itemCode,
+                            @Param("companyCode") String companyCode,
+                            @Param("plantId") String plantId,
+                            @Param("warehouseId") String warehouseId);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("UPDATE QualityHeaderV2 ob SET ob.statusId = :statusId, ob.statusDescription = :statusDescription \n" +
+            "WHERE ob.companyCodeId = :companyCodeId AND ob.plantId = :plantId AND ob.languageId = :languageId AND ob.warehouseId = :warehouseId \n" +
+            "AND ob.refDocNumber = :refDocNumber AND ob.preOutboundNo = :preOutboundNo ")
+    void updateQualityHeaderStatusUpdateV9(@Param("companyCodeId") String companyCodeId,
+                                           @Param("plantId") String plantId,
+                                           @Param("languageId") String languageId,
+                                           @Param("warehouseId") String warehouseId,
+                                           @Param("refDocNumber") String refDocNumber,
+                                           @Param("preOutboundNo") String preOutboundNo,
+                                           @Param("statusId") Long statusId,
+                                           @Param("statusDescription") String statusDescription);
 }

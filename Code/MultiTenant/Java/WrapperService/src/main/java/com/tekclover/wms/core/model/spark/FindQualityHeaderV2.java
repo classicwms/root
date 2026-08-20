@@ -25,4 +25,5 @@ public class FindQualityHeaderV2 {
     private List<String> companyCodeId;
     private List<String> plantId;
     private List<String> preOutboundNo;
+    private List<String> inventoryOwner;
 }

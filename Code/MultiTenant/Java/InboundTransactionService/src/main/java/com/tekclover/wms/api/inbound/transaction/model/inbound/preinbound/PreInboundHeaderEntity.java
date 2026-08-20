@@ -122,4 +122,29 @@ public class PreInboundHeaderEntity {
 
 	@Column(name = "CUSTOMER_NAME", columnDefinition = "nvarchar(50)")
 	private String customerName;
+
+    @Column(name = "STATUS_TEXT", columnDefinition = "nvarchar(150)")
+    private String statusDescription;
+
+    @Column(name = "MIDDLEWARE_ID", columnDefinition = "nvarchar(50)")
+    private String middlewareId;
+
+    @Column(name = "MIDDLEWARE_TABLE", columnDefinition = "nvarchar(50)")
+    private String middlewareTable;
+
+    @Column(name = "MANUFACTURER_FULL_NAME", columnDefinition = "nvarchar(150)")
+    private String manufacturerFullName;
+
+    @Column(name = "C_TEXT", columnDefinition = "nvarchar(255)")
+    private String companyDescription;
+
+    @Column(name = "PLANT_TEXT", columnDefinition = "nvarchar(255)")
+    private String plantDescription;
+
+    @Column(name = "WH_TEXT", columnDefinition = "nvarchar(255)")
+    private String warehouseDescription;
+
+    /*-------------------------------------------------------------------------------------------------------*/
+    @Column(name = "TRANSFER_ORDER_DATE")
+    private Date transferOrderDate;
 }

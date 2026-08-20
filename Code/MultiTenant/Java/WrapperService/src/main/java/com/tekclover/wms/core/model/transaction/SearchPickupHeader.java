@@ -32,4 +32,5 @@ public class SearchPickupHeader {
 	private List<Long> statusId;
 	private List<String> referenceField1;
 	private List<String> assignedPickerId;
+	private List<String> referenceField2;
 }

@@ -25,6 +25,7 @@ public class PreOutBoundLineV2 {
     private String manufacturerPartNo;
     private String hsnCode;
     private String itemBarcode;
+    private String barcodeId;
     private Double orderQty;
     private String orderUom;
     private String targetBranchCode;

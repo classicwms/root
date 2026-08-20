@@ -15,5 +15,6 @@ public class FindPreOutBoundLineV2 {
     private List<String> preOutboundNo;
     private List<String> partnerCode;
     private List<Long> lineNumber;
+    private List<Long> statusId;
     private List<String> itemCode;
 }

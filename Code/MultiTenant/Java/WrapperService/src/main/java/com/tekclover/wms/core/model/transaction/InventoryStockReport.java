@@ -2,6 +2,8 @@ package com.tekclover.wms.core.model.transaction;
 
 import lombok.Data;
 
+import java.util.Date;
+
 @Data
 public class InventoryStockReport {
     /*
@@ -30,4 +32,10 @@ public class InventoryStockReport {
     private String plantDescription;
     private String warehouseDescription;
     private Double variance;
+
+    private String uom;
+    private String customerName;
+    private String batchNo;
+    private Date mfg;
+    private Date date;
 }

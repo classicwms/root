@@ -2,12 +2,15 @@ package com.tekclover.wms.api.inbound.transaction.service;
 
 import com.tekclover.wms.api.inbound.transaction.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.inbound.transaction.controller.exception.BadRequestException;
+import com.tekclover.wms.api.inbound.transaction.model.IKeyValuePair;
 import com.tekclover.wms.api.inbound.transaction.model.auth.AuthToken;
 import com.tekclover.wms.api.inbound.transaction.model.dto.StorageBinV2;
+import com.tekclover.wms.api.inbound.transaction.model.inbound.containerreceipt.v2.ContainerReceiptV2;
 import com.tekclover.wms.api.inbound.transaction.model.inbound.gr.StorageBinPutAway;
 import com.tekclover.wms.api.inbound.transaction.model.inbound.gr.v2.GrLineV2;
 import com.tekclover.wms.api.inbound.transaction.model.inbound.preinbound.v2.PreInboundHeaderV2;
 import com.tekclover.wms.api.inbound.transaction.model.inbound.putaway.v2.PutAwayHeaderV2;
+import com.tekclover.wms.api.inbound.transaction.model.inbound.putaway.v2.PutAwayLineV2;
 import com.tekclover.wms.api.inbound.transaction.repository.*;
 import com.tekclover.wms.api.inbound.transaction.util.CommonUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -45,6 +48,12 @@ public class PutAwayHeaderAsyncProcessService extends BaseService {
     InboundOrderV2Repository inboundOrderV2Repository;
 
     @Autowired
+    InventoryV2Repository inventoryV2Repository;
+
+    @Autowired
+    CrossDockServiceV9 crossDockService;
+
+    @Autowired
     PutAwayHeaderV2Repository putAwayHeaderV2Repository;
 
     @Autowired
@@ -58,6 +67,12 @@ public class PutAwayHeaderAsyncProcessService extends BaseService {
 
     @Autowired
     GrLineService grLineService;
+
+    @Autowired
+    ContainerReceiptRepository containerReceiptRepository;
+
+    @Autowired
+    DbConfigRepository dbConfigRepository;
 
     @Autowired
     GrLineV2Repository grLineV2Repository;
@@ -778,5 +793,330 @@ public class PutAwayHeaderAsyncProcessService extends BaseService {
             log.error("Exception while creating Putaway Header----> " + e.toString());
             throw e;
         }
+    }
+
+    //================================================BF=============================================
+    @Async("asyncExecutor")
+    public void createPutAwayHeaderNonCBMV9(List<GrLineV2> createdGRLines, String loginUserID, Long crossDock) throws Exception {
+
+        DataBaseContextHolder.clear();
+        DataBaseContextHolder.setCurrentDb("MT");
+        String routingDb = dbConfigRepository.getDbName( createdGRLines.get(0).getCompanyCode(),
+                createdGRLines.get(0).getPlantId(), createdGRLines.get(0).getWarehouseId());
+        DataBaseContextHolder.clear();
+        DataBaseContextHolder.setCurrentDb(routingDb);
+        log.info("Current Routing Db " + routingDb);
+
+        String idMasterToken = getIDMasterAuthToken();
+        AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
+        //PA_NO
+        NUMBER_RANGE_CODE = 7L;
+        String nextPANumber = getNextRangeNumber(NUMBER_RANGE_CODE, createdGRLines.get(0).getCompanyCode(), createdGRLines.get(0).getPlantId(),
+                createdGRLines.get(0).getLanguageId(), createdGRLines.get(0).getWarehouseId(), idMasterToken);
+        log.info("PutAwayHeader Creation Process Started ------------> V9 <--------------------------------");
+
+        try {
+            for (GrLineV2 grLine : createdGRLines) {
+                createPutAwayHeaderProcessV9(grLine, nextPANumber, loginUserID, authTokenForMastersService, crossDock);
+            }
+            String orderText = "PutAwayHeaders Created";
+            Long orderStatus = 1L;
+            putAwayHeaderV2Repository.updatePutAwayHeader(createdGRLines.get(0).getRefDocNumber(), orderText, orderStatus);
+        } catch (Exception e) {
+            String orderText = "PutAwayHeaders Create error";
+            Long orderStatus = 100L;
+            putAwayHeaderV2Repository.updatePutAwayHeader(createdGRLines.get(0).getRefDocNumber(), orderText, orderStatus);
+        }
+    }
+    //================================================BF=============================================
+
+    /**
+     * BF
+     *
+     * @param createdGRLine grLine Input's one by one
+     * @param loginUserID   userID
+     * @throws Exception exceptin
+     */
+    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
+    private void createPutAwayHeaderProcessV9(GrLineV2 createdGRLine, String nextPANumber, String loginUserID,
+                                              AuthToken authTokenForMastersService, Long crossDock) throws Exception {
+        try {
+
+            log.info("PutAwayNumber------->" + createdGRLine);
+
+            String itemCode = createdGRLine.getItemCode();
+            String companyCode = createdGRLine.getCompanyCode();
+            String plantId = createdGRLine.getPlantId();
+            String languageId = createdGRLine.getLanguageId();
+            String warehouseId = createdGRLine.getWarehouseId();
+
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb("MT");
+            String routingDb = dbConfigRepository.getDbName(companyCode, plantId, warehouseId);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(routingDb);
+            log.info("Current Routing Db " + routingDb);
+
+            Double cbm = 0D;
+            if (createdGRLine.getCbm() != null) {
+                cbm = createdGRLine.getCbm();
+                log.info("cbm, createdGrLine.getCbm: " + cbm + ", " + createdGRLine.getCbm());
+            }
+            //  ASS_HE_NO
+            // Insert record into PutAwayHeader
+            PutAwayHeaderV2 putAwayHeader = new PutAwayHeaderV2();
+            BeanUtils.copyProperties(createdGRLine, putAwayHeader, CommonUtils.getNullPropertyNames(createdGRLine));
+            putAwayHeader.setCompanyCodeId(companyCode);
+            putAwayHeader.setReferenceField5(itemCode);
+            putAwayHeader.setPalletCode(createdGRLine.getPalletCode());
+            putAwayHeader.setPutAwayNumber(nextPANumber);                           //PutAway Number
+            putAwayHeader.setPutAwayUom(createdGRLine.getOrderUom());
+            putAwayHeader.setManufacturerDate(createdGRLine.getManufacturerDate());
+            putAwayHeader.setExpiryDate(createdGRLine.getExpiryDate());
+            putAwayHeader.setReferenceField1(createdGRLine.getReferenceField1());
+            putAwayHeader.setParentProductionOrderNo(createdGRLine.getParentProductionOrderNo());
+
+            putAwayHeader.setMrp(createdGRLine.getMrp());                                //MRP
+            putAwayHeader.setAMSSupplierInvoiceNo(createdGRLine.getHsnCode());           //NetWeight
+            putAwayHeader.setTransferRequestType(createdGRLine.getVariantType());                    //GrossWeight
+            putAwayHeader.setBrand(createdGRLine.getSpecificationActual());                 //totalWeight
+            ContainerReceiptV2 containerReceiptV2 = containerReceiptRepository.getContainerReceipt(createdGRLine.getCompanyCode(), createdGRLine.getLanguageId(), createdGRLine.getPlantId(),
+                    createdGRLine.getWarehouseId(), createdGRLine.getRefDocNumber());
+            if(containerReceiptV2 != null){
+                putAwayHeader.setItemGroup(containerReceiptV2.getReferenceField1());        //ItemGroup
+            }
+
+            //InventoryOwner
+            if (createdGRLine.getMaterialNo() != null) {
+                putAwayHeader.setMaterialNo(createdGRLine.getMaterialNo());
+            }
+            //PriceSegment
+            if(createdGRLine.getPriceSegment() != null){
+                putAwayHeader.setPriceSegment(createdGRLine.getPriceSegment());
+            }
+
+            //set bar code id for packbarcode
+            putAwayHeader.setBarcodeId(createdGRLine.getBarcodeId());
+            //set pack bar code for actual packbarcode
+            putAwayHeader.setPackBarcodes(createdGRLine.getPackBarcodes());
+            if (createdGRLine.getAcceptedQty() != null && createdGRLine.getAcceptedQty() != 0) {
+                putAwayHeader.setPutAwayQuantity(createdGRLine.getAcceptedQty());
+            } else {
+                putAwayHeader.setPutAwayQuantity(createdGRLine.getDamageQty());
+            }
+            // PutAwayHeader Created based on bin size
+            log.info("PutAwayHeader Creation & Allocated Bin For OrderQty Logic is  Started ------------------------>V9 <--------------------------");
+            allocateBinsForQtyV9(createdGRLine, loginUserID, authTokenForMastersService, companyCode, plantId, languageId, warehouseId, putAwayHeader, createdGRLine.getReferenceOrderQty(), crossDock);
+            log.info("PutAwayHeader Creation & Allocated Bin For OrderQty Logic is  Completed ------------------------>V9 <--------------------------");
+        } catch (Exception e) {
+//            log.info("RollPack In GrLine Input Values is RefDocNumber {}, PreInboundNo {}, BarcodeId {} ", createdGRLine.getRefDocNumber(), createdGRLine.getPreInboundNo(), createdGRLine.getBarcodeId());
+//            grLineV2Repository.rollPackGrLine(createdGRLine.getRefDocNumber(), createdGRLine.getPreInboundNo(), createdGRLine.getBarcodeId());
+            log.error("Exception while creating Putaway Header----> " + e.toString());
+            throw e;
+        }
+    }
+
+    //================================================BF=====================================================
+
+    /**
+     * PutAwayHeader Created for only 30 order capacity qty
+     *
+     * @throws Exception
+     */
+    private void allocateBinsForQtyV9(GrLineV2 grLine, String loginUserID, AuthToken authTokenForMastersService,
+                                      String companyCode, String plantId, String languageId, String warehouseId,
+                                      PutAwayHeaderV2 putAwayHeader, Double uomQty, Long crossDock) throws Exception {
+
+        String itemCode = grLine.getItemCode();
+        StorageBinPutAway storageBinPutAway = new StorageBinPutAway();
+        storageBinPutAway.setCompanyCodeId(companyCode);
+        storageBinPutAway.setPlantId(plantId);
+        storageBinPutAway.setLanguageId(languageId);
+        storageBinPutAway.setWarehouseId(warehouseId);
+
+        //-----------------PROP_ST_BIN---------------------------------------------
+        //V2 Code
+        Long binClassId = 0L;                   //actual code follows
+        if (grLine.getInboundOrderTypeId() == 1 || grLine.getInboundOrderTypeId() == 3 ||
+                grLine.getInboundOrderTypeId() == 4 || grLine.getInboundOrderTypeId() == 5 || grLine.getInboundOrderTypeId() == 11L) {
+            binClassId = 1L;
+        }
+        if (grLine.getInboundOrderTypeId() == 2) {
+            binClassId = 7L;
+        }
+        if (grLine.getQuantityType().equalsIgnoreCase("D")) {
+            binClassId = 7L;
+        }
+        double allocated = 0.0;
+        String proposedStorageBin = grLine.getInterimStorageBin();
+        if (proposedStorageBin == null) {
+            log.info("Proposed StorageBin Logic Started -------------------> V9 <-------------->");
+            setStorageBinForPutAwayHeaderV9(putAwayHeader, binClassId, companyCode, plantId, languageId, warehouseId,
+                    grLine, storageBinPutAway);
+        } else {
+            putAwayHeader.setProposedStorageBin(proposedStorageBin);
+        }
+        log.info("Proposed Storage Bin: " + putAwayHeader.getProposedStorageBin());
+        log.info("Proposed StorageBin Logic Completed -------------------> V9 <-------------->");
+        if (grLine.getReferenceDocumentType() != null) {
+            putAwayHeader.setReferenceDocumentType(grLine.getReferenceDocumentType());
+        } else {
+            putAwayHeader.setReferenceDocumentType(getInboundOrderTypeDesc(companyCode, plantId, languageId, warehouseId, grLine.getInboundOrderTypeId()));
+        }
+
+        // PalletId for DamageBin
+        if(grLine.getQuantityType().equalsIgnoreCase("D")) {
+
+            String palletId = inventoryV2Repository.getPalletIdV9(grLine.getCompanyCode(), grLine.getPlantId(), grLine.getLanguageId(),
+                    grLine.getWarehouseId(), putAwayHeader.getProposedStorageBin());
+            log.info("Damage Item Get The Pallet Id {}  in DamageBin {} ", palletId, putAwayHeader.getProposedStorageBin());
+            if(palletId != null) {
+                putAwayHeader.setPalletCode(palletId);
+                grLine.setPalletCode(palletId);
+            } else {
+                String palletCode = getNextRangeNumber(30L, grLine.getCompanyCode(),
+                        grLine.getPlantId(), grLine.getLanguageId(),
+                        grLine.getWarehouseId());
+                putAwayHeader.setPalletCode("M" + palletCode);
+                grLine.setPalletCode("M" + palletCode);
+            }
+        }
+        putAwayHeader.setProposedHandlingEquipment(grLine.getPutAwayHandlingEquipment());
+        putAwayHeader.setCbmQuantity(grLine.getCbmQuantity());
+
+        IKeyValuePair description = stagingLineV2Repository.getDescription(companyCode, languageId, plantId, warehouseId);
+        putAwayHeader.setCompanyDescription(description.getCompanyDesc());
+        putAwayHeader.setPlantDescription(description.getPlantDesc());
+        putAwayHeader.setWarehouseDescription(description.getWarehouseDesc());
+
+        PreInboundHeaderV2 dbPreInboundHeader = preInboundHeaderService.getPreInboundHeaderV2ForPutAwayCreate(companyCode, plantId, languageId, warehouseId,
+                grLine.getPreInboundNo(), grLine.getRefDocNumber());
+
+        putAwayHeader.setReferenceDocumentType(dbPreInboundHeader.getReferenceDocumentType());
+        putAwayHeader.setManufacturerFullName(dbPreInboundHeader.getManufacturerFullName());
+        putAwayHeader.setBatchSerialNumber(grLine.getBatchSerialNumber());
+
+        putAwayHeader.setTransferOrderDate(dbPreInboundHeader.getTransferOrderDate());
+        putAwayHeader.setSourceBranchCode(dbPreInboundHeader.getSourceBranchCode());
+        putAwayHeader.setSourceCompanyCode(dbPreInboundHeader.getSourceCompanyCode());
+
+        putAwayHeader.setReferenceField5(grLine.getItemCode());
+        putAwayHeader.setReferenceField3(grLine.getReferenceField7());
+        putAwayHeader.setReferenceField7(grLine.getBarcodeId());
+        putAwayHeader.setReferenceField8(grLine.getItemDescription());
+        putAwayHeader.setReferenceField9(String.valueOf(grLine.getLineNo()));
+        putAwayHeader.setReferenceField6(grLine.getReferenceField6());
+
+        putAwayHeader.setStatusId(19L);
+        statusDescription = stagingLineV2Repository.getStatusDescription(19L, grLine.getLanguageId());
+        putAwayHeader.setStatusDescription(statusDescription);
+
+        putAwayHeader.setDeletionIndicator(0L);
+        putAwayHeader.setCreatedBy(loginUserID);
+        putAwayHeader.setUpdatedBy(loginUserID);
+        putAwayHeader.setCreatedOn(new Date());
+        putAwayHeader.setUpdatedOn(new Date());
+        putAwayHeader.setConfirmedOn(new Date());
+        putAwayHeader.setQtyInCreate(allocated);
+        putAwayHeader.setQtyInCase(grLine.getQtyInCase());
+        putAwayHeader.setReferenceField8(grLine.getItemDescription());
+//        putAwayHeader.setManufacturerDate(grLine.getManufacturerDate());
+        putAwayHeader.setVehicleNo(grLine.getVehicleNo());
+
+        putAwayHeader.setItemGroup(putAwayHeader.getItemGroup());
+
+        putAwayHeader.setVehicleUnloadingDate(grLine.getVehicleUnloadingDate());
+        putAwayHeader.setVehicleReportingDate(grLine.getVehicleReportingDate());
+        putAwayHeader.setReceivingVariance(grLine.getReceivingVariance());
+        if (grLine.getAcceptedQty() != null && grLine.getAcceptedQty() != 0) {
+            putAwayHeader.setOrderQty(grLine.getAcceptedQty());
+        } else {
+            putAwayHeader.setOrderQty(grLine.getDamageQty());
+        }
+
+        Long NUMBER_RANGE_CODE = 6L;
+        String packBarcodeId = getNextRangeNumber(NUMBER_RANGE_CODE, companyCode, plantId, languageId, warehouseId);
+        log.info("Generated PackBarcodeId ---------------> " + packBarcodeId);
+        putAwayHeader.setPackBarcodes(packBarcodeId);
+        putAwayHeaderV2Repository.save(putAwayHeader);
+
+        log.info("Create Inventory BinClId = 3 -------------------------------> V9");
+        grLineService.createInventoryNonCBMV9(putAwayHeader, uomQty);
+
+        if (crossDock == 1L) {
+            PutAwayLineV2 putAwayLineV2 = new PutAwayLineV2();
+            BeanUtils.copyProperties(putAwayHeader, putAwayLineV2, CommonUtils.getNullPropertyNames(putAwayHeader));
+            crossDockService.putAwayLineConfirmNonCBMV9(putAwayLineV2, loginUserID);
+        }
+
+    }
+
+    //================================================BF======================================================
+
+    /**
+     * Get StorageBin For PutAwayHeader
+     */
+    public void setStorageBinForPutAwayHeaderV9(PutAwayHeaderV2 putAwayHeader, Long binClassId, String companyCode, String plantId, String languageId,
+                                                String warehouseId, GrLineV2 createdGRLine, StorageBinPutAway storageBinPutAway) {
+
+        DataBaseContextHolder.clear();
+        DataBaseContextHolder.setCurrentDb("MT");
+        String routingDb = dbConfigRepository.getDbName(companyCode, plantId, warehouseId);
+        DataBaseContextHolder.clear();
+        DataBaseContextHolder.setCurrentDb(routingDb);
+        log.info("Current Routing Db " + routingDb);
+
+        StorageBinV2 storageBin = null;
+        log.info("BinClassId : " + binClassId);
+        log.info("InboundOrderTypeId----->" + createdGRLine.getInboundOrderTypeId());
+
+        String allocatedStatus = createdGRLine.getReferenceField1();
+
+        log.info("Fully Or Partial Checking in Putaway Proposed Bin ---------> Status -- >" + allocatedStatus);
+        Long levelId = null;
+        if (allocatedStatus == null) {
+            levelId = 1L;
+        }
+
+        if (putAwayHeader.getInboundOrderTypeId().equals(1L) || putAwayHeader.getInboundOrderTypeId().equals(4L)) {
+            if (putAwayHeader.getProposedStorageBin() == null) {
+//                storageBinPutAway.setStatusId(0L);
+//                storageBinPutAway.setBinClassId(1L);
+                storageBin = storageBinV2Repository.getStorageBinForEmptyV9(binClassId, companyCode, plantId, languageId, warehouseId, levelId);
+                log.info("Get StorageBin ------> Values is {} ", storageBin);
+                if (storageBin == null) {
+                    storageBin = storageBinV2Repository.getStorageBinInPutAwayHeader(binClassId, companyCode, plantId, languageId, warehouseId);
+                    log.info("Proposing Bin Without LevelId: {} ", storageBin);
+                }
+                if (storageBin != null) {
+                    putAwayHeader.setProposedStorageBin(storageBin.getStorageBin());
+                }
+            }
+        }
+        if (putAwayHeader.getInboundOrderTypeId().equals(2L)) {
+            if (putAwayHeader.getProposedStorageBin() == null) {
+//                storageBinPutAway.setStatusId(0L);
+//                storageBinPutAway.setBinClassId(7L);
+                storageBin = storageBinV2Repository.getStorageBinForEmptyV9(binClassId, companyCode, plantId, languageId, warehouseId, levelId);
+                log.info("Get StorageBin ------> Values is {} ", storageBin);
+                if (storageBin != null) {
+                    putAwayHeader.setProposedStorageBin(storageBin.getStorageBin());
+
+                }
+            }
+        }
+        if (putAwayHeader.getProposedStorageBin() == null) {
+            binClassId = 2L;
+            log.info("BinClassId : " + binClassId);
+            storageBin = storageBinV2Repository.getStorageBinNonBinCls2V9(binClassId, companyCode, plantId, languageId, warehouseId);
+            if (storageBin != null) {
+                putAwayHeader.setProposedStorageBin(storageBin.getStorageBin());
+                log.info("A --> NonCBM reserveBin: " + storageBin.getStorageBin());
+            }
+        }
+        if (storageBin != null && binClassId == 1) {
+            storageBinV2Repository.updateEmptyBinStatus(storageBin.getStorageBin(), companyCode, plantId, warehouseId, 1L);
+        }
+
     }
 }

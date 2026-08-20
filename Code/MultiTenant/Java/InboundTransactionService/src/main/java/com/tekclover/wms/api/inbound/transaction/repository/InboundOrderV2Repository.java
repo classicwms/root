@@ -39,4 +39,7 @@ public interface InboundOrderV2Repository extends JpaRepository<InboundOrderV2, 
                             @Param("refDocNo") String refDocNo,
                             @Param("text") String text);
 
+    InboundOrderV2 findByOrderId( String orderId);
+
+
 }

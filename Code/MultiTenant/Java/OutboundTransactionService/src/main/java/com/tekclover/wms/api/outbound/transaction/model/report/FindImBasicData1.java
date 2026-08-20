@@ -16,4 +16,8 @@ public class FindImBasicData1 {
 	private String manufacturerName;
 	private Date fromCreatedOn;
 	private Date toCreatedOn;
+
+	// BF
+	private List<String> inventoryOwner;
+	private List<String> batchNo;
 }

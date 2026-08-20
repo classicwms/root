@@ -13,4 +13,10 @@ public class StorageBinDashBoardInput {
 	private String warehouseId;
 	private List<String> storageBin;
 	private Long binClassId;
+    private List<String> businessPartnerCode;
+    private List<String>storageSectionId;
+    private List<String> aisleNumber;
+    private List<String> rowId;
+    private List<Long> levelId;
+    private List<Long> statusId;
 }

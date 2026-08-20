@@ -68,4 +68,18 @@ public class AddGrLineV2 extends AddGrLine {
     private Date vehicleUnloadingDate;
     private String receivingVariance;
     private String newCreated;
+
+    //==============SPAREX================
+    private String storageSectionId;
+    private String materialNo;
+    private String priceSegment;
+    private String articleNo;
+    private String gender;
+    private String color;
+    private String size;
+    private String noPairs;
+    private String statusDescription;
+    private String putAwayNumber;
+    private String customerId;
+    private  String customerName;
 }

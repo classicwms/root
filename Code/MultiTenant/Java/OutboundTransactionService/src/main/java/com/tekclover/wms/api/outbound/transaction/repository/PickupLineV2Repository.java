@@ -1,5 +1,6 @@
 package com.tekclover.wms.api.outbound.transaction.repository;
 
+import com.tekclover.wms.api.outbound.transaction.model.IKeyValuePair;
 import com.tekclover.wms.api.outbound.transaction.model.impl.StockMovementReportImpl;
 import com.tekclover.wms.api.outbound.transaction.model.outbound.pickup.v2.PickupLineV2;
 import com.tekclover.wms.api.outbound.transaction.repository.fragments.StreamableJpaSpecificationRepository;
@@ -351,6 +352,87 @@ public interface PickupLineV2Repository extends JpaRepository<PickupLineV2, Long
     void deletePickupLineV7(@Param("refDocNo") String refDocNumber,
                             @Param("barcodeId") String barcodeId);
 
+    boolean existsByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndStatusIdInAndDeletionIndicator(
+            String companyCodeId, String plantId, String warehouseId, String refDocNumber, String preOutboundNo, List<Long> statusId, Long deletionIndicator);
+
+    void deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndRefDocNumberAndLineNumberAndPreOutboundNoAndDeletionIndicator(
+            String companyCodeId, String plantId, String warehouseId, String itemCode,String refDocNumber, Long line, String preOutboundNo, Long deletionIndicator);
+
+
+    void deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
+            String companyCodeId, String plantId, String warehouseId, String itemCode,String refDocNumber, String preOutboundNo, Long deletionIndicator);
+
+
+    PickupLineV2 findByCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndRefDocNumberAndPreOutboundNoAndStatusIdInAndLineNumberAndDeletionIndicator(
+            String companyCodeId, String plantId, String warehouseId,String itemCode, String refDocNumber, String preOutboundNo, List<Long> statusId, Long lineNumber, Long deletionIndicator);
+
+
+    @Query(value = "select * from tblpickupline where c_id IN (:companyCodeId) and plant_id IN (:plantId) and \n" +
+            " lang_id IN (:languageId) and wh_id IN (:warehouseId) and " +
+            " (COALESCE(:refDocNumber, null) IS NULL OR (ref_doc_no IN (:refDocNumber))) and " +
+            " (COALESCE(:preOutboundNo, null) IS NULL OR (pre_ob_no IN (:preOutboundNo))) and " +
+            " (COALESCE(:itemCode, null) IS NULL OR (itm_code IN (:itemCode))) and " +
+            " (COALESCE(:statusId, null) IS NULL OR (status_id IN (:statusId))) and is_deleted = 0 ", nativeQuery = true)
+    public List<PickupLineV2> getPickupLineV10(@Param("companyCodeId") List<String> companyCodeId,
+                                               @Param("plantId") List<String> plantId,
+                                               @Param("languageId") List<String> languageId,
+                                               @Param("warehouseId") List<String> warehouseId,
+                                               @Param("refDocNumber") List<String> refDocNumber,
+                                               @Param("preOutboundNo") List<String> preOutboundNo,
+                                               @Param("itemCode") List<String> itemCode,
+                                               @Param("statusId") List<Long> statusId);
+
+    @Modifying
+    @Query(value = "UPDATE tblpickupline  SET status_id = :statusId, status_text = :statusDescription \n" +
+            " WHERE c_id = :companyCodeId and plant_id = :plantId and lang_id = :languageId and wh_id = :warehouseId and \n" +
+            " ref_doc_no = :refDocNumber and itm_code = :itemCode and  is_deleted = 0 ", nativeQuery = true)
+    void updatePickupWithoutLinesV10(@Param("companyCodeId") String companyCodeId,
+                                     @Param("plantId") String plantId,
+                                     @Param("languageId") String languageId,
+                                     @Param("warehouseId") String warehouseId,
+                                     @Param("refDocNumber") String refDocNumber,
+                                     @Param("itemCode") String itemCode,
+                                     @Param("statusId") Long statusId,
+                                     @Param("statusDescription") String statusDescription);
+
+    @Query(value = "SELECT SUM(PICK_CNF_QTY) FROM tblpickupline WHERE \n"
+            + "C_ID = :companyCodeId AND PLANT_ID = :plantId AND LANG_ID = :languageId AND \r\n"
+            + "WH_ID = :warehouseId AND REF_DOC_NO = :refDocNumber AND\r\n"
+            + "PRE_OB_NO = :preOutboundNo AND  ITM_CODE = :itemCode AND IS_DELETED = 0 \r\n"
+            + "GROUP BY REF_DOC_NO", nativeQuery = true)
+    public Double getPickupWithoutLineCountV10(@Param("companyCodeId") String companyCodeId,
+                                               @Param("plantId") String plantId,
+                                               @Param("languageId") String languageId,
+                                               @Param("warehouseId") String warehouseId,
+                                               @Param("refDocNumber") String refDocNumber,
+                                               @Param("preOutboundNo") String preOutboundNo,
+                                               @Param("itemCode") String itemCode);
+
+    @Query(value = "SELECT * from tblpickupline where c_id = :companyCodeId " +
+            "AND lang_id = :languageId AND plant_id = :plantId AND wh_id = :warehouseId " +
+            "AND pre_ob_no = :preOutboundNo AND ref_doc_no = :refDocNo " +
+            "AND itm_code = :itemCode AND partner_item_barcode = :barcodeId AND OB_LINE_NO =:lineNo AND IS_DELETED = 0", nativeQuery = true)
+    List<PickupLineV2> getExistingPickupLineV10(@Param("companyCodeId") String companyCodeId,
+                                                @Param("languageId") String languageId,
+                                                @Param("plantId") String plantId,
+                                                @Param("warehouseId") String warehouseId,
+                                                @Param("preOutboundNo") String preOutBoundNo,
+                                                @Param("refDocNo") String refDocNo,
+                                                @Param("itemCode") String itemCode,
+                                                @Param("barcodeId") String barcodeId,
+                                                @Param("lineNo") Long lineNo);
+
+    @Query(value = "SELECT top 1 DATEDIFF(MINUTE, ib.PICK_CTD_ON, :lDate) from tblpickupheader ib \n"
+            + "where ib.pu_no = :pickupNumber and ib.wh_id = :warehouseId and ib.PARTNER_ITEM_BARCODE = :barcodeId and \n"
+            + "ib.c_id = :companyCodeId and ib.plant_Id = :plantId and ib.lang_Id = :languageId and ib.is_deleted = 0", nativeQuery = true)
+    public String getLeadTimeV10(@Param("companyCodeId") String companyCodeId,
+                                 @Param("plantId") String plantId,
+                                 @Param("languageId") String languageId,
+                                 @Param("warehouseId") String warehouseId,
+                                 @Param("pickupNumber") String pickupNumber,
+                                 @Param("barcodeId") String barcodeId,
+                                 @Param("lDate") Date lDate);
+
     // Knowell
     @Query(value = "SELECT * from tblpickupline where c_id = :companyCodeId " +
             "AND lang_id = :languageId AND plant_id = :plantId AND wh_id = :warehouseId " +
@@ -366,4 +448,124 @@ public interface PickupLineV2Repository extends JpaRepository<PickupLineV2, Long
                                                @Param("itemCode") String itemCode,
                                                @Param("barcodeId") String barcodeId,
                                                @Param("pickCnfBarcodeId") String pickCnfBarcodeId);
-}
+
+    // BF
+    @Query(value = "SELECT * from tblpickupline WHERE REF_FIELD_2 = :palletCode \n " +
+            "AND PARTNER_ITEM_BARCODE = :barcodeId AND ITM_CODE = :itemCode \n " +
+            "AND REF_DOC_NO = :refDocumentNo AND IS_DELETED = 0", nativeQuery = true)
+    List<PickupLineV2> getPickupLineForDenial(@Param("palletCode") String palletCode,
+                                              @Param("barcodeId") String barcodeId,
+                                              @Param("itemCode") String itemCode,
+                                              @Param("refDocumentNo") String refDocumentNo);
+
+    // BF
+    @Modifying
+    @Transactional
+    @Query(value = "DELETE tblpickupline where ref_doc_no = :refDocNo AND REF_FIELD_2 = :palletCode \n" +
+            "AND IS_DELETED = 0", nativeQuery = true)
+    int deletePickupLineByPallet(@Param("refDocNo") String refDocNumber,
+                                 @Param("palletCode") String palletCode);
+
+    @Query(value = "select ref_field_2 from tblpickupline " +
+            "where c_id = :companyCodeId and plant_id = :plantId " +
+            "and wh_id = :warehouseId and ref_doc_no = :refDocNumber " +
+            "and itm_code = :itemCode and is_deleted = 0 ",
+            nativeQuery = true)
+    List<String> findPickupLinePallet(@Param("companyCodeId") String companyCodeId,
+                                      @Param("plantId") String plantId,
+                                      @Param("warehouseId") String warehouseId,
+                                      @Param("refDocNumber") String refDocNumber,
+                                      @Param("itemCode") String itemCode);
+
+    // BF
+    @Query(value = "SELECT DATEDIFF(MINUTE, ib.PICK_CTD_ON, :lDate) from tblpickupheader ib \n"
+            + "where ib.pu_no = :pickupNumber and ib.wh_id = :warehouseId and ib.PARTNER_ITEM_BARCODE = :barcodeId and \n"
+            + "ib.c_id = :companyCodeId and ib.plant_Id = :plantId and ib.lang_Id = :languageId and REF_FIELD_2 = :palletCode and ib.is_deleted = 0", nativeQuery = true)
+    public String getleadtimeV9(@Param("companyCodeId") String companyCodeId,
+                                @Param("plantId") String plantId,
+                                @Param("languageId") String languageId,
+                                @Param("warehouseId") String warehouseId,
+                                @Param("pickupNumber") String pickupNumber,
+                                @Param("barcodeId") String barcodeId,
+                                @Param("lDate") Date lDate,
+                                @Param("palletCode") String palletCode);
+
+    // BF
+    PickupLineV2 findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndReferenceField2AndPickupNumberAndPreOutboundNoAndDeletionIndicator(
+            String companyCodeId, String plantId, String languageId, String warehouseId, String refDocNumber, String palletCode, String pickupNumber, String preOutboundNo, Long deletionIndicator);
+
+    // BF
+    @Modifying
+    @Transactional
+    @Query(value = "DELETE tblpickupline where ref_doc_no = :refDocNo AND REF_FIELD_2 = :palletCode AND PU_NO = :pickupNumber \n" +
+            "AND IS_DELETED = 0", nativeQuery = true)
+    int deletePickupLineByPallets(@Param("refDocNo") String refDocNumber,
+                                  @Param("palletCode") String palletCode,
+                                  @Param("pickupNumber") String pickupNumber);
+
+    @Query(value = "SELECT COALESCE(SUM(PICK_CNF_QTY), 0) FROM tblpickupline " +
+            "WHERE C_ID = :companyCodeId AND PLANT_ID = :plantId AND LANG_ID = :languageId " +
+            "AND WH_ID = :warehouseId AND PRE_OB_NO = :preOutboundNo AND REF_DOC_NO = :refDocNumber " +
+            "AND ITM_CODE = :itemCode " +
+            "AND IS_DELETED = 0",
+            nativeQuery = true)
+    Double getTotalPickConfirmQty(@Param("companyCodeId") String companyCodeId,
+                                  @Param("plantId") String plantId,
+                                  @Param("languageId") String languageId,
+                                  @Param("warehouseId") String warehouseId,
+                                  @Param("preOutboundNo") String preOutboundNo,
+                                  @Param("refDocNumber") String refDocNumber,
+                                  @Param("itemCode") String itemCode);
+
+    @Query(value = "SELECT TOP 1 * FROM tblpickupline " +
+            "WHERE C_ID = :companyCodeId AND PLANT_ID = :plantId AND LANG_ID = :languageId " +
+            "AND WH_ID = :warehouseId AND PRE_OB_NO = :preOutboundNo AND REF_DOC_NO = :refDocNumber " +
+            "AND ITM_CODE = :itemCode AND IS_DELETED = 0",
+            nativeQuery = true)
+    PickupLineV2 findTopPickupLine(@Param("companyCodeId") String companyCodeId,
+                                   @Param("plantId") String plantId, @Param("languageId") String languageId,
+                                   @Param("warehouseId") String warehouseId, @Param("preOutboundNo") String preOutboundNo,
+                                   @Param("refDocNumber") String refDocNumber, @Param("itemCode") String itemCode);
+
+    @Modifying
+    @Transactional
+    @Query(value = "DELETE FROM tblpickupline WHERE C_ID = :companyCodeId AND " +
+            "PLANT_ID = :plantId AND WH_ID = :warehouseId AND ITM_CODE = :itemCode AND " +
+            "IS_DELETED = 0", nativeQuery = true)
+    void deletePickupLineByItemCode(@Param("companyCodeId") String companyCodeId,
+                                    @Param("plantId") String plantId,
+                                    @Param("warehouseId") String warehouseId,
+                                    @Param("itemCode") String itemCode);
+
+    @Modifying
+    @Transactional
+    @Query(value = "DELETE FROM tblpickupline WHERE C_ID = :companyCodeId AND " +
+            "PLANT_ID = :plantId AND WH_ID = :warehouseId AND REF_DOC_NO = :refDocNumber AND " +
+            "IS_DELETED = 0", nativeQuery = true)
+    void deletePickupLineByRefNo(@Param("companyCodeId") String companyCodeId,
+                                 @Param("plantId") String plantId,
+                                 @Param("warehouseId") String warehouseId,
+                                 @Param("refDocNumber") String refDocNumber);
+
+    @Query(value = "SELECT COALESCE(SUM(PICK_CNF_QTY), 0) AS pickConfirmQty, ITM_CODE AS itemCode FROM tblpickupline " +
+            "WHERE C_ID = :companyCodeId AND PLANT_ID = :plantId AND LANG_ID = :languageId " +
+            "AND WH_ID = :warehouseId AND PRE_OB_NO = :preOutboundNo AND REF_DOC_NO = :refDocNumber " +
+            "AND IS_DELETED = 0 GROUP BY ITM_CODE",
+            nativeQuery = true)
+    List<IKeyValuePair> getTotalPickConfirmQty(@Param("companyCodeId") String companyCodeId,
+                                               @Param("plantId") String plantId,
+                                               @Param("languageId") String languageId,
+                                               @Param("warehouseId") String warehouseId,
+                                               @Param("preOutboundNo") String preOutboundNo,
+                                               @Param("refDocNumber") String refDocNumber);
+    @Modifying
+    @Query(value = "update tblpickupline set PICK_CNF_QTY = :orderQty , ALLOC_QTY = :orderQty \n" +
+            "where C_ID = :companyCodeId and PLANT_ID = :plantId and ob_line_no = :lineNumber \n" +
+            "AND WH_ID = :warehouseId and REF_DOC_NO = :refDocNumber and itm_code = :itemCode and is_deleted = 0 ", nativeQuery = true)
+    int updateOrderQtyV10(@Param("companyCodeId") String companyCodeId,
+                          @Param("plantId") String plantId,
+                          @Param("warehouseId") String warehouseId,
+                          @Param("refDocNumber") String refDocNumber,
+                          @Param("itemCode") String itemCode,
+                          @Param("lineNumber") Long lineNumber,
+                          @Param("orderQty") Double orderQty);}

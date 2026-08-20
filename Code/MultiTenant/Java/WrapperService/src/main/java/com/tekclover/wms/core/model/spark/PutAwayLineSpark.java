@@ -23,6 +23,7 @@ public class PutAwayLineSpark {
     private Timestamp pa_ctd_on;
     private Timestamp pa_cnf_on;
     private String ref_field_1;
+    private String ref_field_10;
     private String alt_uom;
     private Double no_bags;
     private Double bag_size;
@@ -31,4 +32,11 @@ public class PutAwayLineSpark {
     private String itm_grp;
     private Double piece_Qty;
     private Double case_Qty;
+
+    private String ref_field_2;
+
+    private String text;
+       private Double qty_in_case;
+    private Double qty_in_create;
+    private Double qty_in_piece;
 }

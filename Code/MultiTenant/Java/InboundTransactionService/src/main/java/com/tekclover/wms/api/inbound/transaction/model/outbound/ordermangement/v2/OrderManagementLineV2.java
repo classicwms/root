@@ -7,6 +7,7 @@ import lombok.ToString;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import java.util.Date;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -150,6 +151,22 @@ public class OrderManagementLineV2 extends OrderManagementLine {
 
     @Column(name = "SHIP_TO_PARTY", columnDefinition = "nvarchar(50)")
     private String shipToParty;
+
+    @Column(name = "MFR_DATE")
+    private Date manufacturerDate;
+
+    @Column(name = "EXP_DATE")
+    private Date expiryDate;
+
+    @Column(name = "QTY_IN_CASE")
+    private Double qtyInCase;
+
+    @Column(name = "QTY_IN_PIECE")
+    private Double qtyInPiece;
+
+    @Column(name = "QTY_IN_CRATE")
+    private Double qtyInCrate;
+
 
 
 }

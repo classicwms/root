@@ -2264,4 +2264,111 @@ public class PeriodicLineService extends BaseService {
         return createStockCountList;
     }
 
+
+    /**
+     *
+     * @param cycleCountNo
+     * @param periodicLineV2s
+     * @param loginUserID
+     * @return
+     * @throws Exception
+     */
+    public WarehouseApiResponse updatePeriodicLineConfirmV9(String cycleCountNo, List<PeriodicLineV2> periodicLineV2s,
+                                                            String loginUserID) throws Exception {
+        if(periodicLineV2s == null || periodicLineV2s.isEmpty()) {
+            throw new BadRequestException("Kindly send Periodic lines to confirm..!" + periodicLineV2s);
+        }
+        List<PeriodicLineV2> responsePeriodicLines = new ArrayList<>();
+        List<String> statusId78 = new ArrayList<>();
+        List<String> statusId47 = new ArrayList<>();
+        String companyCode = null;
+        String plantId = null;
+        String languageId = null;
+        String warehouseId = null;
+        try {
+            for (PeriodicLineV2 updatePeriodicLine : periodicLineV2s) {
+                companyCode = updatePeriodicLine.getCompanyCode();
+                plantId = updatePeriodicLine.getPlantId();
+                languageId = updatePeriodicLine.getLanguageId();
+                warehouseId = updatePeriodicLine.getWarehouseId();
+
+                PeriodicLineV2 dbPeriodicLine = getPeriodicLineV9(
+                        companyCode, plantId, languageId, warehouseId, cycleCountNo,
+                        updatePeriodicLine.getStorageBin(), updatePeriodicLine.getItemCode(), updatePeriodicLine.getBarcodeId(),
+                        updatePeriodicLine.getManufacturerName(), updatePeriodicLine.getPackBarcodes());
+
+                log.info("dbPeriodicLine ------------> {}", dbPeriodicLine);
+
+                if (dbPeriodicLine != null) {
+                    if (dbPeriodicLine.getStatusId() == 78L) {
+                        statusId78.add("True");
+                        responsePeriodicLines.add(dbPeriodicLine);
+                    }
+                    if (dbPeriodicLine.getStatusId() == 47L) {
+                        statusId47.add("True");
+                        if (updatePeriodicLine.getLineNo() == null) {
+                            updatePeriodicLine.setLineNo(dbPeriodicLine.getLineNo());
+                        }
+                        updatePeriodicLine.setPackBarcodes(PACK_BARCODE);       //HardCode
+                        updatePeriodicLine.setStorageBin("Z1-Y1-X1-W1");   //HardCode
+                        updatePeriodicLine.setCountedQty(0D);
+                        updatePeriodicLine.setDeletionIndicator(0L);
+                        responsePeriodicLines.add(updatePeriodicLine);
+                    }
+                }
+            }
+
+            Long periodicLineCount = periodicLineV2s.stream().count();
+            Long statusIdCount = statusId78.stream().filter(a -> a.equalsIgnoreCase("True")).count();
+            Long statusId47Count = statusId47.stream().filter(a -> a.equalsIgnoreCase("True")).count();
+            Long statusIdTotalCount = statusIdCount + statusId47Count;
+            log.info("Count of Periodic Line, statusId78, statusId47, total : " + periodicLineCount + ", " + statusIdCount + "," + statusId47Count + "," + statusIdTotalCount);
+
+            if (!periodicLineCount.equals(statusIdTotalCount)) {
+                throw new BadRequestException("Periodic Lines are not completely Processed");
+            }
+
+            if (periodicLineCount.equals(statusIdTotalCount)) {
+                // Update new PerpetualHeader
+                PeriodicHeaderV2 dbPeriodicHeaderV2 = periodicHeaderService.getPeriodicHeaderV9(
+                        companyCode, plantId, languageId, warehouseId, cycleCountNo);
+                log.info("dbPeriodicHeaderV2 statusId ------------> {}", dbPeriodicHeaderV2.getStatusId());
+
+            }
+
+            stockAdjustmentService.createStockAdjustmentV9(periodicLineV2s, loginUserID);
+            periodicHeaderV2Repository.updatePeriodicHeaderV4(companyCode, plantId, languageId, warehouseId, cycleCountNo);
+            WarehouseApiResponse warehouseApiResponse = new WarehouseApiResponse();
+            warehouseApiResponse.setStatusCode("200");
+            warehouseApiResponse.setMessage("Success");
+            return warehouseApiResponse;
+        } catch (Exception e) {
+            log.error("Exception while periodic line confirm : " + e.toString());
+            throw e;
+        }
+    }
+
+    /**
+     *
+     * @param companyCode
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param cycleCountNo
+     * @param storageBin
+     * @param itemCode
+     * @param barcodeId
+     * @param manufacturerName
+     * @param packBarcodes
+     * @return
+     */
+    public PeriodicLineV2 getPeriodicLineV9(String companyCode, String plantId, String languageId, String warehouseId, String cycleCountNo,
+                                            String storageBin, String itemCode, String barcodeId, String manufacturerName, String packBarcodes) {
+        log.info(companyCode + "|" + plantId + "|" + languageId + "|" + warehouseId + "|" + itemCode + "|" + barcodeId + "|" + manufacturerName
+                + "|" + packBarcodes+ "|" + storageBin + "|" + cycleCountNo);
+        PeriodicLineV2 periodicLineV2 = periodicLineV2Repository.getPeriodicLineV9(
+                companyCode, plantId, languageId, warehouseId, cycleCountNo, storageBin, itemCode, manufacturerName, packBarcodes, barcodeId);
+        log.info("Periodic response -------------> " + periodicLineV2 );
+        return periodicLineV2;
+    }
 }

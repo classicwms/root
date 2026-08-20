@@ -6,9 +6,13 @@ import com.tekclover.wms.core.config.PropertiesConfig;
 import com.tekclover.wms.core.exception.BadRequestException;
 import com.tekclover.wms.core.model.auth.AuthToken;
 import com.tekclover.wms.core.model.dto.Error;
+import com.tekclover.wms.core.model.masters.BusinessPartnerV2;
+import com.tekclover.wms.core.model.masters.ImAlternateUom;
+import com.tekclover.wms.core.model.pdfextract.InvoiceData;
 import com.tekclover.wms.core.model.transaction.*;
 import com.tekclover.wms.core.model.warehouse.inbound.WarehouseApiResponse;
 import com.tekclover.wms.core.model.warehouse.inbound.almailem.*;
+import com.tekclover.wms.core.model.warehouse.mastersorder.ImBasicData1V2;
 import com.tekclover.wms.core.model.warehouse.outbound.almailem.*;
 import com.tekclover.wms.core.repository.MailingReportRepository;
 import com.tekclover.wms.core.util.CommonUtils;
@@ -48,6 +52,9 @@ public class FileStorageService {
     PropertiesConfig propertiesConfig;
 
     @Autowired
+    PdfExtractionService pdfExtractionService;
+
+    @Autowired
     AuthTokenService authTokenService;
     @Autowired
     IDMasterService idMasterService;
@@ -61,12 +68,18 @@ public class FileStorageService {
     @Autowired
     MailingReportRepository mailingReportRepository;
 
+    @Autowired
+    OrderProcessingService orderProcessingService;
+
     //-----------------------------------------------------------------------------------
     @Autowired
     InboundTransactionService transactionService;
 
     @Autowired
     OrderProcessingService orderPreparationService;
+
+    @Autowired
+    MastersService mastersService;
 
     //-----------------------------------------------------------------------------------
 
@@ -2451,4 +2464,2482 @@ public class FileStorageService {
         return allRowsList;
     }
 
+
+    //================BF ImBasicData1 Upload =================================
+    public Map<String, String> processImBasicDataBF(String companyCodeId, String plantId, String languageId,
+                                                    String warehouseId, String loginUserID, MultipartFile file) throws Exception {
+        this.fileStorageLocation = Paths.get(propertiesConfig.getFileUploadDir()).toAbsolutePath().normalize();
+        if (!Files.exists(fileStorageLocation)) {
+            try {
+                Files.createDirectories(this.fileStorageLocation);
+            } catch (Exception ex) {
+                throw new BadRequestException(
+                        "Could not create the directory where the uploaded files will be stored.");
+            }
+        }
+
+        List<String> validationErrors = validationImBasicDataV9(file);
+        if (!validationErrors.isEmpty()) {
+            List<Error> errors = validationFormat(validationErrors);
+            ObjectMapper objectMapper = new ObjectMapper();
+            String jsonResponse = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(errors);
+            Map<String, String> mapFileProps = new HashMap<>();
+            mapFileProps.put("errors", jsonResponse);
+            return mapFileProps;
+        }
+        log.info("loca : " + fileStorageLocation);
+
+        // Normalize file name
+        String fileName = StringUtils.cleanPath(file.getOriginalFilename());
+        log.info("filename before: " + fileName);
+        fileName = fileName.replace(" ", "_");
+        log.info("filename after: " + fileName);
+        try {
+            // Check if the file's name contains invalid characters
+            if (fileName.contains("..")) {
+                throw new BadRequestException("Sorry! Filename contains invalid path sequence " + fileName);
+            }
+
+            // Copy file to the target location (Replacing existing file with the same name)
+            Path targetLocation = this.fileStorageLocation.resolve(fileName);
+            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+            log.info("Copied : " + targetLocation);
+
+            List<ImBasicData1V2> allRowsList = excelDataProcessService.readExcelFileV9(companyCodeId, plantId, languageId, warehouseId, loginUserID, file);
+
+            if (allRowsList != null && !allRowsList.isEmpty()) {
+                // Uploading
+                WarehouseApiResponse[] dbWarehouseApiResponse = new WarehouseApiResponse[0];
+                List<ImBasicData1V2> imBasicDataList = imBasicDataV9(companyCodeId, plantId, languageId, warehouseId, loginUserID, allRowsList);
+                log.info("imbasic Data bin size " + imBasicDataList.size());
+
+
+                AuthToken authToken = authTokenService.getMastersServiceAuthToken();
+                dbWarehouseApiResponse = mastersService.postImBasicDataUpload(allRowsList, authToken.getAccess_token());
+
+                if (dbWarehouseApiResponse != null) {
+                    return uploadSuccessMessage(fileName);
+                }
+            }
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            throw new BadRequestException("Could not store file " + fileName + ". Please try again!");
+        }
+        return null;
+    }
+
+    //==============BF=================================
+    private List<String> validationImBasicDataV9(MultipartFile file) throws IOException {
+
+        List<String> errors = new ArrayList<>();
+        // Read Excel file
+        try (InputStream inputStream = file.getInputStream()) {
+            Workbook workbook = new XSSFWorkbook(inputStream);
+            Sheet sheet = workbook.getSheetAt(0);
+
+            // Assuming the first row contains the headers
+            Row headerRow = sheet.getRow(0);
+            // Validate data in each row (excluding the header row)
+            for (int rowIndex = 1; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
+                Row row = sheet.getRow(rowIndex);
+                // Skip the row if it is completely empty
+                if (isRowEmpty(row)) {
+                    continue;
+                }
+                for (int colIndex = 0; colIndex < headerRow.getPhysicalNumberOfCells(); colIndex++) {
+                    Cell cell = row.getCell(colIndex);
+                    String header = headerRow.getCell(colIndex).getStringCellValue().toLowerCase();
+
+                    // Validate cell based on header and column index
+                    if (cell != null) {
+                        switch (header) {
+                            case "uomid":
+                            case "itemcode":
+                            case "description":
+                            case "manufacturerpartno":
+                            case "hsncode":
+                            case "storagesectionid":
+                            case "capacitycheck":
+                            case "capacityunit":
+                            case "capacityuom":
+                            case "quantity":
+                            case "manufacturername":
+                            case "manufacturerfullname":
+                            case "manufacturercode":
+                            case "dimensionuom":
+                            case "supplierpartnumber":
+                            case "model":
+                            case "specifications1":
+                            case "specifications2":
+                            case "eanupcno":
+                            case "shelflifeindicator":
+                            case "brand":
+                            case "remarks":
+                            case "movingtype":
+                            case "referencefield1":
+                            case "referencefield2":
+                                validateStringCell(cell, rowIndex, colIndex, header, errors);
+                                break;
+
+                            case "itemtype":
+                            case "itemgroup":
+                            case "subitemgroup":
+                            case "minimumstock":
+                            case "maximumstock":
+                            case "reorderlevel":
+                            case "replenishmentqty":
+                            case "safetystock":
+                            case "weight":
+                                validateDoubleCell(cell, rowIndex, colIndex,header,errors);
+                                break;
+
+                            case "statusid":
+                            case "length":
+                            case "width":
+                            case "height":
+                            case "volume":
+                            case "selflife":
+                            case "referencefield5":
+                                validateIntegerCell(cell, rowIndex, colIndex, header, errors);
+                                break;
+                            default:
+                                errors.add("Unknown header at row " + (rowIndex + 1) + ", column " + (colIndex + 1) + ": " + header);
+                                break;
+                        }
+                    } else {
+                        switch (header) {
+                            case "uomid":
+                            case "itemcode":
+                            case "description":
+                                errors.add("Empty cell at row " + (rowIndex + 1) + ", column " + (colIndex + 1) + " (" + header + ") : : Mandatory Field cannot be empty.");
+                                break;
+                        }
+                    }
+                }
+            }
+            if (errors.isEmpty()) {
+                System.out.println("No validation errors found.");
+            } else {
+                System.out.println("Validation errors:");
+                for (String error : errors) {
+                    System.out.println(error);
+                }
+            }
+        }
+        return errors;
+    }
+
+    private List<com.tekclover.wms.core.model.dto.Error> validationFormat(List<String> validationErrors) {
+        Map<String, Object> response = null;
+        List<com.tekclover.wms.core.model.dto.Error> errorList = new ArrayList<>();
+        for (String error : validationErrors) {
+            String[] parts = error.split(":");
+            String rowPart = parts[0];
+            String message = parts[1].trim().concat(rowPart);
+
+            Pattern pattern = Pattern.compile("\\d+");
+            Matcher matcher = pattern.matcher(rowPart);
+            int extractedInteger = 0;
+            if (matcher.find()) {
+                // Convert the extracted string to an integer
+                extractedInteger = Integer.parseInt(matcher.group());
+            }
+            // Extract line number (e.g., "Row 2" -> 2)
+//			int lineNo = Integer.parseInt(rowPart.replaceAll("\\D", ""));
+            errorList.add(new com.tekclover.wms.core.model.dto.Error(extractedInteger, message));
+        }
+        return errorList;
+    }
+
+    //===============BF============================
+    private List<ImBasicData1V2> imBasicDataV9(String companyCodeId, String plantId,
+                                               String languageId, String warehouseId, String loginUserID, List<ImBasicData1V2> list) {
+        List<ImBasicData1V2> allRowsList = list.stream().sorted(Comparator.comparing(ImBasicData1V2::getUomId)).collect(Collectors.toList());
+        List<ImBasicData1V2> saveImBasicData = new ArrayList<>();
+
+        for (ImBasicData1V2 imBasicDataV2 : allRowsList) {
+            ImBasicData1V2 imBasicdata1 = new ImBasicData1V2();
+            BeanUtils.copyProperties(imBasicDataV2, imBasicdata1, CommonUtils.getNullPropertyNames(imBasicDataV2));
+            imBasicdata1.setCompanyCodeId(companyCodeId);
+            imBasicdata1.setPlantId(plantId);
+            imBasicdata1.setWarehouseId(warehouseId);
+            imBasicdata1.setLanguageId(languageId);
+            imBasicdata1.setCreatedBy(loginUserID);
+            log.info("itemCode" + imBasicDataV2.getItemCode());
+            log.info("itemCode" + imBasicdata1.getItemCode());
+
+            saveImBasicData.add(imBasicdata1);
+        }
+
+        return saveImBasicData;
+    }
+
+
+    public static void validateDoubleCell(
+            Cell cell,
+            int rowIndex,
+            int colIndex,
+            String header,
+            List<String> errors) {
+
+        // Check if the cell is blank first
+        if (cell == null || cell.getCellType() == CellType.BLANK) {
+            errors.add("Empty value at row " + (rowIndex + 1) +
+                    ", column " + (colIndex + 1) +
+                    " (" + header + ") : Double cannot be empty.");
+        } else {
+
+            // Check if the cell is of numeric type
+            if (cell.getCellType() != CellType.NUMERIC) {
+                errors.add("Invalid data type at row " + (rowIndex + 1) +
+                        ", column " + (colIndex + 1) +
+                        " (" + header + "): Expected Double.");
+            } else {
+
+                // Read double value (no integer check)
+                double value = cell.getNumericCellValue();
+
+                // Optional safety check
+                if (Double.isNaN(value) || Double.isInfinite(value)) {
+                    errors.add("Invalid value at row " + (rowIndex + 1) +
+                            ", column " + (colIndex + 1) +
+                            " (" + header + "): Invalid Double value.");
+                }
+            }
+        }
+    }
+
+//    /================SPAREX ImBasicData1 Upload =================================
+    public Map<String, String> processImBasicDataSPAREX(String companyCodeId, String plantId, String languageId,
+                                                        String warehouseId, String loginUserID, MultipartFile file) throws Exception {
+        this.fileStorageLocation = Paths.get(propertiesConfig.getFileUploadDir()).toAbsolutePath().normalize();
+        if (!Files.exists(fileStorageLocation)) {
+            try {
+                Files.createDirectories(this.fileStorageLocation);
+            } catch (Exception ex) {
+                throw new BadRequestException(
+                        "Could not create the directory where the uploaded files will be stored.");
+            }
+        }
+
+        List<String> validationErrors = validationImBasicDataV10(file);
+        if (!validationErrors.isEmpty()) {
+            List<Error> errors = validationFormat(validationErrors);
+            ObjectMapper objectMapper = new ObjectMapper();
+            String jsonResponse = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(errors);
+            Map<String, String> mapFileProps = new HashMap<>();
+            mapFileProps.put("errors", jsonResponse);
+            return mapFileProps;
+        }
+        log.info("loca : " + fileStorageLocation);
+
+        // Normalize file name
+        String fileName = StringUtils.cleanPath(file.getOriginalFilename());
+        log.info("filename before: " + fileName);
+        fileName = fileName.replace(" ", "_");
+        log.info("filename after: " + fileName);
+        try {
+            // Check if the file's name contains invalid characters
+            if (fileName.contains("..")) {
+                throw new BadRequestException("Sorry! Filename contains invalid path sequence " + fileName);
+            }
+
+            // Copy file to the target location (Replacing existing file with the same name)
+            Path targetLocation = this.fileStorageLocation.resolve(fileName);
+            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+            log.info("Copied : " + targetLocation);
+
+            List<ImBasicData1V2> allRowsList = excelDataProcessService.readExcelFileV10(companyCodeId, plantId, languageId, warehouseId, loginUserID, file);
+
+            if (allRowsList != null && !allRowsList.isEmpty()) {
+                // Uploading
+                WarehouseApiResponse[] dbWarehouseApiResponse = new WarehouseApiResponse[0];
+                List<ImBasicData1V2> imBasicDataList = imBasicDataV10(companyCodeId, plantId, languageId, warehouseId, loginUserID, allRowsList);
+                log.info("imbasic Data bin size " + imBasicDataList.size());
+
+
+                AuthToken authToken = authTokenService.getMastersServiceAuthToken();
+                dbWarehouseApiResponse = mastersService.postImBasicDataUpload(allRowsList, authToken.getAccess_token());
+
+                if (dbWarehouseApiResponse != null) {
+                    return uploadSuccessMessage(fileName);
+                }
+            }
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            throw new BadRequestException("Could not store file " + fileName + ". Please try again!");
+        }
+        return null;
+    }
+
+    //===========SPAREX=====================
+    private List<String> validationImBasicDataV10(MultipartFile file) throws IOException {
+
+        List<String> errors = new ArrayList<>();
+        // Read Excel file
+        try (InputStream inputStream = file.getInputStream()) {
+            Workbook workbook = new XSSFWorkbook(inputStream);
+            Sheet sheet = workbook.getSheetAt(0);
+
+            // Assuming the first row contains the headers
+            Row headerRow = sheet.getRow(0);
+            // Validate data in each row (excluding the header row)
+            for (int rowIndex = 1; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
+                Row row = sheet.getRow(rowIndex);
+                // Skip the row if it is completely empty
+                if (isRowEmpty(row)) {
+                    continue;
+                }
+                for (int colIndex = 0; colIndex < headerRow.getPhysicalNumberOfCells(); colIndex++) {
+                    Cell cell = row.getCell(colIndex);
+                    String header = headerRow.getCell(colIndex).getStringCellValue().toLowerCase();
+
+                    // Validate cell based on header and column index
+                    if (cell != null) {
+                        switch (header) {
+                            case "uomid":
+                            case "itemcode":
+                            case "storagesectionid":
+                            case "referencefield1":
+                                validateStringCell(cell, rowIndex, colIndex, header, errors);
+                                break;
+
+                            case "description":
+                            case "manufacturername":
+                            case "shelflifeindicator":
+                                nullValidateStringCell(cell, rowIndex, colIndex, header, errors);
+                                break;
+
+                            case "itemtype":
+                            case "itemgroup":
+                            case "subitemgroup":
+                                validateDoubleCell(cell, rowIndex, colIndex,header,errors);
+                                break;
+
+                            default:
+                                errors.add("Unknown header at row " + (rowIndex + 1) + ", column " + (colIndex + 1) + ": " + header);
+                                break;
+                        }
+                    } else {
+                        switch (header) {
+                            case "uomid":
+                            case "itemcode":
+                            case "referencefield1":
+                                errors.add("Empty cell at row " + (rowIndex + 1) + ", column " + (colIndex + 1) + " (" + header + ") : : Mandatory Field cannot be empty.");
+                                break;
+                        }
+                    }
+                }
+            }
+            if (errors.isEmpty()) {
+                System.out.println("No validation errors found.");
+            } else {
+                System.out.println("Validation errors:");
+                for (String error : errors) {
+                    System.out.println(error);
+                }
+            }
+        }
+        return errors;
+    }
+
+    //==============SPAREX===================================
+    private List<ImBasicData1V2> imBasicDataV10(String companyCodeId, String plantId,
+                                                String languageId, String warehouseId, String loginUserID, List<ImBasicData1V2> list) {
+        List<ImBasicData1V2> allRowsList = list.stream().sorted(Comparator.comparing(ImBasicData1V2::getUomId)).collect(Collectors.toList());
+        List<ImBasicData1V2> saveImBasicData = new ArrayList<>();
+
+        for (ImBasicData1V2 imBasicDataV2 : allRowsList) {
+            ImBasicData1V2 imBasicdata1 = new ImBasicData1V2();
+            BeanUtils.copyProperties(imBasicDataV2, imBasicdata1, CommonUtils.getNullPropertyNames(imBasicDataV2));
+            imBasicdata1.setCompanyCodeId(companyCodeId);
+            imBasicdata1.setPlantId(plantId);
+            imBasicdata1.setWarehouseId(warehouseId);
+            imBasicdata1.setLanguageId(languageId);
+            imBasicdata1.setCreatedBy(loginUserID);
+            log.info("itemCode" + imBasicDataV2.getItemCode());
+            log.info("itemCode" + imBasicdata1.getItemCode());
+
+            saveImBasicData.add(imBasicdata1);
+        }
+
+        return saveImBasicData;
+    }
+
+    //================MT ImBasicData1 Upload =================================
+    public Map<String, String> processImBasicData(String companyCodeId, String plantId, String languageId,
+                                                  String warehouseId, String loginUserID, MultipartFile file) throws Exception {
+        this.fileStorageLocation = Paths.get(propertiesConfig.getFileUploadDir()).toAbsolutePath().normalize();
+        if (!Files.exists(fileStorageLocation)) {
+            try {
+                Files.createDirectories(this.fileStorageLocation);
+            } catch (Exception ex) {
+                throw new BadRequestException(
+                        "Could not create the directory where the uploaded files will be stored.");
+            }
+        }
+
+        List<String> validationErrors = validationImBasicData(file);
+        if (!validationErrors.isEmpty()) {
+            List<Error> errors = validationFormat(validationErrors);
+            ObjectMapper objectMapper = new ObjectMapper();
+            String jsonResponse = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(errors);
+            Map<String, String> mapFileProps = new HashMap<>();
+            mapFileProps.put("errors", jsonResponse);
+            return mapFileProps;
+        }
+        log.info("loca : " + fileStorageLocation);
+
+        // Normalize file name
+        String fileName = StringUtils.cleanPath(file.getOriginalFilename());
+        log.info("filename before: " + fileName);
+        fileName = fileName.replace(" ", "_");
+        log.info("filename after: " + fileName);
+        try {
+            // Check if the file's name contains invalid characters
+            if (fileName.contains("..")) {
+                throw new BadRequestException("Sorry! Filename contains invalid path sequence " + fileName);
+            }
+
+            // Copy file to the target location (Replacing existing file with the same name)
+            Path targetLocation = this.fileStorageLocation.resolve(fileName);
+            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+            log.info("Copied : " + targetLocation);
+
+            List<ImBasicData1V2> allRowsList = excelDataProcessService.readExcelFile(companyCodeId, plantId, languageId, warehouseId, loginUserID, file);
+
+            if (allRowsList != null && !allRowsList.isEmpty()) {
+                // Uploading
+                WarehouseApiResponse[] dbWarehouseApiResponse = new WarehouseApiResponse[0];
+                List<ImBasicData1V2> imBasicDataList = imBasicData(companyCodeId, plantId, languageId, warehouseId, loginUserID, allRowsList);
+                log.info("imbasic Data bin size " + imBasicDataList.size());
+
+
+                AuthToken authToken = authTokenService.getMastersServiceAuthToken();
+                dbWarehouseApiResponse = mastersService.postImBasicDataUpload(allRowsList, authToken.getAccess_token());
+
+                if (dbWarehouseApiResponse != null) {
+                    return uploadSuccessMessage(fileName);
+                }
+            }
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            throw new BadRequestException("Could not store file " + fileName + ". Please try again!");
+        }
+        return null;
+    }
+
+    //==============MT =================================
+    private List<String> validationImBasicData(MultipartFile file) throws IOException {
+
+        List<String> errors = new ArrayList<>();
+        // Read Excel file
+        try (InputStream inputStream = file.getInputStream()) {
+            Workbook workbook = new XSSFWorkbook(inputStream);
+            Sheet sheet = workbook.getSheetAt(0);
+
+            // Assuming the first row contains the headers
+            Row headerRow = sheet.getRow(0);
+            // Validate data in each row (excluding the header row)
+            for (int rowIndex = 1; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
+                Row row = sheet.getRow(rowIndex);
+                // Skip the row if it is completely empty
+                if (isRowEmpty(row)) {
+                    continue;
+                }
+                for (int colIndex = 0; colIndex < headerRow.getPhysicalNumberOfCells(); colIndex++) {
+                    Cell cell = row.getCell(colIndex);
+                    String header = headerRow.getCell(colIndex).getStringCellValue().toLowerCase();
+
+                    // Validate cell based on header and column index
+                    if (cell != null) {
+                        switch (header) {
+                            case "uomid":
+                            case "itemcode":
+                            case "description":
+                            case "manufacturerpartno":
+                            case "hsncode":
+                            case "storagesectionid":
+                            case "capacitycheck":
+                            case "capacityunit":
+                            case "capacityuom":
+                            case "quantity":
+                            case "manufacturername":
+                            case "manufacturerfullname":
+                            case "manufacturercode":
+                            case "dimensionuom":
+                            case "supplierpartnumber":
+                            case "model":
+                            case "specifications1":
+                            case "specifications2":
+                            case "eanupcno":
+                            case "shelflifeindicator":
+                            case "brand":
+                            case "remarks":
+                            case "movingtype":
+                            case "referencefield1":
+                            case "referencefield2":
+                                validateStringCell(cell, rowIndex, colIndex, header, errors);
+                                break;
+
+                            case "itemtype":
+                            case "itemgroup":
+                            case "subitemgroup":
+                            case "minimumstock":
+                            case "maximumstock":
+                            case "reorderlevel":
+                            case "replenishmentqty":
+                            case "safetystock":
+                            case "weight":
+                                validateDoubleCell(cell, rowIndex, colIndex,header,errors);
+                                break;
+
+                            case "statusid":
+                            case "length":
+                            case "width":
+                            case "height":
+                            case "volume":
+                            case "selflife":
+                            case "referencefield5":
+                                validateIntegerCell(cell, rowIndex, colIndex, header, errors);
+                                break;
+                            default:
+                                errors.add("Unknown header at row " + (rowIndex + 1) + ", column " + (colIndex + 1) + ": " + header);
+                                break;
+                        }
+                    } else {
+                        switch (header) {
+                            case "uomid":
+                            case "itemcode":
+                            case "description":
+                                errors.add("Empty cell at row " + (rowIndex + 1) + ", column " + (colIndex + 1) + " (" + header + ") : : Mandatory Field cannot be empty.");
+                                break;
+                        }
+                    }
+                }
+            }
+            if (errors.isEmpty()) {
+                System.out.println("No validation errors found.");
+            } else {
+                System.out.println("Validation errors:");
+                for (String error : errors) {
+                    System.out.println(error);
+                }
+            }
+        }
+        return errors;
+    }
+
+    //===============MT ============================
+    private List<ImBasicData1V2> imBasicData(String companyCodeId, String plantId,
+                                             String languageId, String warehouseId, String loginUserID, List<ImBasicData1V2> list) {
+        List<ImBasicData1V2> allRowsList = list.stream().sorted(Comparator.comparing(ImBasicData1V2::getUomId)).collect(Collectors.toList());
+        List<ImBasicData1V2> saveImBasicData = new ArrayList<>();
+
+        for (ImBasicData1V2 imBasicDataV2 : allRowsList) {
+            ImBasicData1V2 imBasicdata1 = new ImBasicData1V2();
+            BeanUtils.copyProperties(imBasicDataV2, imBasicdata1, CommonUtils.getNullPropertyNames(imBasicDataV2));
+            imBasicdata1.setCompanyCodeId(companyCodeId);
+            imBasicdata1.setPlantId(plantId);
+            imBasicdata1.setWarehouseId(warehouseId);
+            imBasicdata1.setLanguageId(languageId);
+            imBasicdata1.setCreatedBy(loginUserID);
+            log.info("itemCode" + imBasicDataV2.getItemCode());
+            log.info("itemCode" + imBasicdata1.getItemCode());
+
+            saveImBasicData.add(imBasicdata1);
+        }
+
+        return saveImBasicData;
+    }
+
+
+    //--------------------------------------------AlternateUomUpload------------------------------------------------------//
+
+    public Map<String, String> processAlternateUom(String companyCodeId, String plantId, String languageId,
+                                                   String warehouseId, String loginUserID, MultipartFile file) throws Exception {
+        this.fileStorageLocation = Paths.get(propertiesConfig.getFileUploadDir()).toAbsolutePath().normalize();
+        if (!Files.exists(fileStorageLocation)) {
+            try {
+                Files.createDirectories(this.fileStorageLocation);
+            } catch (Exception ex) {
+                throw new BadRequestException(
+                        "Could not create the directory where the uploaded files will be stored.");
+            }
+        }
+
+        List<String> validationErrors = validationAlternateUomData(file);
+        if (!validationErrors.isEmpty()) {
+            List<Error> errors = validationFormat(validationErrors);
+            ObjectMapper objectMapper = new ObjectMapper();
+            String jsonResponse = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(errors);
+            Map<String, String> mapFileProps = new HashMap<>();
+            mapFileProps.put("errors", jsonResponse);
+            return mapFileProps;
+        }
+        log.info("loca : " + fileStorageLocation);
+
+        // Normalize file name
+        String fileName = StringUtils.cleanPath(file.getOriginalFilename());
+        log.info("filename before: " + fileName);
+        fileName = fileName.replace(" ", "_");
+        log.info("filename after: " + fileName);
+        try {
+            // Check if the file's name contains invalid characters
+            if (fileName.contains("..")) {
+                throw new BadRequestException("Sorry! Filename contains invalid path sequence " + fileName);
+            }
+
+            // Copy file to the target location (Replacing existing file with the same name)
+            Path targetLocation = this.fileStorageLocation.resolve(fileName);
+            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+            log.info("Copied : " + targetLocation);
+
+            List<ImAlternateUom> allRowsList = excelDataProcessService.readExcelFileUom(companyCodeId, plantId, languageId, warehouseId, loginUserID, file);
+
+            if (allRowsList != null && !allRowsList.isEmpty()) {
+                // Uploading
+                WarehouseApiResponse[] dbWarehouseApiResponse = new WarehouseApiResponse[0];
+                List<ImAlternateUom> alternateUoms = alternateUom(companyCodeId, plantId, languageId, warehouseId, loginUserID, allRowsList);
+                log.info("imbasic Data bin size " + alternateUoms.size());
+
+
+                AuthToken authToken = authTokenService.getMastersServiceAuthToken();
+                dbWarehouseApiResponse = mastersService.postAlternateUom(allRowsList, authToken.getAccess_token());
+
+                if (dbWarehouseApiResponse != null) {
+                    return uploadSuccessMessage(fileName);
+                }
+            }
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            throw new BadRequestException("Could not store file " + fileName + ". Please try again!");
+        }
+        return null;
+    }
+
+    private List<String> validationAlternateUomData(MultipartFile file) throws IOException {
+
+        List<String> errors = new ArrayList<>();
+        // Read Excel file
+        try (InputStream inputStream = file.getInputStream()) {
+            Workbook workbook = new XSSFWorkbook(inputStream);
+            Sheet sheet = workbook.getSheetAt(0);
+
+            // Assuming the first row contains the headers
+            Row headerRow = sheet.getRow(0);
+            // Validate data in each row (excluding the header row)
+            for (int rowIndex = 1; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
+                Row row = sheet.getRow(rowIndex);
+                // Skip the row if it is completely empty
+                if (isRowEmpty(row)) {
+                    continue;
+                }
+                for (int colIndex = 0; colIndex < headerRow.getPhysicalNumberOfCells(); colIndex++) {
+                    Cell cell = row.getCell(colIndex);
+                    String header = headerRow.getCell(colIndex).getStringCellValue().toLowerCase();
+
+                    // Validate cell based on header and column index
+                    if (cell != null) {
+                        switch (header) {
+                            case "uomid"://string
+                            case "itemcode": //string
+//                            case "itemdescription":
+                            case "alternateuom":
+
+                                validateStringCell(cell, rowIndex, colIndex, header, errors);
+                                break;
+
+                            case "alternateuomqty": //double then set :null validation
+                            case "uomidqty": //double
+
+                                validateIntegerCell(cell, rowIndex, colIndex, header, errors);
+                                break;
+                            default:
+                                errors.add("Unknown header at row " + (rowIndex + 1) + ", column " + (colIndex + 1) + ": " + header);
+                                break;
+                        }
+                    } else {
+                        switch (header) {
+                            case "uomid":
+                            case "itemcode": //Mandatory
+//                            case "itemdescription":
+                                errors.add("Empty cell at row " + (rowIndex + 1) + ", column " + (colIndex + 1) + " (" + header + ") : : Mandatory Field cannot be empty.");
+                                break;
+                        }
+                    }
+                }
+            }
+            if (errors.isEmpty()) {
+                System.out.println("No validation errors found.");
+            } else {
+                System.out.println("Validation errors:");
+                for (String error : errors) {
+                    System.out.println(error);
+                }
+            }
+        }
+        return errors;
+    }
+
+
+
+    private List<ImAlternateUom> alternateUom(String companyCodeId, String plantId,
+                                              String languageId, String warehouseId, String loginUserID, List<ImAlternateUom> list) {
+        List<ImAlternateUom> allRowsList = list.stream().sorted(Comparator.comparing(ImAlternateUom::getUomId)).collect(Collectors.toList());
+        List<ImAlternateUom> saveAlternateUom = new ArrayList<>();
+
+        for (ImAlternateUom imAlternateUom : allRowsList) {
+            ImAlternateUom uoms = new ImAlternateUom();
+            BeanUtils.copyProperties(imAlternateUom, uoms, CommonUtils.getNullPropertyNames(imAlternateUom));
+            uoms.setCompanyCodeId(companyCodeId);
+            uoms.setPlantId(plantId);
+            uoms.setWarehouseId(warehouseId);
+            uoms.setLanguageId(languageId);
+            uoms.setCreatedBy(loginUserID);
+            log.info("itemCode" + imAlternateUom.getItemCode());
+            log.info("itemCode" + uoms.getItemCode());
+
+            saveAlternateUom.add(uoms);
+        }
+
+        return saveAlternateUom;
+    }
+
+    //=========================BusinessPartner Upload=============================================
+    public Map<String, String> processBusinessPartner(String companyCodeId, String plantId, String languageId,
+                                                      String warehouseId, String loginUserID, MultipartFile file) throws Exception {
+        this.fileStorageLocation = Paths.get(propertiesConfig.getFileUploadDir()).toAbsolutePath().normalize();
+        if (!Files.exists(fileStorageLocation)) {
+            try {
+                Files.createDirectories(this.fileStorageLocation);
+            } catch (Exception ex) {
+                throw new BadRequestException(
+                        "Could not create the directory where the uploaded files will be stored.");
+            }
+        }
+        List<String> validationErrors = validationBusinessPartner(file);
+        if (!validationErrors.isEmpty()) {
+            List<Error> errors = validationFormatInbound(validationErrors);
+            if (!errors.isEmpty()) {
+                ObjectMapper objectMapper = new ObjectMapper();
+                String jsonResponse = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(errors);
+                Map<String, String> mapFileProps = new HashMap<>();
+                mapFileProps.put("errors", jsonResponse);
+                return mapFileProps;
+            }
+        }
+        log.info("loca : " + fileStorageLocation);
+
+        // Normalize file name
+        String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
+        log.info("filename before: " + fileName);
+        fileName = fileName.replace(" ", "_");
+        log.info("filename after: " + fileName);
+        try {
+            // Check if the file's name contains invalid characters
+            if (fileName.contains("..")) {
+                throw new BadRequestException("Sorry! Filename contains invalid path sequence " + fileName);
+            }
+
+            // Copy file to the target location (Replacing existing file with the same name)
+            Path targetLocation = this.fileStorageLocation.resolve(fileName);
+            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+            log.info("Copied : " + targetLocation);
+
+            List<BusinessPartnerV2> allRowsList = excelDataProcessService.businessPartnerReadExcelFile(companyCodeId, plantId, languageId, warehouseId, loginUserID, file);
+            if (allRowsList != null && !allRowsList.isEmpty()) {
+                // Uploading
+                WarehouseApiResponse[] dbWarehouseApiResponse = new WarehouseApiResponse[0];
+                List<BusinessPartnerV2> businessPartner = businessPartner(companyCodeId, plantId, languageId, warehouseId, loginUserID, allRowsList);
+                log.info("BusinessPartner size " + businessPartner.size());
+                AuthToken authToken = authTokenService.getMastersServiceAuthToken();
+                dbWarehouseApiResponse = mastersService.postBusinessPartner(businessPartner, authToken.getAccess_token());
+
+                if (dbWarehouseApiResponse != null) {
+                    return uploadSuccessMessage(fileName);
+                }
+            }
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            throw new BadRequestException("Could not store file " + fileName + ". Please try again!");
+        }
+        return null;
+    }
+
+    //========================BusinessPartner upload========================================================
+    private List<String> validationBusinessPartner(MultipartFile file) throws IOException {
+        List<String> errors = new ArrayList<>();
+
+        // Read Excel file
+        try (InputStream inputStream = file.getInputStream()) {
+            Workbook workbook = new XSSFWorkbook(inputStream);
+            Sheet sheet = workbook.getSheetAt(0);
+
+            // Assuming the first row contains the headers
+            Row headerRow = sheet.getRow(0);
+            // Validate data in each row (excluding the header row)
+            for (int rowIndex = 1; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
+                Row row = sheet.getRow(rowIndex);
+                // Skip the row if it is completely empty
+                if (isRowEmpty(row)) {
+                    continue;
+                }
+                for (int colIndex = 0; colIndex < headerRow.getPhysicalNumberOfCells(); colIndex++) {
+                    Cell cell = row.getCell(colIndex);
+                    String header = headerRow.getCell(colIndex).getStringCellValue().toLowerCase();
+
+                    // Validate cell based on header and column index
+                    if (cell != null) {
+                        switch (header) {
+                            case "partnercode":
+                            case "partnername":
+                            case "status":
+                                validateStringCell(cell, rowIndex, colIndex, header, errors);
+                                break;
+
+                            case "address1":
+                            case "address2":
+                            case "state":
+                            case "city":
+                            case "country":
+                            case "gst":
+                            case "inventoryowner":
+                                nullValidateStringCell(cell, rowIndex, colIndex, header, errors);
+                                break;
+
+                            case "partnertype":
+                                validateIntegerCell(cell, rowIndex, colIndex, header, errors);
+                                break;
+
+                            default:
+                                errors.add("Unknown header at row " + (rowIndex + 1) + ", column " + (colIndex + 1) + ": " + header);
+                                break;
+                        }
+                    } else
+                        switch (header) {
+                            case "partnercode":
+                            case "partnername":
+                            case "status":
+                            case "partnertype":
+                                errors.add("Empty cell at row " + (rowIndex + 1) + ", column " + (colIndex + 1) + " (" + header + ") : : Mandatory Field cannot be empty.");
+                                break;
+                        }
+                }
+            }
+
+            if (errors.isEmpty()) {
+                log.info("No validation errors found.");
+            } else {
+                log.info("Validation errors:");
+                errors.forEach(log::info);
+
+            }
+        }
+
+        return errors;
+    }
+
+    private List<BusinessPartnerV2> businessPartner(String companyCodeId, String plantId,
+                                                    String languageId, String warehouseId, String loginUserID, List<BusinessPartnerV2> list) {
+        List<BusinessPartnerV2> allRowsList = list.stream().sorted(Comparator.comparing(BusinessPartnerV2::getBusinessPartnerType)).collect(Collectors.toList());
+        List<BusinessPartnerV2> saveBusinessPartner = new ArrayList<>();
+
+        for (BusinessPartnerV2 businessPartnerV2 : allRowsList) {
+            BusinessPartnerV2 businessPartner = new BusinessPartnerV2();
+            BeanUtils.copyProperties(businessPartnerV2, businessPartner, CommonUtils.getNullPropertyNames(businessPartnerV2));
+            businessPartner.setCompanyCodeId(companyCodeId);
+            businessPartner.setPlantId(plantId);
+            businessPartner.setWarehouseId(warehouseId);
+            businessPartner.setLanguageId(languageId);
+            businessPartner.setCreatedBy(loginUserID);
+            saveBusinessPartner.add(businessPartner);
+        }
+
+        return saveBusinessPartner;
+    }
+
+    //============SPAREX PDF Process =============================================================
+    public Map<String, String> processAsnPdfFileV10(String companyCodeId, String plantId, String languageId,
+                                                    String warehouseId, Long orderTypeId, String loginUserId, MultipartFile file) throws IOException, ValidationException {
+        InvoiceData invoiceData = pdfExtractionService.extractText(file);
+
+        List<ASNV2> asnV2Orders  = orderProcessingService.orderAsnPdfV10(companyCodeId, plantId, languageId, warehouseId, loginUserId, Collections.singletonList(invoiceData));
+        log.info("asnV2Orders : " + asnV2Orders);
+
+        WarehouseApiResponse[] dbWarehouseApiResponse = new WarehouseApiResponse[0];
+        AuthToken authToken = authTokenService.getInboundOrderServiceAuthToken();
+        dbWarehouseApiResponse = transactionService.postASNV2UploadV10(asnV2Orders, loginUserId, authToken.getAccess_token());
+        if (dbWarehouseApiResponse != null) {
+            return uploadSuccessMessage(String.valueOf(file));
+        }
+        return null;
+    }
+
+    //============SPAREX PDF Process =============================================================
+    public Map<String, String> processPdfFileV10(String companyCodeId, String plantId, String languageId,
+                                                 String warehouseId, Long orderTypeId, String loginUserId, MultipartFile file) throws IOException, ValidationException {
+        InvoiceData invoiceData = pdfExtractionService.extractText(file);
+
+        log.info("InvoiceDate ----> {}", invoiceData);
+
+        List<SalesOrderV2> salesOrders = orderProcessingService.orderDataPdfV10(companyCodeId, plantId, languageId, warehouseId, loginUserId, Collections.singletonList(invoiceData));
+        log.info("salesOrders : " + salesOrders);
+
+        List<WarehouseApiResponse> dbWarehouseApiResponse = Collections.singletonList(new WarehouseApiResponse());
+        AuthToken authToken = authTokenService.getOutboundOrderServiceAuthToken();
+        dbWarehouseApiResponse = Arrays.asList(outboundTransactionService.postSalesOrderUploadV10(salesOrders,authToken.getAccess_token()));
+        if (dbWarehouseApiResponse != null) {
+            return uploadSuccessMessage(String.valueOf(file));
+        }
+        return null;
+    }
+
+    //===========BP=======Inventory Upload=============================================
+    public Map<String, String> processInventoryBP(String companyCodeId, String plantId, String languageID,
+                                                  String warehouseId, String loginUserId, MultipartFile file) throws Exception {
+        this.fileStorageLocation = Paths.get(propertiesConfig.getFileUploadDir()).toAbsolutePath().normalize();
+        if (!Files.exists(fileStorageLocation)) {
+            try {
+                Files.createDirectories(this.fileStorageLocation);
+            } catch (Exception ex) {
+                throw new BadRequestException(
+                        "Could not create the directory where the uploaded files will be stored.");
+            }
+        }
+
+        List<String> validationErrors = validationInventoryV6(file);
+        if (!validationErrors.isEmpty()) {
+            List<Error> errors = validationFormatInbound(validationErrors);
+            ObjectMapper objectMapper = new ObjectMapper();
+            String jsonResponse = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(errors);
+            Map<String, String> mapFileProps = new HashMap<>();
+            mapFileProps.put("errors", jsonResponse);
+            return mapFileProps;
+        }
+
+        log.info("loca : " + fileStorageLocation);
+
+        // Normalize file name
+        String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
+        log.info("filename before: " + fileName);
+        fileName = fileName.replace(" ", "_");
+        log.info("filename after: " + fileName);
+        try {
+            // Check if the file's name contains invalid characters
+            if (fileName.contains("..")) {
+                throw new BadRequestException("Sorry! Filename contains invalid path sequence " + fileName);
+            }
+
+            // Copy file to the target location (Replacing existing file with the same name)
+            Path targetLocation = this.fileStorageLocation.resolve(fileName);
+            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+            log.info("Copied : " + targetLocation);
+
+            List<InventoryV2> allRowsList = excelDataProcessService.inventoryReadExcelFileV6(companyCodeId, plantId, languageID, warehouseId, loginUserId, file);
+
+            if (allRowsList != null && !allRowsList.isEmpty()) {
+                // Uploading
+                WarehouseApiResponse[] dbWarehouseApiResponse = new WarehouseApiResponse[0];
+                List<InventoryV2> inventory = inventoryV6(companyCodeId, plantId, languageID, warehouseId, loginUserId, allRowsList);
+                log.info("inventory size " + inventory.size());
+                AuthToken authToken = authTokenService.getInboundTransactionServiceAuthToken();
+                dbWarehouseApiResponse = transactionService.postInventory(inventory, authToken.getAccess_token());
+
+                if (dbWarehouseApiResponse != null) {
+                    return uploadSuccessMessage(fileName);
+                }
+            }
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            throw new BadRequestException("Could not store file " + fileName + ". Please try again!");
+        }
+        return null;
+    }
+
+    //===========BP validation for Inventory ================================
+    private List<String> validationInventoryV6(MultipartFile file) throws IOException {
+        List<String> errors = new ArrayList<>();
+
+        // Read Excel file
+        try (InputStream inputStream = file.getInputStream()) {
+            Workbook workbook = new XSSFWorkbook(inputStream);
+            Sheet sheet = workbook.getSheetAt(0);
+
+            // Assuming the first row contains the headers
+            Row headerRow = sheet.getRow(0);
+            // Validate data in each row (excluding the header row)
+            for (int rowIndex = 1; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
+                Row row = sheet.getRow(rowIndex);
+                // Skip the row if it is completely empty
+                if (isRowEmpty(row)) {
+                    continue;
+                }
+                for (int colIndex = 0; colIndex < headerRow.getPhysicalNumberOfCells(); colIndex++) {
+                    Cell cell = row.getCell(colIndex);
+                    String header = headerRow.getCell(colIndex).getStringCellValue().toLowerCase();
+
+                    // Validate cell based on header and column index
+                    if (cell != null) {
+                        switch (header) {
+                            case "palletcode":
+                            case "casecode":
+                            case "itemcode":
+                            case "packbarcodes":
+                            case "variantsubcode":
+                            case "batchserialnumber":
+                            case "storagebin":
+                            case "storagemethod":
+                            case "description":
+                            case "inventoryuom":
+                            case "manufacturercode":
+                            case "barcodeid":
+                            case "manufacturername":
+                            case "levelid":
+                            case "stocktypedescription":
+                            case "referencefield1":
+                            case "referencefield2":
+                            case "referencefield3":
+                            case "referencefield5":
+                            case "referencefield6":
+                            case "referencefield7":
+                            case "referencefield8":
+                            case "referencefield9":
+                            case "referencefield10":
+                                validateStringCell(cell, rowIndex, colIndex, header, errors);
+                                break;
+
+                            case "origin":
+                            case "brand":
+                            case "cbm":
+                            case "cbmunit":
+                            case "cbmperquantity":
+                            case "netweight":
+                            case "grossweight":
+                            case "inventoryowner":
+                                nullValidateStringCell(cell, rowIndex, colIndex, header, errors);
+                                break;
+
+                            case "variantcode":
+                            case "stocktypeid":
+                            case "specialstockindicatorid":
+                            case "binclassid":
+                            case "allocatedquantity":
+                            case "inventoryquantity":
+                            case "deletionindicator":
+                            case "referencefield4":
+                                validateIntegerCell(cell, rowIndex, colIndex, header, errors);
+                                break;
+
+                            case "manufacturerdate":
+                            case "expirydate":
+                                validateDateCell(cell, rowIndex, colIndex, header, errors);
+                                break;
+                            default:
+                                errors.add("Unknown header at row " + (rowIndex + 1) + ", column " + (colIndex + 1) + ": " + header);
+                                break;
+                        }
+                    } else
+                        switch (header) {
+                            case "itemcode":
+                            case "packbarcodes":
+                            case "storagebin":
+                            case "binclassid":
+                            case "description":
+                            case "inventoryquantity":
+                            case "deletionindicator":
+                            case "referencefield4":
+                                errors.add("Empty cell at row " + (rowIndex + 1) + ", column " + (colIndex + 1) + " (" + header + ") : : Mandatory Field cannot be empty.");
+                                break;
+                        }
+                }
+            }
+            if (errors.isEmpty()) {
+                System.out.println("No validation errors found.");
+            } else {
+                System.out.println("Validation errors:");
+                for (String error : errors) {
+                    System.out.println(error);
+                }
+            }
+        }
+        return errors;
+    }
+    //==============BP============================
+    private List<InventoryV2> inventoryV6(String companyCodeId, String plantId,
+                                          String languageId, String warehouseId, String loginUserID, List<InventoryV2> list) {
+        List<InventoryV2> allRowsList = list.stream().sorted(Comparator.comparing(InventoryV2::getItemCode)).collect(Collectors.toList());
+        List<InventoryV2> saveInventory = new ArrayList<>();
+
+        for (InventoryV2 inventoryV2 : allRowsList) {
+            InventoryV2 inventory = new InventoryV2();
+            BeanUtils.copyProperties(inventoryV2, inventory, CommonUtils.getNullPropertyNames(inventoryV2));
+            inventory.setCompanyCodeId(companyCodeId);
+            inventory.setPlantId(plantId);
+            inventory.setWarehouseId(warehouseId);
+            inventory.setLanguageId(languageId);
+            inventory.setCreatedBy(loginUserID);
+            saveInventory.add(inventory);
+        }
+
+        return saveInventory;
+    }
+
+
+    //========SPAREX Inventory Upload=============================================
+    public Map<String, String> processInventorySPAREX(String companyCodeId, String plantId, String languageID,
+                                                      String warehouseId, String loginUserId, MultipartFile file) throws Exception {
+        this.fileStorageLocation = Paths.get(propertiesConfig.getFileUploadDir()).toAbsolutePath().normalize();
+        if (!Files.exists(fileStorageLocation)) {
+            try {
+                Files.createDirectories(this.fileStorageLocation);
+            } catch (Exception ex) {
+                throw new BadRequestException(
+                        "Could not create the directory where the uploaded files will be stored.");
+            }
+        }
+
+        List<String> validationErrors = validationInventoryV10(file);
+        if (!validationErrors.isEmpty()) {
+            List<Error> errors = validationFormatInbound(validationErrors);
+            ObjectMapper objectMapper = new ObjectMapper();
+            String jsonResponse = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(errors);
+            Map<String, String> mapFileProps = new HashMap<>();
+            mapFileProps.put("errors", jsonResponse);
+            return mapFileProps;
+        }
+
+        log.info("loca : " + fileStorageLocation);
+
+        // Normalize file name
+        String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
+        log.info("filename before: " + fileName);
+        fileName = fileName.replace(" ", "_");
+        log.info("filename after: " + fileName);
+        try {
+            // Check if the file's name contains invalid characters
+            if (fileName.contains("..")) {
+                throw new BadRequestException("Sorry! Filename contains invalid path sequence " + fileName);
+            }
+
+            // Copy file to the target location (Replacing existing file with the same name)
+            Path targetLocation = this.fileStorageLocation.resolve(fileName);
+            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+            log.info("Copied : " + targetLocation);
+
+            List<InventoryV2> allRowsList = excelDataProcessService.inventoryReadExcelFileV10(companyCodeId, plantId, languageID, warehouseId, loginUserId, file);
+
+            if (allRowsList != null && !allRowsList.isEmpty()) {
+                // Uploading
+                WarehouseApiResponse[] dbWarehouseApiResponse = new WarehouseApiResponse[0];
+                List<InventoryV2> inventory = inventoryV10(companyCodeId, plantId, languageID, warehouseId, loginUserId, allRowsList);
+                log.info("inventory size " + inventory.size());
+                AuthToken authToken = authTokenService.getInboundTransactionServiceAuthToken();
+                dbWarehouseApiResponse = transactionService.postInventory(inventory, authToken.getAccess_token());
+
+                if (dbWarehouseApiResponse != null) {
+                    return uploadSuccessMessage(fileName);
+                }
+            }
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            throw new BadRequestException("Could not store file " + fileName + ". Please try again!");
+        }
+        return null;
+    }
+
+    //===========MT Inventory Upload=============================================
+    public Map<String, String> processInventory(String companyCodeId, String plantId, String languageID,
+                                                String warehouseId, String loginUserId, MultipartFile file) throws Exception {
+        this.fileStorageLocation = Paths.get(propertiesConfig.getFileUploadDir()).toAbsolutePath().normalize();
+        if (!Files.exists(fileStorageLocation)) {
+            try {
+                Files.createDirectories(this.fileStorageLocation);
+            } catch (Exception ex) {
+                throw new BadRequestException(
+                        "Could not create the directory where the uploaded files will be stored.");
+            }
+        }
+
+        List<String> validationErrors = validationInventory(file);
+        if (!validationErrors.isEmpty()) {
+            List<Error> errors = validationFormatInbound(validationErrors);
+            ObjectMapper objectMapper = new ObjectMapper();
+            String jsonResponse = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(errors);
+            Map<String, String> mapFileProps = new HashMap<>();
+            mapFileProps.put("errors", jsonResponse);
+            return mapFileProps;
+        }
+
+        log.info("loca : " + fileStorageLocation);
+
+        // Normalize file name
+        String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
+        log.info("filename before: " + fileName);
+        fileName = fileName.replace(" ", "_");
+        log.info("filename after: " + fileName);
+        try {
+            // Check if the file's name contains invalid characters
+            if (fileName.contains("..")) {
+                throw new BadRequestException("Sorry! Filename contains invalid path sequence " + fileName);
+            }
+
+            // Copy file to the target location (Replacing existing file with the same name)
+            Path targetLocation = this.fileStorageLocation.resolve(fileName);
+            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+            log.info("Copied : " + targetLocation);
+
+            List<InventoryV2> allRowsList = excelDataProcessService.inventoryReadExcelFile(companyCodeId, plantId, languageID, warehouseId, loginUserId, file);
+
+            if (allRowsList != null && !allRowsList.isEmpty()) {
+                // Uploading
+                WarehouseApiResponse[] dbWarehouseApiResponse = new WarehouseApiResponse[0];
+                List<InventoryV2> inventory = inventory(companyCodeId, plantId, languageID, warehouseId, loginUserId, allRowsList);
+                log.info("inventory size " + inventory.size());
+                AuthToken authToken = authTokenService.getInboundTransactionServiceAuthToken();
+                dbWarehouseApiResponse = transactionService.postInventory(inventory, authToken.getAccess_token());
+
+                if (dbWarehouseApiResponse != null) {
+                    return uploadSuccessMessage(fileName);
+                }
+            }
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            throw new BadRequestException("Could not store file " + fileName + ". Please try again!");
+        }
+        return null;
+    }
+
+
+    // validation for Inventory
+    private List<String> validationInventoryV10(MultipartFile file) throws IOException {
+        List<String> errors = new ArrayList<>();
+
+        // Read Excel file
+        try (InputStream inputStream = file.getInputStream()) {
+            Workbook workbook = new XSSFWorkbook(inputStream);
+            Sheet sheet = workbook.getSheetAt(0);
+
+            // Assuming the first row contains the headers
+            Row headerRow = sheet.getRow(0);
+            // Validate data in each row (excluding the header row)
+            for (int rowIndex = 1; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
+                Row row = sheet.getRow(rowIndex);
+                // Skip the row if it is completely empty
+                if (isRowEmpty(row)) {
+                    continue;
+                }
+                for (int colIndex = 0; colIndex < headerRow.getPhysicalNumberOfCells(); colIndex++) {
+                    Cell cell = row.getCell(colIndex);
+                    String header = headerRow.getCell(colIndex).getStringCellValue().toLowerCase();
+
+                    // Validate cell based on header and column index
+                    if (cell != null) {
+                        switch (header) {
+
+                            case "itemcode":
+                            case "variantsubcode":
+                            case "batchserialnumber":
+                            case "storagebin":
+                            case "storagemethod":
+                            case "description":
+                            case "inventoryuom":
+                            case "manufacturername":
+                            case "levelid":
+                            case "stocktypedescription":
+                            case "barcodeid":
+                                validateStringCell(cell, rowIndex, colIndex, header, errors);
+                                break;
+
+
+                            case "referencefield1":
+                            case "referencefield2":
+                            case "referencefield8":
+                            case "referencefield9":
+                            case "referencefield10":
+                            case "packbarcodes":
+                            case "palletcode":
+                            case "casecode":
+
+                                nullValidateStringCell(cell, rowIndex, colIndex, header, errors);
+                                break;
+
+                            case "variantcode":
+                            case "stocktypeid":
+                            case "specialstockindicatorid":
+                            case "binclassid":
+                            case "allocatedquantity":
+                            case "inventoryquantity":
+                            case "deletionindicator":
+                            case "referencefield4":
+//                                case "mrp":
+
+                                validateIntegerCell(cell, rowIndex, colIndex, header, errors);
+                                break;
+
+//                                case "manufacturerdate":
+//                                case "expirydate":
+//                                    validateDateCell(cell, rowIndex, colIndex, header, errors);
+//                                    break;
+                            default:
+                                errors.add("Unknown header at row " + (rowIndex + 1) + ", column " + (colIndex + 1) + ": " + header);
+                                break;
+                        }
+                    } else
+                        switch (header) {
+                            case "barcodeid":
+                            case "itemcode":
+                            case "packbarcodes":
+                            case "storagebin":
+                            case "stocktypeid":
+                            case "specialstockindicatorid":
+                            case "binclassid":
+                            case "description":
+                            case "allocatedquantity":
+                            case "inventoryquantity":
+                            case "inventoryuom":
+                            case "manufacturername":
+                            case "levelid":
+                            case "stocktypedescription":
+                            case "deletionindicator":
+                            case "referencefield4":
+                            case "referencefield8":
+                            case "referencefield9":
+                            case "referencefield10":
+                                errors.add("Empty cell at row " + (rowIndex + 1) + ", column " + (colIndex + 1) + " (" + header + ") : : Mandatory Field cannot be empty.");
+                                break;
+                        }
+                }
+            }
+            if (errors.isEmpty()) {
+                System.out.println("No validation errors found.");
+            } else {
+                System.out.println("Validation errors:");
+                for (String error : errors) {
+                    System.out.println(error);
+                }
+            }
+        }
+        return errors;
+    }
+
+    private List<InventoryV2> inventoryV10(String companyCodeId, String plantId,
+                                           String languageId, String warehouseId, String loginUserID, List<InventoryV2> list) {
+        List<InventoryV2> allRowsList = list.stream().sorted(Comparator.comparing(InventoryV2::getStorageBin)).collect(Collectors.toList());
+        List<InventoryV2> saveInventory = new ArrayList<>();
+
+        for (InventoryV2 inventoryV2 : allRowsList) {
+            InventoryV2 inventory = new InventoryV2();
+            BeanUtils.copyProperties(inventoryV2, inventory, CommonUtils.getNullPropertyNames(inventoryV2));
+            inventory.setCompanyCodeId(companyCodeId);
+            inventory.setPlantId(plantId);
+            inventory.setWarehouseId(warehouseId);
+            inventory.setLanguageId(languageId);
+            inventory.setCreatedBy(loginUserID);
+            saveInventory.add(inventory);
+        }
+
+        return saveInventory;
+    }
+
+    //===========MT  validation for Inventory ======================
+    private List<String> validationInventory(MultipartFile file) throws IOException {
+        List<String> errors = new ArrayList<>();
+
+        // Read Excel file
+        try (InputStream inputStream = file.getInputStream()) {
+            Workbook workbook = new XSSFWorkbook(inputStream);
+            Sheet sheet = workbook.getSheetAt(0);
+
+            // Assuming the first row contains the headers
+            Row headerRow = sheet.getRow(0);
+            // Validate data in each row (excluding the header row)
+            for (int rowIndex = 1; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
+                Row row = sheet.getRow(rowIndex);
+                // Skip the row if it is completely empty
+                if (isRowEmpty(row)) {
+                    continue;
+                }
+                for (int colIndex = 0; colIndex < headerRow.getPhysicalNumberOfCells(); colIndex++) {
+                    Cell cell = row.getCell(colIndex);
+                    String header = headerRow.getCell(colIndex).getStringCellValue().toLowerCase();
+
+                    // Validate cell based on header and column index
+                    if (cell != null) {
+                        switch (header) {
+                            case "palletcode":
+                            case "casecode":
+                            case "itemcode":
+                            case "packbarcodes":
+                            case "variantsubcode":
+                            case "batchserialnumber":
+                            case "storagebin":
+                            case "storagemethod":
+                            case "description":
+                            case "inventoryuom":
+                            case "manufacturercode":
+                            case "barcodeid":
+                            case "manufacturername":
+                            case "levelid":
+                            case "stocktypedescription":
+                            case "referencefield1":
+                            case "referencefield2":
+                            case "referencefield3":
+                            case "referencefield5":
+                            case "referencefield6":
+                            case "referencefield7":
+                            case "referencefield8":
+                            case "referencefield9":
+                            case "referencefield10":
+
+                                validateStringCell(cell, rowIndex, colIndex, header, errors);
+                                break;
+
+                            case "origin":
+                            case "brand":
+                            case "cbm":
+                            case "cbmunit":
+                            case "cbmperquantity":
+                                nullValidateStringCell(cell, rowIndex, colIndex, header, errors);
+                                break;
+
+                            case "variantcode":
+                            case "stocktypeid":
+                            case "specialstockindicatorid":
+                            case "binclassid":
+                            case "allocatedquantity":
+                            case "inventoryquantity":
+                            case "deletionindicator":
+                            case "referencefield4":
+
+                                validateIntegerCell(cell, rowIndex, colIndex, header, errors);
+                                break;
+
+                            case "manufacturerdate":
+                            case "expirydate":
+                                validateDateCell(cell, rowIndex, colIndex, header, errors);
+                                break;
+                            default:
+                                errors.add("Unknown header at row " + (rowIndex + 1) + ", column " + (colIndex + 1) + ": " + header);
+                                break;
+                        }
+                    } else
+                        switch (header) {
+                            case "palletcode":
+                            case "casecode":
+                            case "itemcode":
+                            case "packbarcodes":
+                            case "storagebin":
+                            case "stocktypeid":
+                            case "specialstockindicatorid":
+                            case "binclassid":
+                            case "description":
+                            case "allocatedquantity":
+                            case "inventoryquantity":
+                            case "inventoryuom":
+                            case "manufacturercode":
+                            case "manufacturername":
+                            case "levelid":
+                            case "stocktypedescription":
+                            case "deletionindicator":
+                            case "referencefield4":
+                            case "referencefield8":
+                            case "referencefield9":
+                            case "referencefield10":
+                                errors.add("Empty cell at row " + (rowIndex + 1) + ", column " + (colIndex + 1) + " (" + header + ") : : Mandatory Field cannot be empty.");
+                                break;
+                        }
+                }
+            }
+            if (errors.isEmpty()) {
+                System.out.println("No validation errors found.");
+            } else {
+                System.out.println("Validation errors:");
+                for (String error : errors) {
+                    System.out.println(error);
+                }
+            }
+        }
+        return errors;
+    }
+
+    //==============MT============================
+    private List<InventoryV2> inventory(String companyCodeId, String plantId,
+                                        String languageId, String warehouseId, String loginUserID, List<InventoryV2> list) {
+        List<InventoryV2> allRowsList = list.stream().sorted(Comparator.comparing(InventoryV2::getStorageBin)).collect(Collectors.toList());
+        List<InventoryV2> saveInventory = new ArrayList<>();
+
+        for (InventoryV2 inventoryV2 : allRowsList) {
+            InventoryV2 inventory = new InventoryV2();
+            BeanUtils.copyProperties(inventoryV2, inventory, CommonUtils.getNullPropertyNames(inventoryV2));
+            inventory.setCompanyCodeId(companyCodeId);
+            inventory.setPlantId(plantId);
+            inventory.setWarehouseId(warehouseId);
+            inventory.setLanguageId(languageId);
+            inventory.setCreatedBy(loginUserID);
+            saveInventory.add(inventory);
+        }
+
+        return saveInventory;
+    }
+
+    //=========================SPAREX=============================================================
+
+    /**
+     * Upload V10 Dynamic
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param loginUserId
+     * @param file
+     * @return
+     * @throws IOException
+     * @throws ValidationException
+     */
+    public Map<String, String> processAsnExcelFileV10(String companyCodeId, String plantId, String languageId,
+                                                      String warehouseId, Long orderTypeId, String loginUserId, MultipartFile file) throws IOException, ValidationException {
+        this.fileStorageLocation = Paths.get(propertiesConfig.getFileUploadDir()).toAbsolutePath().normalize();
+        if (!Files.exists(fileStorageLocation)) {
+            try {
+                Files.createDirectories(this.fileStorageLocation);
+            } catch (Exception ex) {
+                throw new BadRequestException(
+                        "Could not create the directory where the uploaded files will be stored.");
+            }
+        }
+
+        List<String> validationErrors = DynamicInboundValidationV10(file);
+        if (!validationErrors.isEmpty()) {
+            List<Error> errors = validationFormatInbound(validationErrors);
+            ObjectMapper objectMapper = new ObjectMapper();
+            String jsonResponse = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(errors);
+            Map<String, String> mapFileProps = new HashMap<>();
+            mapFileProps.put("errors", jsonResponse);
+            return mapFileProps;
+        }
+
+        log.info("loca : " + fileStorageLocation);
+
+        // Normalize file name
+        String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
+        log.info("filename before: " + fileName);
+        fileName = fileName.replace(" ", "_");
+        log.info("filename after: " + fileName);
+        try {
+            // Check if the file's name contains invalid characters
+            if (fileName.contains("..")) {
+                throw new BadRequestException("Sorry! Filename contains invalid path sequence " + fileName);
+            }
+
+            // Copy file to the target location (Replacing existing file with the same name)
+            Path targetLocation = this.fileStorageLocation.resolve(fileName);
+            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+            log.info("Copied : " + targetLocation);
+
+            List<InboundOrderProcessV4> allRowsList = excelDataProcessService.inboundReadExcelFileV10(companyCodeId, plantId, languageId, warehouseId, orderTypeId, loginUserId, file);
+
+            if (allRowsList != null && !allRowsList.isEmpty()) {
+                // Uploading Orders
+                WarehouseApiResponse[] dbWarehouseApiResponse = new WarehouseApiResponse[0];
+                AuthToken authToken = authTokenService.getInboundOrderServiceAuthToken();
+                if (orderTypeId == 5L) {
+                    List<ASNV2> asnV2Orders = orderPreparationService.prepAsnMultipleDataV10(companyCodeId, plantId, languageId, warehouseId, loginUserId, allRowsList);
+                    log.info("asnOrders : " + asnV2Orders);
+                    dbWarehouseApiResponse = transactionService.postASNV2UploadV10(asnV2Orders, loginUserId, authToken.getAccess_token());
+                }
+                if (dbWarehouseApiResponse != null) {
+                    return uploadSuccessMessage(fileName);
+                }
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            throw new BadRequestException("Could not store file " + fileName + ". Please try again!");
+        }
+        return null;
+    }
+
+    private List<String> DynamicInboundValidationV10(MultipartFile file) throws IOException {
+        List<String> errors = new ArrayList<>();
+
+        try (InputStream inputStream = file.getInputStream();
+             Workbook workbook = new XSSFWorkbook(inputStream)) {
+
+            Sheet sheet = workbook.getSheetAt(0);
+            Row headerRow = sheet.getRow(0);
+
+            if (headerRow == null) {
+                errors.add("Header row is missing.");
+                return errors;
+            }
+
+            short lastCol = headerRow.getLastCellNum(); // Use last cell number for safer looping
+
+            for (int rowIndex = 1; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
+                Row row = sheet.getRow(rowIndex);
+                if (row == null) continue;
+
+                for (int colIndex = 0; colIndex < lastCol; colIndex++) {
+                    Cell headerCell = headerRow.getCell(colIndex);
+                    if (headerCell == null || headerCell.getCellType() == CellType.BLANK) continue;
+
+                    String header = headerCell.getStringCellValue().trim().toLowerCase();
+                    if (header.isEmpty()) continue;
+
+                    boolean isMandatory = false;
+
+                    switch (header) {
+                        case "asnnumber":
+                        case "linereference":
+                        case "itemcode":
+                        case "itemtext":
+                        case "quantity":
+                        case "suppliername":
+                        case "expecteddate":
+                            isMandatory = true;
+                            break;
+                        default:
+                            errors.add("Unknown header at row " + (rowIndex + 1) + ", column " + (colIndex + 1) + ": " + header);
+                            continue;
+                    }
+
+                    Cell cell = row.getCell(colIndex);
+
+                    if (cell == null || cell.getCellType() == CellType.BLANK) {
+                        if (isMandatory) {
+                            errors.add("Missing value for mandatory field '" + header + "' at row " + (rowIndex + 1) + ", column " + (colIndex + 1));
+                        }
+                        continue;
+                    }
+
+                    // Field-specific validation
+                    switch (header) {
+                        case "asnnumber":
+                        case "itemcode":
+                        case "itemtext":
+                        case "suppliername":
+                            validateStringCell(cell, rowIndex, colIndex, header, errors);
+                            break;
+
+                        case "quantity":
+                        case "linereference":
+                            validateIntegerCell(cell, rowIndex, colIndex, header, errors);
+                            break;
+
+                        case "expecteddate":
+                            validateDateCell(cell, rowIndex, colIndex, header, errors);
+                            break;
+
+                    }
+                }
+            }
+
+            if (errors.isEmpty()) {
+                log.info("No validation errors found.");
+            } else {
+                log.info("Validation errors:");
+                errors.forEach(log::info);
+            }
+        }
+
+        return errors;
+    }
+
+    //==================SPAREX============================================================
+    /**
+     * Upload V10 Dynamic
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param loginUserId
+     * @param file
+     * @return
+     * @throws IOException
+     * @throws ValidationException
+     */
+    public Map<String, String> processOutboundOrdersV10(String companyCodeId, String plantId, String languageId, String warehouseId, Long orderTypeId, String loginUserId, MultipartFile file) throws IOException, ValidationException {
+        this.fileStorageLocation = Paths.get(propertiesConfig.getFileUploadDir())
+                .toAbsolutePath()
+                .normalize();
+
+        if (!Files.exists(fileStorageLocation)) {
+            try {
+                Files.createDirectories(this.fileStorageLocation);
+            } catch (Exception ex) {
+                throw new BadRequestException(
+                        "Could not create the directory where the uploaded files will be stored.");
+            }
+        }
+        if (file == null || file.isEmpty()) {
+            throw new ValidationException("File is empty or missing.");
+        }
+
+        String contentType = file.getContentType();
+        String fileName = file.getOriginalFilename();
+
+        if (contentType == null || fileName == null) {
+            throw new ValidationException("Invalid file.");
+        }
+
+        fileName = fileName.toLowerCase();
+
+        if (contentType.equals("application/vnd.ms-excel") || fileName.endsWith(".xls") || fileName.endsWith(".xlsx")) {
+            log.info("Excel Upload process Started");
+            return processExcelFileV10(companyCodeId, plantId, languageId, warehouseId, orderTypeId, loginUserId, file);
+        }
+        else if (contentType.equals("application/pdf") || fileName.endsWith(".pdf")) {
+            log.info("Pdf Upload process Started");
+            return processPdfFileV10(companyCodeId, plantId, languageId, warehouseId, orderTypeId, loginUserId, file);
+        }
+        else {
+            throw new ValidationException("Only Excel (.xls, .xlsx) and PDF (.pdf) files are allowed.");
+        }
+    }
+
+    /**
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param orderTypeId
+     * @param loginUserId
+     * @param file
+     * @return
+     */
+    public Map<String, String> processExcelFileV10(String companyCodeId, String plantId, String languageId,
+                                                   String warehouseId, Long orderTypeId, String loginUserId, MultipartFile file) throws IOException, ValidationException {
+        this.fileStorageLocation = Paths.get(propertiesConfig.getFileUploadDir()).toAbsolutePath().normalize();
+        if (!Files.exists(fileStorageLocation)) {
+            try {
+                Files.createDirectories(this.fileStorageLocation);
+            } catch (Exception ex) {
+                throw new BadRequestException(
+                        "Could not create the directory where the uploaded files will be stored.");
+            }
+        }
+
+        List<String> validationErrors = validationOutboundDynamicallyV10(file);
+        if (!validationErrors.isEmpty()) {
+            List<Error> errors = validationFormatOutbound(validationErrors);
+            if (!errors.isEmpty()) {
+                ObjectMapper objectMapper = new ObjectMapper();
+                String jsonResponse = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(errors);
+                Map<String, String> mapFileProps = new HashMap<>();
+                mapFileProps.put("errors", jsonResponse);
+                return mapFileProps;
+            }
+        }
+
+        log.info("loca : " + fileStorageLocation);
+
+        // Normalize file name
+        String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
+        log.info("filename before: " + fileName);
+        fileName = fileName.replace(" ", "_");
+        log.info("filename after: " + fileName);
+        try {
+            // Check if the file's name contains invalid characters
+            if (fileName.contains("..")) {
+                throw new BadRequestException("Sorry! Filename contains invalid path sequence " + fileName);
+            }
+            // Copy file to the target location (Replacing existing file with the same name)
+            Path targetLocation = this.fileStorageLocation.resolve(fileName);
+            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+            log.info("Copied : " + targetLocation);
+
+            List<OutboundOrderProcessV4> allRowsList = excelDataProcessService.outboundReadExcelFileV10(companyCodeId, plantId, languageId, warehouseId, orderTypeId, loginUserId, file);
+            if (allRowsList != null && !allRowsList.isEmpty()) {
+                List<WarehouseApiResponse> dbWarehouseApiResponse = Collections.singletonList(new WarehouseApiResponse());
+                AuthToken authToken = authTokenService.getOutboundOrderServiceAuthToken();
+                if (orderTypeId != null) {
+                    if (orderTypeId == 3L) {
+                        List<SalesOrderV2> salesOrders = orderPreparationService.prepSalesOrderDataV10(companyCodeId, plantId, languageId, warehouseId, loginUserId, allRowsList);
+                        log.info("salesOrders : " + salesOrders);
+                        dbWarehouseApiResponse = Arrays.asList(outboundTransactionService.postSalesOrderUploadV10(salesOrders, authToken.getAccess_token()));
+                    }
+                }
+                if (dbWarehouseApiResponse != null) {
+                    return uploadSuccessMessage(fileName);
+                }
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            throw new BadRequestException("Could not store file " + fileName + ". Please try again!");
+        }
+        return null;
+    }
+
+    //========================SPAREX========================================================
+    private List<String> validationOutboundDynamicallyV10(MultipartFile file) throws IOException {
+        List<String> errors = new ArrayList<>();
+
+        try (InputStream inputStream = file.getInputStream()) {
+            Workbook workbook = new XSSFWorkbook(inputStream);
+            Sheet sheet = workbook.getSheetAt(0);
+
+            Row headerRow = sheet.getRow(0);
+            if (headerRow == null) {
+                errors.add("Header row is missing.");
+                return errors;
+            }
+
+            for (int rowIndex = 1; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
+                Row row = sheet.getRow(rowIndex);
+                if (row == null || isRowEmpty(row)) continue;
+
+                for (int colIndex = 0; colIndex < headerRow.getPhysicalNumberOfCells(); colIndex++) {
+                    Cell headerCell = headerRow.getCell(colIndex);
+                    if (headerCell == null) continue;
+
+                    String header = headerCell.getStringCellValue().trim().toLowerCase();
+                    Cell cell = row.getCell(colIndex); // May be null
+
+                    boolean isMandatory = false;
+                    switch (header) {
+                        case "salesordernumber":
+                        case "linereference":
+                        case "itemcode":
+                        case "itemtext":
+                        case "quantity":
+                        case "requireddeliverydate":
+                        case "customername":
+                            isMandatory = true;
+                            break;
+                    }
+
+                    if (cell == null) {
+                        if (isMandatory) {
+                            errors.add("Missing value for mandatory field '" + header + "' at row " + (rowIndex + 1) + ", column " + (colIndex + 1));
+                        }
+                        continue;
+                    }
+
+                    // Field-specific validation
+                    switch (header) {
+                        case "salesordernumber":
+                        case "itemcode":
+                        case "itemtext":
+                        case "suppliername":
+                            validateStringCell(cell, rowIndex, colIndex, header, errors);
+                            break;
+
+                        case "quantity":
+                        case "linereference":
+                            validateIntegerCell(cell, rowIndex, colIndex, header, errors);
+                            break;
+
+                        case "requireddeliverydate":
+                            validateDateCell(cell, rowIndex, colIndex, header, errors);
+                            break;
+                    }
+                }
+            }
+
+            if (errors.isEmpty()) {
+                log.info("No validation errors found.");
+            } else {
+                log.info("Validation errors:");
+                errors.forEach(log::info);
+
+            }
+        }
+
+        return errors;
+    }
+
+    /**
+     * Upload V4 Dynamic
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param orderTypeId
+     * @param loginUserId
+     * @param file
+     * @return
+     * @throws IOException
+     * @throws ValidationException
+     */
+    public Map<String, String> processInboundOrdersV9(String companyCodeId, String plantId, String languageId,
+                                                      String warehouseId, Long orderTypeId, String loginUserId, MultipartFile file) throws IOException, ValidationException {
+        this.fileStorageLocation = Paths.get(propertiesConfig.getFileUploadDir()).toAbsolutePath().normalize();
+        if (!Files.exists(fileStorageLocation)) {
+            try {
+                Files.createDirectories(this.fileStorageLocation);
+            } catch (Exception ex) {
+                throw new BadRequestException(
+                        "Could not create the directory where the uploaded files will be stored.");
+            }
+        }
+
+        List<String> validationErrors = BFDynamicInboundValidationV9(file);
+        if (!validationErrors.isEmpty()) {
+            List<Error> errors = validationFormatInbound(validationErrors);
+            ObjectMapper objectMapper = new ObjectMapper();
+            String jsonResponse = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(errors);
+            Map<String, String> mapFileProps = new HashMap<>();
+            mapFileProps.put("errors", jsonResponse);
+            return mapFileProps;
+        }
+
+        log.info("loca : " + fileStorageLocation);
+
+        // Normalize file name
+        String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
+        log.info("filename before: " + fileName);
+        fileName = fileName.replace(" ", "_");
+        log.info("filename after: " + fileName);
+        try {
+            // Check if the file's name contains invalid characters
+            if (fileName.contains("..")) {
+                throw new BadRequestException("Sorry! Filename contains invalid path sequence " + fileName);
+            }
+
+            // Copy file to the target location (Replacing existing file with the same name)
+            Path targetLocation = this.fileStorageLocation.resolve(fileName);
+            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+            log.info("Copied : " + targetLocation);
+
+//			List<List<String>> allRowsList = readExcelData(targetLocation.toFile());
+            List<InboundOrderProcessV4> allRowsList = excelDataProcessService.inboundReadExcelFile(companyCodeId, plantId, languageId, warehouseId, orderTypeId, loginUserId, file);
+
+            if (allRowsList != null && !allRowsList.isEmpty()) {
+                // Uploading Orders
+                WarehouseApiResponse[] dbWarehouseApiResponse = new WarehouseApiResponse[0];
+                AuthToken authToken = authTokenService.getInboundOrderServiceAuthToken();
+                if (orderTypeId == 1L) {
+                    List<ASNV2> asnV2Orders = orderPreparationService.prepAsnMultipleDataV9(companyCodeId, plantId, languageId, warehouseId, loginUserId, allRowsList);
+                    log.info("asnOrders : " + asnV2Orders);
+                    dbWarehouseApiResponse = transactionService.postASNV2UploadV9(asnV2Orders, loginUserId, authToken.getAccess_token());
+                }
+                if (orderTypeId == 3L) {
+                    List<SaleOrderReturnV2> saleOrderReturns = orderPreparationService.prepSaleOrderReturnDataV9(companyCodeId, plantId, languageId, warehouseId, loginUserId, allRowsList);
+                    log.info("saleOrderReturn : " + saleOrderReturns);
+                    dbWarehouseApiResponse = transactionService.postSOReturnUploadV2(saleOrderReturns, authToken.getAccess_token());
+                }
+
+                if (orderTypeId == 2L) {
+                    List<InterWarehouseTransferInV2> wh2whOrders = orderPreparationService.prepInterwareHouseInDataV9(companyCodeId, plantId, languageId, warehouseId, loginUserId, allRowsList);
+                    log.info("wh2whOrders : " + wh2whOrders);
+                    dbWarehouseApiResponse = transactionService.postInterWarehouseTransferInUploadV7(wh2whOrders, loginUserId, authToken.getAccess_token());
+                }
+                if (orderTypeId == 11L) {
+                    List<ASNV2> asnV2Orders = orderPreparationService.prepAsnMultipleDataV5(companyCodeId, plantId, languageId, warehouseId, loginUserId, allRowsList);
+                    log.info("asnOrders : " + asnV2Orders);
+                    dbWarehouseApiResponse = transactionService.postEmptyUpload(asnV2Orders, loginUserId, authToken.getAccess_token());
+                }
+
+                if (dbWarehouseApiResponse != null) {
+                    return uploadSuccessMessage(fileName);
+                }
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            throw new BadRequestException("Could not store file " + fileName + ". Please try again!");
+        }
+        return null;
+    }
+
+    private List<String> BFDynamicInboundValidationV9(MultipartFile file) throws IOException {
+        List<String> errors = new ArrayList<>();
+
+        try (InputStream inputStream = file.getInputStream();
+             Workbook workbook = new XSSFWorkbook(inputStream)) {
+
+            Sheet sheet = workbook.getSheetAt(0);
+            Row headerRow = sheet.getRow(0);
+
+            if (headerRow == null) {
+                errors.add("Header row is missing.");
+                return errors;
+            }
+
+            short lastCol = headerRow.getLastCellNum(); // Use last cell number for safer looping
+
+            for (int rowIndex = 1; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
+                Row row = sheet.getRow(rowIndex);
+                if (row == null) continue;
+
+                for (int colIndex = 0; colIndex < lastCol; colIndex++) {
+                    Cell headerCell = headerRow.getCell(colIndex);
+                    if (headerCell == null || headerCell.getCellType() == CellType.BLANK) continue;
+
+                    String header = headerCell.getStringCellValue().trim().toLowerCase();
+                    if (header.isEmpty()) continue;
+
+                    boolean isMandatory = false;
+
+                    switch (header) {
+                        case "inbound":
+                        case "qty":
+                        case "skucode":
+                        case "skutext":
+                        case "uom":
+                        case "barcodeid":
+
+                            isMandatory = true;
+                            break;
+                        case "salesordernumber":
+                        case "asnnumber":
+                        case "outbound":
+                        case "vehicleno":
+                        case "customerid":
+                        case "customername":
+                        case "itm":
+                        case "linereference":
+                        case "vehiclereportingdate":
+                        case "vehicleunloadingdate":
+
+
+                            isMandatory = false;
+                            break;
+                        default:
+                            errors.add("Unknown header at row " + (rowIndex + 1) + ", column " + (colIndex + 1) + ": " + header);
+                            continue;
+                    }
+
+                    Cell cell = row.getCell(colIndex);
+
+                    if (cell == null || cell.getCellType() == CellType.BLANK) {
+                        if (isMandatory) {
+                            errors.add("Missing value for mandatory field '" + header + "' at row " + (rowIndex + 1) + ", column " + (colIndex + 1));
+                        }
+                        continue;
+                    }
+
+                    // Field-specific validation
+                    switch (header) {
+                        case "salesordernumber":
+                        case "asnnumber":
+                        case "skucode":
+                        case "outbound":
+                        case "inbound":
+                        case "skutext":
+                        case "uom":
+                        case "vehicleno":
+                        case "customerid":
+                        case "customername":
+                            validateStringCell(cell, rowIndex, colIndex, header, errors);
+                            break;
+
+                        case "barcodeid":
+                            nullValidateStringCell(cell, rowIndex, colIndex, header, errors);
+                            break;
+
+                        case "qty":
+                        case "itm":
+                        case "linereference":
+                            validateIntegerCell(cell, rowIndex, colIndex, header, errors);
+                            break;
+
+                        case "vehiclereportingdate":
+                        case "vehicleunloadingdate":
+                            validateDateCell(cell, rowIndex, colIndex, header, errors);
+                            break;
+                    }
+                }
+            }
+
+            if (errors.isEmpty()) {
+                log.info("No validation errors found.");
+            } else {
+                log.info("Validation errors:");
+                errors.forEach(log::info);
+            }
+        }
+
+        return errors;
+    }
+
+
+
+    //=======================================================BF======================================================
+
+    /**
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param orderTypeId
+     * @param loginUserId
+     * @param file
+     * @return
+     */
+    public Map<String, String> processOutboundOrdersV9(String companyCodeId, String plantId, String languageId,
+                                                       String warehouseId, Long orderTypeId, String loginUserId, MultipartFile file) throws IOException, ValidationException {
+        this.fileStorageLocation = Paths.get(propertiesConfig.getFileUploadDir()).toAbsolutePath().normalize();
+        if (!Files.exists(fileStorageLocation)) {
+            try {
+                Files.createDirectories(this.fileStorageLocation);
+            } catch (Exception ex) {
+                throw new BadRequestException(
+                        "Could not create the directory where the uploaded files will be stored.");
+            }
+        }
+
+        List<String> validationErrors = validationOutboundDynamicallyV9(file);
+        if (!validationErrors.isEmpty()) {
+            List<Error> errors = validationFormatOutboundV9(validationErrors);
+            if (!errors.isEmpty()) {
+                ObjectMapper objectMapper = new ObjectMapper();
+                String jsonResponse = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(errors);
+                Map<String, String> mapFileProps = new HashMap<>();
+                mapFileProps.put("errors", jsonResponse);
+                return mapFileProps;
+            }
+        }
+
+
+        log.info("loca : " + fileStorageLocation);
+
+        // Normalize file name
+        String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
+        log.info("filename before: " + fileName);
+        fileName = fileName.replace(" ", "_");
+        log.info("filename after: " + fileName);
+        try {
+            // Check if the file's name contains invalid characters
+            if (fileName.contains("..")) {
+                throw new BadRequestException("Sorry! Filename contains invalid path sequence " + fileName);
+            }
+
+            // Copy file to the target location (Replacing existing file with the same name)
+            Path targetLocation = this.fileStorageLocation.resolve(fileName);
+            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+            log.info("Copied : " + targetLocation);
+            List<OutboundOrderProcessV4> allRowsList = excelDataProcessService.outboundReadExcelFileV9(companyCodeId, plantId, languageId, warehouseId, orderTypeId, loginUserId, file);
+            if (allRowsList != null && !allRowsList.isEmpty()) {
+                List<WarehouseApiResponse> dbWarehouseApiResponse = Collections.singletonList(new WarehouseApiResponse());
+                AuthToken authToken = authTokenService.getOutboundTransactionServiceAuthToken();
+                if (orderTypeId != null) {
+                    if (orderTypeId == 3L) {
+                        List<SalesOrderV2> salesOrders = orderPreparationService.prepSalesOrderDataV9(companyCodeId, plantId, languageId, warehouseId, loginUserId, allRowsList);
+                        log.info("salesOrders : " + salesOrders);
+                        dbWarehouseApiResponse = Arrays.asList(outboundTransactionService.postSalesOrderUploadV9(salesOrders, authToken.getAccess_token()));
+                    }
+//                    if (orderTypeId == 11L) {
+//                        List<SalesOrderV2> emptyCrateOrders = orderPreparationService.emptyCrateV9(companyCodeId, plantId, languageId, warehouseId, loginUserId, allRowsList);
+//                        log.info("emptyCrateOrders : " + emptyCrateOrders);
+//                        dbWarehouseApiResponse = outboundTransactionService.emptyCrateOrderV9(emptyCrateOrders, authToken.getAccess_token());
+//                    }
+//                    if (orderTypeId == 2L) {
+//                        List<ReturnPOV2> returnPO = orderPreparationService.purchaseReturnV9(companyCodeId, plantId, languageId, warehouseId, loginUserId, allRowsList);
+//                        log.info("returnPO : " + returnPO);
+//                        dbWarehouseApiResponse = outboundTransactionService.postReturnPOV9(returnPO, authToken.getAccess_token());
+//                    }
+
+                }
+                if (dbWarehouseApiResponse != null) {
+                    return uploadSuccessMessage(fileName);
+                }
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            throw new BadRequestException("Could not store file " + fileName + ". Please try again!");
+        }
+        return null;
+    }
+
+    //=====================================================BF========================================================
+    private List<String> validationOutboundDynamicallyV9(MultipartFile file) throws IOException {
+        List<String> errors = new ArrayList<>();
+        DataFormatter formatter = new DataFormatter();
+        Map<String, Integer> itmSkuTracker = new HashMap<>();
+        Map<Integer, Integer> itmTracker = new HashMap<>();
+        try (InputStream inputStream = file.getInputStream()) {
+            Workbook workbook = new XSSFWorkbook(inputStream);
+            Sheet sheet = workbook.getSheetAt(0);
+
+            Row headerRow = sheet.getRow(0);
+            if (headerRow == null) {
+                errors.add("Header row is missing.");
+                return errors;
+            }
+
+            for (int rowIndex = 1; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
+                Row row = sheet.getRow(rowIndex);
+                if (row == null || isRowEmpty(row)) continue;
+
+                Integer itmValue = null;
+                String skuCodeValue = null;
+
+                for (int colIndex = 0; colIndex < headerRow.getPhysicalNumberOfCells(); colIndex++) {
+                    Cell headerCell = headerRow.getCell(colIndex);
+                    if (headerCell == null) continue;
+
+                    String header = headerCell.getStringCellValue().trim().toLowerCase();
+                    Cell cell = row.getCell(colIndex); // May be null
+
+                    boolean isMandatory = false;
+                    switch (header) {
+                        case "outbound":
+                        case "itm":
+                        case "customer":
+                        case "qty":
+                        case "uom":
+                        case "skucode":
+                        case "skutext":
+
+                            isMandatory = true;
+                            break;
+                    }
+
+                    switch (header) {
+                        case "itm":
+                            validateIntegerCell(cell, rowIndex, colIndex, header, errors);
+                            String itmStr = formatter.formatCellValue(cell).trim();
+                            itmValue = Integer.parseInt(itmStr);
+                            break;
+                        case "skucode":
+                            validateStringCell(cell, rowIndex, colIndex, header, errors);
+                            skuCodeValue = formatter.formatCellValue(cell).trim();
+                            break;
+                    }
+
+                    if (!isMandatory && !header.equals("suppliername") &&
+                            !header.equals("customercode") &&
+                            !header.equals("returnorderno") &&
+                            !header.equals("suppliername") &&
+                            !header.equals("barcodeid") &&
+                            !header.equals("manifestreference") &&
+                            !header.equals("itm") &&
+                            !header.equals("returnqty") &&
+                            !header.equals("linereference")) {
+                        errors.add("Unknown header at row " + (rowIndex + 1) + ", column " + (colIndex + 1) + ": " + header);
+                        continue;
+                    }
+
+                    if (cell == null) {
+                        if (isMandatory) {
+                            errors.add("Missing value for mandatory field '" + header + "' at row " + (rowIndex + 1) + ", column " + (colIndex + 1));
+                        }
+                        continue;
+                    }
+
+                    // Field-specific validation
+                    switch (header) {
+                        case "skucode":
+                        case "outbound":
+                        case "skutext":
+                        case "customer":
+                        case "customercode":
+                        case "uom":
+                        case "returnorderno":
+                        case "suppliername":
+                            validateStringCell(cell, rowIndex, colIndex, header, errors);
+                            break;
+
+                        case "barcodeid":
+                        case "manifestreference":
+                            nullValidateStringCell(cell, rowIndex, colIndex, header, errors);
+                            break;
+
+                        case "qty":
+                        case "itm":
+                        case "returnqty":
+                        case "linereference":
+                            validateIntegerCell(cell, rowIndex, colIndex, header, errors);
+                            break;
+                    }
+                }
+                if (itmValue != null) {
+                    if (itmTracker.containsKey(itmValue)) {
+                        errors.add("Duplicate itm found at row " + (rowIndex + 1) +
+                                " (itm=" + itmValue + ". Already exists at row " + itmSkuTracker.get(itmTracker)
+                        );
+                    } else {
+                        itmTracker.put(itmValue, rowIndex + 1);
+                    }
+                }
+                if (itmValue != null && skuCodeValue != null) {
+
+                    String key = itmValue + "|" + skuCodeValue;
+
+                    if (itmSkuTracker.containsKey(key)) {
+                        errors.add(
+                                "Duplicate itm + skucode found at row " + (rowIndex + 1) +
+                                        " (itm=" + itmValue + ", skucode=" + skuCodeValue + ")" +
+                                        ". Already exists at row " + itmSkuTracker.get(key)
+                        );
+                    } else {
+                        itmSkuTracker.put(key, rowIndex + 1);
+                    }
+                }
+            }
+
+            if (errors.isEmpty()) {
+                log.info("No validation errors found.");
+            } else {
+                log.info("Validation errors:");
+                errors.forEach(log::info);
+
+            }
+        }
+
+        return errors;
+    }
+
+    //========================================================BF=====================================================
+    public List<Error> validationFormatOutboundV9(List<String> validationErrors) throws JsonProcessingException {
+        Map<String, Object> response = null;
+        List<com.tekclover.wms.core.model.dto.Error> errorList = new ArrayList<>();
+        for (String error : validationErrors) {
+            String[] parts = error.split(":", 2); // limit = 2 to avoid over-splitting
+            String rowPart = parts[0];
+            String message;
+
+            if (parts.length >= 2) {
+                message = parts[1].trim() + " (" + rowPart + ")";
+            } else {
+                message = "Validation error: " + error;  // fallback message
+            }
+
+            Pattern pattern = Pattern.compile("\\d+");
+            Matcher matcher = pattern.matcher(rowPart);
+            int extractedInteger = 0;
+            if (matcher.find()) {
+                extractedInteger = Integer.parseInt(matcher.group());
+            }
+
+            errorList.add(new com.tekclover.wms.core.model.dto.Error(extractedInteger, message));
+        }
+        return errorList;
+    }
+
+
+    /**
+     * @param file
+     * @return
+     * @throws Exception
+     */
+    public Map<String, String> processInterWarehouseTransferOutOrdersV9(MultipartFile file) throws Exception {
+        this.fileStorageLocation = Paths.get(propertiesConfig.getFileUploadDir()).toAbsolutePath().normalize();
+        if (!Files.exists(fileStorageLocation)) {
+            try {
+                Files.createDirectories(this.fileStorageLocation);
+            } catch (Exception ex) {
+                throw new BadRequestException(
+                        "Could not create the directory where the uploaded files will be stored.");
+            }
+        }
+
+        log.info("loca : " + fileStorageLocation);
+
+        // Normalize file name
+        String fileName = StringUtils.cleanPath(file.getOriginalFilename());
+        log.info("filename before: " + fileName);
+        fileName = fileName.replace(" ", "_");
+        log.info("filename after: " + fileName);
+        try {
+            // Check if the file's name contains invalid characters
+            if (fileName.contains("..")) {
+                throw new BadRequestException("Sorry! Filename contains invalid path sequence " + fileName);
+            }
+
+            // Copy file to the target location (Replacing existing file with the same name)
+            Path targetLocation = this.fileStorageLocation.resolve(fileName);
+            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+            log.info("Copied : " + targetLocation);
+
+            List<List<String>> allRowsList = readExcelData(targetLocation.toFile());
+            List<InterWarehouseTransferOutV2> wh2whOrders = null;
+            if (allRowsList != null) {
+                wh2whOrders = prepInterwareHouseOutDataV9(allRowsList);
+            }
+            log.info("wh2whOrders : " + wh2whOrders);
+
+            // Uploading Orders
+            WarehouseApiResponse[] dbWarehouseApiResponse = new WarehouseApiResponse[0];
+            AuthToken authToken = authTokenService.getOutboundTransactionServiceAuthToken();
+            dbWarehouseApiResponse = outboundTransactionService.postInterWarehouseTransferOutUploadV9(wh2whOrders, "Uploaded", authToken.getAccess_token());
+
+            if (dbWarehouseApiResponse != null) {
+                Map<String, String> mapFileProps = new HashMap<>();
+                mapFileProps.put("file", fileName);
+                mapFileProps.put("status", "UPLOADED SUCCESSFULLY");
+                return mapFileProps;
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            throw new BadRequestException("Could not store file " + fileName + ". Please try again!");
+        }
+        return null;
+    }
+
+    /**
+     * @param allRowsList
+     * @return
+     */
+    private List<InterWarehouseTransferOutV2> prepInterwareHouseOutDataV9(List<List<String>> allRowsList) {
+        List<InterWarehouseTransferOutV2> whOrderList = new ArrayList<>();
+        for (List<String> listUploadedData : allRowsList) {
+            Set<InterWarehouseTransferOutHeaderV2> setWHHeader = new HashSet<>();
+            List<InterWarehouseTransferOutLineV2> listWHLines = new ArrayList<>();
+
+            // Header
+            InterWarehouseTransferOutHeaderV2 header = null;
+            boolean oneTimeAllow = true;
+            for (String column : listUploadedData) {
+                if (oneTimeAllow) {
+                    header = new InterWarehouseTransferOutHeaderV2();
+                    /*
+                     * transferOrderNumber
+                     * fromCompanyCode
+                     * fromBranchCode
+                     * fromWarehouseId
+                     * toCompanyCode
+                     * toBranchCode
+                     * toWarehouseId
+                     * toRequiredDeliveryDate
+                     */
+                    header.setFromCompanyCode(listUploadedData.get(0));
+                    header.setFromBranchCode(listUploadedData.get(1));
+                    header.setFromWarehouseId(listUploadedData.get(2));
+                    header.setToCompanyCode(listUploadedData.get(3));
+                    header.setToBranchCode(listUploadedData.get(4));
+                    header.setToWarehouseId(listUploadedData.get(5));
+                    header.setTransferOrderNumber(listUploadedData.get(6));
+                    header.setRequiredDeliveryDate(listUploadedData.get(7));
+                    setWHHeader.add(header);
+                }
+                oneTimeAllow = false;
+
+                /*
+                 * sku
+                 * skuDescription
+                 * OrderedQty
+                 * manufacturerCode
+                 * manufacturerName
+                 * uom
+                 */
+                // Line
+                InterWarehouseTransferOutLineV2 line = new InterWarehouseTransferOutLineV2();
+                line.setSku(listUploadedData.get(8));
+                line.setSkuDescription(listUploadedData.get(9));
+                line.setOrderedQty(Double.valueOf(listUploadedData.get(10)));
+                line.setManufacturerCode(listUploadedData.get(11));
+                line.setManufacturerName(listUploadedData.get(12));
+                line.setUom(listUploadedData.get(13));
+                listWHLines.add(line);
+            }
+
+            InterWarehouseTransferOutV2 whOrder = new InterWarehouseTransferOutV2();
+            whOrder.setInterWarehouseTransferOutHeader(header);
+            whOrder.setInterWarehouseTransferOutLine(listWHLines);
+            whOrderList.add(whOrder);
+        }
+        return whOrderList;
+    }
 }

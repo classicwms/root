@@ -56,6 +56,30 @@ public interface PreOutboundHeaderV2Repository extends JpaRepository<PreOutbound
                                          @Param("preOutboundNo") String preOutboundNo,
                                          @Param("statusId") Long statusId,
                                          @Param("statusDescription") String statusDescription);
+
+    @Modifying
+    @Query(value = "UPDATE tblpreoutboundheader\n" +
+            " SET STATUS_ID = :statusId,\n" +
+            " STATUS_TEXT = :statusText,\n" +
+            " PRE_OB_UTD_ON = :updatedOn,\n" +
+            " PRE_OB_UTD_BY = :updatedBy\n" +
+            " WHERE C_ID = :companyCodeId AND \n" +
+            " PLANT_ID = :plantId AND \n" +
+            " LANG_ID = :languageId AND \n" +
+            " WH_ID = :warehouseId AND \n" +
+            " REF_DOC_NO = :refDocNumber AND\n" +
+            " PRE_OB_NO = :preOutboundNo AND\n" +
+            " IS_DELETED = 0 ",nativeQuery = true)
+    void updatePreOutboundHeaderStatusV2(@Param("companyCodeId") String companyCodeId,
+                                         @Param("plantId") String plantId,
+                                         @Param("languageId") String languageId,
+                                         @Param("warehouseId") String warehouseId,
+                                         @Param("refDocNumber") String refDocNumber,
+                                         @Param("preOutboundNo") String preOutboundNo,
+                                         @Param("statusId") Long statusId,
+                                         @Param("statusText") String statusText,
+                                         @Param("updatedBy") String updatedBy,
+                                         @Param("updatedOn") Date updatedOn);
 //    @Transactional
 //    @Procedure(procedureName = "preoutbound_header_update_proc")
 //    void updatePreOutboundHeaderUpdateProc(
@@ -227,5 +251,45 @@ public interface PreOutboundHeaderV2Repository extends JpaRepository<PreOutbound
     void deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
             String companyCodeId, String plantId, String warehouseId, String refDocNumber, String preOutboundNo, Long deletionIndicator);
 
+
+
+    @Modifying
+    @Query(value = "UPDATE tblpreoutboundheader\n" +
+            " SET STATUS_ID = :statusId,\n" +
+            " STATUS_TEXT = :statusText,\n" +
+            " PRE_OB_UTD_ON = :updatedOn,\n" +
+            " PRE_OB_UTD_BY = :updatedBy\n" +
+            " WHERE C_ID = :companyCodeId AND \n" +
+            " PLANT_ID = :plantId AND \n" +
+            " LANG_ID = :languageId AND \n" +
+            " WH_ID = :warehouseId AND \n" +
+            " REF_DOC_NO = :refDocNumber AND\n" +
+            " PRE_OB_NO = :preOutboundNo AND\n" +
+            " IS_DELETED = 0 ",nativeQuery = true)
+    void updatePreOutboundHeaderStatusV10(@Param("companyCodeId") String companyCodeId,
+                                          @Param("plantId") String plantId,
+                                          @Param("languageId") String languageId,
+                                          @Param("warehouseId") String warehouseId,
+                                          @Param("refDocNumber") String refDocNumber,
+                                          @Param("preOutboundNo") String preOutboundNo,
+                                          @Param("statusId") Long statusId,
+                                          @Param("statusText") String statusText,
+                                          @Param("updatedBy") String updatedBy,
+                                          @Param("updatedOn") Date updatedOn);
+
+    @Modifying
+    @Transactional
+    @Query(value = "DELETE FROM tblpreoutboundheader " +
+            "WHERE C_ID = :companyCodeId AND PLANT_ID = :plantId AND WH_ID = :warehouseId AND " +
+            "REF_DOC_NO = :refDocNumber AND PRE_OB_NO = :preOutboundNo AND IS_DELETED = :deletionIndicator",
+            nativeQuery = true)
+    void deletePreOutboundHeader(
+            @Param("companyCodeId") String companyCodeId,
+            @Param("plantId") String plantId,
+            @Param("warehouseId") String warehouseId,
+            @Param("refDocNumber") String refDocNumber,
+            @Param("preOutboundNo") String preOutboundNo,
+            @Param("deletionIndicator") Long deletionIndicator
+    );
 
 }

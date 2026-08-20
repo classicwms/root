@@ -40,6 +40,8 @@ public class TransactionService {
     private PreOutboundService preOutboundService;
     @Autowired
     private OrderProcessingService orderProcessingService;
+    @Autowired
+    SalesOrderV10 salesOrderV10;
 
     @Autowired
     DbConfigRepository dbConfigRepository;
@@ -390,6 +392,9 @@ public class TransactionService {
 //                        case "MMF":
 //                            outboundHeader = orderProcessingService.processOutboundReceivedV8(outbound);
 //                            break;
+                        case "SPAREX":
+                            outboundHeader = salesOrderV10.processOutboundReceivedV10(outbound);
+                            break;
                     }
                 }
                 if (outboundHeader != null) {

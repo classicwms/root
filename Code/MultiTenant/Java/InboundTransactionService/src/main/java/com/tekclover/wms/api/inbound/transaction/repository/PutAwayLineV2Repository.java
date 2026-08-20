@@ -34,6 +34,10 @@ public interface PutAwayLineV2Repository extends JpaRepository<PutAwayLineV2, Lo
             String languageId, String companyCode, String plantId, String warehouseId,
             String preInboundNo, String refDocNumber, Long lineNo, String itemCode, Long deletionIndicator);
 
+    void deleteByCompanyCodeAndPlantIdAndWarehouseIdAndItemCodeAndRefDocNumberAndLineNoAndPreInboundNoAndDeletionIndicator(
+            String companyCode, String plantId, String warehouseId, String itemCode,String refDocNumber, Long lineNo, String preInboundNo, Long deletionIndicator);
+
+
     /**
      * @param companyId
      * @param plantId
@@ -97,6 +101,10 @@ public interface PutAwayLineV2Repository extends JpaRepository<PutAwayLineV2, Lo
     List<PutAwayLineV2> findByLanguageIdAndCompanyCodeAndPlantIdAndRefDocNumberAndDeletionIndicator(
             String languageId, String companyCode, String plantId,
             String refDocNumber, Long deletionIndicator);
+
+    boolean existsByCompanyCodeAndPlantIdAndLanguageIdAndWarehouseIdAndBarcodeIdAndItemCodeAndRefDocNumberAndLineNoAndDeletionIndicator(
+            String companyCode, String plantId, String languageId, String warehouseId, String barcodeId, String itemCode, String refDocNumber,
+            Long lineNo, Long deletionIndicator);
 
     @Query(value = "SELECT * from tblputawayheader \n"
             + "where pa_no = :putAwayNumber and is_deleted = 0", nativeQuery = true)
@@ -248,4 +256,39 @@ PutAwayLineV2 findTopByCompanyCodeAndPlantIdAndWarehouseIdAndLanguageIdAndItemCo
             String goodsReceiptNo, String preInboundNo, String refDocNumber,
             String putAwayNumber, Long lineNo, String itemCode, Long deletionIndicator);
 
+    @Modifying
+    @Query(value = "UPDATE IBL SET IBL.STATUS_ID = :statusId, IBL.STATUS_TEXT = :statusDescription, \n " +
+            " IBL.PA_CNF_BY = :updatedBy, IBL.PA_CNF_ON = :updatedOn \n " +
+            " FROM tblputawayline IBL INNER JOIN \n " +
+            " (SELECT C_ID,PLANT_ID,LANG_ID,WH_ID,REF_DOC_NO,PRE_IB_NO,IB_LINE_NO,ITM_CODE,MFR_NAME" +
+            " FROM tblinboundline \n " +
+            " WHERE \n " +
+            " IS_DELETED = 0 AND REF_FIELD_2 = 'TRUE' AND status_id = :statusId AND \n " +
+            " C_ID = :companyCodeId AND PLANT_ID = :plantId AND LANG_ID = :languageId AND WH_ID = :warehouseId AND \n " +
+            " REF_DOC_NO = :refDocNumber AND PRE_IB_NO = :preInboundNo ) X ON \n " +
+            " IBL.C_ID = X.C_ID AND IBL.PLANT_ID = X.PLANT_ID AND IBL.LANG_ID = X.LANG_ID AND IBL.WH_ID = X.WH_ID AND \n " +
+            " IBL.REF_DOC_NO = X.REF_DOC_NO AND IBL.PRE_IB_NO = X.PRE_IB_NO AND IBL.ITM_CODE = X.ITM_CODE AND \n " +
+            " IBL.MFR_NAME = X.MFR_NAME AND IBL.IB_LINE_NO = X.IB_LINE_NO AND IBL.IS_DELETED = 0 ", nativeQuery = true)
+    public void updatePutawayLineInboundConfirmProcV10(
+            @Param("companyCodeId") String companyCodeId,
+            @Param("plantId") String plantId,
+            @Param("languageId") String languageId,
+            @Param("warehouseId") String warehouseId,
+            @Param("refDocNumber") String refDocNumber,
+            @Param("preInboundNo") String preInboundNo,
+            @Param("statusId") Long statusId,
+            @Param("statusDescription") String statusDescription,
+            @Param("updatedBy") String updatedBy,
+            @Param("updatedOn") Date updatedOn);
+
+    void deleteByCompanyCodeAndPlantIdAndWarehouseIdAndItemCodeAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
+            String companyCode, String plantId, String warehouseId, String itemCode,String refDocNumber, String preInboundNo, Long deletionIndicator);
+
+
+
+
+    @Modifying(clearAutomatically = true)
+    @Query(value = "update tblputawayline set is_deleted = 1 where REF_DOC_NO = :refDocNumber AND PRE_IB_NO = :preInboundNo ", nativeQuery = true)
+    int softDeleteByRefDocNo(@Param("refDocNumber") String refDocNumber,
+                             @Param("preInboundNo") String preInboundNo);
 }

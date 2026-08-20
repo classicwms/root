@@ -9,4 +9,6 @@ public class StorageBinDashBoardImpl {
 	String storageBin;
 	String statusId;
 	String statusDescription;
+	String businessPartnerCode;
+	String palletCode;
 }

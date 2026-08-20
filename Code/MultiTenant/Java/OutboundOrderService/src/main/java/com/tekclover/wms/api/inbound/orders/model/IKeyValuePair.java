@@ -33,4 +33,10 @@ public interface IKeyValuePair {
     Double getAlterUomQty();
     Double getUomQty();
 
+    String getManufacturerCode();
+    String getManufacturerFullName();
+    public String getDescription();
+    public String getCustomerId();
+    public String getCustomerName();
+
 }

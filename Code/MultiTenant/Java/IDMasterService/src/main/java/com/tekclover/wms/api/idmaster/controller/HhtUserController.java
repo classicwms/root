@@ -215,6 +215,9 @@ public class HhtUserController {
                     case "KSP":
                         createdHhtUser = hhtuserService.findHhtUserV9(findHhtUser);
                         break;
+                    case "SPAREX":
+                        createdHhtUser = hhtuserService.findHhtUser(findHhtUser);
+                        break;
                 }
             }
             return new ResponseEntity<>(createdHhtUser, HttpStatus.OK);

@@ -2257,6 +2257,262 @@ public class StagingLineService extends BaseService {
             throw new BadRequestException("Update error : " + e.getMessage());
         }
     }
+    //*----------------------------------------------BF mfr expiry-----------------------------------*//
 
+    public List<StagingLineUpdate> updateExpiryMfrV9(List<StagingLineUpdate> input) {
 
+        try {
+            input.forEach(sl -> {
+                stagingLineV2Repository.updateExpiryMfrV9(sl.getItemCode(), sl.getBarcodeId(), sl.getRefDocNumber(), sl.getManufacturerDate(), sl.getExpiryDate(), sl.getPrintLabel());
+            });
+            return input;
+        } catch (Exception e) {
+            throw new BadRequestException("Update error : " + e.getMessage());
+        }
+    }
+
+    /**
+     *
+     * @param loginUserID
+     * @param updateStagingLine
+     * @return
+     */
+    public StagingLineEntityV2 updateStagingLineV9(String loginUserID, StagingLineEntityV2 updateStagingLine) {
+        if (updateStagingLine.getItemCode().contains("%20") && updateStagingLine.getItemCode() == null) {
+            StagingLineEntityV2 dbStagingLineEntity = getStagingLineV9(updateStagingLine.getCompanyCode(), updateStagingLine.getPlantId(), updateStagingLine.getLanguageId(),
+                    updateStagingLine.getWarehouseId(), updateStagingLine.getPreInboundNo(), updateStagingLine.getRefDocNumber(), updateStagingLine.getStagingNo(),
+                    updateStagingLine.getCaseCode(), updateStagingLine.getLineNo());
+            List<StagingLineEntityV2> stagingLineEntityV2List = getStagingLineForBarcodeUpdateV2(updateStagingLine.getCompanyCode(), updateStagingLine.getPlantId(), updateStagingLine.getLanguageId(),
+                    updateStagingLine.getWarehouseId(), updateStagingLine.getItemCode(), updateStagingLine.getManufacturerName());
+            log.info("Staging Lines List for respective itemCode: " + stagingLineEntityV2List);
+
+            //Throw exception updating ImPartner - barcode with itemCode and ManufacturerName when barcode associated with another ItemCode
+            if (updateStagingLine.getPartner_item_barcode() != null) {
+                List<ImPartner> imPartnerList = imPartnerService.getImpartnerBarcodeList(updateStagingLine.getCompanyCode(), updateStagingLine.getPlantId(), updateStagingLine.getLanguageId(),
+                        updateStagingLine.getWarehouseId(), updateStagingLine.getPartner_item_barcode());
+                if (imPartnerList != null && !imPartnerList.isEmpty()) {
+                    for (ImPartner imPartner : imPartnerList) {
+                        String itemCodeMfrName = imPartner.getItemCode() + imPartner.getManufacturerName();
+                        String updateItemCodeMfrName = dbStagingLineEntity.getItemCode() + dbStagingLineEntity.getManufacturerName();
+                        if (!itemCodeMfrName.equalsIgnoreCase(updateItemCodeMfrName)) {
+                            log.info("Barcode Already Assigned");
+                            throw new BadRequestException("Barcode already Assigned for : "
+                                    + updateStagingLine.getPartner_item_barcode()
+                                    + ", " + imPartner.getItemCode()
+                                    + ", " + imPartner.getManufacturerName()
+                            );
+                        }
+                    }
+                }
+            }
+
+            BeanUtils.copyProperties(updateStagingLine, dbStagingLineEntity, CommonUtils.getNullPropertyNames(updateStagingLine));
+
+            //Update Barcode if more than one same item & mfr_name present in same order
+            if (stagingLineEntityV2List != null && !stagingLineEntityV2List.isEmpty()) {
+                if (updateStagingLine.getPartner_item_barcode() != null) {
+                    log.info("Update Barcode: " + updateStagingLine.getPartner_item_barcode());
+                    for (StagingLineEntityV2 stagingLineEntity : stagingLineEntityV2List) {
+                        log.info("StagingLine: " + stagingLineEntity);
+                        stagingLineEntity.setPartner_item_barcode(updateStagingLine.getPartner_item_barcode());
+                        stagingLineEntity.setUpdatedBy(loginUserID);
+                        stagingLineEntity.setUpdatedOn(new Date());
+                        stagingLineV2Repository.delete(stagingLineEntity);
+                        stagingLineV2Repository.save(stagingLineEntity);
+                        log.info("Staging Line Barcode Updated: " + stagingLineEntity);
+                    }
+//                    }
+                }
+            }
+
+            dbStagingLineEntity.setUpdatedBy(loginUserID);
+            dbStagingLineEntity.setUpdatedOn(new Date());
+            stagingLineV2Repository.delete(dbStagingLineEntity);
+            return stagingLineV2Repository.save(dbStagingLineEntity);
+        } else if (updateStagingLine.getItemCode().contains("%20") && updateStagingLine.getItemCode() != null) {
+            StagingLineEntityV2 dbStagingLineEntity = getStagingLineV9(updateStagingLine.getCompanyCode(), updateStagingLine.getPlantId(), updateStagingLine.getLanguageId(),
+                    updateStagingLine.getWarehouseId(), updateStagingLine.getPreInboundNo(), updateStagingLine.getRefDocNumber(), updateStagingLine.getStagingNo(),
+                    updateStagingLine.getCaseCode(), updateStagingLine.getLineNo(), updateStagingLine.getItemCode());
+            List<StagingLineEntityV2> stagingLineEntityV2List = getStagingLineForBarcodeUpdateV2(updateStagingLine.getCompanyCode(), updateStagingLine.getPlantId(), updateStagingLine.getLanguageId(),
+                    updateStagingLine.getWarehouseId(), updateStagingLine.getItemCode(), updateStagingLine.getManufacturerName());
+            log.info("Staging Lines List for respective itemCode: " + stagingLineEntityV2List);
+
+            //Throw exception updating ImPartner - barcode with itemCode and ManufacturerName when barcode associated with another ItemCode
+            if (updateStagingLine.getPartner_item_barcode() != null) {
+                List<ImPartner> imPartnerList = imPartnerService.getImpartnerBarcodeList(updateStagingLine.getCompanyCode(), updateStagingLine.getPlantId(), updateStagingLine.getLanguageId(),
+                        updateStagingLine.getWarehouseId(),updateStagingLine.getPartner_item_barcode());
+                if (imPartnerList != null && !imPartnerList.isEmpty()) {
+                    for (ImPartner imPartner : imPartnerList) {
+                        String itemCodeMfrName = imPartner.getItemCode() + imPartner.getManufacturerName();
+                        String updateItemCodeMfrName = dbStagingLineEntity.getItemCode() + dbStagingLineEntity.getManufacturerName();
+                        if (!itemCodeMfrName.equalsIgnoreCase(updateItemCodeMfrName)) {
+                            log.info("Barcode Already Assigned");
+                            throw new BadRequestException("Barcode already Assigned for : "
+                                    + updateStagingLine.getPartner_item_barcode()
+                                    + ", " + imPartner.getItemCode()
+                                    + ", " + imPartner.getManufacturerName()
+                            );
+                        }
+                    }
+                }
+            }
+
+            BeanUtils.copyProperties(updateStagingLine, dbStagingLineEntity, CommonUtils.getNullPropertyNames(updateStagingLine));
+
+            //Update Barcode if more than one same item & mfr_name present in same order
+            if (stagingLineEntityV2List != null && !stagingLineEntityV2List.isEmpty()) {
+                if (updateStagingLine.getPartner_item_barcode() != null) {
+                    log.info("Update Barcode: " + updateStagingLine.getPartner_item_barcode());
+                    for (StagingLineEntityV2 stagingLineEntity : stagingLineEntityV2List) {
+                        log.info("StagingLine: " + stagingLineEntity);
+                        stagingLineEntity.setPartner_item_barcode(updateStagingLine.getPartner_item_barcode());
+                        stagingLineEntity.setUpdatedBy(loginUserID);
+                        stagingLineEntity.setUpdatedOn(new Date());
+                        stagingLineV2Repository.delete(stagingLineEntity);
+                        stagingLineV2Repository.save(stagingLineEntity);
+                        log.info("Staging Line Barcode Updated: " + stagingLineEntity);
+                    }
+//                    }
+                }
+            }
+
+            dbStagingLineEntity.setUpdatedBy(loginUserID);
+            dbStagingLineEntity.setUpdatedOn(new Date());
+            stagingLineV2Repository.delete(dbStagingLineEntity);
+            return stagingLineV2Repository.save(dbStagingLineEntity);
+        } else {
+
+            StagingLineEntityV2 dbStagingLineEntity = getStagingLineV9(updateStagingLine.getCompanyCode(), updateStagingLine.getPlantId(), updateStagingLine.getLanguageId(),
+                    updateStagingLine.getWarehouseId(), updateStagingLine.getPreInboundNo(), updateStagingLine.getRefDocNumber(), updateStagingLine.getStagingNo(),
+                    updateStagingLine.getCaseCode(), updateStagingLine.getLineNo(), updateStagingLine.getItemCode());
+            List<StagingLineEntityV2> stagingLineEntityV2List = getStagingLineForBarcodeUpdateV2(updateStagingLine.getCompanyCode(), updateStagingLine.getPlantId(), updateStagingLine.getLanguageId(),
+                    updateStagingLine.getWarehouseId(), updateStagingLine.getItemCode(), updateStagingLine.getManufacturerName());
+            log.info("Staging Lines List for respective itemCode: " + stagingLineEntityV2List);
+
+            //Throw exception updating ImPartner - barcode with itemCode and ManufacturerName when barcode associated with another ItemCode
+            if (updateStagingLine.getPartner_item_barcode() != null) {
+                List<ImPartner> imPartnerList = imPartnerService.getImpartnerBarcodeList(updateStagingLine.getCompanyCode(), updateStagingLine.getPlantId(), updateStagingLine.getLanguageId(),
+                        updateStagingLine.getWarehouseId(), updateStagingLine.getPartner_item_barcode());
+                if (imPartnerList != null && !imPartnerList.isEmpty()) {
+                    for (ImPartner imPartner : imPartnerList) {
+                        String itemCodeMfrName = imPartner.getItemCode() + imPartner.getManufacturerName();
+                        String updateItemCodeMfrName = updateStagingLine.getItemCode() + dbStagingLineEntity.getManufacturerName();
+                        if (!itemCodeMfrName.equalsIgnoreCase(updateItemCodeMfrName)) {
+                            log.info("Barcode Already Assigned");
+                            throw new BadRequestException("Barcode already Assigned for : "
+                                    + updateStagingLine.getPartner_item_barcode()
+                                    + ", " + imPartner.getItemCode()
+                                    + ", " + imPartner.getManufacturerName()
+                            );
+                        }
+                    }
+                }
+            }
+
+            BeanUtils.copyProperties(updateStagingLine, dbStagingLineEntity, CommonUtils.getNullPropertyNames(updateStagingLine));
+
+            //Update Barcode if more than one same item & mfr_name present in same order
+            if (stagingLineEntityV2List != null && !stagingLineEntityV2List.isEmpty()) {
+                if (updateStagingLine.getPartner_item_barcode() != null) {
+                    log.info("Update Barcode: " + updateStagingLine.getPartner_item_barcode());
+                    for (StagingLineEntityV2 stagingLineEntity : stagingLineEntityV2List) {
+                        log.info("StagingLine: " + stagingLineEntity);
+                        stagingLineEntity.setPartner_item_barcode(updateStagingLine.getPartner_item_barcode());
+                        stagingLineEntity.setUpdatedBy(loginUserID);
+                        stagingLineEntity.setUpdatedOn(new Date());
+                        stagingLineV2Repository.delete(stagingLineEntity);
+                        stagingLineV2Repository.save(stagingLineEntity);
+                        log.info("Staging Line Barcode Updated: " + stagingLineEntity);
+                    }
+                }
+            }
+            dbStagingLineEntity.setUpdatedBy(loginUserID);
+            dbStagingLineEntity.setUpdatedOn(new Date());
+            stagingLineV2Repository.deleteStagingLineV9(dbStagingLineEntity.getWarehouseId(), dbStagingLineEntity.getPreInboundNo(), dbStagingLineEntity.getRefDocNumber(),
+                    dbStagingLineEntity.getCaseCode(), dbStagingLineEntity.getStagingNo(), dbStagingLineEntity.getCompanyCode(), dbStagingLineEntity.getPlantId(),
+                    dbStagingLineEntity.getLineNo(), dbStagingLineEntity.getItemCode());
+            return stagingLineV2Repository.save(dbStagingLineEntity);
+        }
+    }
+
+    /**
+     * @param companyCode
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param preInboundNo
+     * @param refDocNumber
+     * @param stagingNo
+     * @param caseCode
+     * @param lineNo
+     * @return
+     */
+    public StagingLineEntityV2 getStagingLineV9(String companyCode, String plantId, String languageId,
+                                                String warehouseId, String preInboundNo, String refDocNumber,
+                                                String stagingNo, String caseCode, Long lineNo) {
+        Optional<StagingLineEntityV2> StagingLineEntity = stagingLineV2Repository.findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndPreInboundNoAndRefDocNumberAndStagingNoAndCaseCodeAndLineNoAndDeletionIndicator(
+                languageId,
+                companyCode,
+                plantId,
+                warehouseId,
+                preInboundNo,
+                refDocNumber,
+                stagingNo,
+                caseCode,
+                lineNo,
+                0L);
+        if (StagingLineEntity.isEmpty()) {
+            throw new BadRequestException("The given values: warehouseId:" + warehouseId +
+                    ",refDocNumber: " + refDocNumber +
+                    ",preInboundNo: " + preInboundNo +
+                    ",stagingNo: " + stagingNo +
+                    ",caseCode: " + caseCode +
+                    ",lineNo: " + lineNo +
+                    " doesn't exist.");
+        }
+
+        return StagingLineEntity.get();
+    }
+    /**
+     *
+     * @param companyCode
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param preInboundNo
+     * @param refDocNumber
+     * @param stagingNo
+     * @param caseCode
+     * @param lineNo
+     * @param itemCode
+     * @return
+     */
+    public StagingLineEntityV2 getStagingLineV9(String companyCode, String plantId, String languageId,
+                                                String warehouseId, String preInboundNo, String refDocNumber,
+                                                String stagingNo, String caseCode, Long lineNo, String itemCode) {
+        Optional<StagingLineEntityV2> StagingLineEntity = stagingLineV2Repository.findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndPreInboundNoAndRefDocNumberAndStagingNoAndCaseCodeAndLineNoAndItemCodeAndDeletionIndicator(
+                languageId,
+                companyCode,
+                plantId,
+                warehouseId,
+                preInboundNo,
+                refDocNumber,
+                stagingNo,
+                caseCode,
+                lineNo,
+                itemCode,
+                0L);
+        if (StagingLineEntity.isEmpty()) {
+            throw new BadRequestException("The given values: warehouseId:" + warehouseId +
+                    ",refDocNumber: " + refDocNumber +
+                    ",preInboundNo: " + preInboundNo +
+                    ",stagingNo: " + stagingNo +
+                    ",caseCode: " + caseCode +
+                    ",lineNo: " + lineNo +
+                    ",itemCode: " + itemCode +
+                    " doesn't exist.");
+        }
+
+        return StagingLineEntity.get();
+    }
 }

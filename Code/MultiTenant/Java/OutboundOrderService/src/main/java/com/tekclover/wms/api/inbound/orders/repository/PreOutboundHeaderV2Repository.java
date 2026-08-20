@@ -315,5 +315,25 @@ public interface PreOutboundHeaderV2Repository extends JpaRepository<PreOutbound
     Optional<PreOutboundHeaderV2> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
             String languageId, String plantId, String  companyCodeId, String warehouseId, String refDocNumber, String preOutboundNo, Long deletionIndicator);
 
+    @Modifying
+    @Query(value = "UPDATE tblpreoutboundheader SET STATUS_ID = :statusId, STATUS_TEXT = :statusText \n" +
+            "WHERE IS_DELETED = 0 AND C_ID = :companyCodeId AND PLANT_ID = :plantId AND LANG_ID = :languageId AND WH_ID = :warehouseId \n" +
+            "AND REF_DOC_NO = :refDocNumber AND PRE_OB_NO = :preOutboundNo ",nativeQuery = true)
+    void updatePreOutboundHeaderV10(@Param("companyCodeId") String companyCodeId,
+                                    @Param("plantId") String plantId,
+                                    @Param("languageId") String languageId,
+                                    @Param("warehouseId") String warehouseId,
+                                    @Param("refDocNumber") String refDocNumber,
+                                    @Param("preOutboundNo") String preOutboundNo,
+                                    @Param("statusId") Long statusId,
+                                    @Param("statusText") String statusText);
 
+    @Query(value = "select * from tblpreoutboundheader where c_id = :companyCodeId and plant_id = :plantId and lang_id = :languageId and " +
+            " wh_id = :warehouseId and PRE_OB_NO = :preOutboundNo and REF_DOC_NO = :refDocNumber and IS_DELETED = 0 ", nativeQuery = true)
+    public PreOutboundHeaderV2 getPreOutboundHeaderV9(@Param("companyCodeId") String companyCode,
+                                                      @Param("plantId") String plantId,
+                                                      @Param("languageId") String languageId,
+                                                      @Param("warehouseId") String warehouseId,
+                                                      @Param("preOutboundNo") String preOutboundNo,
+                                                      @Param("refDocNumber") String refDocNumber);
 }

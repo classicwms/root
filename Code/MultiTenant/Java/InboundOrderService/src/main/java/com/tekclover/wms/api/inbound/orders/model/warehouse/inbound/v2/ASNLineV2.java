@@ -96,4 +96,7 @@ public class ASNLineV2 {
     private String vehicleNo;
     private Date vehicleReportingDate;
     private Date vehicleUnloadingDate;
+
+    /*-----------------------------BP----------------------------------------*/
+    private String unitType;
 }

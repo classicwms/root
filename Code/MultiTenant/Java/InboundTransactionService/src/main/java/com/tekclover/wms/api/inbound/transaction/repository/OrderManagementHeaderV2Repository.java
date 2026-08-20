@@ -62,4 +62,15 @@ public interface OrderManagementHeaderV2Repository extends JpaRepository<OrderMa
                                                     @Param("preOutboundNo") String preOutboundNo,
                                                     @Param("statusId") Long statusId,
                                                     @Param("statusDescription") String statusDescription);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("Update OrderManagementHeaderV2 ob SET ob.statusId = :statusId, ob.statusDescription = :statusDescription \r\n "
+            + " WHERE ob.companyCodeId = :companyCodeId AND ob.plantId = :plantId AND ob.languageId = :languageId AND ob.warehouseId = :warehouseId AND ob.preOutboundNo = :preOutboundNo")
+    void updateOrderManagementHeaderStatusV9(@Param("companyCodeId") String companyCodeId,
+                                             @Param("plantId") String plantId,
+                                             @Param("languageId") String languageId,
+                                             @Param("warehouseId") String warehouseId,
+                                             @Param("preOutboundNo") String preOutboundNo,
+                                             @Param("statusId") Long statusId,
+                                             @Param("statusDescription") String statusDescription);
 }

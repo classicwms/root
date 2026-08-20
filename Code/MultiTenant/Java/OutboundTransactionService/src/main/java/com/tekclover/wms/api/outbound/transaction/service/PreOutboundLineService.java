@@ -493,4 +493,50 @@ public class PreOutboundLineService extends BaseService {
         log.info("PickList Cancellation - PreOutboundLine : " + preOutboundLineV2List);
         return preOutboundLineV2List;
     }
+
+    // ========= BF && KKF ============
+    /**
+     *
+     * @param loginUserID
+     * @param updatePreOutboundLine
+     * @return
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     * @throws java.text.ParseException
+     */
+    public PreOutboundLineV2 updatePreOutboundLineV9(String loginUserID, UpdatePreOutboundLine updatePreOutboundLine)
+            throws IllegalAccessException, InvocationTargetException, java.text.ParseException {
+        PreOutboundLineV2 dbPreOutboundLine = getPreOutboundLineV9(updatePreOutboundLine.getCompanyCodeId(), updatePreOutboundLine.getPlantId(), updatePreOutboundLine.getLanguageId(), updatePreOutboundLine.getWarehouseId(),
+                updatePreOutboundLine.getRefDocNumber(), updatePreOutboundLine.getPreOutboundNo(), updatePreOutboundLine.getLineNumber());
+        if (dbPreOutboundLine != null) {
+            BeanUtils.copyProperties(updatePreOutboundLine, dbPreOutboundLine, CommonUtils.getNullPropertyNames(updatePreOutboundLine));
+            dbPreOutboundLine.setUpdatedBy(loginUserID);
+            dbPreOutboundLine.setUpdatedOn(new Date());
+            preOutboundLineV2Repository.delete(dbPreOutboundLine);
+            return preOutboundLineV2Repository.save(dbPreOutboundLine);
+        }
+        return dbPreOutboundLine;
+    }
+
+    /**
+     * @param languageId
+     * @param companyCodeId
+     * @param plantId
+     * @param warehouseId
+     * @param refDocNumber
+     * @param preOutboundNo
+     * @param lineNumber
+     * @return
+     */
+    public PreOutboundLineV2 getPreOutboundLineV9(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                                  String refDocNumber, String preOutboundNo, Long lineNumber) {
+        PreOutboundLineV2 preOutboundLine =
+                preOutboundLineV2Repository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndLineNumberAndDeletionIndicator(
+                        languageId, companyCodeId, plantId, warehouseId, refDocNumber, preOutboundNo, lineNumber, 0L);
+        if (preOutboundLine != null) {
+            return preOutboundLine;
+        }
+
+        return null;
+    }
 }

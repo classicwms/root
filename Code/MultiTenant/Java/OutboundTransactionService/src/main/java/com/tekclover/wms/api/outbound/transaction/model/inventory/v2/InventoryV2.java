@@ -152,4 +152,17 @@ public class InventoryV2 extends Inventory {
 
     @Column(name = "REMAINING_SELF_LIFE_PERCENTAGE")
     private Long remainingSelfLifePercentage;
+
+    // BF
+    @Column(name = "PALLET_ID")
+    private String palletId;
+
+    @Column(name = "VEHICLE_NO", columnDefinition = "nvarchar(50)")
+    private String vehicleNo;
+
+    @Column(name = "VEHICLE_REPORTING_DATE")
+    private Date vehicleReportingDate;
+
+    @Column(name = "VEHICLE_UNLOADING_DATE")
+    private Date vehicleUnloadingDate;
 }

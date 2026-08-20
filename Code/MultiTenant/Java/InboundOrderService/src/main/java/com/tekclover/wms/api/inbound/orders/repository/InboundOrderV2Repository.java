@@ -82,4 +82,16 @@ public interface InboundOrderV2Repository extends JpaRepository<InboundOrderV2, 
                              @Param("processedStatusId") Long processStatusId);
 
 
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query(value = "update tblpreinboundline set status_id = 14, status_text = :text where " +
+            "REF_DOC_NO = :refDocNo", nativeQuery = true)
+    void updatePreInboundLineV9(@Param("refDocNo") String refDocNo,
+                                @Param("text") String text);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query(value = "update tbliborder2 set gr_header = 10, order_text = :text where " +
+            "inbound_order_type_id = :inboundHeaderId and ref_document_no = :refDocNo", nativeQuery = true)
+    void updateGrHeaderV9(@Param("inboundHeaderId") Long inboundHeaderId,
+                          @Param("refDocNo") String refDocNo,
+                          @Param("text") String text);
 }

@@ -59,4 +59,8 @@ public class InhouseTransferLine {
     //Almailem Code
     private String manufacturerName;
 
+    private String alternateUom;
+    //BP
+    private String targetWarehouseId;
+
 }

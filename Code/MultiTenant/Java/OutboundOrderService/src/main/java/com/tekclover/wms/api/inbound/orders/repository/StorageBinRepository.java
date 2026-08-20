@@ -5,6 +5,7 @@ import com.tekclover.wms.api.inbound.orders.model.dto.StorageBinV2;
 import com.tekclover.wms.api.inbound.orders.repository.fragments.StreamableJpaSpecificationRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -131,6 +132,18 @@ public interface StorageBinRepository extends JpaRepository<StorageBin, Long>,
                                                   @Param(value = "warehouseId") String warehouseId,
                                                   @Param(value = "binClassId") Long binClassId,
                                                   @Param(value = "storageBin") String storageBin);
+
+    @Modifying
+    @Transactional
+    @Query(value = "update tblstoragebin set status_id = :statusId where st_bin = :storageBin and is_deleted =0 AND c_id = :companyId and plant_id = :plantId and wh_id = :warehouseId and \n +" +
+            "0 = (select coalesce (sum(inv_qty), 0) from tblinventory where is_deleted = 0 and st_bin = :storageBin AND ref_field_4 > 0 AND " +
+            "c_id = :companyId and plant_id = :plantId and wh_id = :warehouseId and " +
+            "inv_id in (select max(inv_id) from tblinventory where is_deleted = 0 group by itm_code, barcode_id, st_bin)) ", nativeQuery = true)
+    int updateStorageBinStatusV9(@Param("statusId") Long statusId,
+                                 @Param("storageBin") String storageBin,
+                                 @Param("companyId") String companyId,
+                                 @Param("plantId") String plantId,
+                                 @Param("warehouseId") String warehouseId);
 }
 
 

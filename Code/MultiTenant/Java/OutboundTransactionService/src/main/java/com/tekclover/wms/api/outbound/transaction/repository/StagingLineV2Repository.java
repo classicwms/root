@@ -466,5 +466,14 @@ public interface StagingLineV2Repository extends JpaRepository<StagingLineEntity
                                             @Param("warehouseId") String warehouseId,
                                             @Param("itemCode") String itemCode,
                                             @Param("uomId") String uomId,
+
                                             @Param("altUom") String altUom);
+    // BF
+    @Query(value = "SELECT OB_STRATEGY, FIFO_MD FROM tblwarehouse WHERE " +
+            "C_ID = :companyId AND PLANT_ID = :plantId " +
+            "AND WH_ID = :warehouseId AND " +
+            "IS_DELETED = 0 ", nativeQuery = true)
+    List<Object[]> getStrategy(@Param("companyId") String companyId,
+                               @Param("plantId") String plantId,
+                               @Param("warehouseId") String warehouseId);
 }

@@ -48,4 +48,17 @@ public interface OutboundOrderV2Repository extends JpaRepository<OutboundOrderV2
     void updateProcessStatusId(@Param("outboundOrderHeaderId") Long outboundOrderHeaderId);
 
     void deleteByOrderId(String orderId);
+
+    // BF
+    @Modifying
+    @Query(value = "update tbloborder2 set pickup_header = 1, order_text = :orderText where " +
+            "ref_document_no = :refDocNo ", nativeQuery = true)
+    void updatePickupHeaderProcessStatusId(@Param("refDocNo") String refDocNo,
+                                           @Param("orderText") String orderText);
+
+    @Modifying
+    @Transactional
+    @Query(value = "delete from tbloborder2 "+
+            "where order_id = :refDocNumber " , nativeQuery = true)
+    int deleteByItemCodeAndOrderId(@Param(value = "refDocNumber") String refDocNumber);
 }

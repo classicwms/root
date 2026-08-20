@@ -252,6 +252,15 @@ public class InboundHeaderController {
                     case "REEFERON":
                         createdInboundHeaderResponse = inboundheaderService.updateInboundHeaderPartialConfirmV5(companyCode, plantId, languageId, warehouseId, preInboundNo, refDocNumber, loginUserID);
 
+                    case "BF":
+                        createdInboundHeaderResponse = inboundheaderService.updateInboundHeaderPartialConfirmV9(companyCode, plantId, languageId, warehouseId, preInboundNo, refDocNumber, loginUserID);
+                        break;
+                    case "KKF":
+                        createdInboundHeaderResponse = inboundheaderService.updateInboundHeaderPartialConfirmV9(companyCode, plantId, languageId, warehouseId, preInboundNo, refDocNumber, loginUserID);
+                        break;
+                    case "KSP":
+                        createdInboundHeaderResponse = inboundheaderService.updateInboundHeaderPartialConfirmV9(companyCode, plantId, languageId, warehouseId, preInboundNo, refDocNumber, loginUserID);
+                        break;
                 }
             }
             return new ResponseEntity<>(createdInboundHeaderResponse, HttpStatus.OK);
@@ -260,24 +269,24 @@ public class InboundHeaderController {
         }
     }
 
-    @ApiOperation(response = InboundHeaderV2.class, value = "Inbound Header & Line Partial Confirm New")
-    // label for swagger
-    @PostMapping("/v2/confirmIndividual/partial")
-    public ResponseEntity<?> updatePartialInboundHeaderConfirmNewV2(@RequestBody List<InboundLineV2> inboundLineList, @RequestParam String warehouseId,
-                                                                    @RequestParam String preInboundNo, @RequestParam String refDocNumber, @RequestParam String companyCode,
-                                                                    @RequestParam String plantId, @RequestParam String languageId, @RequestParam String loginUserID) {
-        try {
-            DataBaseContextHolder.setCurrentDb("MT");
-            String routingDb = dbConfigRepository.getDbName(companyCode, plantId, warehouseId);
-            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-            DataBaseContextHolder.clear();
-            DataBaseContextHolder.setCurrentDb(routingDb);
-            inboundheaderService.updateInboundHeaderPartialConfirmNewV2(inboundLineList, companyCode, plantId, languageId, warehouseId, preInboundNo, refDocNumber, loginUserID);
-            return new ResponseEntity<>(HttpStatus.OK);
-        } finally {
-            DataBaseContextHolder.clear();
-        }
-    }
+//    @ApiOperation(response = InboundHeaderV2.class, value = "Inbound Header & Line Partial Confirm New")
+//    // label for swagger
+//    @PostMapping("/v2/confirmIndividual/partial")
+//    public ResponseEntity<?> updatePartialInboundHeaderConfirmNewV2(@RequestBody List<InboundLineV2> inboundLineList, @RequestParam String warehouseId,
+//                                                                    @RequestParam String preInboundNo, @RequestParam String refDocNumber, @RequestParam String companyCode,
+//                                                                    @RequestParam String plantId, @RequestParam String languageId, @RequestParam String loginUserID) {
+//        try {
+//            DataBaseContextHolder.setCurrentDb("MT");
+//            String routingDb = dbConfigRepository.getDbName(companyCode, plantId, warehouseId);
+//            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+//            DataBaseContextHolder.clear();
+//            DataBaseContextHolder.setCurrentDb(routingDb);
+//            inboundheaderService.updateInboundHeaderPartialConfirmNewV2(inboundLineList, companyCode, plantId, languageId, warehouseId, preInboundNo, refDocNumber, loginUserID);
+//            return new ResponseEntity<>(HttpStatus.OK);
+//        } finally {
+//            DataBaseContextHolder.clear();
+//        }
+//    }
 
     @ApiOperation(response = InboundHeaderV2.class, value = "Update InboundHeader") // label for swagger
     @PatchMapping("/v2/{refDocNumber}")
@@ -329,6 +338,29 @@ public class InboundHeaderController {
             DataBaseContextHolder.clear();
             DataBaseContextHolder.setCurrentDb(routingDb);
             return inboundheaderService.findInboundHeaderWithLineV2(searchInboundHeader);
+        } finally {
+            DataBaseContextHolder.clear();
+        }
+    }
+
+    @ApiOperation(response = InboundHeaderV2.class, value = "Inbound Header & Line Partial Confirm New")
+    // label for swagger
+    @PostMapping("/v2/confirmIndividual/partial")
+    public ResponseEntity<?> updatePartialInboundHeaderConfirmNewV2(@RequestBody List<InboundLineV2> inboundLineList, @RequestParam String warehouseId,
+                                                                    @RequestParam String preInboundNo, @RequestParam String refDocNumber, @RequestParam String companyCode,
+                                                                    @RequestParam String plantId, @RequestParam String languageId, @RequestParam String loginUserID) {
+        try {
+            DataBaseContextHolder.setCurrentDb("MT");
+            String routingDb = dbConfigRepository.getDbName(companyCode, plantId, warehouseId);
+            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(routingDb);
+            if(routingDb.equalsIgnoreCase("SPAREX")) {
+                inboundheaderService.updateInboundHeaderPartialConfirmNewV10(inboundLineList, companyCode, plantId, languageId, warehouseId, preInboundNo, refDocNumber, loginUserID);
+            } else {
+                inboundheaderService.updateInboundHeaderPartialConfirmNewV2(inboundLineList, companyCode, plantId, languageId, warehouseId, preInboundNo, refDocNumber, loginUserID);
+            }
+            return new ResponseEntity<>(HttpStatus.OK);
         } finally {
             DataBaseContextHolder.clear();
         }

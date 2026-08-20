@@ -29,4 +29,9 @@ public class SearchContainerReceipt {
 	private List<String> referenceField1;
 	
 	private List<Long> statusId;
+
+	private List<String> invoiceNo;
+	private List<String> origin;
+
+
 }

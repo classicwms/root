@@ -86,23 +86,23 @@ public class StagingLineController {
         return staginglineService.findStagingLine(searchStagingLine);
     }
 
-    @ApiOperation(response = StagingLineUpdate.class,value = "Update ExpiryMfr")
-    @PostMapping("/update/ExpiryMfr")
-    public ResponseEntity<?>updateExpiryMfr(@RequestBody List<StagingLineUpdate> input) {
-       try{
-//           for (StagingLineUpdate stagingLine : input){
-               String routingDb = dbConfigRepository.getDbName(input.get(0).getCompanyCode(), input.get(0).getPlantId(), input.get(0).getWarehouseId());
-               log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-               DataBaseContextHolder.clear();
-               DataBaseContextHolder.setCurrentDb(routingDb);
-//           }
-           List<StagingLineUpdate> updatedStagingLine =
-                   staginglineService.updateExpiryMfr(input);
-           return new ResponseEntity<>(updatedStagingLine, HttpStatus.OK);
-       }finally {
-           DataBaseContextHolder.clear();
-       }
-    }
+//    @ApiOperation(response = StagingLineUpdate.class,value = "Update ExpiryMfr")
+//    @PostMapping("/update/ExpiryMfr")
+//    public ResponseEntity<?>updateExpiryMfr(@RequestBody List<StagingLineUpdate> input) {
+//       try{
+////           for (StagingLineUpdate stagingLine : input){
+//               String routingDb = dbConfigRepository.getDbName(input.get(0).getCompanyCode(), input.get(0).getPlantId(), input.get(0).getWarehouseId());
+//               log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+//               DataBaseContextHolder.clear();
+//               DataBaseContextHolder.setCurrentDb(routingDb);
+////           }
+//           List<StagingLineUpdate> updatedStagingLine =
+//                   staginglineService.updateExpiryMfr(input);
+//           return new ResponseEntity<>(updatedStagingLine, HttpStatus.OK);
+//       }finally {
+//           DataBaseContextHolder.clear();
+//       }
+//    }
 
 
     @ApiOperation(response = StagingLine.class, value = "Create StagingLine") // label for swagger
@@ -361,4 +361,55 @@ public class StagingLineController {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
 
+    @ApiOperation(response = StagingLineUpdate.class, value = "Update ExpiryMfr")
+    @PostMapping("/update/ExpiryMfr")
+    public ResponseEntity<?> updateExpiryMfr(@RequestBody List<StagingLineUpdate> input) {
+        try {
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb("MT");
+            String routingDb = dbConfigRepository.getDbName(input.get(0).getCompanyCode(), input.get(0).getPlantId(), input.get(0).getWarehouseId());
+            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(routingDb);
+            List<StagingLineUpdate> updatedStagingLine = null;
+            if(routingDb!=null){
+                switch (routingDb){
+                    case "BF":
+                        updatedStagingLine = staginglineService.updateExpiryMfrV9(input);
+                        break;
+                    case "KKF":
+                        updatedStagingLine = staginglineService.updateExpiryMfrV9(input);
+                        break;
+                    case "KSP":
+                        updatedStagingLine = staginglineService.updateExpiryMfrV9(input);
+                        break;
+                    default:
+                        updatedStagingLine = staginglineService.updateExpiryMfr(input);
+                }
+
+            }
+            return new ResponseEntity<>(updatedStagingLine, HttpStatus.OK);
+        } finally {
+            DataBaseContextHolder.clear();
+        }
+    }
+
+    @ApiOperation(response = StagingLineEntityV2.class, value = "Update StagingLine V2") // label for swagger
+    @PatchMapping("/v9/stagingLine/")
+    public ResponseEntity<?> patchStagingLineV9(@Valid @RequestBody StagingLineEntityV2 updateStagingLine, @RequestParam String loginUserID)
+            throws IllegalAccessException, InvocationTargetException, ParseException {
+        try {
+            log.info("StagingLine update inputs ----->  " + updateStagingLine);
+            DataBaseContextHolder.setCurrentDb("MT");
+            String routingDb = dbConfigRepository.getDbName(updateStagingLine.getCompanyCode(), updateStagingLine.getPlantId(), updateStagingLine.getWarehouseId());
+            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(routingDb);
+            StagingLineEntityV2 createdStagingLine =
+                    staginglineService.updateStagingLineV9(loginUserID, updateStagingLine);
+            return new ResponseEntity<>(createdStagingLine, HttpStatus.OK);
+        } finally {
+            DataBaseContextHolder.clear();
+        }
+    }
 }

@@ -85,5 +85,13 @@ public class InventoryV3 {
     private Long remaining_self_life_percentage;
     private String receivingVariance;
     private Double mrp;
+    private String price_segment;
+    private String tpl_partner_id;
+    private String color;
+    private String material_no;
+    private String pallet_id;
 
+    private String article_no;
+    private String gender;
+    private String itm_grp;
 }

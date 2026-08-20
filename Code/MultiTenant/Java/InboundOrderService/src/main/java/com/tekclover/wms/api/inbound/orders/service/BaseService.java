@@ -31,12 +31,18 @@ public class BaseService {
     protected static final String MFR_NAME_V5 = "REEFERON";
     protected static final String MRF_NAME_V7 = "KNOWELL";
     protected static final String MRF_NAME_V6 = "BP";
+    protected static final String MFR_NAME_V10 = "SPAREX";
     protected static final String PICK_HE_NO = "HE-01";
     protected static final String BASE_UOM = "ECH";
     protected static final String ALTERNATE_UOM = "BAG";
     protected static final String UOM_ID = "BOX";
     protected static final String WAREHOUSE_ID_110 = "110";
     protected static final String WAREHOUSE_ID_111 = "111";
+
+    protected static final String MFR_NAME_V9 = "BF";
+    protected static final String MFR_NAME_V11 = "KKF";
+    protected static final String MFR_NAME_V12 = "KSP";
+
     //V2
     protected static final String WAREHOUSE_ID_100 = "100";
     protected static final String WAREHOUSE_ID_200 = "200";

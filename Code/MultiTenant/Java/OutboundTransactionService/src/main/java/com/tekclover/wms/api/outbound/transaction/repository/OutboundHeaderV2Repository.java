@@ -66,6 +66,30 @@ public interface OutboundHeaderV2Repository extends JpaRepository<OutboundHeader
                                              @Param("statusId") Long statusId,
                                              @Param("statusDescription") String statusDescription);
 
+    @Modifying
+    @Query(value = "UPDATE tbloutboundheader\n" +
+            " SET STATUS_ID = :statusId,\n" +
+            " STATUS_TEXT = :statusText,\n" +
+            " DLV_UTD_ON = :updatedOn,\n" +
+            " DLV_UTD_BY = :updatedBy\n" +
+            " WHERE C_ID = :companyCodeId AND \n" +
+            " PLANT_ID = :plantId AND \n" +
+            " LANG_ID = :languageId AND \n" +
+            " WH_ID = :warehouseId AND \n" +
+            " REF_DOC_NO = :refDocNumber AND\n" +
+            " PRE_OB_NO = :preOutboundNo AND\n" +
+            " IS_DELETED = 0",nativeQuery = true)
+    void updateOutboundHeaderStatusV2(@Param("companyCodeId") String companyCodeId,
+                                      @Param("plantId") String plantId,
+                                      @Param("languageId") String languageId,
+                                      @Param("warehouseId") String warehouseId,
+                                      @Param("refDocNumber") String refDocNumber,
+                                      @Param("preOutboundNo") String preOutboundNo,
+                                      @Param("statusId") Long statusId,
+                                      @Param("statusText") String statusText,
+                                      @Param("updatedBy") String updatedBy,
+                                      @Param("updatedOn") Date updatedOn);
+
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value = "Update tbloutboundheader SET STATUS_ID = :statusId, STATUS_TEXT = :statusDescription, DLV_CNF_ON = :deliveryConfirmedOn \r\n "
             + " WHERE C_ID = :companyCodeId AND PLANT_ID = :plantId AND \r\n"
@@ -963,4 +987,500 @@ public interface OutboundHeaderV2Repository extends JpaRepository<OutboundHeader
             String companyCodeId, String plantId, String warehouseId, String refDocNumber, String preOutboundNo, Long deletionIndicator);
 
 
+    @Query(value =
+            "SELECT C_ID,PLANT_ID,LANG_ID,WH_ID,REF_DOC_NO,PRE_OB_NO,DLV_QTY,ORD_QTY,STATUS_ID into #obl FROM tbloutboundline WHERE is_deleted = 0 and \n" +
+                    "(COALESCE(:refDocNo, null) IS NULL OR (ref_doc_no IN (:refDocNo))) AND\n" +
+                    "(COALESCE(:companyCodeId, null) IS NULL OR (c_id IN (:companyCodeId))) and \n" +
+                    "(COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) and \n" +
+                    "(COALESCE(:languageId, null) IS NULL OR (lang_id IN (:languageId))) and \n" +
+                    "(COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and \n" +
+                    "(COALESCE(:preOutboundNo, null) IS NULL OR (pre_ob_no IN (:preOutboundNo))) \n" +
+
+                    "SELECT C_ID,PLANT_ID,LANG_ID,WH_ID,REF_DOC_NO,PRE_OB_NO,PICK_CNF_QTY,STATUS_ID into #pil FROM tblpickupline WHERE is_deleted = 0 and \n" +
+                    "(COALESCE(:refDocNo, null) IS NULL OR (ref_doc_no IN (:refDocNo))) AND\n" +
+                    "(COALESCE(:companyCodeId, null) IS NULL OR (c_id IN (:companyCodeId))) and \n" +
+                    "(COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) and \n" +
+                    "(COALESCE(:languageId, null) IS NULL OR (lang_id IN (:languageId))) and \n" +
+                    "(COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and \n" +
+                    "(COALESCE(:preOutboundNo, null) IS NULL OR (pre_ob_no IN (:preOutboundNo))) \n" +
+
+                    "SELECT C_ID,PLANT_ID,LANG_ID,WH_ID,REF_DOC_NO,PRE_OB_NO,ORD_QTY into #pol FROM tblpreoutboundline WHERE is_deleted = 0 and \n" +
+                    "(COALESCE(:refDocNo, null) IS NULL OR (ref_doc_no IN (:refDocNo))) AND\n" +
+                    "(COALESCE(:companyCodeId, null) IS NULL OR (c_id IN (:companyCodeId))) and \n" +
+                    "(COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) and \n" +
+                    "(COALESCE(:languageId, null) IS NULL OR (lang_id IN (:languageId))) and \n" +
+                    "(COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and \n" +
+                    "(COALESCE(:preOutboundNo, null) IS NULL OR (pre_ob_no IN (:preOutboundNo))) \n" +
+
+                    "select \n" +
+                    "oh.c_id companyCodeId, oh.lang_id languageId, oh.partner_code partnerCode, \n" +
+                    "oh.plant_id plantId, oh.pre_ob_no preOutboundNo,oh.ref_doc_no refDocNumber,oh.wh_id warehouseId, \n" +
+                    "oh.dlv_ctd_by createdBy, \n" +
+                    "oh.dlv_ctd_on createdOn, \n" +
+                    "oh.is_deleted deletionIndicator, \n" +
+                    "oh.dlv_cnf_by deliveryConfirmedBy, \n" +
+                    "oh.dlv_cnf_on deliveryConfirmedOn, \n" +
+                    "oh.dlv_ord_no deliveryOrderNo, oh.ob_ord_typ_id outboundOrderTypeId, \n" +
+                    "oh.ref_doc_date refDocDate, \n" +
+                    "oh.ref_doc_typ referenceDocumentType,oh.remark remarks, \n" +
+                    "oh.req_del_date requiredDeliveryDate,\n" +
+                    "oh.dlv_rev_by reversedBy, \n" +
+                    "oh.dlv_rev_on reversedOn, \n" +
+                    "oh.status_id statusId,oh.dlv_utd_by updatedBy, \n" +
+                    "oh.dlv_utd_on updatedOn,\n" +
+                    "oh.INVOICE_NO invoiceNumber,\n" +
+                    "oh.C_TEXT companyDescription,\n" +
+                    "oh.PLANT_TEXT plantDescription,\n" +
+                    "oh.WH_TEXT warehouseDescription,\n" +
+                    "oh.STATUS_TEXT statusDescription,\n" +
+                    "oh.MIDDLEWARE_ID middlewareId,\n" +
+                    "oh.MIDDLEWARE_TABLE middlewareTable,\n" +
+                    "oh.SALES_ORDER_NUMBER salesOrderNumber,\n" +
+                    "oh.SALES_INVOICE_NUMBER salesInvoiceNumber,\n" +
+                    "oh.PICK_LIST_NUMBER pickListNumber,\n" +
+                    "oh.INVOICE_DATE invoiceDate,\n" +
+                    "oh.DELIVERY_TYPE deliveryType,\n" +
+                    "oh.CUSTOMER_ID customerId,\n" +
+                    "oh.CUSTOMER_NAME customerName,\n" +
+                    "oh.TARGET_BRANCH_CODE targetBranchCode,\n" +
+                    "oh.ADDRESS address,\n" +
+                    "oh.PHONE_NUMBER phoneNumber,\n" +
+                    "oh.ALTERNATE_NO alternateNo,\n" +
+                    "oh.TOKEN_NUMBER tokenNumber,\n" +
+                    "oh.STATUS status,\n" +
+                    "oh.CUSTOMER_TYPE customerType,\n" +
+                    "oh.ref_field_1 referenceField1,oh.ref_field_2 referenceField2,oh.ref_field_3 referenceField3, \n" +
+                    "oh.ref_field_4 referenceField4,oh.ref_field_5 referenceField5,oh.ref_field_6 referenceField6,\n" +
+                    "oh.DRIVER_NAME driverName,\n" +
+                    "oh.VEHICLE_NO vehicleNO,\n" +
+
+                    "COALESCE((select sum(DLV_QTY) totQty from #obl where REF_DOC_NO = oh.REF_DOC_NO AND PRE_OB_NO = oh.pre_ob_no \n" +
+                    "AND c_id = oh.c_id AND plant_id = oh.plant_id AND lang_id = oh.lang_id AND wh_id = oh.wh_id and STATUS_ID = 59),0) \n" +
+                    "as referenceField7, \n" +
+
+                    "(select COUNT(PRE_OB_NO) from #obl \n" +
+                    "where REF_DOC_NO = oh.REF_DOC_NO AND PRE_OB_NO = oh.pre_ob_no \n" +
+                    "AND c_id = oh.c_id AND plant_id = oh.plant_id AND lang_id = oh.lang_id AND wh_id = oh.wh_id and STATUS_ID = 59) \n" +
+                    "as referenceField8, \n" +
+
+                    "COALESCE((select sum(ORD_QTY) totQty from #pol where REF_DOC_NO = oh.REF_DOC_NO AND PRE_OB_NO = oh.pre_ob_no \n" +
+                    "AND c_id = oh.c_id AND plant_id = oh.plant_id AND lang_id = oh.lang_id AND wh_id = oh.wh_id),0) \n" +
+                    "as referenceField9, \n" +
+
+                    "(select COUNT(PRE_OB_NO) from #obl \n" +
+                    "where REF_DOC_NO = oh.REF_DOC_NO AND PRE_OB_NO = oh.pre_ob_no \n" +
+                    "AND c_id = oh.c_id AND plant_id = oh.plant_id AND lang_id = oh.lang_id AND wh_id = oh.wh_id) \n" +
+                    "as referenceField10, \n" +
+
+                    "COALESCE((select sum(PICK_CNF_QTY) totQty from #pil where REF_DOC_NO = oh.REF_DOC_NO AND PRE_OB_NO = oh.pre_ob_no AND STATUS_ID = 50\n" +
+                    "AND c_id = oh.c_id AND plant_id = oh.plant_id AND lang_id = oh.lang_id AND wh_id = oh.wh_id),0) \n" +
+                    "as sumOfPickedQty, \n" +
+
+                    "(select COUNT(PRE_OB_NO) from #pil \n" +
+                    "where REF_DOC_NO = oh.REF_DOC_NO AND PRE_OB_NO = oh.pre_ob_no AND STATUS_ID = 50\n" +
+                    "AND c_id = oh.c_id AND plant_id = oh.plant_id AND lang_id = oh.lang_id AND wh_id = oh.wh_id) \n" +
+                    "as countOfPickedLine \n" +
+
+                    "from tbloutboundheader oh\n" +
+                    "where oh.is_deleted = 0 and \n" +
+                    "(COALESCE(:companyCodeId, null) IS NULL OR (oh.c_id IN (:companyCodeId))) and \n" +
+                    "(COALESCE(:plantId, null) IS NULL OR (oh.plant_id IN (:plantId))) and \n" +
+                    "(COALESCE(:languageId, null) IS NULL OR (oh.lang_id IN (:languageId))) and \n" +
+                    "(COALESCE(:warehouseId, null) IS NULL OR (oh.wh_id IN (:warehouseId))) and \n" +
+                    "(COALESCE(:refDocNo, null) IS NULL OR (oh.ref_doc_no IN (:refDocNo))) and \n" +
+                    "(COALESCE(:preOutboundNo, null) IS NULL OR (oh.pre_ob_no IN (:preOutboundNo))) and \n" +
+                    "(COALESCE(:partnerCode, null) IS NULL OR (oh.partner_code IN (:partnerCode))) and \n" +
+                    "(COALESCE(:targetBranchCode, null) IS NULL OR (oh.target_branch_code IN (:targetBranchCode))) and \n" +
+                    "(COALESCE(:outboundOrderTypeId, null) IS NULL OR (oh.ob_ord_typ_id IN (:outboundOrderTypeId))) and \n" +
+                    "(COALESCE(:statusId, null) IS NULL OR (oh.status_id IN (:statusId))) and \n" +
+                    "(COALESCE(:soType, null) IS NULL OR (oh.ref_field_1 IN (:soType))) and\n" +
+                    "(COALESCE(CONVERT(VARCHAR(255), :startRequiredDeliveryDate), null) IS NULL OR (oh.REQ_DEL_DATE between COALESCE(CONVERT(VARCHAR(255), :startRequiredDeliveryDate), null) and COALESCE(CONVERT(VARCHAR(255), :endRequiredDeliveryDate), null))) and\n" +
+                    "(COALESCE(CONVERT(VARCHAR(255), :startDeliveryConfirmedOn), null) IS NULL OR (oh.DLV_CNF_ON between COALESCE(CONVERT(VARCHAR(255), :startDeliveryConfirmedOn), null) and COALESCE(CONVERT(VARCHAR(255), :endDeliveryConfirmedOn), null))) and\n" +
+                    "(COALESCE(CONVERT(VARCHAR(255), :startOrderDate), null) IS NULL OR (oh.DLV_CTD_ON between COALESCE(CONVERT(VARCHAR(255), :startOrderDate), null) and COALESCE(CONVERT(VARCHAR(255), :endOrderDate), null)))", nativeQuery = true)
+    List<OutboundHeaderV2Stream> findAllOutBoundHeaderForRFDV6(
+            @Param(value = "companyCodeId") List<String> companyCodeId,
+            @Param(value = "plantId") List<String> plantId,
+            @Param(value = "languageId") List<String> languageId,
+            @Param(value = "warehouseId") List<String> warehouseId,
+            @Param(value = "refDocNo") List<String> refDocNo,
+            @Param(value = "preOutboundNo") List<String> preOutboundNo,
+            @Param(value = "partnerCode") List<String> partnerCode,
+            @Param(value = "targetBranchCode") List<String> targetBranchCode,
+            @Param(value = "outboundOrderTypeId") List<Long> outboundOrderTypeId,
+            @Param(value = "statusId") List<Long> statusId,
+            @Param(value = "soType") List<String> soType,
+            @Param(value = "startRequiredDeliveryDate") Date startRequiredDeliveryDate,
+            @Param(value = "endRequiredDeliveryDate") Date endRequiredDeliveryDate,
+            @Param(value = "startDeliveryConfirmedOn") Date startDeliveryConfirmedOn,
+            @Param(value = "endDeliveryConfirmedOn") Date endDeliveryConfirmedOn,
+            @Param(value = "startOrderDate") Date startOrderDate,
+            @Param(value = "endOrderDate") Date endOrderDate);
+
+    @Query(value =
+            "SELECT C_ID,PLANT_ID,LANG_ID,WH_ID,REF_DOC_NO,PRE_OB_NO,DLV_QTY,ORD_QTY,STATUS_ID  into #obl FROM tbloutboundline WHERE is_deleted = 0 and \n" +
+                    "(COALESCE(:refDocNo, null) IS NULL OR (ref_doc_no IN (:refDocNo))) AND\n" +
+                    "(COALESCE(:companyCodeId, null) IS NULL OR (c_id IN (:companyCodeId))) and \n" +
+                    "(COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) and \n" +
+                    "(COALESCE(:languageId, null) IS NULL OR (lang_id IN (:languageId))) and \n" +
+                    "(COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and \n" +
+                    "(COALESCE(:preOutboundNo, null) IS NULL OR (pre_ob_no IN (:preOutboundNo))) \n" +
+
+                    "SELECT C_ID,PLANT_ID,LANG_ID,WH_ID,REF_DOC_NO,PRE_OB_NO,PICK_CNF_QTY,STATUS_ID into #pil FROM tblpickupline WHERE is_deleted = 0 and \n" +
+                    "(COALESCE(:refDocNo, null) IS NULL OR (ref_doc_no IN (:refDocNo))) AND\n" +
+                    "(COALESCE(:companyCodeId, null) IS NULL OR (c_id IN (:companyCodeId))) and \n" +
+                    "(COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) and \n" +
+                    "(COALESCE(:languageId, null) IS NULL OR (lang_id IN (:languageId))) and \n" +
+                    "(COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and \n" +
+                    "(COALESCE(:preOutboundNo, null) IS NULL OR (pre_ob_no IN (:preOutboundNo))) \n" +
+
+                    "select \n" +
+                    "oh.c_id companyCodeId, oh.lang_id languageId, oh.partner_code partnerCode, \n" +
+                    "oh.plant_id plantId, oh.pre_ob_no preOutboundNo,oh.ref_doc_no refDocNumber,oh.wh_id warehouseId, \n" +
+                    "oh.dlv_ctd_by createdBy, \n" +
+                    "oh.dlv_ctd_on createdOn, \n" +
+                    "oh.is_deleted deletionIndicator, \n" +
+                    "oh.dlv_cnf_by deliveryConfirmedBy, \n" +
+                    "oh.dlv_cnf_on deliveryConfirmedOn, \n" +
+                    "oh.dlv_ord_no deliveryOrderNo, oh.ob_ord_typ_id outboundOrderTypeId, \n" +
+                    "oh.ref_doc_date refDocDate, \n" +
+                    "oh.ref_doc_typ referenceDocumentType,oh.remark remarks, \n" +
+                    "oh.req_del_date requiredDeliveryDate,\n" +
+                    "oh.dlv_rev_by reversedBy, \n" +
+                    "oh.dlv_rev_on reversedOn, \n" +
+                    "oh.status_id statusId,oh.dlv_utd_by updatedBy, \n" +
+                    "oh.dlv_utd_on updatedOn,\n" +
+                    "oh.INVOICE_NO invoiceNumber,\n" +
+                    "oh.C_TEXT companyDescription,\n" +
+                    "oh.PLANT_TEXT plantDescription,\n" +
+                    "oh.WH_TEXT warehouseDescription,\n" +
+                    "oh.STATUS_TEXT statusDescription,\n" +
+                    "oh.MIDDLEWARE_ID middlewareId,\n" +
+                    "oh.MIDDLEWARE_TABLE middlewareTable,\n" +
+                    "oh.SALES_ORDER_NUMBER salesOrderNumber,\n" +
+                    "oh.SALES_INVOICE_NUMBER salesInvoiceNumber,\n" +
+                    "oh.PICK_LIST_NUMBER pickListNumber,\n" +
+                    "oh.INVOICE_DATE invoiceDate,\n" +
+                    "oh.DELIVERY_TYPE deliveryType,\n" +
+                    "oh.CUSTOMER_ID customerId,\n" +
+                    "oh.CUSTOMER_NAME customerName,\n" +
+                    "oh.TARGET_BRANCH_CODE targetBranchCode,\n" +
+                    "oh.ADDRESS address,\n" +
+                    "oh.PHONE_NUMBER phoneNumber,\n" +
+                    "oh.ALTERNATE_NO alternateNo,\n" +
+                    "oh.TOKEN_NUMBER tokenNumber,\n" +
+                    "oh.STATUS status,\n" +
+                    "oh.CUSTOMER_TYPE customerType,\n" +
+                    "oh.ref_field_1 referenceField1,oh.ref_field_2 referenceField2,oh.ref_field_3 referenceField3, \n" +
+                    "oh.ref_field_4 referenceField4,oh.ref_field_5 referenceField5,oh.ref_field_6 referenceField6,\n" +
+                    "oh.DRIVER_NAME driverName,\n" +
+                    "oh.VEHICLE_NO vehicleNO,\n" +
+                    "oh.REF_FIELD_2 as orgin, \n" +
+
+                    "COALESCE((select sum(DLV_QTY) totQty from #obl where REF_DOC_NO = oh.REF_DOC_NO AND PRE_OB_NO = oh.pre_ob_no \n" +
+                    "AND c_id = oh.c_id AND plant_id = oh.plant_id AND lang_id = oh.lang_id AND wh_id = oh.wh_id and STATUS_ID = 59),0) \n" +
+                    "as referenceField7, \n" +
+
+                    "(select COUNT(PRE_OB_NO) from #obl \n" +
+                    "where REF_DOC_NO = oh.REF_DOC_NO AND PRE_OB_NO = oh.pre_ob_no \n" +
+                    "AND c_id = oh.c_id AND plant_id = oh.plant_id AND lang_id = oh.lang_id AND wh_id = oh.wh_id and STATUS_ID = 59) \n" +
+                    "as referenceField8, \n" +
+
+                    "COALESCE((select sum(ORD_QTY) totQty from #obl where REF_DOC_NO = oh.REF_DOC_NO AND PRE_OB_NO = oh.pre_ob_no \n" +
+                    "AND c_id = oh.c_id AND plant_id = oh.plant_id AND lang_id = oh.lang_id AND wh_id = oh.wh_id),0) \n" +
+                    "as referenceField9, \n" +
+
+                    "(select COUNT(PRE_OB_NO) from #obl \n" +
+                    "where REF_DOC_NO = oh.REF_DOC_NO AND PRE_OB_NO = oh.pre_ob_no \n" +
+                    "AND c_id = oh.c_id AND plant_id = oh.plant_id AND lang_id = oh.lang_id AND wh_id = oh.wh_id) \n" +
+                    "as referenceField10, \n" +
+
+                    "COALESCE((select sum(PICK_CNF_QTY) totQty from #pil where REF_DOC_NO = oh.REF_DOC_NO AND PRE_OB_NO = oh.pre_ob_no AND STATUS_ID = 50\n" +
+                    "AND c_id = oh.c_id AND plant_id = oh.plant_id AND lang_id = oh.lang_id AND wh_id = oh.wh_id),0) \n" +
+                    "as sumOfPickedQty, \n" +
+
+                    "(select COUNT(PRE_OB_NO) from #pil \n" +
+                    "where REF_DOC_NO = oh.REF_DOC_NO AND PRE_OB_NO = oh.pre_ob_no AND STATUS_ID = 50\n" +
+                    "AND c_id = oh.c_id AND plant_id = oh.plant_id AND lang_id = oh.lang_id AND wh_id = oh.wh_id) \n" +
+                    "as countOfPickedLine \n" +
+
+                    "from tbloutboundheader oh\n" +
+                    "where oh.is_deleted = 0 and \n" +
+                    "(COALESCE(:companyCodeId, null) IS NULL OR (oh.c_id IN (:companyCodeId))) and \n" +
+                    "(COALESCE(:plantId, null) IS NULL OR (oh.plant_id IN (:plantId))) and \n" +
+                    "(COALESCE(:languageId, null) IS NULL OR (oh.lang_id IN (:languageId))) and \n" +
+                    "(COALESCE(:warehouseId, null) IS NULL OR (oh.wh_id IN (:warehouseId))) and \n" +
+                    "(COALESCE(:refDocNo, null) IS NULL OR (oh.ref_doc_no IN (:refDocNo))) and \n" +
+                    "(COALESCE(:preOutboundNo, null) IS NULL OR (oh.pre_ob_no IN (:preOutboundNo))) and \n" +
+                    "(COALESCE(:partnerCode, null) IS NULL OR (oh.partner_code IN (:partnerCode))) and \n" +
+                    "(COALESCE(:targetBranchCode, null) IS NULL OR (oh.target_branch_code IN (:targetBranchCode))) and \n" +
+                    "(COALESCE(:outboundOrderTypeId, null) IS NULL OR (oh.ob_ord_typ_id IN (:outboundOrderTypeId))) and \n" +
+                    "(COALESCE(:statusId, null) IS NULL OR (oh.status_id IN (:statusId))) and \n" +
+                    "(COALESCE(:soType, null) IS NULL OR (oh.ref_field_1 IN (:soType))) and\n" +
+                    "(COALESCE(CONVERT(VARCHAR(255), :startRequiredDeliveryDate), null) IS NULL OR (oh.REQ_DEL_DATE between COALESCE(CONVERT(VARCHAR(255), :startRequiredDeliveryDate), null) and COALESCE(CONVERT(VARCHAR(255), :endRequiredDeliveryDate), null))) and\n" +
+                    "(COALESCE(CONVERT(VARCHAR(255), :startDeliveryConfirmedOn), null) IS NULL OR (oh.DLV_CNF_ON between COALESCE(CONVERT(VARCHAR(255), :startDeliveryConfirmedOn), null) and COALESCE(CONVERT(VARCHAR(255), :endDeliveryConfirmedOn), null))) and\n" +
+                    "(COALESCE(CONVERT(VARCHAR(255), :startOrderDate), null) IS NULL OR (oh.DLV_CTD_ON between COALESCE(CONVERT(VARCHAR(255), :startOrderDate), null) and COALESCE(CONVERT(VARCHAR(255), :endOrderDate), null)))", nativeQuery = true)
+    List<OutboundHeaderV2Stream> findAllOutBoundHeaderForRFDV10(
+            @Param(value = "companyCodeId") List<String> companyCodeId,
+            @Param(value = "plantId") List<String> plantId,
+            @Param(value = "languageId") List<String> languageId,
+            @Param(value = "warehouseId") List<String> warehouseId,
+            @Param(value = "refDocNo") List<String> refDocNo,
+            @Param(value = "preOutboundNo") List<String> preOutboundNo,
+            @Param(value = "partnerCode") List<String> partnerCode,
+            @Param(value = "targetBranchCode") List<String> targetBranchCode,
+            @Param(value = "outboundOrderTypeId") List<Long> outboundOrderTypeId,
+            @Param(value = "statusId") List<Long> statusId,
+            @Param(value = "soType") List<String> soType,
+            @Param(value = "startRequiredDeliveryDate") Date startRequiredDeliveryDate,
+            @Param(value = "endRequiredDeliveryDate") Date endRequiredDeliveryDate,
+            @Param(value = "startDeliveryConfirmedOn") Date startDeliveryConfirmedOn,
+            @Param(value = "endDeliveryConfirmedOn") Date endDeliveryConfirmedOn,
+            @Param(value = "startOrderDate") Date startOrderDate,
+            @Param(value = "endOrderDate") Date endOrderDate);
+
+    @Modifying
+    @Query(value = "UPDATE tbloutboundheader SET STATUS_ID = :statusId, STATUS_TEXT = :statusDescription," +
+            "DLV_UTD_BY = :loginUserID, DLV_UTD_ON = :updatedOn, DLV_CNF_ON = :dlvCnfOn WHERE c_id = :companyCodeId \n" +
+            "and plant_id = :plantId and LANG_ID = :languageId \n" +
+            "and WH_ID = :warehouseId and PRE_OB_NO = :preOutboundNo \n" +
+            "and REF_DOC_NO = :refDocNumber and IS_DELETED = 0", nativeQuery = true)
+    int updateOutboundHeaderV10(@Param("companyCodeId") String companyCodeId,
+                                @Param("plantId") String plantId,
+                                @Param("languageId") String languageId,
+                                @Param("warehouseId") String warehouseId,
+                                @Param("preOutboundNo") String preOutboundNo,
+                                @Param("refDocNumber") String refDocNumber,
+                                @Param("statusId") Long statusId,
+                                @Param("statusDescription") String statusDescription,
+                                @Param("loginUserID") String loginUserID,
+                                @Param("updatedOn") Date updatedOn,
+                                @Param("dlvCnfOn") Date dlvCnfon);
+
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("Update OutboundHeaderV2 ob SET ob.statusId = :statusId, ob.statusDescription = :statusDescription \r\n "
+            + " WHERE ob.companyCodeId = :companyCodeId AND ob.plantId = :plantId AND ob.languageId = :languageId AND ob.warehouseId = :warehouseId AND ob.preOutboundNo = :preOutboundNo")
+    public void updateOutboundHeaderStatusNewV10(@Param("companyCodeId") String companyCodeId,
+                                                 @Param("plantId") String plantId,
+                                                 @Param("languageId") String languageId,
+                                                 @Param("warehouseId") String warehouseId,
+                                                 @Param("preOutboundNo") String preOutboundNo,
+                                                 @Param("statusId") Long statusId,
+                                                 @Param("statusDescription") String statusDescription);
+
+    @Query(value = "SELECT case when COUNT(REF_DOC_NO) = (sum(case when status_id in (:statusId) \n" +
+            " then 1 else 0 end)) then 1 else 0 end FROM tbloutboundline \n" +
+            " WHERE  C_ID = :companyCodeId AND \n" +
+            " PLANT_ID = :plantId AND \n" +
+            " LANG_ID = :languageId AND \n" +
+            " WH_ID = :warehouseId AND \n" +
+            " REF_DOC_NO = :refDocNumber AND\n" +
+            " PRE_OB_NO = :preOutboundNo AND\n" +
+            " IS_DELETED = 0 \n" +
+            " GROUP BY REF_DOC_NO",nativeQuery = true)
+    Long getOutboundLineCountWithStatusId(@Param("companyCodeId") String companyCodeId,
+                                          @Param("plantId") String plantId,
+                                          @Param("languageId") String languageId,
+                                          @Param("warehouseId") String warehouseId,
+                                          @Param("refDocNumber") String refDocNumber,
+                                          @Param("preOutboundNo") String preOutboundNo,
+                                          @Param("statusId")List<Long> statusId);
+
+    @Query(value = "SELECT case when COUNT(REF_DOC_NO) = (sum(case when status_id in (:statusId) \n" +
+            " then 1 else 0 end)) then 1 else 0 end FROM tbloutboundline \n" +
+            " WHERE  C_ID = :companyCodeId AND \n" +
+            " PLANT_ID = :plantId AND \n" +
+            " LANG_ID = :languageId AND \n" +
+            " WH_ID = :warehouseId AND \n" +
+            " REF_DOC_NO = :refDocNumber AND\n" +
+            " PRE_OB_NO = :preOutboundNo AND\n" +
+            " IS_DELETED = 0 \n" +
+            " GROUP BY REF_DOC_NO",nativeQuery = true)
+    Long getOutboundLineCountWithStatusIdV10(@Param("companyCodeId") String companyCodeId,
+                                             @Param("plantId") String plantId,
+                                             @Param("languageId") String languageId,
+                                             @Param("warehouseId") String warehouseId,
+                                             @Param("refDocNumber") String refDocNumber,
+                                             @Param("preOutboundNo") String preOutboundNo,
+                                             @Param("statusId")List<Long> statusId);
+
+    @Modifying
+    @Query(value = "UPDATE tbloutboundheader\n" +
+            " SET STATUS_ID = :statusId,\n" +
+            " STATUS_TEXT = :statusText,\n" +
+            " DLV_UTD_ON = :updatedOn,\n" +
+            " DLV_UTD_BY = :updatedBy\n" +
+            " WHERE C_ID = :companyCodeId AND \n" +
+            " PLANT_ID = :plantId AND \n" +
+            " LANG_ID = :languageId AND \n" +
+            " WH_ID = :warehouseId AND \n" +
+            " REF_DOC_NO = :refDocNumber AND\n" +
+            " PRE_OB_NO = :preOutboundNo AND\n" +
+            " IS_DELETED = 0",nativeQuery = true)
+    void updateOutboundHeaderStatusV10(@Param("companyCodeId") String companyCodeId,
+                                       @Param("plantId") String plantId,
+                                       @Param("languageId") String languageId,
+                                       @Param("warehouseId") String warehouseId,
+                                       @Param("refDocNumber") String refDocNumber,
+                                       @Param("preOutboundNo") String preOutboundNo,
+                                       @Param("statusId") Long statusId,
+                                       @Param("statusText") String statusText,
+                                       @Param("updatedBy") String updatedBy,
+                                       @Param("updatedOn") Date updatedOn);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("Update OutboundHeaderV2 ob SET ob.statusId = :statusId, ob.statusDescription = :statusDescription \r\n "
+            + " WHERE ob.companyCodeId = :companyCodeId AND ob.plantId = :plantId AND ob.languageId = :languageId AND ob.warehouseId = :warehouseId AND ob.preOutboundNo = :preOutboundNo")
+    public void updateOutboundHeaderStatusV9(@Param("companyCodeId") String companyCodeId,
+                                             @Param("plantId") String plantId,
+                                             @Param("languageId") String languageId,
+                                             @Param("warehouseId") String warehouseId,
+                                             @Param("preOutboundNo") String preOutboundNo,
+                                             @Param("statusId") Long statusId,
+                                             @Param("statusDescription") String statusDescription);
+
+    // BF
+
+    @Modifying
+    @Query(value = "update tbloborder2 set ref_Document_No=:targetRefDocNumber " +
+            "where ref_Document_No=:sourceRefDocNumber",
+            nativeQuery = true)
+    int updateObOrder(String sourceRefDocNumber, String targetRefDocNumber);
+
+
+    @Modifying
+    @Query(value = "update tbloborderlines2 set order_id=:targetRefDocNumber " +
+            "where order_id=:sourceRefDocNumber",
+            nativeQuery = true)
+    int updateObOrderLines(String sourceRefDocNumber, String targetRefDocNumber);
+
+
+    @Modifying
+    @Query(value = "update tblpreoutboundheader set ref_doc_no=:targetRefDocNumber " +
+            "where ref_doc_no=:sourceRefDocNumber and c_id=:companyCodeId " +
+            "and plant_id=:plantId and lang_id=:languageId and wh_id=:warehouseId",
+            nativeQuery = true)
+    int updatePreOutboundHeader(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                String sourceRefDocNumber, String targetRefDocNumber);
+
+    @Modifying
+    @Query(value = "update tblpreoutboundline set ref_doc_no = :targetRefDocNumber " +
+            "where ref_doc_no = :sourceRefDocNumber " +
+            "and c_id = :companyCodeId " +
+            "and plant_id = :plantId " +
+            "and lang_id = :languageId " +
+            "and wh_id = :warehouseId", nativeQuery = true)
+    int updatePreOutboundLine(@Param("companyCodeId") String companyCodeId,
+                              @Param("plantId") String plantId, @Param("languageId") String languageId,
+                              @Param("warehouseId") String warehouseId, @Param("sourceRefDocNumber") String sourceRefDocNumber,
+                              @Param("targetRefDocNumber") String targetRefDocNumber);
+
+    @Modifying
+    @Query(value = "update tbloutboundheader set ref_doc_no=:targetRefDocNumber " +
+            "where ref_doc_no=:sourceRefDocNumber and c_id=:companyCodeId " +
+            "and plant_id=:plantId and lang_id=:languageId and wh_id=:warehouseId",
+            nativeQuery = true)
+    int updateOutboundHeader(String companyCodeId, String plantId, String languageId, String warehouseId,
+                             String sourceRefDocNumber, String targetRefDocNumber);
+
+    @Modifying
+    @Query(value = "update tbloutboundline set ref_doc_no=:targetRefDocNumber " +
+            "where ref_doc_no=:sourceRefDocNumber and c_id=:companyCodeId " +
+            "and plant_id=:plantId and lang_id=:languageId and wh_id=:warehouseId",
+            nativeQuery = true)
+    int updateOutboundLine(String companyCodeId, String plantId, String languageId, String warehouseId,
+                           String sourceRefDocNumber, String targetRefDocNumber);
+
+    @Modifying
+    @Query(value = "update tblordermangementheader set ref_doc_no=:targetRefDocNumber " +
+            "where ref_doc_no=:sourceRefDocNumber and c_id=:companyCodeId " +
+            "and plant_id=:plantId and lang_id=:languageId and wh_id=:warehouseId",
+            nativeQuery = true)
+    int updateOrderManagementHeader(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                    String sourceRefDocNumber, String targetRefDocNumber);
+
+    @Modifying
+    @Query(value = "update tblordermangementline set ref_doc_no=:targetRefDocNumber " +
+            "where ref_doc_no=:sourceRefDocNumber and c_id=:companyCodeId " +
+            "and plant_id=:plantId and lang_id=:languageId and wh_id=:warehouseId",
+            nativeQuery = true)
+    int updateOrderManagementLine(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                  String sourceRefDocNumber, String targetRefDocNumber);
+
+    @Modifying
+    @Query(value = "update tblpickupheader set ref_doc_no=:targetRefDocNumber " +
+            "where ref_doc_no=:sourceRefDocNumber and c_id=:companyCodeId " +
+            "and plant_id=:plantId and lang_id=:languageId and wh_id=:warehouseId",
+            nativeQuery = true)
+    int updatePickupHeader(String companyCodeId, String plantId, String languageId, String warehouseId,
+                           String sourceRefDocNumber, String targetRefDocNumber);
+
+    @Modifying
+    @Query(value = "update tblpickupline set ref_doc_no=:targetRefDocNumber " +
+            "where ref_doc_no=:sourceRefDocNumber and c_id=:companyCodeId " +
+            "and plant_id=:plantId and lang_id=:languageId and wh_id=:warehouseId",
+            nativeQuery = true)
+    int updatePickupLine(String companyCodeId, String plantId, String languageId, String warehouseId,
+                         String sourceRefDocNumber, String targetRefDocNumber);
+
+    @Modifying
+    @Query(value = "update tblqualityheader set ref_doc_no=:targetRefDocNumber " +
+            "where ref_doc_no=:sourceRefDocNumber and c_id=:companyCodeId " +
+            "and plant_id=:plantId and lang_id=:languageId and wh_id=:warehouseId",
+            nativeQuery = true)
+    int updateQualityHeader(String companyCodeId, String plantId, String languageId, String warehouseId,
+                            String sourceRefDocNumber, String targetRefDocNumber);
+
+    @Modifying
+    @Query(value = "update tblqualityline set ref_doc_no=:targetRefDocNumber " +
+            "where ref_doc_no=:sourceRefDocNumber and c_id=:companyCodeId " +
+            "and plant_id=:plantId and lang_id=:languageId and wh_id=:warehouseId",
+            nativeQuery = true)
+    int updateQualityLine(String companyCodeId, String plantId, String languageId, String warehouseId,
+                          String sourceRefDocNumber, String targetRefDocNumber);
+
+    // BF
+    @Modifying
+    @Query(value = "update tbloutboundline set DLV_QTY = COALESCE(DLV_QTY, 0) + :orderQty, status_id = :statusId, status_text = :statusText, REF_FIELD_9 =:orderQty \n" +
+            "where ref_doc_no = :refDocNo and REF_FIELD_1 = :palletId and PARTNER_ITEM_BARCODE = :barcodeId and " +
+            "PRE_OB_NO = :preOutboundNo and c_id = :companyId and plant_id = :plantId and wh_id = :warehouseId and is_deleted = 0 " +
+            "and ITM_CODE = :itemCode and ob_line_no = :lineNumber ", nativeQuery = true)
+    void updateOutboundLineStatusV9(@Param("statusId") Long statusId,
+                                    @Param("statusText") String statusText,
+                                    @Param("orderQty") Double orderQty,
+                                    @Param("refDocNo") String refDocNo,
+                                    @Param("preOutboundNo") String preOutboundNo,
+                                    @Param("companyId") String companyId,
+                                    @Param("plantId") String plantId,
+                                    @Param("warehouseId") String warehoused,
+                                    @Param("itemCode") String itemCode,
+                                    @Param("palletId") String palletId,
+                                    @Param("barcodeId") String BarcodeId,
+                                    @Param("lineNumber") Long lineNumber);
+
+    @Modifying
+    @Query(value = "update tbloutboundheader set status_id = :statusId, status_text = :statusText where ref_doc_no = :refDocNo and " +
+            "PRE_OB_NO = :preOutboundNo and c_id = :companyId and plant_id = :plantId and wh_id = :warehouseId", nativeQuery = true)
+    void updateOutboundHeaderStatusV9(@Param("statusId") Long statusId,
+                                      @Param("statusText") String statusText,
+                                      @Param("refDocNo") String refDocNo,
+                                      @Param("preOutboundNo") String preOutboundNo,
+                                      @Param("companyId") String companyId,
+                                      @Param("plantId") String plantId,
+                                      @Param("warehouseId") String warehoused);
+
+    @Modifying
+    @Transactional
+    @Query(value = "DELETE FROM tbloutboundheader " +
+            "WHERE C_ID = :companyCodeId AND PLANT_ID = :plantId AND WH_ID = :warehouseId AND " +
+            "REF_DOC_NO = :refDocNumber AND PRE_OB_NO = :preOutboundNo AND IS_DELETED = :deletionIndicator",
+            nativeQuery = true)
+    void deleteOutboundHeader(
+            @Param("companyCodeId") String companyCodeId,
+            @Param("plantId") String plantId,
+            @Param("warehouseId") String warehouseId,
+            @Param("refDocNumber") String refDocNumber,
+            @Param("preOutboundNo") String preOutboundNo,
+            @Param("deletionIndicator") Long deletionIndicator
+    );
 }

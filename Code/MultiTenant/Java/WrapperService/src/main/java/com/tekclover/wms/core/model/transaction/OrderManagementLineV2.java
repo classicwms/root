@@ -64,5 +64,6 @@ private String customerId;
     private Double qtyInCrate;
     private Date manufacturerDate;
     private Date expiryDate;
+    private String palletId;
 
 }

@@ -15,4 +15,9 @@ public class OutboundReversalInput {
 
     private String refDocNumber;
 
+    private String palletCode;
+
+    private String pickupNumber;
+
+
 }

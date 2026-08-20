@@ -4,8 +4,10 @@ import com.tekclover.wms.core.model.spark.*;
 import com.tekclover.wms.core.model.transaction.PreInboundLineV2;
 import com.tekclover.wms.core.model.transaction.QualityLineV2;
 import com.tekclover.wms.core.model.transaction.SearchInboundHeaderV2;
+import com.tekclover.wms.core.service.InboundTransactionService;
 import com.tekclover.wms.core.service.SparkService;
 import io.swagger.annotations.Api;
+import org.springframework.http.HttpHeaders;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
@@ -26,6 +28,9 @@ public class SparkController {
 
     @Autowired
     private SparkService sparkService;
+
+    @Autowired
+    private InboundTransactionService transactionService;
 
 
     /*===================================================MASTER==========================================================*/
@@ -330,6 +335,14 @@ public class SparkController {
         return new ResponseEntity<>(inventoryV3s, HttpStatus.OK);
     }
 
+    // Find Inventory For BF
+    @ApiOperation(response = InventoryV9.class, value = "Spark Inventory")
+    @PostMapping("/inventory/new/v9")
+    public ResponseEntity<?> findInventoryV9(@RequestBody FindInventoryV3 findInventoryV3) throws Exception {
+        InventoryV9[] inventoryV9s = sparkService.findInventoryV9(findInventoryV3);
+        return new ResponseEntity<>(inventoryV9s, HttpStatus.OK);
+    }
+
     // Find PutAwayLine
     @ApiOperation(response = PutAwayLineSpark.class, value = "Spark PutAwayLine Spark")
     @PostMapping("/putawayline/new")
@@ -345,4 +358,24 @@ public class SparkController {
         InventoryV5[] inventoryList = sparkService.findInventoryV5(findInventoryV2);
         return new ResponseEntity<>(inventoryList, HttpStatus.OK);
     }
+
+    //Find StagingLine
+    @ApiOperation(response = StagingLineV2.class, value = "Spark StagingLine details")
+    @PostMapping("/stagingline/new")
+    public ResponseEntity<?> findStagingLinetV6(@RequestBody FindStagingLineV2 findStagingLineV2) throws Exception {
+        if (findStagingLineV2.getCompanyCodeId().contains("RPPL")){
+            transactionService.updateStagingLineV6(findStagingLineV2);
+        }
+        StagingLineV2[] stagingLineV2 = sparkService.findStagingLineV6(findStagingLineV2);
+        return new ResponseEntity<>(stagingLineV2, HttpStatus.OK);
+    }
+
+    // Find Inventory
+    @ApiOperation(response = InventoryNewV9.class, value = "Spark Inventory")
+    @PostMapping("/inventory/v9/new")
+    public ResponseEntity<?> searchInventoryV9(@RequestBody FindInventoryV3 findInventoryV3) throws Exception {
+        InventoryNewV9[] inventoryV3s = sparkService.searchInventoryV9(findInventoryV3);
+        return new ResponseEntity<>(inventoryV3s, HttpStatus.OK);
+    }
+
 }

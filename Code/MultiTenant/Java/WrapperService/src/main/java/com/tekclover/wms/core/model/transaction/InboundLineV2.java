@@ -60,4 +60,6 @@ public class InboundLineV2 extends InboundLine {
     private Date vehicleReportingDate;
     private Date vehicleUnloadingDate;
     private String receivingVariance;
+    private Date manufacturerDate;
+    private Date expiryDate;
 }

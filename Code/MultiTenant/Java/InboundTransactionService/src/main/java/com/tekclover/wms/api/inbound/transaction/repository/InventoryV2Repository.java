@@ -1984,5 +1984,945 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
     public List<InventoryBinItmGroupByDto> getInventoryByBinAndItemV7(@Param("itemCode") List<String> itemCode,
                                                                       @Param("storageBin") List<String> storageBin);
 
+    @Query(value = "select max(inv_id) inventoryId into #inv from tblinventory \n" +
+            "WHERE \n" +
+            "(COALESCE(:itemCode, null) IS NULL OR (ITM_CODE IN (:itemCode))) and \n" +
+            "(COALESCE(:binClassId, null) IS NULL OR (BIN_CL_ID IN (:binClassId))) and\n" +
+            "(COALESCE(:manufacturerName, null) IS NULL OR (MFR_NAME IN (:manufacturerName))) and \n" +
+            "(COALESCE(:companyCodeId, null) IS NULL OR (c_id IN (:companyCodeId))) and \n" +
+            "(COALESCE(:languageId, null) IS NULL OR (lang_id IN (:languageId))) and \n" +
+            "(COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) and \n" +
+            "(COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and \n" +
+            "is_deleted = 0 \n" +
+            "group by itm_code,barcode_id,mfr_name,pack_barcode,alt_uom,bag_size,stck_typ_id,st_bin,plant_id,wh_id,c_id,lang_id \n" +
+
+            "SELECT \n" +
+            "iv.ST_BIN storageBin\n" +
+            "from tblinventory iv\n" +
+            "where \n" +
+            "iv.inv_id in (select inventoryId from #inv) and \n" +
+            "(COALESCE(:companyCodeId, null) IS NULL OR (iv.c_id IN (:companyCodeId))) and \n" +
+            "(COALESCE(:plantId, null) IS NULL OR (iv.plant_id IN (:plantId))) and \n" +
+            "(COALESCE(:languageId, null) IS NULL OR (iv.lang_id IN (:languageId))) and \n" +
+            "(COALESCE(:warehouseId, null) IS NULL OR (iv.wh_id IN (:warehouseId))) and \n" +
+            "(COALESCE(:barcodeId, null) IS NULL OR (iv.BARCODE_ID IN (:barcodeId))) and \n" +
+            "(COALESCE(:batchSerialNumber, null) IS NULL OR (iv.STR_NO IN (:batchSerialNumber))) and \n" +
+            "(COALESCE(:manufacturerName, null) IS NULL OR (iv.MFR_NAME IN (:manufacturerName))) and \n" +
+            "(COALESCE(:packBarcodes, null) IS NULL OR (iv.PACK_BARCODE IN (:packBarcodes))) and \n" +
+            "(COALESCE(:itemCode, null) IS NULL OR (iv.ITM_CODE IN (:itemCode))) and \n" +
+            "(COALESCE(:binClassId, null) IS NULL OR (iv.BIN_CL_ID IN (:binClassId))) and\n" +
+            "(COALESCE(:alternateUom, null) IS NULL OR (iv.ALT_UOM IN (:alternateUom))) and\n" +
+            "iv.is_deleted = 0 and iv.stck_typ_id = 1 \n", nativeQuery = true)
+    public List<String> getPutAwayHeaderCreateInventoryV10(@Param("companyCodeId") String companyCodeId,
+                                                           @Param("plantId") String plantId,
+                                                           @Param("languageId") String languageId,
+                                                           @Param("warehouseId") String warehouseId,
+                                                           @Param("barcodeId") String barcodeId,
+                                                           @Param("batchSerialNumber") String batchSerialNumber,
+                                                           @Param("itemCode") String itemCode,
+                                                           @Param("manufacturerName") String manufacturerName,
+                                                           @Param("packBarcodes") String packBarcodes,
+                                                           @Param("binClassId") Long binClassId,
+                                                           @Param("alternateUom") String alternateUom);
+
+    @Query(value = "SELECT " +
+            "iv.INV_ID inventoryId, " +
+            "iv.LANG_ID languageId, " +
+            "iv.C_ID companyCodeId, " +
+            "iv.PLANT_ID plantId, " +
+            "iv.WH_ID warehouseId, " +
+            "iv.PACK_BARCODE packBarcodes, " +
+            "iv.ITM_CODE itemCode, " +
+            "iv.VAR_ID variantCode, " +
+            "iv.ST_BIN storageBin, " +
+            "iv.STCK_TYP_ID stockTypeId, " +
+            "iv.SP_ST_IND_ID specialStockIndicatorId, " +
+            "iv.ST_SEC_ID storageSectionId, " +
+            "iv.REF_ORD_NO referenceOrderNo, " +
+            "iv.BIN_CL_ID binClassId, " +
+            "iv.TEXT description, " +
+            "iv.INV_QTY inventoryQuantity, " +
+            "iv.ALLOC_QTY allocatedQuantity, " +
+            "iv.INV_UOM inventoryUom, " +
+            "iv.IS_DELETED deletionIndicator, " +
+            "iv.REF_FIELD_1 referenceField1, " +
+            "iv.REF_FIELD_2 referenceField2, " +
+            "iv.REF_FIELD_3 referenceField3, " +
+            "iv.REF_FIELD_4 referenceField4, " +
+            "iv.REF_FIELD_5 referenceField5, " +
+            "iv.REF_FIELD_6 referenceField6, " +
+            "iv.REF_FIELD_7 referenceField7, " +
+            "iv.REF_FIELD_8 referenceField8, " +
+            "iv.REF_FIELD_9 referenceField9, " +
+            "iv.REF_FIELD_10 referenceField10, " +
+            "iv.IU_CTD_BY createdBy, " +
+            "iv.IU_CTD_ON createdOn, " +
+            "iv.UTD_BY updatedBy, " +
+            "iv.UTD_ON updatedOn, " +
+            "iv.MFR_CODE manufacturerCode, " +
+            "iv.BARCODE_ID barcodeId, " +
+            "iv.MFR_NAME manufacturerName, " +
+            "iv.REF_DOC_NO referenceDocumentNo, " +
+            "iv.C_TEXT companyDescription, " +
+            "iv.PLANT_TEXT plantDescription, " +
+            "iv.WH_TEXT warehouseDescription, " +
+            "iv.BATCH_DATE batchDate, " +
+            "iv.STATUS_TEXT statusDescription  " +
+            "from tblinventory iv " +
+            "where  " +
+            "iv.inv_id in (select max(inv_id) inventoryId from tblinventory WHERE " +
+            "ITM_CODE =:itemCode and " +
+            "c_id  =:companyCodeId and " +
+            "lang_id =:languageId and " +
+            "plant_id =:plantId and " +
+            "wh_id =:warehouseId and is_deleted = 0 " +
+            "group by itm_code, barcode_id, stck_typ_id, st_bin, plant_id, wh_id, c_id, lang_id) and " +
+            "iv.c_id =:companyCodeId and " +
+            "iv.plant_id =:plantId and " +
+            "iv.lang_id =:languageId and " +
+            "iv.wh_id =:warehouseId and " +
+            "iv.ITM_CODE =:itemCode and " +
+            "iv.BARCODE_ID =:barcodeId and " +
+            "iv.ST_BIN =:storageBin and " +
+            "iv.BIN_CL_ID =:binClassId and " +
+            "iv.is_deleted = 0 ", nativeQuery = true)
+    public IInventoryImpl getInboundInventoryV10(@Param("companyCodeId") String companyCodeId,
+                                                 @Param("plantId") String plantId,
+                                                 @Param("languageId") String languageId,
+                                                 @Param("warehouseId") String warehouseId,
+                                                 @Param("itemCode") String itemCode,
+                                                 @Param("barcodeId") String barcodeId,
+                                                 @Param("storageBin") String storageBin,
+                                                 @Param("binClassId") Long binClassId);
+
+
+    @Query(value = "\n" +
+            "select top 1 pal_code from tblinventory where c_id = :companyCodeId and plant_id = :plantId and \n" +
+            "lang_id = :languageId and wh_id = :warehouseId and st_bin = :storageBin and ref_field_4 > 0 and \n" +
+            "inv_id in (select max(inv_id) from tblinventory \n" +
+            "where is_deleted = 0 \n" +
+            "group by itm_code,barcode_id,pal_code,mfr_name,pack_barcode,st_bin,plant_id,wh_id,c_id,lang_id) ", nativeQuery = true)
+    String getPalletIdV9(@Param("companyCodeId") String companyCodeId,
+                         @Param("plantId") String plantId,
+                         @Param("languageId") String languageId,
+                         @Param("warehouseId") String warehouseId,
+                         @Param("storageBin") String storageBin);
+
+    @Query(value = "select sum(inv_qty) from tblinventory where is_deleted = 0 and ref_field_4 > 0 and REF_FIELD_7 = '0' and " +
+            "(COALESCE(:itemCode, null) IS NULL OR (ITM_CODE IN (:itemCode))) and \n" +
+            "(COALESCE(:barcodeId, null) IS NULL OR (BARCODE_ID IN (:barcodeId))) and \n" +
+            "(COALESCE(:companyCodeId, null) IS NULL OR (c_id IN (:companyCodeId))) and \n" +
+            "(COALESCE(:languageId, null) IS NULL OR (lang_id IN (:languageId))) and \n" +
+            "(COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) and \n" +
+            "(COALESCE(:palletCode, null) IS NULL OR (pal_code IN (:palletCode))) and \n" +
+            "(COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and \n" +
+            "bin_cl_id = 3 and \n" +
+            "inv_id in (select max(inv_id) from tblinventory where is_deleted = 0 " +
+            " group by itm_code,barcode_id,st_bin,plant_id,wh_id,c_id,lang_id) ", nativeQuery = true)
+    Double findIVQtyCountV9(@Param("companyCodeId") String companyCodeId,
+                            @Param("plantId") String plantId,
+                            @Param("languageId") String languageId,
+                            @Param("warehouseId") String warehouseId,
+                            @Param("barcodeId") String barcodeId,
+                            @Param("itemCode") String itemCode,
+                            @Param("palletCode") String palletCode);
+
+    //BinClassId Description
+    @Query(value = "select BIN_CLASS \n" +
+            "from tblbinclassid \n" +
+            "where \n" +
+            "BIN_CL_ID IN (:binClassId) and C_ID IN (:companyCodeId) and PLANT_ID IN (:plantId) and \n" +
+            "lang_id IN (:languageId) and \n" +
+            "is_deleted=0", nativeQuery = true)
+    public String getBinClassIdDecription(@Param(value = "binClassId") Long binClassId,
+                                          @Param(value = "companyCodeId") String companyCodeId,
+                                          @Param(value = "plantId") String plantId,
+                                          @Param(value = "languageId") String languageId);
+
+    @Query(value = "select max(inv_id) inventoryId into #inv from tblinventory \n" +
+            "WHERE \n" +
+            "(COALESCE(:itemCode, null) IS NULL OR (ITM_CODE IN (:itemCode))) and \n" +
+            "(COALESCE(:binClassId, null) IS NULL OR (BIN_CL_ID IN (:binClassId))) and\n" +
+            "(COALESCE(:manufacturerName, null) IS NULL OR (MFR_NAME IN (:manufacturerName))) and \n" +
+            "(COALESCE(:companyCodeId, null) IS NULL OR (c_id IN (:companyCodeId))) and \n" +
+            "(COALESCE(:languageId, null) IS NULL OR (lang_id IN (:languageId))) and \n" +
+            "(COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) and \n" +
+            "(COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and \n" +
+            "is_deleted = 0 \n" +
+//            "group by itm_code,barcode_id,mfr_name,pack_barcode,alt_uom,bag_size,stck_typ_id,st_bin,plant_id,wh_id,c_id,lang_id \n" +
+            "group by itm_code,barcode_id,st_bin,plant_id,wh_id,c_id,lang_id \n"+
+            "SELECT \n" +
+            "iv.INV_ID inventoryId, \n" +
+            "iv.LANG_ID languageId, \n" +
+            "iv.C_ID companyCodeId,\n" +
+            "iv.PLANT_ID plantId,\n" +
+            "iv.WH_ID warehouseId,\n" +
+            "iv.PAL_CODE palletCode,\n" +
+            "iv.CASE_CODE caseCode,\n" +
+            "iv.PACK_BARCODE packBarcodes,\n" +
+            "iv.ITM_CODE itemCode,\n" +
+            "iv.VAR_ID variantCode,\n" +
+            "iv.VAR_SUB_ID variantSubCode,\n" +
+            "iv.STR_NO batchSerialNumber,\n" +
+            "iv.ST_BIN storageBin,\n" +
+            "iv.STCK_TYP_ID stockTypeId,\n" +
+            "iv.SP_ST_IND_ID specialStockIndicatorId,\n" +
+            "iv.ST_SEC_ID storageSectionId, \n" +
+            "iv.REF_ORD_NO referenceOrderNo,\n" +
+            "iv.STR_MTD storageMethod,\n" +
+            "iv.BIN_CL_ID binClassId,\n" +
+            "iv.TEXT description,\n" +
+            "iv.INV_QTY inventoryQuantity,\n" +
+            "iv.ALLOC_QTY allocatedQuantity,\n" +
+            "iv.INV_UOM inventoryUom,\n" +
+            "iv.MFR_DATE manufacturer,\n" +
+            "iv.EXP_DATE expiry,\n" +
+            "iv.IS_DELETED deletionIndicator,\n" +
+            "iv.REF_FIELD_1 referenceField1,\n" +
+            "iv.REF_FIELD_2 referenceField2,\n" +
+            "iv.REF_FIELD_3 referenceField3,\n" +
+            "iv.REF_FIELD_4 referenceField4,\n" +
+            "iv.REF_FIELD_5 referenceField5,\n" +
+            "iv.REF_FIELD_6 referenceField6,\n" +
+            "iv.REF_FIELD_7 referenceField7,\n" +
+            "iv.REF_FIELD_8 referenceField8,\n" +
+            "iv.REF_FIELD_9 referenceField9,\n" +
+            "iv.REF_FIELD_10 referenceField10,\n" +
+            "iv.IU_CTD_BY createdBy,\n" +
+            "iv.IU_CTD_ON createdOn,\n" +
+            "FORMAT(iv.IU_CTD_ON,'dd-MM-yyyy hh:mm:ss') sCreatedOn,\n" +
+            "iv.UTD_BY updatedBy,\n" +
+            "iv.UTD_ON updatedOn,\n" +
+            "iv.MFR_CODE manufacturerCode,\n" +
+            "iv.BARCODE_ID barcodeId,\n" +
+            "iv.CBM cbm,\n" +
+            "iv.level_id levelId,\n" +
+            "iv.CBM_UNIT cbmUnit,\n" +
+            "iv.CBM_PER_QTY cbmPerQuantity,\n" +
+            "iv.MFR_NAME manufacturerName,\n" +
+            "iv.ORIGIN origin,\n" +
+            "iv.BRAND brand,\n" +
+            "iv.REF_DOC_NO referenceDocumentNo,\n" +
+            "iv.C_TEXT companyDescription,\n" +
+            "iv.PLANT_TEXT plantDescription,\n" +
+            "iv.WH_TEXT warehouseDescription,\n" +
+            "iv.STCK_TYP_TEXT stockTypeDescription,\n" +
+            "iv.ITM_TYP_ID itemType,\n" +
+            "iv.ITM_TYP_TXT itemTypeDescription,\n" +
+            "iv.PARTNER_CODE partnerCode,\n" +
+            "iv.BATCH_DATE batchDate,\n" +
+            "iv.MATERIAL_NO materialNo, \n" +
+            "iv.PRICE_SEGMENT priceSegment, \n" +
+            "iv.ARTICLE_NO articleNo, \n" +
+            "iv.GENDER gender, \n" +
+            "iv.COLOR color, \n" +
+            "iv.SIZE size, \n" +
+            "iv.NO_PAIRS noPairs, \n" +
+            "iv.ALT_UOM alternateUom, \n" +
+            "iv.NO_BAGS noBags, \n" +
+            "iv.BAG_SIZE bagSize, \n" +
+            "iv.MRP mrp, \n" +
+            "iv.ITM_GRP itemGroup, \n" +
+            "iv.STATUS_TEXT statusDescription\n" +
+            "from tblinventory iv\n" +
+            "where \n" +
+            "iv.inv_id in (select inventoryId from #inv) and \n" +
+            "(COALESCE(:companyCodeId, null) IS NULL OR (iv.c_id IN (:companyCodeId))) and \n" +
+            "(COALESCE(:plantId, null) IS NULL OR (iv.plant_id IN (:plantId))) and \n" +
+            "(COALESCE(:languageId, null) IS NULL OR (iv.lang_id IN (:languageId))) and \n" +
+            "(COALESCE(:warehouseId, null) IS NULL OR (iv.wh_id IN (:warehouseId))) and \n" +
+            "(COALESCE(:barcodeId, null) IS NULL OR (iv.BARCODE_ID IN (:barcodeId))) and \n" +
+            "(COALESCE(:manufacturerCode, null) IS NULL OR (iv.MFR_CODE IN (:manufacturerCode))) and \n" +
+            "(COALESCE(:manufacturerName, null) IS NULL OR (iv.MFR_NAME IN (:manufacturerName))) and \n" +
+            "(COALESCE(:packBarcodes, null) IS NULL OR (iv.PACK_BARCODE IN (:packBarcodes))) and \n" +
+            "(COALESCE(:itemCode, null) IS NULL OR (iv.ITM_CODE IN (:itemCode))) and \n" +
+            "(COALESCE(:storageBin, null) IS NULL OR (iv.ST_BIN IN (:storageBin))) and\n" +
+            "(COALESCE(:stockTypeId, null) IS NULL OR (iv.STCK_TYP_ID IN (:stockTypeId))) and \n" +
+            "(COALESCE(:storageSectionId, null) IS NULL OR (iv.REF_FIELD_10 IN (:storageSectionId))) and \n" +
+            "(COALESCE(:levelId, null) IS NULL OR (iv.level_id IN (:levelId))) and \n" +
+            "(COALESCE(:specialStockIndicatorId, null) IS NULL OR (iv.SP_ST_IND_ID IN (:specialStockIndicatorId))) and \n" +
+            "(COALESCE(:itemType, null) IS NULL OR (iv.ITM_TYP_ID IN (:itemType))) and \n" +
+            "(COALESCE(:partnerCode, null) IS NULL OR (iv.PARTNER_CODE IN (:partnerCode))) and \n" +
+            "(COALESCE(:binClassId, null) IS NULL OR (iv.BIN_CL_ID IN (:binClassId))) and\n" +
+            "(COALESCE(:description, null) IS NULL OR (iv.TEXT IN (:description))) and \n" +
+            "(COALESCE(:alternateUom, null) IS NULL OR (iv.ALT_UOM IN (:alternateUom))) and\n" +
+            "(COALESCE(:size, null) IS NULL OR (iv.SIZE IN (:size))) and\n" +
+            "iv.is_deleted = 0 and (iv.REF_FIELD_4 > 0) ", nativeQuery = true)
+    public List<IInventoryImpl> findInventory6(@Param("companyCodeId") List<String> companyCodeId,
+                                               @Param("plantId") List<String> plantId,
+                                               @Param("languageId") List<String> languageId,
+                                               @Param("warehouseId") List<String> warehouseId,
+                                               @Param("barcodeId") List<String> barcodeId,
+                                               @Param("manufacturerCode") List<String> manufacturerCode,
+                                               @Param("manufacturerName") List<String> manufacturerName,
+                                               @Param("packBarcodes") List<String> packBarcodes,
+                                               @Param("itemCode") List<String> itemCode,
+                                               @Param("storageBin") List<String> storageBin,
+                                               @Param("description") String description,
+                                               @Param("stockTypeId") List<Long> stockTypeId,
+                                               @Param("storageSectionId") List<String> storageSectionId,
+                                               @Param("levelId") List<String> levelId,
+                                               @Param("partnerCode") List<String> partnerCode,
+                                               @Param("specialStockIndicatorId") List<Long> specialStockIndicatorId,
+                                               @Param("itemType") List<Long> itemType,
+                                               @Param("size") List<String> size,
+                                               @Param("binClassId") List<Long> binClassId,
+                                               @Param("alternateUom") List<String> alternateUom);
+
+
+    @Query(value = "select max(inv_id) inventoryId into #inv from tblinventory \n" +
+            "WHERE \n" +
+            "(COALESCE(:itemCode, null) IS NULL OR (ITM_CODE IN (:itemCode))) and \n" +
+            "(COALESCE(:binClassId, null) IS NULL OR (BIN_CL_ID IN (:binClassId))) and\n" +
+            "(COALESCE(:manufacturerName, null) IS NULL OR (MFR_NAME IN (:manufacturerName))) and \n" +
+            "(COALESCE(:companyCodeId, null) IS NULL OR (c_id IN (:companyCodeId))) and \n" +
+            "(COALESCE(:languageId, null) IS NULL OR (lang_id IN (:languageId))) and \n" +
+            "(COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) and \n" +
+            "(COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and \n" +
+            "is_deleted = 0 \n" +
+//            "group by itm_code,barcode_id,mfr_name,pack_barcode,alt_uom,bag_size,stck_typ_id,st_bin,plant_id,wh_id,c_id,lang_id \n" +
+            "group by itm_code,barcode_id,pal_code,mfr_name,pack_barcode,st_bin,plant_id,wh_id,c_id,lang_id \n" +
+
+            "SELECT \n" +
+            "iv.INV_ID inventoryId, \n" +
+            "iv.LANG_ID languageId, \n" +
+            "iv.C_ID companyCodeId,\n" +
+            "iv.PLANT_ID plantId,\n" +
+            "iv.WH_ID warehouseId,\n" +
+            "iv.PAL_CODE palletCode,\n" +
+            "iv.CASE_CODE caseCode,\n" +
+            "iv.PACK_BARCODE packBarcodes,\n" +
+            "iv.ITM_CODE itemCode,\n" +
+            "iv.VAR_ID variantCode,\n" +
+            "iv.VAR_SUB_ID variantSubCode,\n" +
+            "iv.STR_NO batchSerialNumber,\n" +
+            "iv.ST_BIN storageBin,\n" +
+            "iv.STCK_TYP_ID stockTypeId,\n" +
+            "iv.SP_ST_IND_ID specialStockIndicatorId,\n" +
+            "iv.ST_SEC_ID storageSectionId, \n" +
+            "iv.REF_ORD_NO referenceOrderNo,\n" +
+            "iv.STR_MTD storageMethod,\n" +
+            "iv.BIN_CL_ID binClassId,\n" +
+            "iv.TEXT description,\n" +
+            "iv.INV_QTY inventoryQuantity,\n" +
+            "iv.ALLOC_QTY allocatedQuantity,\n" +
+            "iv.INV_UOM inventoryUom,\n" +
+            "iv.MFR_DATE manufacturer,\n" +
+            "iv.EXP_DATE expiry,\n" +
+            "iv.IS_DELETED deletionIndicator,\n" +
+            "iv.REF_FIELD_1 referenceField1,\n" +
+            "iv.REF_FIELD_2 referenceField2,\n" +
+            "iv.REF_FIELD_3 referenceField3,\n" +
+            "iv.REF_FIELD_4 referenceField4,\n" +
+            "iv.REF_FIELD_5 referenceField5,\n" +
+            "iv.REF_FIELD_6 referenceField6,\n" +
+            "iv.REF_FIELD_7 referenceField7,\n" +
+            "iv.REF_FIELD_8 referenceField8,\n" +
+            "iv.REF_FIELD_9 referenceField9,\n" +
+            "iv.REF_FIELD_10 referenceField10,\n" +
+            "iv.IU_CTD_BY createdBy,\n" +
+            "iv.IU_CTD_ON createdOn,\n" +
+            "FORMAT(iv.IU_CTD_ON,'dd-MM-yyyy hh:mm:ss') sCreatedOn,\n" +
+            "iv.UTD_BY updatedBy,\n" +
+            "iv.UTD_ON updatedOn,\n" +
+            "iv.MFR_CODE manufacturerCode,\n" +
+            "iv.BARCODE_ID barcodeId,\n" +
+            "iv.CBM cbm,\n" +
+            "iv.level_id levelId,\n" +
+            "iv.CBM_UNIT cbmUnit,\n" +
+            "iv.CBM_PER_QTY cbmPerQuantity,\n" +
+            "iv.MFR_NAME manufacturerName,\n" +
+            "iv.ORIGIN origin,\n" +
+            "iv.BRAND brand,\n" +
+            "iv.REF_DOC_NO referenceDocumentNo,\n" +
+            "iv.C_TEXT companyDescription,\n" +
+            "iv.PLANT_TEXT plantDescription,\n" +
+            "iv.WH_TEXT warehouseDescription,\n" +
+            "iv.STCK_TYP_TEXT stockTypeDescription,\n" +
+            "iv.ITM_TYP_ID itemType,\n" +
+            "iv.ITM_TYP_TXT itemTypeDescription,\n" +
+            "iv.PARTNER_CODE partnerCode,\n" +
+            "iv.BATCH_DATE batchDate,\n" +
+            "iv.MATERIAL_NO materialNo, \n" +
+            "iv.PRICE_SEGMENT priceSegment, \n" +
+            "iv.ARTICLE_NO articleNo, \n" +
+            "iv.GENDER gender, \n" +
+            "iv.COLOR color, \n" +
+            "iv.SIZE size, \n" +
+            "iv.NO_PAIRS noPairs, \n" +
+            "iv.ALT_UOM alternateUom, \n" +
+            "iv.NO_BAGS noBags, \n" +
+            "iv.BAG_SIZE bagSize, \n" +
+            "iv.MRP mrp, \n" +
+            "iv.ITM_GRP itemGroup, \n" +
+            "iv.STATUS_TEXT statusDescription\n" +
+            "from tblinventory iv\n" +
+            "where \n" +
+            "iv.inv_id in (select inventoryId from #inv) and \n" +
+            "(COALESCE(:companyCodeId, null) IS NULL OR (iv.c_id IN (:companyCodeId))) and \n" +
+            "(COALESCE(:plantId, null) IS NULL OR (iv.plant_id IN (:plantId))) and \n" +
+            "(COALESCE(:languageId, null) IS NULL OR (iv.lang_id IN (:languageId))) and \n" +
+            "(COALESCE(:warehouseId, null) IS NULL OR (iv.wh_id IN (:warehouseId))) and \n" +
+            "(COALESCE(:barcodeId, null) IS NULL OR (iv.BARCODE_ID IN (:barcodeId))) and \n" +
+            "(COALESCE(:manufacturerCode, null) IS NULL OR (iv.MFR_CODE IN (:manufacturerCode))) and \n" +
+            "(COALESCE(:manufacturerName, null) IS NULL OR (iv.MFR_NAME IN (:manufacturerName))) and \n" +
+            "(COALESCE(:packBarcodes, null) IS NULL OR (iv.PACK_BARCODE IN (:packBarcodes))) and \n" +
+            "(COALESCE(:itemCode, null) IS NULL OR (iv.ITM_CODE IN (:itemCode))) and \n" +
+            "(COALESCE(:palletCode, null) IS NULL OR (iv.PAL_CODE IN (:palletCode))) and \n" +
+            "(COALESCE(:storageBin, null) IS NULL OR (iv.ST_BIN IN (:storageBin))) and\n" +
+            "(COALESCE(:stockTypeId, null) IS NULL OR (iv.STCK_TYP_ID IN (:stockTypeId))) and \n" +
+            "(COALESCE(:storageSectionId, null) IS NULL OR (iv.REF_FIELD_10 IN (:storageSectionId))) and \n" +
+            "(COALESCE(:levelId, null) IS NULL OR (iv.level_id IN (:levelId))) and \n" +
+            "(COALESCE(:specialStockIndicatorId, null) IS NULL OR (iv.SP_ST_IND_ID IN (:specialStockIndicatorId))) and \n" +
+            "(COALESCE(:itemType, null) IS NULL OR (iv.ITM_TYP_ID IN (:itemType))) and \n" +
+            "(COALESCE(:partnerCode, null) IS NULL OR (iv.PARTNER_CODE IN (:partnerCode))) and \n" +
+            "(COALESCE(:binClassId, null) IS NULL OR (iv.BIN_CL_ID IN (:binClassId))) and\n" +
+            "(COALESCE(:description, null) IS NULL OR (iv.TEXT IN (:description))) and \n" +
+            "(COALESCE(:alternateUom, null) IS NULL OR (iv.ALT_UOM IN (:alternateUom))) and\n" +
+            "(COALESCE(:size, null) IS NULL OR (iv.SIZE IN (:size))) and\n" +
+            "iv.is_deleted = 0 and (iv.REF_FIELD_4 > 0)\n", nativeQuery = true)
+    public List<IInventoryImpl> findInventoryV9(@Param("companyCodeId") List<String> companyCodeId,
+                                                @Param("plantId") List<String> plantId,
+                                                @Param("languageId") List<String> languageId,
+                                                @Param("warehouseId") List<String> warehouseId,
+                                                @Param("barcodeId") List<String> barcodeId,
+                                                @Param("manufacturerCode") List<String> manufacturerCode,
+                                                @Param("manufacturerName") List<String> manufacturerName,
+                                                @Param("packBarcodes") List<String> packBarcodes,
+                                                @Param("itemCode") List<String> itemCode,
+                                                @Param("storageBin") List<String> storageBin,
+                                                @Param("description") String description,
+                                                @Param("stockTypeId") List<Long> stockTypeId,
+                                                @Param("storageSectionId") List<String> storageSectionId,
+                                                @Param("levelId") List<String> levelId,
+                                                @Param("partnerCode") List<String> partnerCode,
+                                                @Param("specialStockIndicatorId") List<Long> specialStockIndicatorId,
+                                                @Param("itemType") List<Long> itemType,
+                                                @Param("size") List<String> size,
+                                                @Param("binClassId") List<Long> binClassId,
+                                                @Param("alternateUom") List<String> alternateUom,
+                                                @Param("palletCode") List<String> palletCode);
+
+    @Query(value = "SELECT \n" +
+            "iv.INV_ID inventoryId, \n" +
+            "iv.LANG_ID languageId, \n" +
+            "iv.C_ID companyCodeId,\n" +
+            "iv.PLANT_ID plantId,\n" +
+            "iv.WH_ID warehouseId,\n" +
+            "iv.PAL_CODE palletCode,\n" +
+            "iv.CASE_CODE caseCode,\n" +
+            "iv.PACK_BARCODE packBarcodes,\n" +
+            "iv.ITM_CODE itemCode,\n" +
+            "iv.VAR_ID variantCode,\n" +
+            "iv.VAR_SUB_ID variantSubCode,\n" +
+            "iv.STR_NO batchSerialNumber,\n" +
+            "iv.ST_BIN storageBin,\n" +
+            "iv.STCK_TYP_ID stockTypeId,\n" +
+            "iv.SP_ST_IND_ID specialStockIndicatorId,\n" +
+            "iv.ST_SEC_ID storageSectionId, \n" +
+            "iv.REF_ORD_NO referenceOrderNo,\n" +
+            "iv.STR_MTD storageMethod,\n" +
+            "iv.BIN_CL_ID binClassId,\n" +
+            "iv.TEXT description,\n" +
+            "iv.INV_QTY inventoryQuantity,\n" +
+            "iv.ALLOC_QTY allocatedQuantity,\n" +
+            "iv.INV_UOM inventoryUom,\n" +
+            "iv.MFR_DATE manufacturer,\n" +
+            "iv.EXP_DATE expiry,\n" +
+            "iv.IS_DELETED deletionIndicator,\n" +
+            "iv.REF_FIELD_1 referenceField1,\n" +
+            "iv.REF_FIELD_2 referenceField2,\n" +
+            "iv.REF_FIELD_3 referenceField3,\n" +
+            "iv.REF_FIELD_4 referenceField4,\n" +
+            "iv.REF_FIELD_5 referenceField5,\n" +
+            "iv.REF_FIELD_6 referenceField6,\n" +
+            "iv.REF_FIELD_7 referenceField7,\n" +
+            "iv.REF_FIELD_8 referenceField8,\n" +
+            "iv.REF_FIELD_9 referenceField9,\n" +
+            "iv.REF_FIELD_10 referenceField10,\n" +
+            "iv.IU_CTD_BY createdBy,\n" +
+            "iv.IU_CTD_ON createdOn,\n" +
+            "FORMAT(iv.IU_CTD_ON,'dd-MM-yyyy hh:mm:ss') sCreatedOn,\n" +
+            "iv.UTD_BY updatedBy,\n" +
+            "iv.UTD_ON updatedOn,\n" +
+            "iv.MFR_CODE manufacturerCode,\n" +
+            "iv.BARCODE_ID barcodeId,\n" +
+            "iv.CBM cbm,\n" +
+            "iv.level_id levelId,\n" +
+            "iv.CBM_UNIT cbmUnit,\n" +
+            "iv.CBM_PER_QTY cbmPerQuantity,\n" +
+            "iv.MFR_NAME manufacturerName,\n" +
+            "iv.ORIGIN origin,\n" +
+            "iv.BRAND brand,\n" +
+            "iv.REF_DOC_NO referenceDocumentNo,\n" +
+            "iv.C_TEXT companyDescription,\n" +
+            "iv.PLANT_TEXT plantDescription,\n" +
+            "iv.WH_TEXT warehouseDescription,\n" +
+            "iv.STCK_TYP_TEXT stockTypeDescription,\n" +
+            "iv.ITM_TYP_ID itemType,\n" +
+            "iv.ITM_TYP_TXT itemTypeDescription,\n" +
+            "iv.PARTNER_CODE partnerCode,\n" +
+            "iv.BATCH_DATE batchDate,\n" +
+            "iv.MATERIAL_NO materialNo, \n" +
+            "iv.PRICE_SEGMENT priceSegment, \n" +
+            "iv.ARTICLE_NO articleNo, \n" +
+            "iv.GENDER gender, \n" +
+            "iv.COLOR color, \n" +
+            "iv.SIZE size, \n" +
+            "iv.NO_PAIRS noPairs, \n" +
+            "iv.ALT_UOM alternateUom, \n" +
+            "iv.NO_BAGS noBags, \n" +
+            "iv.BAG_SIZE bagSize, \n" +
+            "iv.MRP mrp, \n" +
+            "iv.ITM_GRP itemGroup, \n" +
+            "iv.STATUS_TEXT statusDescription\n" +
+            "from tblinventory iv\n" +
+            "where \n" +
+            "iv.inv_id in (select max(inv_id) from tblinventory where is_deleted = 0 group by itm_code,pal_code,barcode_id,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) and \n" +
+            "(COALESCE(:companyCodeId, null) IS NULL OR (iv.c_id IN (:companyCodeId))) and \n" +
+            "(COALESCE(:plantId, null) IS NULL OR (iv.plant_id IN (:plantId))) and \n" +
+            "(COALESCE(:languageId, null) IS NULL OR (iv.lang_id IN (:languageId))) and \n" +
+            "(COALESCE(:warehouseId, null) IS NULL OR (iv.wh_id IN (:warehouseId))) and \n" +
+            "(COALESCE(:barcodeId, null) IS NULL OR (iv.BARCODE_ID IN (:barcodeId))) and \n" +
+            "(COALESCE(:manufacturerCode, null) IS NULL OR (iv.MFR_CODE IN (:manufacturerCode))) and \n" +
+            "(COALESCE(:manufacturerName, null) IS NULL OR (iv.MFR_NAME IN (:manufacturerName))) and \n" +
+            "(COALESCE(:packBarcodes, null) IS NULL OR (iv.PACK_BARCODE IN (:packBarcodes))) and \n" +
+            "(COALESCE(:itemCode, null) IS NULL OR (iv.ITM_CODE IN (:itemCode))) and \n" +
+            "(:storageBin IS NULL OR iv.ST_BIN LIKE CONCAT('%',:storageBin,'%')) and \n" +
+//            "(COALESCE(:storageBin, null) IS NULL OR (iv.ST_BIN IN (:storageBin))) and\n" +
+            "(COALESCE(:stockTypeId, null) IS NULL OR (iv.STCK_TYP_ID IN (:stockTypeId))) and \n" +
+            "(COALESCE(:storageSectionId, null) IS NULL OR (iv.REF_FIELD_10 IN (:storageSectionId))) and \n" +
+            "(COALESCE(:levelId, null) IS NULL OR (iv.level_id IN (:levelId))) and \n" +
+            "(COALESCE(:partnerCode, null) IS NULL OR (iv.PARTNER_CODE IN (:partnerCode))) and \n" +
+            "(COALESCE(:binClassId, null) IS NULL OR (iv.BIN_CL_ID IN (:binClassId))) and\n" +
+            "iv.is_deleted = 0 and (iv.REF_FIELD_4 > 0) ", nativeQuery = true)
+    public List<IInventoryImpl> findInventory9(@Param("companyCodeId") List<String> companyCodeId,
+                                               @Param("plantId") List<String> plantId,
+                                               @Param("languageId") List<String> languageId,
+                                               @Param("warehouseId") List<String> warehouseId,
+                                               @Param("barcodeId") List<String> barcodeId,
+                                               @Param("manufacturerCode") List<String> manufacturerCode,
+                                               @Param("manufacturerName") List<String> manufacturerName,
+                                               @Param("packBarcodes") List<String> packBarcodes,
+                                               @Param("itemCode") List<String> itemCode,
+                                               @Param("storageBin") List<String> storageBin,
+                                               @Param("stockTypeId") List<Long> stockTypeId,
+                                               @Param("storageSectionId") List<String> storageSectionId,
+                                               @Param("levelId") List<String> levelId,
+                                               @Param("partnerCode") List<String> partnerCode,
+                                               @Param("binClassId") List<Long> binClassId);
+
+    @Query(value = "select max(inv_id) inventoryId into #inv from tblinventory \n" +
+            "WHERE \n" +
+            "(COALESCE(:itemCode, null) IS NULL OR (ITM_CODE IN (:itemCode))) and \n" +
+            "(COALESCE(:binClassId, null) IS NULL OR (BIN_CL_ID IN (:binClassId))) and\n" +
+            "(COALESCE(:manufacturerName, null) IS NULL OR (MFR_NAME IN (:manufacturerName))) and \n" +
+            "(COALESCE(:companyCodeId, null) IS NULL OR (c_id IN (:companyCodeId))) and \n" +
+            "(COALESCE(:languageId, null) IS NULL OR (lang_id IN (:languageId))) and \n" +
+            "(COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) and \n" +
+            "(COALESCE(:palletCode, null) IS NULL OR (PAL_CODE IN (:palletCode))) and \n" +
+            "(COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and \n" +
+            "is_deleted = 0 \n" +
+            "group by itm_code,barcode_id,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id \n" +
+
+            "SELECT \n" +
+            "iv.INV_ID inventoryId, \n" +
+            "iv.LANG_ID languageId, \n" +
+            "iv.C_ID companyCodeId,\n" +
+            "iv.PLANT_ID plantId,\n" +
+            "iv.WH_ID warehouseId,\n" +
+            "iv.PAL_CODE palletCode,\n" +
+            "iv.CASE_CODE caseCode,\n" +
+            "iv.PACK_BARCODE packBarcodes,\n" +
+            "iv.ITM_CODE itemCode,\n" +
+            "iv.VAR_ID variantCode,\n" +
+            "iv.VAR_SUB_ID variantSubCode,\n" +
+            "iv.STR_NO batchSerialNumber,\n" +
+            "iv.ST_BIN storageBin,\n" +
+            "iv.STCK_TYP_ID stockTypeId,\n" +
+            "iv.SP_ST_IND_ID specialStockIndicatorId,\n" +
+            "iv.ST_SEC_ID storageSectionId, \n" +
+            "iv.REF_ORD_NO referenceOrderNo,\n" +
+            "iv.STR_MTD storageMethod,\n" +
+            "iv.BIN_CL_ID binClassId,\n" +
+            "iv.TEXT description,\n" +
+            "iv.INV_QTY inventoryQuantity,\n" +
+            "iv.ALLOC_QTY allocatedQuantity,\n" +
+            "iv.INV_UOM inventoryUom,\n" +
+            "iv.MFR_DATE manufacturer,\n" +
+            "iv.EXP_DATE expiry,\n" +
+            "iv.IS_DELETED deletionIndicator,\n" +
+            "iv.REF_FIELD_1 referenceField1,\n" +
+            "iv.REF_FIELD_2 referenceField2,\n" +
+            "iv.REF_FIELD_3 referenceField3,\n" +
+            "iv.REF_FIELD_4 referenceField4,\n" +
+            "iv.REF_FIELD_5 referenceField5,\n" +
+            "iv.REF_FIELD_6 referenceField6,\n" +
+            "iv.REF_FIELD_7 referenceField7,\n" +
+            "iv.REF_FIELD_8 referenceField8,\n" +
+            "iv.REF_FIELD_9 referenceField9,\n" +
+            "iv.REF_FIELD_10 referenceField10,\n" +
+            "iv.IU_CTD_BY createdBy,\n" +
+            "iv.IU_CTD_ON createdOn,\n" +
+            "FORMAT(iv.IU_CTD_ON,'dd-MM-yyyy hh:mm:ss') sCreatedOn,\n" +
+            "iv.UTD_BY updatedBy,\n" +
+            "iv.UTD_ON updatedOn,\n" +
+            "iv.MFR_CODE manufacturerCode,\n" +
+            "iv.BARCODE_ID barcodeId,\n" +
+            "iv.CBM cbm,\n" +
+            "iv.level_id levelId,\n" +
+            "iv.CBM_UNIT cbmUnit,\n" +
+            "iv.CBM_PER_QTY cbmPerQuantity,\n" +
+            "iv.MFR_NAME manufacturerName,\n" +
+            "iv.ORIGIN origin,\n" +
+            "iv.BRAND brand,\n" +
+            "iv.REF_DOC_NO referenceDocumentNo,\n" +
+            "iv.C_TEXT companyDescription,\n" +
+            "iv.PLANT_TEXT plantDescription,\n" +
+            "iv.WH_TEXT warehouseDescription,\n" +
+            "iv.STCK_TYP_TEXT stockTypeDescription,\n" +
+            "iv.ITM_TYP_ID itemType,\n" +
+            "iv.ITM_TYP_TXT itemTypeDescription,\n" +
+            "iv.PARTNER_CODE partnerCode,\n" +
+            "iv.BATCH_DATE batchDate,\n" +
+            "iv.MATERIAL_NO materialNo, \n" +
+            "iv.PRICE_SEGMENT priceSegment, \n" +
+            "iv.ARTICLE_NO articleNo, \n" +
+            "iv.GENDER gender, \n" +
+            "iv.COLOR color, \n" +
+            "iv.SIZE size, \n" +
+            "iv.NO_PAIRS noPairs, \n" +
+            "iv.ALT_UOM alternateUom, \n" +
+            "iv.NO_BAGS noBags, \n" +
+            "iv.BAG_SIZE bagSize, \n" +
+            "iv.MRP mrp, \n" +
+            "iv.ITM_GRP itemGroup, \n" +
+            "iv.STATUS_TEXT statusDescription, \n" +
+            "iv.QTY_IN_CASE qtyInCase, \n " +
+            "iv.QTY_IN_PIECE qtyInPiece, \n " +
+            "iv.QTY_IN_CREATE qtyInCreate \n" +
+            "from tblinventory iv\n" +
+            "where \n" +
+            "iv.inv_id in (select inventoryId from #inv) and \n" +
+            "(COALESCE(:companyCodeId, null) IS NULL OR (iv.c_id IN (:companyCodeId))) and \n" +
+            "(COALESCE(:plantId, null) IS NULL OR (iv.plant_id IN (:plantId))) and \n" +
+            "(COALESCE(:languageId, null) IS NULL OR (iv.lang_id IN (:languageId))) and \n" +
+            "(COALESCE(:warehouseId, null) IS NULL OR (iv.wh_id IN (:warehouseId))) and \n" +
+            "(COALESCE(:barcodeId, null) IS NULL OR (iv.BARCODE_ID IN (:barcodeId))) and \n" +
+            "(COALESCE(:batchSerialNumber, null) IS NULL OR (iv.STR_NO IN (:batchSerialNumber))) and \n" +
+            "(COALESCE(:manufacturerName, null) IS NULL OR (iv.MFR_NAME IN (:manufacturerName))) and \n" +
+            "(COALESCE(:packBarcodes, null) IS NULL OR (iv.PACK_BARCODE IN (:packBarcodes))) and \n" +
+            "(COALESCE(:itemCode, null) IS NULL OR (iv.ITM_CODE IN (:itemCode))) and \n" +
+            "(COALESCE(:storageBin, null) IS NULL OR (iv.ST_BIN IN (:storageBin))) and\n" +
+            "(COALESCE(:palletCode, null) IS NULL OR (iv.PAL_CODE IN (:palletCode))) and\n" +
+            "(COALESCE(:binClassId, null) IS NULL OR (iv.BIN_CL_ID IN (:binClassId))) and\n" +
+            "iv.is_deleted = 0 and iv.stck_typ_id = 1\n", nativeQuery = true)
+    public IInventoryImpl getInboundInventoryforBin3V9(@Param("companyCodeId") String companyCodeId,
+                                                       @Param("plantId") String plantId,
+                                                       @Param("languageId") String languageId,
+                                                       @Param("warehouseId") String warehouseId,
+                                                       @Param("barcodeId") String barcodeId,
+                                                       @Param("batchSerialNumber") String batchSerialNumber,
+                                                       @Param("itemCode") String itemCode,
+                                                       @Param("manufacturerName") String manufacturerName,
+                                                       @Param("packBarcodes") String packBarcodes,
+                                                       @Param("storageBin") String storageBin,
+                                                       @Param("palletCode") String palletCode,
+                                                       @Param("binClassId") Long binClassId);
+
+    //===================================Notification's Query======================================//
+    //dashBoard API
+    @Query(value =
+            "create table #stBinDashBoard \n" +
+                    "(companyCodeId NVARCHAR(10), \n" +
+                    "plantId NVARCHAR(10), \n" +
+                    "languageId NVARCHAR(10), \n" +
+                    "warehouseId NVARCHAR(10), \n" +
+                    "storageBin NVARCHAR(25), \n" +
+                    "statusId NVARCHAR(5), \n" +
+                    "binClassId NVARCHAR(5), \n" +
+                    "businessPartnerCode NVARCHAR(50), \n" +
+                    "palletCode NVARCHAR(20), \n" +
+                    "quantity FLOAT, \n" +
+                    "PRIMARY KEY (companyCodeId,plantId,languageId,warehouseId,storageBin)); \n" +
+
+                    //storageBin from tblstoragebin to temp table
+                    "INSERT INTO #stBinDashBoard(companyCodeId,plantId,languageId,warehouseId,storageBin,statusId,binClassId) \n" +
+                    "SELECT C_ID,PLANT_ID,LANG_ID,WH_ID,ST_BIN,STATUS_ID,BIN_CL_ID FROM tblstoragebin \n" +
+                    "WHERE \n" +
+                    "IS_DELETED = 0 AND \n" +
+                    "(COALESCE(:companyCodeId, null) IS NULL OR (c_id IN (:companyCodeId))) and\n" +
+                    "(COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) and\n" +
+                    "(COALESCE(:languageId, null) IS NULL OR (lang_id IN (:languageId))) and\n" +
+                    "(COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and\n" +
+                    "(COALESCE(:storageBin, null) IS NULL OR (st_bin IN (:storageBin))) and\n" +
+                    "(COALESCE(:storageSectionId, null) IS NULL OR (ST_SEC_ID IN (:storageSectionId))) and\n" +
+                    "(COALESCE(:aisleNumber, null) IS NULL OR (AISLE_ID IN (:aisleNumber))) and\n" +
+                    "(COALESCE(:rowId, null) IS NULL OR (ROW_ID IN (:rowId))) and\n" +
+                    "(COALESCE(:levelId, null) IS NULL OR (level_id IN (:levelId))) and\n" +
+                    "(COALESCE(:statusId, null) IS NULL OR (STATUS_ID IN (:statusId))) and\n" +
+                    "(COALESCE(:binClassId, null) IS NULL OR (bin_cl_id IN (:binClassId))) \n" +
+
+                    "select max(inv_id) inventoryId into #inv from tblinventory WHERE is_deleted = 0 and \n" +
+                    "(COALESCE(:companyCodeId, null) IS NULL OR (c_id IN (:companyCodeId))) and\n" +
+                    "(COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) and\n" +
+                    "(COALESCE(:languageId, null) IS NULL OR (lang_id IN (:languageId))) and\n" +
+                    "(COALESCE(:businessPartnerCode, null) IS NULL OR (REF_FIELD_6 IN (:businessPartnerCode))) and\n" +
+                    "(COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) \n" +
+                    "group by itm_code,pal_code,barcode_id,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id \n" +
+//                    "group by itm_code,barcode_id,mfr_name,pack_barcode,st_bin,plant_id,wh_id,c_id,lang_id \n" +
+
+                    // inv_qty from tblinventory to temp table
+                    "UPDATE TH SET TH.quantity = X.TOT_QTY FROM #stBinDashBoard TH INNER JOIN \n" +
+                    "(select c_id, plant_id, lang_id, wh_id, st_bin, ISNULL(sum(REF_FIELD_4),0) TOT_QTY\n" +
+                    "from tblinventory \r\n" +
+                    "where is_deleted = 0 and ref_field_4 > 0 and \r\n" +
+                    "(COALESCE(:companyCodeId, null) IS NULL OR (c_id IN (:companyCodeId))) and\n" +
+                    "(COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) and\n" +
+                    "(COALESCE(:languageId, null) IS NULL OR (lang_id IN (:languageId))) and\n" +
+                    "(COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and\n" +
+                    "inv_id in (select inventoryId from #inv) \r\n" +
+                    "group by st_bin,plant_id,wh_id,c_id,lang_id) X ON \n" +
+                    "X.C_ID = TH.companyCodeId AND X.PLANT_ID = TH.plantId AND X.WH_ID = TH.warehouseId AND X.LANG_ID = TH.languageId AND \n" +
+                    "X.ST_BIN = TH.storageBin \n" +
+
+                    "UPDATE TH SET TH.palletCode = I.PAL_CODE, TH.businessPartnerCode = I.REF_FIELD_6 \n" +
+                    "FROM #stBinDashBoard TH \n" +
+                    "INNER JOIN tblinventory I \n" +
+                    "ON I.inv_id IN (SELECT inventoryId FROM #inv) \n" +
+                    "AND I.c_id = TH.companyCodeId \n" +
+                    "AND I.plant_id = TH.plantId \n" +
+                    "AND I.lang_id = TH.languageId \n" +
+                    "AND I.wh_id = TH.warehouseId \n" +
+                    "AND I.st_bin = TH.storageBin \n" +
+
+                    "select \n" +
+                    "storageBin, \n" +
+                    "statusId, \n" +
+                    "businessPartnerCode, \n" +
+                    "palletCode, \n" +
+                    "(case when quantity > 1 then 'Occupied' else 'Empty' end) statusDescription, \n" +
+                    "quantity \n" +
+                    "from #stBinDashBoard  \n" +
+                    "where quantity > 0 or businessPartnerCode is not null \n"  +
+                    "ORDER BY storageBin ", nativeQuery = true)
+    List<StorageBinDashBoardImpl> getStorageBinDashBoardV9(@Param(value = "companyCodeId") String companyCodeId,
+                                                           @Param(value = "plantId") String plantId,
+                                                           @Param(value = "languageId") String languageId,
+                                                           @Param(value = "warehouseId") String warehouseId,
+                                                           @Param(value = "storageBin") List<String> storageBin,
+                                                           @Param(value = "storageSectionId") List<String> storageSectionId,
+                                                           @Param(value = "aisleNumber") List<String> aisleNumber,
+                                                           @Param(value = "rowId") List<String> rowId,
+                                                           @Param(value = "levelId") List<Long> levelId,
+                                                           @Param(value = "statusId") List<Long> statusId,
+                                                           @Param(value = "businessPartnerCode") List<String> businessPartnerCode,
+                                                           @Param(value = "binClassId") Long binClassId);
+
+
+    @Modifying
+    @Query(value = "update tblinventory set is_deleted = 1 where REF_ORD_NO = :refDocNo and is_deleted = 0 ", nativeQuery = true)
+    int updateInventory(@Param("refDocNo") String refDocNo);
+
+    @Query(value = "select * from tblinventory where inv_id in (select max(inv_id) inventoryId from tblinventory " +
+            "where is_deleted = 0 " +
+            "and bin_cl_id = 1 " +
+            "and c_id = :companyCodeId and " +
+            "plant_id = :plantId and lang_id = :languageId and wh_id = :warehouseId and itm_code = :itemCode and barcode_id = :barcodeId " +
+            "group by itm_code,pal_code,barcode_id,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) and \n" +
+            "STCK_TYP_ID = 1 and inv_qty > 0 and ref_field_4 > 0  order by inv_qty desc", nativeQuery = true)
+    List<InventoryV2> getInventoryAllocationWithBarcodeV9(@Param("companyCodeId") String companyCodeId,
+                                                          @Param("plantId") String plantId,
+                                                          @Param("languageId") String languageId,
+                                                          @Param("warehouseId") String warehouseId,
+                                                          @Param("itemCode") String itemCode,
+                                                          @Param("barcodeId") String barcodeId);
+
+    @Query(value = "select * from tblinventory where inv_id in (select max(inv_id) inventoryId from tblinventory " +
+            "where is_deleted = 0 " +
+            "and bin_cl_id = 7 " +
+            "and c_id = :companyCodeId and " +
+            "plant_id = :plantId and lang_id = :languageId and wh_id = :warehouseId and itm_code = :itemCode and barcode_id = :barcodeId " +
+            "group by itm_code,pal_code,barcode_id,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) and \n" +
+            "STCK_TYP_ID = 1 and inv_qty > 0 and ref_field_4 > 0  order by inv_qty desc", nativeQuery = true)
+    List<InventoryV2> getInventoryAllocationWithBarcodeV9Bin7(@Param("companyCodeId") String companyCodeId,
+                                                              @Param("plantId") String plantId,
+                                                              @Param("languageId") String languageId,
+                                                              @Param("warehouseId") String warehouseId,
+                                                              @Param("itemCode") String itemCode,
+                                                              @Param("barcodeId") String barcodeId);
+
+    @Query(value = "select * from tblinventory where inv_id in (select max(inv_id) inventoryId from tblinventory " +
+            "where is_deleted = 0 " +
+            "and bin_cl_id = 3 " +
+            "and c_id = :companyCodeId and " +
+            "plant_id = :plantId and lang_id = :languageId and wh_id = :warehouseId and itm_code = :itemCode and barcode_id = :barcodeId " +
+            "group by itm_code,pal_code,barcode_id,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) and \n" +
+            "STCK_TYP_ID = 1 and inv_qty > 0 and ref_field_4 > 0  order by inv_qty desc", nativeQuery = true)
+    List<InventoryV2> getInventoryAllocationWithBarcodeV9Bin3(@Param("companyCodeId") String companyCodeId,
+                                                              @Param("plantId") String plantId,
+                                                              @Param("languageId") String languageId,
+                                                              @Param("warehouseId") String warehouseId,
+                                                              @Param("itemCode") String itemCode,
+                                                              @Param("barcodeId") String barcodeId);
+
+    @Query(value = "select * from tblinventory where inv_id in (select max(inv_id) inventoryId from tblinventory " +
+            "where is_deleted = 0 " +
+            "and bin_cl_id = 1 " +
+            "and c_id = :companyCodeId and " +
+            "plant_id = :plantId and lang_id = :languageId and wh_id = :warehouseId and itm_code = :itemCode  " +
+            "group by itm_code,pal_code,barcode_id,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) and \n" +
+            "STCK_TYP_ID = 1 and inv_qty > 0 and ref_field_4 > 0  order by EXP_DATE desc", nativeQuery = true)
+    List<InventoryV2> getInventoryAllocationV9(@Param("companyCodeId") String companyCodeId,
+                                               @Param("plantId") String plantId,
+                                               @Param("languageId") String languageId,
+                                               @Param("warehouseId") String warehouseId,
+                                               @Param("itemCode") String itemCode);
+
+    @Query(value = "select * from tblinventory where inv_id in (select max(inv_id) inventoryId from tblinventory " +
+            "where is_deleted = 0 " +
+            "and bin_cl_id = 7 " +
+            "and c_id = :companyCodeId and " +
+            "plant_id = :plantId and lang_id = :languageId and wh_id = :warehouseId and itm_code = :itemCode  " +
+            "group by itm_code,pal_code,barcode_id,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) and \n" +
+            "STCK_TYP_ID = 1 and inv_qty > 0 and ref_field_4 > 0  order by EXP_DATE desc", nativeQuery = true)
+    List<InventoryV2> getInventoryAllocationBin7V9(@Param("companyCodeId") String companyCodeId,
+                                                   @Param("plantId") String plantId,
+                                                   @Param("languageId") String languageId,
+                                                   @Param("warehouseId") String warehouseId,
+                                                   @Param("itemCode") String itemCode);
+
+
+    @Query(value = "select * from tblinventory where inv_id in (select max(inv_id) inventoryId from tblinventory " +
+            "where is_deleted = 0 " +
+            "and bin_cl_id = 3 " +
+            "and c_id = :companyCodeId and " +
+            "plant_id = :plantId and lang_id = :languageId and wh_id = :warehouseId and itm_code = :itemCode  " +
+            "group by itm_code,pal_code,barcode_id,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) and \n" +
+            "STCK_TYP_ID = 1 and inv_qty > 0 and ref_field_4 > 0  order by EXP_DATE desc", nativeQuery = true)
+    List<InventoryV2> getInventoryAllocationBin3V9(@Param("companyCodeId") String companyCodeId,
+                                                   @Param("plantId") String plantId,
+                                                   @Param("languageId") String languageId,
+                                                   @Param("warehouseId") String warehouseId,
+                                                   @Param("itemCode") String itemCode);
+
+    @Query(value = "select max(inv_id) inventoryId into #inv from tblinventory \n" +
+            "WHERE \n" +
+            "(COALESCE(:itemCode, null) IS NULL OR (ITM_CODE IN (:itemCode))) and \n" +
+            "(COALESCE(:palletCode, null) IS NULL OR (PAL_CODE IN (:palletCode))) and \n" +
+            "(COALESCE(:binClassId, null) IS NULL OR (BIN_CL_ID IN (:binClassId))) and\n" +
+            "(COALESCE(:manufacturerName, null) IS NULL OR (MFR_NAME IN (:manufacturerName))) and \n" +
+            "(COALESCE(:companyCodeId, null) IS NULL OR (c_id IN (:companyCodeId))) and \n" +
+            "(COALESCE(:languageId, null) IS NULL OR (lang_id IN (:languageId))) and \n" +
+            "(COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) and \n" +
+            "(COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and \n" +
+            "is_deleted = 0 \n" +
+            "group by itm_code,barcode_id,pal_code,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id \n" +
+
+            "SELECT \n" +
+            "iv.INV_ID inventoryId, \n" +
+            "iv.LANG_ID languageId, \n" +
+            "iv.C_ID companyCodeId,\n" +
+            "iv.PLANT_ID plantId,\n" +
+            "iv.WH_ID warehouseId,\n" +
+            "iv.PAL_CODE palletCode,\n" +
+            "iv.CASE_CODE caseCode,\n" +
+            "iv.PACK_BARCODE packBarcodes,\n" +
+            "iv.ITM_CODE itemCode,\n" +
+            "iv.VAR_ID variantCode,\n" +
+            "iv.VAR_SUB_ID variantSubCode,\n" +
+            "iv.STR_NO batchSerialNumber,\n" +
+            "iv.ST_BIN storageBin,\n" +
+            "iv.STCK_TYP_ID stockTypeId,\n" +
+            "iv.SP_ST_IND_ID specialStockIndicatorId,\n" +
+            "iv.ST_SEC_ID storageSectionId, \n" +
+            "iv.REF_ORD_NO referenceOrderNo,\n" +
+            "iv.STR_MTD storageMethod,\n" +
+            "iv.BIN_CL_ID binClassId,\n" +
+            "iv.TEXT description,\n" +
+            "iv.INV_QTY inventoryQuantity,\n" +
+            "iv.ALLOC_QTY allocatedQuantity,\n" +
+            "iv.INV_UOM inventoryUom,\n" +
+            "iv.MFR_DATE manufacturer,\n" +
+            "iv.EXP_DATE expiry,\n" +
+            "iv.IS_DELETED deletionIndicator,\n" +
+            "iv.REF_FIELD_1 referenceField1,\n" +
+            "iv.REF_FIELD_2 referenceField2,\n" +
+            "iv.REF_FIELD_3 referenceField3,\n" +
+            "iv.REF_FIELD_4 referenceField4,\n" +
+            "iv.REF_FIELD_5 referenceField5,\n" +
+            "iv.REF_FIELD_6 referenceField6,\n" +
+            "iv.REF_FIELD_7 referenceField7,\n" +
+            "iv.REF_FIELD_8 referenceField8,\n" +
+            "iv.REF_FIELD_9 referenceField9,\n" +
+            "iv.REF_FIELD_10 referenceField10,\n" +
+            "iv.IU_CTD_BY createdBy,\n" +
+            "iv.IU_CTD_ON createdOn,\n" +
+            "FORMAT(iv.IU_CTD_ON,'dd-MM-yyyy hh:mm:ss') sCreatedOn,\n" +
+            "iv.UTD_BY updatedBy,\n" +
+            "iv.UTD_ON updatedOn,\n" +
+            "iv.MFR_CODE manufacturerCode,\n" +
+            "iv.BARCODE_ID barcodeId,\n" +
+            "iv.CBM cbm,\n" +
+            "iv.level_id levelId,\n" +
+            "iv.CBM_UNIT cbmUnit,\n" +
+            "iv.CBM_PER_QTY cbmPerQuantity,\n" +
+            "iv.MFR_NAME manufacturerName,\n" +
+            "iv.ORIGIN origin,\n" +
+            "iv.BRAND brand,\n" +
+            "iv.REF_DOC_NO referenceDocumentNo,\n" +
+            "iv.C_TEXT companyDescription,\n" +
+            "iv.PLANT_TEXT plantDescription,\n" +
+            "iv.WH_TEXT warehouseDescription,\n" +
+            "iv.STCK_TYP_TEXT stockTypeDescription,\n" +
+            "iv.ITM_TYP_ID itemType,\n" +
+            "iv.ITM_TYP_TXT itemTypeDescription,\n" +
+            "iv.PARTNER_CODE partnerCode,\n" +
+            "iv.BATCH_DATE batchDate,\n" +
+            "iv.MATERIAL_NO materialNo, \n" +
+            "iv.PRICE_SEGMENT priceSegment, \n" +
+            "iv.ARTICLE_NO articleNo, \n" +
+            "iv.GENDER gender, \n" +
+            "iv.COLOR color, \n" +
+            "iv.SIZE size, \n" +
+            "iv.NO_PAIRS noPairs, \n" +
+            "iv.ALT_UOM alternateUom, \n" +
+            "iv.NO_BAGS noBags, \n" +
+            "iv.BAG_SIZE bagSize, \n" +
+            "iv.MRP mrp, \n" +
+            "iv.ITM_GRP itemGroup, \n" +
+            "iv.STATUS_TEXT statusDescription, \n" +
+            "iv.QTY_IN_CASE qtyInCase, \n " +
+            "iv.QTY_IN_PIECE qtyInPiece, \n " +
+            "iv.QTY_IN_CREATE qtyInCreate \n" +
+            "from tblinventory iv\n" +
+            "where \n" +
+            "iv.inv_id in (select inventoryId from #inv) and \n" +
+            "(COALESCE(:companyCodeId, null) IS NULL OR (iv.c_id IN (:companyCodeId))) and \n" +
+            "(COALESCE(:plantId, null) IS NULL OR (iv.plant_id IN (:plantId))) and \n" +
+            "(COALESCE(:languageId, null) IS NULL OR (iv.lang_id IN (:languageId))) and \n" +
+            "(COALESCE(:warehouseId, null) IS NULL OR (iv.wh_id IN (:warehouseId))) and \n" +
+            "(COALESCE(:barcodeId, null) IS NULL OR (iv.BARCODE_ID IN (:barcodeId))) and \n" +
+            "(COALESCE(:palletCode, null) IS NULL OR (iv.PAL_CODE IN (:palletCode))) and \n" +
+            "(COALESCE(:batchSerialNumber, null) IS NULL OR (iv.STR_NO IN (:batchSerialNumber))) and \n" +
+            "(COALESCE(:manufacturerName, null) IS NULL OR (iv.MFR_NAME IN (:manufacturerName))) and \n" +
+            "(COALESCE(:packBarcodes, null) IS NULL OR (iv.PACK_BARCODE IN (:packBarcodes))) and \n" +
+            "(COALESCE(:itemCode, null) IS NULL OR (iv.ITM_CODE IN (:itemCode))) and \n" +
+            "(COALESCE(:storageBin, null) IS NULL OR (iv.ST_BIN IN (:storageBin))) and\n" +
+            "(COALESCE(:binClassId, null) IS NULL OR (iv.BIN_CL_ID IN (:binClassId))) and\n" +
+            "iv.is_deleted = 0 and iv.stck_typ_id = 1\n", nativeQuery = true)
+    public IInventoryImpl getInboundInventoryV9(@Param("companyCodeId") String companyCodeId,
+                                                @Param("plantId") String plantId,
+                                                @Param("languageId") String languageId,
+                                                @Param("warehouseId") String warehouseId,
+                                                @Param("barcodeId") String barcodeId,
+                                                @Param("palletCode") String palletCode,
+                                                @Param("batchSerialNumber") String batchSerialNumber,
+                                                @Param("itemCode") String itemCode,
+                                                @Param("manufacturerName") String manufacturerName,
+                                                @Param("packBarcodes") String packBarcodes,
+                                                @Param("storageBin") String storageBin,
+                                                @Param("binClassId") List<Long> binClassId);
+
 
 }

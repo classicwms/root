@@ -255,25 +255,25 @@ public class PutAwayHeaderController {
 //            throws Exception {
 //        return putawayheaderService.findPutAwayHeaderV2(searchPutAwayHeader);
 //    }
-    @ApiOperation(response = PutAwayHeaderV2.class, value = "Search PutAwayHeader V2") // label for swagger
-    @PostMapping("/findPutAwayHeader/v2")
-    public List<PutAwayHeaderImpl> findPutAwayHeaderV2(@RequestBody SearchPutAwayHeaderV2 searchPutAwayHeader)
-            throws Exception {
-
-        try {
-            log.info("SearchPutAwayHeaderV2 ------> {}", searchPutAwayHeader);
-            String routingDb = null;
-            DataBaseContextHolder.setCurrentDb("MT");
-            Warehouse warehouseName = warehouseRepository.findTop1ByWarehouseIdAndDeletionIndicator(searchPutAwayHeader.getWarehouseId().get(0), 0L);
-            routingDb = dbConfigRepository.getDbName(warehouseName.getCompanyCodeId(), warehouseName.getPlantId(), warehouseName.getWarehouseId());
-            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-            DataBaseContextHolder.clear();
-            DataBaseContextHolder.setCurrentDb(routingDb);
-            return putawayheaderService.findPutAwayHeaderSQLV2(searchPutAwayHeader);
-        } finally {
-            DataBaseContextHolder.clear();
-        }
-    }
+//    @ApiOperation(response = PutAwayHeaderV2.class, value = "Search PutAwayHeader V2") // label for swagger
+//    @PostMapping("/findPutAwayHeader/v2")
+//    public List<PutAwayHeaderImpl> findPutAwayHeaderV2(@RequestBody SearchPutAwayHeaderV2 searchPutAwayHeader)
+//            throws Exception {
+//
+//        try {
+//            log.info("SearchPutAwayHeaderV2 ------> {}", searchPutAwayHeader);
+//            String routingDb = null;
+//            DataBaseContextHolder.setCurrentDb("MT");
+//            Warehouse warehouseName = warehouseRepository.findTop1ByWarehouseIdAndDeletionIndicator(searchPutAwayHeader.getWarehouseId().get(0), 0L);
+//            routingDb = dbConfigRepository.getDbName(warehouseName.getCompanyCodeId(), warehouseName.getPlantId(), warehouseName.getWarehouseId());
+//            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+//            DataBaseContextHolder.clear();
+//            DataBaseContextHolder.setCurrentDb(routingDb);
+//            return putawayheaderService.findPutAwayHeaderSQLV2(searchPutAwayHeader);
+//        } finally {
+//            DataBaseContextHolder.clear();
+//        }
+//    }
 
 
     @ApiOperation(response = PutAwayHeaderV2.class, value = "Update PutAwayHeader V2") // label for swagger
@@ -405,6 +405,22 @@ public class PutAwayHeaderController {
                         createdPutAwayHeader =
                             putawayheaderService.updatePutAwayHeaderBatchV7(loginUserID, updatePutAwayHeader);
                         break;
+                    case "SPAREX":
+                        createdPutAwayHeader =
+                                putawayheaderService.updatePutAwayHeaderBatchV10(loginUserID, updatePutAwayHeader);
+                        break;
+                    case "BF":
+                        createdPutAwayHeader =
+                                putawayheaderService.updatePutAwayHeaderBatchV9(loginUserID, updatePutAwayHeader);
+                        break;
+                    case "KKF":
+                        createdPutAwayHeader =
+                                putawayheaderService.updatePutAwayHeaderBatchV9(loginUserID, updatePutAwayHeader);
+                        break;
+                    case "KSP":
+                        createdPutAwayHeader =
+                                putawayheaderService.updatePutAwayHeaderBatchV9(loginUserID, updatePutAwayHeader);
+                        break;
                     default:
                         createdPutAwayHeader =
                                 putawayheaderService.updatePutAwayHeaderBatchV2(loginUserID, updatePutAwayHeader);
@@ -419,5 +435,42 @@ public class PutAwayHeaderController {
             DataBaseContextHolder.clear();
         }
     }
+
+    @ApiOperation(response = PutAwayHeaderV2.class, value = "Search PutAwayHeader V2") // label for swagger
+    @PostMapping("/findPutAwayHeader/v2")
+    public List<PutAwayHeaderImpl> findPutAwayHeaderV2(@RequestBody SearchPutAwayHeaderV2 searchPutAwayHeader)
+            throws Exception {
+
+        try {
+            log.info("SearchPutAwayHeaderV2 ------> {}", searchPutAwayHeader);
+            String routingDb = null;
+            DataBaseContextHolder.setCurrentDb("MT");
+            Warehouse warehouseName = warehouseRepository.findTop1ByWarehouseIdAndDeletionIndicator(searchPutAwayHeader.getWarehouseId().get(0), 0L);
+            routingDb = dbConfigRepository.getDbName(warehouseName.getCompanyCodeId(), warehouseName.getPlantId(), warehouseName.getWarehouseId());
+            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(routingDb);
+            List<PutAwayHeaderImpl> putAwayHeader = null;
+            if (routingDb != null) {
+                switch (routingDb) {
+                    case "BF":
+                        putAwayHeader= putawayheaderService.findPutAwayHeaderSQLV9(searchPutAwayHeader);
+                        break;
+                    case "KKF":
+                        putAwayHeader= putawayheaderService.findPutAwayHeaderSQLV9(searchPutAwayHeader);
+                        break;
+                    case "KSP":
+                        putAwayHeader= putawayheaderService.findPutAwayHeaderSQLV9(searchPutAwayHeader);
+                        break;
+                    default:
+                        putAwayHeader= putawayheaderService.findPutAwayHeaderSQLV2(searchPutAwayHeader);
+                }
+            }
+            return putAwayHeader;
+        } finally {
+            DataBaseContextHolder.clear();
+        }
+    }
+
 
 }

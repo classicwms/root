@@ -4,11 +4,14 @@ import com.tekclover.wms.api.outbound.transaction.config.dynamicConfig.DataBaseC
 import com.tekclover.wms.api.outbound.transaction.model.outbound.*;
 import com.tekclover.wms.api.outbound.transaction.model.outbound.outboundreversal.OutboundReversal;
 import com.tekclover.wms.api.outbound.transaction.model.outbound.outboundreversal.v2.OutboundReversalV2;
+import com.tekclover.wms.api.outbound.transaction.model.outbound.pickup.v2.PickupLineV2;
 import com.tekclover.wms.api.outbound.transaction.model.outbound.v2.InboundReversalInput;
 import com.tekclover.wms.api.outbound.transaction.model.outbound.v2.OutboundLineOutput;
 import com.tekclover.wms.api.outbound.transaction.model.outbound.v2.OutboundLineV2;
 import com.tekclover.wms.api.outbound.transaction.model.outbound.v2.SearchOutboundLineV2;
+import com.tekclover.wms.api.outbound.transaction.model.report.MobileDashboard;
 import com.tekclover.wms.api.outbound.transaction.model.report.StockMovementReport;
+import com.tekclover.wms.api.outbound.transaction.model.warehouse.inbound.WarehouseApiResponse;
 import com.tekclover.wms.api.outbound.transaction.repository.DbConfigRepository;
 import com.tekclover.wms.api.outbound.transaction.service.OutboundLineService;
 import io.swagger.annotations.Api;
@@ -271,6 +274,18 @@ public class OutboundLineController {
                     case "BP":
                         outboundLine = outboundlineService.findOutboundLineNewV6(searchOutboundLine);
                         break;
+                    case "SPAREX":
+                        outboundLine = outboundlineService.findOutboundLineNewV10(searchOutboundLine);
+                        break;
+                    case "BF":
+                        outboundLine = outboundlineService.findOutboundLineNewV9(searchOutboundLine);
+                        break;
+                    case "KKF":
+                        outboundLine = outboundlineService.findOutboundLineNewV9(searchOutboundLine);
+                        break;
+                    case "KSP":
+                        outboundLine = outboundlineService.findOutboundLineNewV9(searchOutboundLine);
+                        break;
                     default:
 //                        outboundLine = outboundlineService.findOutboundLineNewV2(searchOutboundLine);
                         break;
@@ -325,10 +340,26 @@ public class OutboundLineController {
                         createdOutboundLine = outboundlineService.deliveryConfirmationV5(companyCodeId, plantId, languageId,
                                 warehouseId, preOutboundNo, refDocNumber, partnerCode, loginUserID);
                         break;
+                    case "SPAREX":
+                        createdOutboundLine = outboundlineService.deliveryConfirmationV10(companyCodeId, plantId, languageId,
+                                warehouseId, preOutboundNo, refDocNumber, partnerCode, loginUserID);
+                        break;
 //                    case "BP":
 //                        createdOutboundLine = outboundlineService.deliveryConfirmationV6(companyCodeId, plantId, languageId,
 //                                warehouseId, preOutboundNo, refDocNumber, partnerCode, loginUserID);
 //                        break;
+                    case "BF":
+                        createdOutboundLine = outboundlineService.deliveryConfirmationV9(companyCodeId, plantId, languageId,
+                                warehouseId, preOutboundNo, refDocNumber, partnerCode, loginUserID);
+                        break;
+                    case "KKF":
+                        createdOutboundLine = outboundlineService.deliveryConfirmationV9(companyCodeId, plantId, languageId,
+                                warehouseId, preOutboundNo, refDocNumber, partnerCode, loginUserID);
+                        break;
+                    case "KSP":
+                        createdOutboundLine = outboundlineService.deliveryConfirmationV9(companyCodeId, plantId, languageId,
+                                warehouseId, preOutboundNo, refDocNumber, partnerCode, loginUserID);
+                        break;
                     default:
                         createdOutboundLine = outboundlineService.deliveryConfirmationV2(companyCodeId, plantId, languageId,
                                 warehouseId, preOutboundNo, refDocNumber, partnerCode, loginUserID);
@@ -430,4 +461,75 @@ public class OutboundLineController {
             DataBaseContextHolder.clear();
         }
     }
+
+    //===============SPAREX=====================================
+    @ApiOperation(response = OutboundLine.class, value = "Update OutboundLine") // label for swagger
+    @GetMapping("/delivery/confirmation/v10")
+    public ResponseEntity<?> deliveryConfirmationV10(@RequestBody List<OutboundLineV2> outboundLine, @RequestParam String loginUserID)
+            throws IllegalAccessException, InvocationTargetException {
+        DataBaseContextHolder.clear();
+        DataBaseContextHolder.setCurrentDb("SPAREX");
+        List<OutboundLine> createdOutboundLine =
+                outboundlineService.deliveryConfirmationV10(outboundLine,loginUserID);
+        return new ResponseEntity<>(createdOutboundLine, HttpStatus.OK);
+    }
+
+    //==========SPAREX Outbound Cancellation===========================================
+    @ApiOperation(response = MobileDashboard.class, value = "Outbound Cancellation") // label for swagger
+    @PostMapping("/outboundcancellation/v10")
+    public ResponseEntity<?> outboundReversalV10(@RequestBody List<OutboundCancellation> outboundCancellations) {
+        WarehouseApiResponse response = new WarehouseApiResponse();
+        try {
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb("SPAREX");
+            outboundlineService.outboundReversalV10(outboundCancellations);
+            response.setStatusCode("200");
+            response.setMessage("Outbound Reversed Successfully");
+            return new ResponseEntity<>(response,HttpStatus.OK);
+
+        } catch (Exception e) {
+            response.setStatusCode("400");
+            response.setMessage("Outbound Not Reversed " + e.getMessage());
+            return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    //==========SPAREX Pickup Reversal ===========================================
+    @ApiOperation(response = MobileDashboard.class, value = "Pickup Reversal ") // label for swagger
+    @PostMapping("/pickupReversal/v10")
+    public ResponseEntity<?> pickupReversalV10(@RequestBody List<PickupNewUpdate> pickupUpdate) {
+        WarehouseApiResponse response = new WarehouseApiResponse();
+        try {
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb("SPAREX");
+            outboundlineService.pickupReversalV10(pickupUpdate);
+            response.setStatusCode("200");
+            response.setMessage("Pickup Reversed Successfully");
+            return new ResponseEntity<>(response,HttpStatus.OK);
+
+        } catch (Exception e) {
+            response.setStatusCode("400");
+            response.setMessage("PickupReversal Not Reversed " + e.getMessage());
+            return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
+        }
+    }
+    //=========SPAREX===================
+    @ApiOperation(response = PickupLineV2.class, value = "Outbound Update") // label for swagger
+    @PatchMapping("/outbound/update/v10")
+    public ResponseEntity<?> patchOutboundV10(@Valid @RequestBody List<PickupLineV2> updateOutboundLine, @RequestParam String loginUserID)
+            throws IllegalAccessException, InvocationTargetException, ParseException {
+        try {
+            DataBaseContextHolder.setCurrentDb("MT");
+            String routingDb = dbConfigRepository.getDbName(updateOutboundLine.get(0).getCompanyCodeId(),updateOutboundLine.get(0).getPlantId(),
+                    updateOutboundLine.get(0).getWarehouseId());
+            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(routingDb);
+            List<PickupLineV2> pickupLine = outboundlineService.updateOutboundV10(updateOutboundLine,loginUserID);
+            return new ResponseEntity<>(pickupLine, HttpStatus.OK);
+        } finally {
+            DataBaseContextHolder.clear();
+        }
+    }
+
 }

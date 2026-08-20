@@ -256,4 +256,41 @@ public interface OrderManagementLineV2Repository extends JpaRepository<OrderMana
                                                                        @Param("warehouseId") String warehouseId,
                                                                        @Param("itemCode") String itemCode);
 
+    @Query(value = "select sum(ALLOC_QTY) from tblordermangementline where C_ID = :companyId and " +
+            " PLANT_ID = :plantId and LANG_ID = :languageId and WH_ID = :warehouseId and " +
+            " ITM_CODE = :itemCode and PALLET_ID = :palletId and PARTNER_ITEM_BARCODE = :barcodeId and STATUS_ID in (42,43,48) and IS_DELETED=0",nativeQuery = true)
+    public Double getSumOfOrderQtyV9(@Param("companyId") String companyId,
+                                     @Param("plantId") String plantId,
+                                     @Param("languageId") String languageId,
+                                     @Param("warehouseId") String warehouseId,
+                                     @Param("itemCode") String itemCode,
+                                     @Param("palletId") String palletId,
+                                     @Param("barcodeId") String barcodeId);
+
+    boolean existsByBarcodeIdAndStatusIdInAndDeletionIndicator(String barcodeId, List<Long> statusId, Long deletionIndicator);
+
+    @Modifying
+    @Query(value = "update tbloborder2 set order_text = :text, order_management_header = 1 where " +
+            " outbound_order_typeid = :typeId and ref_document_no = :refDocNo ", nativeQuery = true)
+    void updateOrderManagementText(@Param("typeId") Long typeId,
+                                   @Param("refDocNo") String refDocNo,
+                                   @Param("text") String text);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("UPDATE OrderManagementLineV2 ob SET ob.statusId = :statusId, ob.statusDescription = :statusDescription, ob.pickupUpdatedOn = :updatedOn, \r\n"
+            + " ob.pickupNumber = :pickupNumber \r\n "
+            + " WHERE ob.companyCodeId = :companyCodeId AND ob.plantId = :plantId AND ob.languageId = :languageId AND ob.warehouseId = :warehouseId AND \r\n "
+            + " ob.itemCode = :itemCode AND ob.preOutboundNo = :preOutboundNo AND ob.lineNumber = :lineNumber")
+    void updateOrderManagementLineV9(@Param("companyCodeId") String companyCodeId,
+                                     @Param("plantId") String plantId,
+                                     @Param("languageId") String languageId,
+                                     @Param("warehouseId") String warehouseId,
+                                     @Param("preOutboundNo") String preOutboundNo,
+                                     @Param("lineNumber") Long lineNumber,
+                                     @Param("itemCode") String itemCode,
+                                     @Param("statusId") Long statusId,
+                                     @Param("statusDescription") String statusDescription,
+                                     @Param("pickupNumber") String pickupNumber,
+                                     @Param("updatedOn") Date updatedOn);
+
 }

@@ -20,14 +20,22 @@ public class InboundOrder {
 	@Column(name = "order_id", nullable = false)
 	private String orderId;
 
+	@Column(name = "ref_Document_No")
 	private String refDocumentNo; 			// REF_DOC_NO
+	@Column(name = "ref_document_type")
 	private String refDocumentType; 		// REF_DOC_TYPE
+	@Column(name = "warehouse_id")
 	private String warehouseID; 			// WH_ID
+	@Column(name = "inbound_order_type_id")
 	private Long inboundOrderTypeId; 		// IB_ORD_TYP_ID
+	@Column(name = "order_received_on")
 	private Date orderReceivedOn;
+	@Column(name = "order_processed_on")
 	private Date orderProcessedOn;
+	@Column(name = "processed_status_id")
 	private Long processedStatusId;
 
+	@Column(name = "purchase_order_number")
 	private String purchaseOrderNumber;
 	
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)

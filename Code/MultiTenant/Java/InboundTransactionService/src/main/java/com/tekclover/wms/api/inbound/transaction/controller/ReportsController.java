@@ -2,11 +2,13 @@ package com.tekclover.wms.api.inbound.transaction.controller;
 
 import com.tekclover.wms.api.inbound.transaction.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.inbound.transaction.model.impl.StockReportImpl;
+import com.tekclover.wms.api.inbound.transaction.model.inbound.InboundCancellation;
 import com.tekclover.wms.api.inbound.transaction.model.inbound.inventory.Inventory;
 import com.tekclover.wms.api.inbound.transaction.model.inbound.putaway.v2.PutAwayLineV2;
 import com.tekclover.wms.api.inbound.transaction.model.report.*;
 
 import com.tekclover.wms.api.inbound.transaction.model.warehouse.inbound.WarehouseApiResponse;
+import com.tekclover.wms.api.inbound.transaction.model.warehouse.inbound.v2.InboundOrderV2;
 import com.tekclover.wms.api.inbound.transaction.repository.DbConfigRepository;
 import com.tekclover.wms.api.inbound.transaction.service.ReportsService;
 import io.swagger.annotations.Api;
@@ -109,18 +111,49 @@ public class ReportsController {
         return new ResponseEntity<>(receiptConfimationReport, HttpStatus.OK);
     }
 
-    @ApiOperation(response = ReceiptConfimationReport.class, value = "Get ReceiptConfimation Report")    // label for swagger
+//    @ApiOperation(response = ReceiptConfimationReport.class, value = "Get ReceiptConfimation Report")    // label for swagger
+//    @GetMapping("/v2/receiptConfirmation")
+//    public ResponseEntity<?> getReceiptConfimationReportV2(@RequestParam String asnNumber, @RequestParam String preInboundNo, @RequestParam String companyCodeId,
+//                                                           @RequestParam String plantId, @RequestParam String languageId, @RequestParam String warehouseId)
+//            throws Exception {
+//        try {
+//            DataBaseContextHolder.setCurrentDb("MT");
+//            String routingDb = dbConfigRepository.getDbName(companyCodeId,plantId, warehouseId);
+//            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+//            DataBaseContextHolder.clear();
+//            DataBaseContextHolder.setCurrentDb(routingDb);
+//            ReceiptConfimationReport receiptConfimationReport = reportsService.getReceiptConfimationReportV2(asnNumber, preInboundNo, companyCodeId, plantId, languageId, warehouseId);
+//            return new ResponseEntity<>(receiptConfimationReport, HttpStatus.OK);
+//        } finally {
+//            DataBaseContextHolder.clear();
+//        }
+//    }
+
+    @ApiOperation(response = ReceiptConfimationReport.class, value = "Get ReceiptConfimation Report")
+    // label for swagger
     @GetMapping("/v2/receiptConfirmation")
     public ResponseEntity<?> getReceiptConfimationReportV2(@RequestParam String asnNumber, @RequestParam String preInboundNo, @RequestParam String companyCodeId,
                                                            @RequestParam String plantId, @RequestParam String languageId, @RequestParam String warehouseId)
             throws Exception {
         try {
             DataBaseContextHolder.setCurrentDb("MT");
-            String routingDb = dbConfigRepository.getDbName(companyCodeId,plantId, warehouseId);
+            String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
             DataBaseContextHolder.setCurrentDb(routingDb);
-            ReceiptConfimationReport receiptConfimationReport = reportsService.getReceiptConfimationReportV2(asnNumber, preInboundNo, companyCodeId, plantId, languageId, warehouseId);
+//            ReceiptConfimationReport receiptConfimationReport = reportsService.getReceiptConfimationReportV2(asnNumber, preInboundNo, companyCodeId, plantId, languageId, warehouseId);
+            ReceiptConfimationReport receiptConfimationReport = null;
+            if (routingDb.equalsIgnoreCase("BP")) {
+                receiptConfimationReport = reportsService.getReceiptConfirmationReportV6(asnNumber, preInboundNo, companyCodeId, plantId, languageId, warehouseId);
+            } else if (routingDb.equalsIgnoreCase("REEFERON")) {
+                receiptConfimationReport = reportsService.getReceiptConfimationReportV5(asnNumber, preInboundNo, companyCodeId, plantId, languageId, warehouseId);
+            } else if (routingDb.equalsIgnoreCase("BF")) {
+                receiptConfimationReport = reportsService.getReceiptConfimationReportV9(asnNumber, preInboundNo, companyCodeId, plantId, languageId, warehouseId);
+            } else if (routingDb.equalsIgnoreCase("KKF")) {
+                receiptConfimationReport = reportsService.getReceiptConfimationReportV9(asnNumber, preInboundNo, companyCodeId, plantId, languageId, warehouseId);
+            } else {
+                receiptConfimationReport = reportsService.getReceiptConfimationReportV2(asnNumber, preInboundNo, companyCodeId, plantId, languageId, warehouseId);
+            }
             return new ResponseEntity<>(receiptConfimationReport, HttpStatus.OK);
         } finally {
             DataBaseContextHolder.clear();
@@ -142,24 +175,24 @@ public class ReportsController {
             DataBaseContextHolder.clear();
         }
     }
-
-    //=================================================Notification======================================================
-    @ApiOperation(response = StorageBinDashBoardImpl.class, value = "Get Storage Bin Dashboard count - walkaroo")    // label for swagger
-    @PostMapping("/storageBinDashboard")
-    public ResponseEntity<?> getStorageBinDashBoard(@RequestBody StorageBinDashBoardInput storageBinDashBoardInput) throws Exception {
-        try {
-            log.info("storageBinDashboard Input -----------> {}", storageBinDashBoardInput);
-            DataBaseContextHolder.setCurrentDb("MT");
-            String routingDb = dbConfigRepository.getDbName(storageBinDashBoardInput.getCompanyCodeId(), storageBinDashBoardInput.getPlantId(), storageBinDashBoardInput.getWarehouseId());
-            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-            DataBaseContextHolder.clear();
-            DataBaseContextHolder.setCurrentDb(routingDb);
-            List<StorageBinDashBoardImpl> storageBinDashBoardList = reportsService.getStorageBinDashBoardCount(storageBinDashBoardInput);
-            return new ResponseEntity<>(storageBinDashBoardList, HttpStatus.OK);
-        } finally {
-            DataBaseContextHolder.clear();
-        }
-    }
+//
+//    //=================================================Notification======================================================
+//    @ApiOperation(response = StorageBinDashBoardImpl.class, value = "Get Storage Bin Dashboard count - walkaroo")    // label for swagger
+//    @PostMapping("/storageBinDashboard")
+//    public ResponseEntity<?> getStorageBinDashBoard(@RequestBody StorageBinDashBoardInput storageBinDashBoardInput) throws Exception {
+//        try {
+//            log.info("storageBinDashboard Input -----------> {}", storageBinDashBoardInput);
+//            DataBaseContextHolder.setCurrentDb("MT");
+//            String routingDb = dbConfigRepository.getDbName(storageBinDashBoardInput.getCompanyCodeId(), storageBinDashBoardInput.getPlantId(), storageBinDashBoardInput.getWarehouseId());
+//            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+//            DataBaseContextHolder.clear();
+//            DataBaseContextHolder.setCurrentDb(routingDb);
+//            List<StorageBinDashBoardImpl> storageBinDashBoardList = reportsService.getStorageBinDashBoardCount(storageBinDashBoardInput);
+//            return new ResponseEntity<>(storageBinDashBoardList, HttpStatus.OK);
+//        } finally {
+//            DataBaseContextHolder.clear();
+//        }
+//    }
 
     //---------------------------------------------Inbound Reversal------------------------------------------------------------
 
@@ -208,6 +241,160 @@ public class ReportsController {
             List<BarcodeGeneration> barcodeGeneration = reportsService.postBarcode(barcode);
             return new ResponseEntity<>(barcodeGeneration, HttpStatus.OK);
 
+        } finally {
+            DataBaseContextHolder.clear();
+        }
+    }
+
+    //===========SPAREX================================
+    @ApiOperation(response = InboundOrderV2.class, value = "Inbound Cancel And Reprocess")    // label for swagger
+    @PostMapping("/inboundcancellation/v10")
+    public ResponseEntity<?> inboundCancellationV10(@RequestBody List<InboundCancellation> inboundCancellations) {
+
+        WarehouseApiResponse response = new WarehouseApiResponse();
+        try {
+
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb("SPAREX");
+            reportsService.inboundCancelReprocessV10New(inboundCancellations);
+            response.setStatusCode("200");
+            response.setMessage("Inbound Cancellation Successfully");
+            log.info("Inbound Cancelled Successfully ---------------------------------------------> ");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            response.setStatusCode("400");
+            response.setMessage("Inbound Not Cancelled " + e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    //=================================================Notification======================================================
+    @ApiOperation(response = StorageBinDashBoardImpl.class, value = "Get Storage Bin Dashboard count")
+    // label for swagger
+    @PostMapping("/storageBinDashboard")
+    public ResponseEntity<?> getStorageBinDashBoard(@RequestBody StorageBinDashBoardInput storageBinDashBoardInput) throws Exception {
+        try {
+            log.info("storageBinDashboard Input -----------> {}", storageBinDashBoardInput);
+            DataBaseContextHolder.setCurrentDb("MT");
+            String routingDb = dbConfigRepository.getDbName(storageBinDashBoardInput.getCompanyCodeId(), storageBinDashBoardInput.getPlantId(), storageBinDashBoardInput.getWarehouseId());
+            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(routingDb);
+            List<StorageBinDashBoardImpl> storageBinDashBoardList = null;
+            if (routingDb != null) {
+                switch (routingDb) {
+                    case "BF":
+                        storageBinDashBoardList = reportsService.getStorageBinDashBoardCountV9(storageBinDashBoardInput);
+                        break;
+                    case "KKF":
+                        storageBinDashBoardList = reportsService.getStorageBinDashBoardCountV9(storageBinDashBoardInput);
+                        break;
+                    case "KSP":
+                        storageBinDashBoardList = reportsService.getStorageBinDashBoardCountV9(storageBinDashBoardInput);
+                        break;
+                    default:
+                        storageBinDashBoardList = reportsService.getStorageBinDashBoardCount(storageBinDashBoardInput);
+                }
+            }
+
+            return new ResponseEntity<>(storageBinDashBoardList, HttpStatus.OK);
+        } finally {
+            DataBaseContextHolder.clear();
+        }
+    }
+
+    //---------------------------------------------Inbound Reversal-V9------------------------------------------------------------
+    @ApiOperation(response = PutAwayLineV2.class, value = "Inbound Reversal")    // label for swagger
+    @PatchMapping("/inboundReversal/V9")
+    public ResponseEntity<?> inboundReversalV9(@RequestParam String companyCodeId, @RequestParam String plantId,
+                                               @RequestParam String warehouseId, @RequestParam String refDocNumber, @RequestParam String preInboundNo) {
+
+        WarehouseApiResponse response = new WarehouseApiResponse();
+        try {
+            DataBaseContextHolder.setCurrentDb("MT");
+//            reportsService.inboundOrderReversal(refDocNumber);
+
+            String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
+            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(routingDb);
+            reportsService.inboundReversalV9(companyCodeId, plantId, warehouseId, refDocNumber, preInboundNo);
+            response.setStatusCode("200");
+            response.setMessage("Inbound Reversed Successfully");
+            log.info("Inbound Reversed Successfully ---------------------------------------------> ");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            response.setStatusCode("400");
+            response.setMessage("Inbound Not Reversed " + e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    //---------------------------------------------Inbound Reversal-V9------------------------------------------------------------
+    @ApiOperation(response = PutAwayLineV2.class, value = "Inbound Cancellation")    // label for swagger
+    @GetMapping("/inboundcancellation/V9")
+    public ResponseEntity<?> inboundCancellationV9(@RequestParam String companyCodeId, @RequestParam String plantId,
+                                                   @RequestParam String warehouseId, @RequestParam String refDocNumber, @RequestParam String preInboundNo) {
+
+        WarehouseApiResponse response = new WarehouseApiResponse();
+        try {
+            DataBaseContextHolder.setCurrentDb("MT");
+//            reportsService.inboundOrderReversal(refDocNumber);
+
+            String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
+            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(routingDb);
+            reportsService.inboundCancellationV9(companyCodeId, plantId, warehouseId, refDocNumber, preInboundNo);
+            response.setStatusCode("200");
+            response.setMessage("Inbound Cancellation Successfully");
+            log.info("Inbound Cancelled Successfully ---------------------------------------------> ");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            response.setStatusCode("400");
+            response.setMessage("Inbound Not Cancelled " + e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    /*
+     * ContainerReceiptInboundLine
+     */
+    @ApiOperation(response = ContainerReceiptInboundLine.class, value = "Get ReceiptConfimation Report")
+    @PostMapping("/containerReceiptInboundLine/v9")
+    public ResponseEntity<?> getContainerReceiptInboundLine(@RequestBody FindContainerReceiptInboundLine findContainerReceiptInboundLine)
+            throws Exception {
+        List<ContainerReceiptInboundLine> containerReceiptInboundLines = reportsService.getContainerReceiptInboundLine(findContainerReceiptInboundLine);
+        return new ResponseEntity<>(containerReceiptInboundLines, HttpStatus.OK);
+    }
+
+    /*
+     * ContainerReceiptInboundLine
+     */
+    @ApiOperation(response = ContainerReceiptInboundLine.class, value = "Get ReceiptConfimation Report")
+    @PostMapping("/containerReceiptInboundLine/report/v9")
+    public ResponseEntity<?> getContainerReceiptInboundLineReport(@RequestBody FindContainerReceiptInboundLine findContainerReceiptInboundLine)
+            throws Exception {
+        List<ContainerReceiptInboundLine> containerReceiptInboundLines = reportsService.getContainerReceiptInboundLineReport(findContainerReceiptInboundLine);
+        return new ResponseEntity<>(containerReceiptInboundLines, HttpStatus.OK);
+    }
+
+    //========================================BF Receipt Confirmation For GRLine=====================================================
+
+    @ApiOperation(response = ReceiptConfimationReport.class, value = "Get ReceiptConfimation ReportV9")
+    // label for swagger
+    @GetMapping("/v9/receiptConfirmationGrLine")
+    public ResponseEntity<?> getReceiptConfimationReportV9(@RequestParam String asnNumber, @RequestParam String preInboundNo, @RequestParam String companyCodeId,
+                                                           @RequestParam String plantId, @RequestParam String languageId, @RequestParam String warehouseId)
+            throws Exception {
+        try {
+            DataBaseContextHolder.setCurrentDb("MT");
+            String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
+            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(routingDb);
+            ReceiptConfimationReport receiptConfimationReport = reportsService.getReceiptConfimationGrLineReportV9(asnNumber, preInboundNo, companyCodeId, plantId, languageId, warehouseId);
+            return new ResponseEntity<>(receiptConfimationReport, HttpStatus.OK);
         } finally {
             DataBaseContextHolder.clear();
         }

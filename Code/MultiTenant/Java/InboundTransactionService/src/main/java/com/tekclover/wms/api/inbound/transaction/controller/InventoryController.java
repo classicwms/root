@@ -9,6 +9,7 @@ import com.tekclover.wms.api.inbound.transaction.config.dynamicConfig.DataBaseCo
 import com.tekclover.wms.api.inbound.transaction.model.dto.InventoryBinItmGroupByDto;
 import com.tekclover.wms.api.inbound.transaction.model.dto.InventoryBinItmGroupInput;
 import com.tekclover.wms.api.inbound.transaction.model.impl.InventoryImpl;
+import com.tekclover.wms.api.inbound.transaction.model.inbound.inventory.*;
 import com.tekclover.wms.api.inbound.transaction.model.inbound.inventory.v2.IInventoryImpl;
 import com.tekclover.wms.api.inbound.transaction.model.inbound.inventory.v2.InventoryV2;
 import com.tekclover.wms.api.inbound.transaction.model.inbound.inventory.v2.SearchInventoryV2;
@@ -30,10 +31,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.tekclover.wms.api.inbound.transaction.model.inbound.inventory.AddInventory;
-import com.tekclover.wms.api.inbound.transaction.model.inbound.inventory.Inventory;
-import com.tekclover.wms.api.inbound.transaction.model.inbound.inventory.SearchInventory;
-import com.tekclover.wms.api.inbound.transaction.model.inbound.inventory.UpdateInventory;
 import com.tekclover.wms.api.inbound.transaction.service.InventoryService;
 
 import io.swagger.annotations.Api;
@@ -181,25 +178,55 @@ public class InventoryController {
 			DataBaseContextHolder.clear();
 		}
 	}
-	@ApiOperation(response = IInventoryImpl.class, value = "Search Inventory V2") // label for swagger
-	@PostMapping("/findInventoryNew/v2")
-	public List<IInventoryImpl> findInventoryNewV2(@RequestBody SearchInventoryV2 searchInventory)
-			throws Exception {
-		try {
-			log.info("SearchInventoryV2 ------> {}", searchInventory);
-			String routingDb = null;
-			DataBaseContextHolder.setCurrentDb("MT");
-			Warehouse warehouseName = warehouseRepository.findTop1ByWarehouseIdAndDeletionIndicator(searchInventory.getWarehouseId().get(0), 0L);
-			routingDb = dbConfigRepository.getDbName(warehouseName.getCompanyCodeId(), warehouseName.getPlantId(), warehouseName.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-			return inventoryService.findInventoryV4(searchInventory);
-		} finally {
-				DataBaseContextHolder.clear();
-		}
-	}
+//	@ApiOperation(response = IInventoryImpl.class, value = "Search Inventory V2") // label for swagger
+//	@PostMapping("/findInventoryNew/v2")
+//	public List<IInventoryImpl> findInventoryNewV2(@RequestBody SearchInventoryV2 searchInventory)
+//			throws Exception {
+//		try {
+//			log.info("SearchInventoryV2 ------> {}", searchInventory);
+//			String routingDb = null;
+//			DataBaseContextHolder.setCurrentDb("MT");
+//			Warehouse warehouseName = warehouseRepository.findTop1ByWarehouseIdAndDeletionIndicator(searchInventory.getWarehouseId().get(0), 0L);
+//			routingDb = dbConfigRepository.getDbName(warehouseName.getCompanyCodeId(), warehouseName.getPlantId(), warehouseName.getWarehouseId());
+//			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+//			DataBaseContextHolder.clear();
+//			DataBaseContextHolder.setCurrentDb(routingDb);
+//			return inventoryService.findInventoryV4(searchInventory);
+//		} finally {
+//				DataBaseContextHolder.clear();
+//		}
+//	}
 
+
+    @ApiOperation(response = IInventoryImpl.class, value = "Search Inventory V2") // label for swagger
+    @PostMapping("/findInventoryNew/v2")
+    public List<IInventoryImpl> findInventoryNewV2(@RequestBody SearchInventoryV2 searchInventory)
+            throws Exception {
+        try {
+            log.info("SearchInventoryV2 ------> {}", searchInventory);
+            String routingDb = null;
+            DataBaseContextHolder.setCurrentDb("MT");
+            Warehouse warehouseName = warehouseRepository.findTop1ByWarehouseIdAndDeletionIndicator(searchInventory.getWarehouseId().get(0), 0L);
+            routingDb = dbConfigRepository.getDbName(warehouseName.getCompanyCodeId(), warehouseName.getPlantId(), warehouseName.getWarehouseId());
+            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(routingDb);
+            List<IInventoryImpl> iInventories ;
+            if (routingDb.equalsIgnoreCase("BP")){
+                iInventories = inventoryService.findInventoryV6(searchInventory);
+            } else if (routingDb.equalsIgnoreCase("BF")) {
+                iInventories = inventoryService.findInventoryV9(searchInventory);
+            } else if (routingDb.equalsIgnoreCase("KKF")) {
+                iInventories = inventoryService.findInventoryV9(searchInventory);
+            }else {
+                iInventories = inventoryService.findInventoryV4(searchInventory);
+            }
+            return iInventories;
+//            return inventoryService.findInventoryV4(searchInventory);
+        } finally {
+            DataBaseContextHolder.clear();
+        }
+    }
 	@ApiOperation(response = InventoryV2.class, value = "Create Inventory V2") // label for swagger
 	@PostMapping("/v2")
 	public ResponseEntity<?> postInventoryV2(@Valid @RequestBody InventoryV2 newInventory, @RequestParam String loginUserID)
@@ -274,4 +301,47 @@ public class InventoryController {
 			DataBaseContextHolder.clear();
 		}
 	}
+
+    /*---------------------------------------------BF-------------------------------------------------*/
+
+    //V9
+    @ApiOperation(response = InventoryV2.class, value = "Search Inventory V9") // label for swagger
+    @PostMapping("/findInventory/v9")
+    public List<InventoryV2> findInventoryV9(@RequestBody FindInventoryV9 searchInventory)
+            throws Exception {
+        try {
+            DataBaseContextHolder.setCurrentDb("MT");
+            String routingDb = dbConfigRepository.getDbName1(searchInventory.getCompanyCodeId(), searchInventory.getPlantId(), searchInventory.getWarehouseId());
+            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(routingDb);
+            return inventoryService.findInventoryV9(searchInventory);
+        } finally {
+            DataBaseContextHolder.clear();
+        }
+    }
+
+    @ApiOperation(response = IInventoryImpl.class, value = "Search Inventory V2") // label for swagger
+    @PostMapping("/findInventory/Bin/LikeSearch")
+    public List<IInventoryImpl> findInventoryV9BinLikeSearch(@RequestBody SearchInventoryV2 searchInventory)
+            throws Exception {
+        try {
+            log.info("SearchInventoryV2 ------> {}", searchInventory);
+            DataBaseContextHolder.setCurrentDb("MT");
+            String routingDb = dbConfigRepository.getDbName1(searchInventory.getCompanyCodeId(), searchInventory.getPlantId(), searchInventory.getWarehouseId());
+            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(routingDb);
+            List<IInventoryImpl> iInventories = null;
+            if (routingDb.equalsIgnoreCase("BF")) {
+                iInventories = inventoryService.findInventoryV9ForBinLikeSearch(searchInventory);
+            } if (routingDb.equalsIgnoreCase("KKF"))  {
+                iInventories = inventoryService.findInventoryV9ForBinLikeSearch(searchInventory);
+            }
+            return iInventories;
+//            return inventoryService.findInventoryV4(searchInventory);
+        } finally {
+            DataBaseContextHolder.clear();
+        }
+    }
 }

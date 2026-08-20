@@ -95,4 +95,12 @@ public interface PreInboundLineV2Repository extends JpaRepository<PreInboundLine
     @Query(value = "update tblpreinboundline set is_deleted = 1 where REF_DOC_NO = :refDocNumber AND PRE_IB_NO = :preInboundNo ",nativeQuery = true)
     void softDeleteByRefDocNo(@Param("refDocNumber") String refDocNumber,
                               @Param("preInboundNo") String preInboundNo);
+
+    void deleteByCompanyCodeAndPlantIdAndWarehouseIdAndItemCodeAndRefDocNumberAndLineNoAndPreInboundNoAndDeletionIndicator(
+            String companyCode, String plantId, String warehouseId, String itemCode,String refDocNumber, Long lineNo, String preInboundNo, Long deletionIndicator);
+
+    void deleteByCompanyCodeAndPlantIdAndWarehouseIdAndItemCodeAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
+            String companyCode, String plantId, String warehouseId, String itemCode,String refDocNumber, String preInboundNo, Long deletionIndicator);
+
+
 }

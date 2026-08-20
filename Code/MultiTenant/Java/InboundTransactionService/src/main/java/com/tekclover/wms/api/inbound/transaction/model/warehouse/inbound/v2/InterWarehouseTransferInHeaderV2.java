@@ -28,6 +28,8 @@ public class InterWarehouseTransferInHeaderV2 {
     private String isCompleted;
     private Date updatedOn;
     private String TransferRequestType;
+    private String warehouseId;
+    private String LanguageId;
 
     //MiddleWare Fields
     private Long middlewareId;

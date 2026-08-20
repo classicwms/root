@@ -65,4 +65,27 @@ public interface ImBasicData1V2Repository extends PagingAndSortingRepository<ImB
 	ImBasicData1V2 findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndManufacturerNameAndDeletionIndicator(
 			String languageId, String companyCode, String plantId, String warehouseId,
 			String itemCode, String manufacturerName, Long deletionIndicator);
+
+	@Query(value = "select REF_FIELD_2 from tblimbasicdata1 where c_id = :companyCodeId and plant_id = :plantId and LANG_ID = :languageId " +
+			" and wh_id = :warehouseId and itm_code = :itemCode AND MFR_PART = :manufactureName and is_deleted = 0 ",nativeQuery = true)
+	public String getCustomerIdV9(@Param(value = "companyCodeId") String companyCodeId,
+								  @Param(value = "languageId") String languageId,
+								  @Param(value = "plantId") String plantId,
+								  @Param(value = "warehouseId") String warehouseId,
+								  @Param(value = "itemCode") String itemCode,
+								  @Param("manufactureName") String manufactureName);
+
+	@Query(value = "SELECT * FROM tblimbasicdata1 " +
+			" WHERE ITM_CODE = :itemCode and C_ID = :companyCodeId and PLANT_ID = :plantId and LANG_ID = :languageId and WH_ID = :warehouseId " +
+			"AND IS_DELETED = 0", nativeQuery = true)
+	public ImBasicData1V2 getImBasicData1WeightV9(@Param(value = "itemCode") String itemCode,
+												  @Param(value = "companyCodeId") String companyCodeId,
+												  @Param(value = "plantId") String plantId,
+												  @Param(value = "languageId") String languageId,
+												  @Param(value = "warehouseId") String warehouseId);
+
+	@Query(value = "SELECT REF_FIELD_2 from tblimbasicdata1 where ITM_CODE = :itemCode AND MFR_PART = :manufactureName \n" +
+			"AND IS_DELETED = 0", nativeQuery = true)
+	String getInventoryOwnerV9(@Param("itemCode") String itemCode,
+							   @Param("manufactureName") String manufactureName);
 }

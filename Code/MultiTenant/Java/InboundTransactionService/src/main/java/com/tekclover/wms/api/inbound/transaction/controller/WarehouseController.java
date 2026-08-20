@@ -195,6 +195,15 @@ public class WarehouseController {
                         break;
                     case "REEFERON":
                         createdASNHeader = warehouseService.postWarehouseASNV5(asn);
+                    case "BF":
+                        createdASNHeader = warehouseService.postWarehouseASNV9(asn);
+                        break;
+                    case "KKF":
+                        createdASNHeader = warehouseService.postWarehouseASNV9(asn);
+                        break;
+                    case "KSP":
+                        createdASNHeader = warehouseService.postWarehouseASNV9(asn);
+                        break;
                 }
             }
             if (createdASNHeader != null) {
@@ -431,5 +440,89 @@ public class WarehouseController {
             DataBaseContextHolder.clear();
         }
         return null;
+    }
+
+    //=========SPAREX  B2bTransferIn-Inbound==========================================
+    @ApiOperation(response = B2bTransferIn.class, value = "B2bTransferIn") // label for swagger
+    @PostMapping("/inbound/b2bTransferIn/v10")
+    public ResponseEntity<?> postB2bTransferInV10(@Valid @RequestBody B2bTransferIn b2bTransferIn)
+            throws IllegalAccessException, InvocationTargetException {
+        try {
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb("SPAREX");
+            InboundOrderV2 createdB2bTransferIn = warehouseService.postB2bTransferInV10(b2bTransferIn);
+            if (createdB2bTransferIn != null) {
+                WarehouseApiResponse response = new WarehouseApiResponse();
+                response.setStatusCode("200");
+                response.setMessage("Success");
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            }
+        } catch (Exception e) {
+            log.info("interWarehouseTransfer order Error: " + b2bTransferIn);
+            e.printStackTrace();
+            WarehouseApiResponse response = new WarehouseApiResponse();
+            response.setStatusCode("1400");
+            response.setMessage("Not Success: " + e.getLocalizedMessage());
+            return new ResponseEntity<>(response, HttpStatus.EXPECTATION_FAILED);
+        } finally {
+            DataBaseContextHolder.clear();
+        }
+        return null;
+    }
+
+    //=========SPAREX  InterWarehouseTransferInV10-Inbound=============
+    @ApiOperation(response = InterWarehouseTransferInV2.class, value = "Inter Warehouse Transfer V2")// label for swagger
+    @PostMapping("/inbound/interWarehouseTransferIn/v10")
+    public ResponseEntity<?> postInterWarehouseTransferInV10(@Valid @RequestBody InterWarehouseTransferInV2 interWarehouseTransferInV2)
+            throws IllegalAccessException, InvocationTargetException {
+        try {
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb("SPATREX");
+            warehouseService.postInterWarehouseTransferInV10(interWarehouseTransferInV2);
+            WarehouseApiResponse response = new WarehouseApiResponse();
+            response.setStatusCode("200");
+            response.setMessage("Success");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+
+        } catch (Exception e) {
+            log.info("interWarehouseTransfer order Error: " + interWarehouseTransferInV2);
+            e.printStackTrace();
+            WarehouseApiResponse response = new WarehouseApiResponse();
+            response.setStatusCode("1400");
+            response.setMessage("Not Success: " + e.getLocalizedMessage());
+            return new ResponseEntity<>(response, HttpStatus.EXPECTATION_FAILED);
+        } finally {
+            DataBaseContextHolder.clear();
+        }
+    }
+
+    //==============================BF InterWarehouseTransferIn=====================================
+    @ApiOperation(response = InterWarehouseTransferInV2.class, value = "Inter Warehouse Transfer V9")
+    @PostMapping("/inbound/interWarehouseTransferIn/v9")
+    public ResponseEntity<?> postInterWarehouseTransferInV9(@Valid @RequestBody InterWarehouseTransferInV2 interWarehouseTransferInV2)
+            throws IllegalAccessException, InvocationTargetException {
+        try {
+            DataBaseContextHolder.setCurrentDb("MT");
+            String routingDb = dbConfigRepository.getDbName(interWarehouseTransferInV2.getInterWarehouseTransferInHeader().getSourceCompanyCode(),
+                    interWarehouseTransferInV2.getInterWarehouseTransferInHeader().getSourceBranchCode(), interWarehouseTransferInV2.getInterWarehouseTransferInHeader().getWarehouseId());
+            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(routingDb);
+            warehouseService.postInterWarehouseTransferInV9(interWarehouseTransferInV2);
+            WarehouseApiResponse response = new WarehouseApiResponse();
+            response.setStatusCode("200");
+            response.setMessage("Success");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+
+        } catch (Exception e) {
+            log.info("interWarehouseTransfer order Error: " + interWarehouseTransferInV2);
+            e.printStackTrace();
+            WarehouseApiResponse response = new WarehouseApiResponse();
+            response.setStatusCode("1400");
+            response.setMessage("Not Success: " + e.getLocalizedMessage());
+            return new ResponseEntity<>(response, HttpStatus.EXPECTATION_FAILED);
+        } finally {
+            DataBaseContextHolder.clear();
+        }
     }
 }

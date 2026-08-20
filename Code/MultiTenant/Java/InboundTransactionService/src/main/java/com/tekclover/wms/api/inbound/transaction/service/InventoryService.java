@@ -15,6 +15,7 @@ import com.tekclover.wms.api.inbound.transaction.model.inbound.inventory.v2.Sear
 import com.tekclover.wms.api.inbound.transaction.model.inbound.putaway.v2.PutAwayLineV2;
 import com.tekclover.wms.api.inbound.transaction.model.trans.InventoryTrans;
 import com.tekclover.wms.api.inbound.transaction.repository.*;
+import com.tekclover.wms.api.inbound.transaction.repository.specification.FindInventorySpecification;
 import com.tekclover.wms.api.inbound.transaction.repository.specification.InventorySpecification;
 import com.tekclover.wms.api.inbound.transaction.repository.specification.InventoryV2Specification;
 import com.tekclover.wms.api.inbound.transaction.util.CommonUtils;
@@ -41,10 +42,7 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -2507,4 +2505,437 @@ public class InventoryService extends BaseService {
         return inventoryBinItmGroupByDtos;
     }
 
+    //===========SPAREX=======================
+    /**
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param itemCode
+     * @param manufacturerName
+     * @param alternateUom
+     * @param bagSize
+     * @param binClassId
+     * @return
+     */
+    public synchronized List<String> getPutAwayHeaderCreateInventoryV10(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                                                        String itemCode, String manufacturerName, String alternateUom, Double bagSize, Long binClassId) {
+        log.info(companyCodeId + "|" + plantId + "|" + languageId + "|" + warehouseId + "|" + itemCode + "|" + manufacturerName + "|" + alternateUom + "|" + bagSize + "|" + binClassId);
+        return inventoryV2Repository.getPutAwayHeaderCreateInventoryV10(companyCodeId, plantId, languageId, warehouseId,
+                null, null, itemCode, manufacturerName,
+                null, binClassId, null);
+    }
+
+
+    public List<IInventoryImpl> findInventoryV6(SearchInventoryV2 searchInventory) throws Exception {
+
+        log.info("SearchInventory Input: " + searchInventory);
+        if (searchInventory.getCompanyCodeId() == null || searchInventory.getCompanyCodeId().isEmpty()) {
+            searchInventory.setCompanyCodeId(null);
+        }
+        if (searchInventory.getPlantId() == null || searchInventory.getPlantId().isEmpty()) {
+            searchInventory.setPlantId(null);
+        }
+        if (searchInventory.getLanguageId() == null || searchInventory.getLanguageId().isEmpty()) {
+            searchInventory.setLanguageId(null);
+        }
+        if (searchInventory.getWarehouseId() == null || searchInventory.getWarehouseId().isEmpty()) {
+            searchInventory.setWarehouseId(null);
+        }
+        if (searchInventory.getReferenceDocumentNo() == null || searchInventory.getReferenceDocumentNo().isEmpty()) {
+            searchInventory.setReferenceDocumentNo(null);
+        }
+        if (searchInventory.getBarcodeId() == null || searchInventory.getBarcodeId().isEmpty()) {
+            searchInventory.setBarcodeId(null);
+        }
+        if (searchInventory.getManufacturerCode() == null || searchInventory.getManufacturerCode().isEmpty()) {
+            searchInventory.setManufacturerCode(null);
+        }
+        if (searchInventory.getManufacturerName() == null || searchInventory.getManufacturerName().isEmpty()) {
+            searchInventory.setManufacturerName(null);
+        }
+        if (searchInventory.getPackBarcodes() == null || searchInventory.getPackBarcodes().isEmpty()) {
+            searchInventory.setPackBarcodes(null);
+        }
+        if (searchInventory.getItemCode() == null || searchInventory.getItemCode().isEmpty()) {
+            searchInventory.setItemCode(null);
+        }
+        if (searchInventory.getStorageBin() == null || searchInventory.getStorageBin().isEmpty()) {
+            searchInventory.setStorageBin(null);
+        }
+        if (searchInventory.getStockTypeId() == null || searchInventory.getStockTypeId().isEmpty()) {
+            searchInventory.setStockTypeId(null);
+        }
+        if (searchInventory.getStorageSectionId() == null || searchInventory.getStorageSectionId().isEmpty()) {
+            searchInventory.setStorageSectionId(null);
+        }
+        if (searchInventory.getSpecialStockIndicatorId() == null || searchInventory.getSpecialStockIndicatorId().isEmpty()) {
+            searchInventory.setSpecialStockIndicatorId(null);
+        }
+        if (searchInventory.getLevelId() == null || searchInventory.getLevelId().isEmpty()) {
+            searchInventory.setLevelId(null);
+        }
+        if (searchInventory.getItemType() != null && searchInventory.getItemType().isEmpty()) {
+            searchInventory.setItemType(null);
+        }
+        if (searchInventory.getBinClassId() == null || searchInventory.getBinClassId().isEmpty()) {
+            searchInventory.setBinClassId(null);
+        }
+        if (searchInventory.getDescription() == null || searchInventory.getDescription().isEmpty()) {
+            searchInventory.setDescription(null);
+        }
+        if (searchInventory.getPartnerCode() == null || searchInventory.getPartnerCode().isEmpty()) {
+            searchInventory.setPartnerCode(null);
+        }
+
+        if (searchInventory.getMaterialNo() != null && searchInventory.getMaterialNo().isEmpty()) {
+            searchInventory.setMaterialNo(null);
+        }
+        if (searchInventory.getPriceSegment() != null && searchInventory.getPriceSegment().isEmpty()) {
+            searchInventory.setPriceSegment(null);
+        }
+        if (searchInventory.getArticleNo() != null && searchInventory.getArticleNo().isEmpty()) {
+            searchInventory.setArticleNo(null);
+        }
+        if (searchInventory.getGender() != null && searchInventory.getGender().isEmpty()) {
+            searchInventory.setGender(null);
+        }
+        if (searchInventory.getColor() != null && searchInventory.getColor().isEmpty()) {
+            searchInventory.setColor(null);
+        }
+        if (searchInventory.getSize() != null && searchInventory.getSize().isEmpty()) {
+            searchInventory.setSize(null);
+        }
+        if (searchInventory.getNoPairs() != null && searchInventory.getNoPairs().isEmpty()) {
+            searchInventory.setNoPairs(null);
+        }
+        if (searchInventory.getAlternateUom() != null && searchInventory.getAlternateUom().isEmpty()) {
+            searchInventory.setAlternateUom(null);
+        }
+        if (searchInventory.getPalletCode() != null && searchInventory.getPalletCode().isEmpty()) {
+            searchInventory.setPalletCode(null);
+        }
+
+        List<IInventoryImpl> results = inventoryV2Repository.findInventory6(
+                searchInventory.getCompanyCodeId(),
+                searchInventory.getPlantId(),
+                searchInventory.getLanguageId(),
+                searchInventory.getWarehouseId(),
+                searchInventory.getBarcodeId(),
+                searchInventory.getManufacturerCode(),
+                searchInventory.getManufacturerName(),
+                searchInventory.getPackBarcodes(),
+                searchInventory.getItemCode(),
+                searchInventory.getStorageBin(),
+                searchInventory.getDescription(),
+                searchInventory.getStockTypeId(),
+                searchInventory.getStorageSectionId(),
+                searchInventory.getLevelId(),
+                searchInventory.getPartnerCode(),
+                searchInventory.getSpecialStockIndicatorId(),
+                searchInventory.getItemType(),
+                searchInventory.getSize(),
+                searchInventory.getBinClassId(),
+                searchInventory.getAlternateUom());
+        log.info("Inventory results: " + results.size());
+        return results;
+    }
+
+    /**
+     * @param searchInventory
+     * @return
+     * @throws ParseException
+     */
+    public List<IInventoryImpl> findInventoryV9(SearchInventoryV2 searchInventory) throws Exception {
+
+//        log.info("SearchInventory Input: " + searchInventory);
+        if (searchInventory.getCompanyCodeId() == null || searchInventory.getCompanyCodeId().isEmpty()) {
+            searchInventory.setCompanyCodeId(null);
+        }
+        if (searchInventory.getPlantId() == null || searchInventory.getPlantId().isEmpty()) {
+            searchInventory.setPlantId(null);
+        }
+        if (searchInventory.getLanguageId() == null || searchInventory.getLanguageId().isEmpty()) {
+            searchInventory.setLanguageId(null);
+        }
+        if (searchInventory.getWarehouseId() == null || searchInventory.getWarehouseId().isEmpty()) {
+            searchInventory.setWarehouseId(null);
+        }
+        if (searchInventory.getReferenceDocumentNo() == null || searchInventory.getReferenceDocumentNo().isEmpty()) {
+            searchInventory.setReferenceDocumentNo(null);
+        }
+        if (searchInventory.getBarcodeId() == null || searchInventory.getBarcodeId().isEmpty()) {
+            searchInventory.setBarcodeId(null);
+        }
+        if (searchInventory.getManufacturerCode() == null || searchInventory.getManufacturerCode().isEmpty()) {
+            searchInventory.setManufacturerCode(null);
+        }
+        if (searchInventory.getManufacturerName() == null || searchInventory.getManufacturerName().isEmpty()) {
+            searchInventory.setManufacturerName(null);
+        }
+        if (searchInventory.getPackBarcodes() == null || searchInventory.getPackBarcodes().isEmpty()) {
+            searchInventory.setPackBarcodes(null);
+        }
+        if (searchInventory.getItemCode() == null || searchInventory.getItemCode().isEmpty()) {
+            searchInventory.setItemCode(null);
+        }
+        if (searchInventory.getStorageBin() == null || searchInventory.getStorageBin().isEmpty()) {
+            searchInventory.setStorageBin(null);
+        }
+        if (searchInventory.getStockTypeId() == null || searchInventory.getStockTypeId().isEmpty()) {
+            searchInventory.setStockTypeId(null);
+        }
+        if (searchInventory.getStorageSectionId() == null || searchInventory.getStorageSectionId().isEmpty()) {
+            searchInventory.setStorageSectionId(null);
+        }
+        if (searchInventory.getSpecialStockIndicatorId() == null || searchInventory.getSpecialStockIndicatorId().isEmpty()) {
+            searchInventory.setSpecialStockIndicatorId(null);
+        }
+        if (searchInventory.getLevelId() == null || searchInventory.getLevelId().isEmpty()) {
+            searchInventory.setLevelId(null);
+        }
+        if (searchInventory.getItemType() != null && searchInventory.getItemType().isEmpty()) {
+            searchInventory.setItemType(null);
+        }
+        if (searchInventory.getBinClassId() == null || searchInventory.getBinClassId().isEmpty()) {
+            searchInventory.setBinClassId(null);
+        }
+        if (searchInventory.getDescription() == null || searchInventory.getDescription().isEmpty()) {
+            searchInventory.setDescription(null);
+        }
+        if (searchInventory.getPartnerCode() == null || searchInventory.getPartnerCode().isEmpty()) {
+            searchInventory.setPartnerCode(null);
+        }
+
+        if (searchInventory.getMaterialNo() != null && searchInventory.getMaterialNo().isEmpty()) {
+            searchInventory.setMaterialNo(null);
+        }
+        if (searchInventory.getPriceSegment() != null && searchInventory.getPriceSegment().isEmpty()) {
+            searchInventory.setPriceSegment(null);
+        }
+        if (searchInventory.getArticleNo() != null && searchInventory.getArticleNo().isEmpty()) {
+            searchInventory.setArticleNo(null);
+        }
+        if (searchInventory.getGender() != null && searchInventory.getGender().isEmpty()) {
+            searchInventory.setGender(null);
+        }
+        if (searchInventory.getColor() != null && searchInventory.getColor().isEmpty()) {
+            searchInventory.setColor(null);
+        }
+        if (searchInventory.getSize() != null && searchInventory.getSize().isEmpty()) {
+            searchInventory.setSize(null);
+        }
+        if (searchInventory.getNoPairs() != null && searchInventory.getNoPairs().isEmpty()) {
+            searchInventory.setNoPairs(null);
+        }
+        if (searchInventory.getAlternateUom() != null && searchInventory.getAlternateUom().isEmpty()) {
+            searchInventory.setAlternateUom(null);
+        }
+        if (searchInventory.getPalletCode() != null && searchInventory.getPalletCode().isEmpty()) {
+            searchInventory.setPalletCode(null);
+        }
+
+        log.info("SearchInventory Input: " + searchInventory);
+
+        List<IInventoryImpl> results = inventoryV2Repository.findInventoryV9(
+                searchInventory.getCompanyCodeId(),
+                searchInventory.getPlantId(),
+                searchInventory.getLanguageId(),
+                searchInventory.getWarehouseId(),
+                searchInventory.getBarcodeId(),
+                searchInventory.getManufacturerCode(),
+                searchInventory.getManufacturerName(),
+                searchInventory.getPackBarcodes(),
+                searchInventory.getItemCode(),
+                searchInventory.getStorageBin(),
+                searchInventory.getDescription(),
+                searchInventory.getStockTypeId(),
+                searchInventory.getStorageSectionId(),
+                searchInventory.getLevelId(),
+                searchInventory.getPartnerCode(),
+                searchInventory.getSpecialStockIndicatorId(),
+                searchInventory.getItemType(),
+                searchInventory.getSize(),
+                searchInventory.getBinClassId(),
+                searchInventory.getAlternateUom(),
+                searchInventory.getPalletCode());
+        log.info("Inventory results: " + results.size());
+        return results;
+    }
+
+    /*---------------------------BF---------------------------------------------*/
+
+    /**
+     * @param searchInventory
+     * @return
+     * @throws ParseException
+     */
+    public List<InventoryV2> findInventoryV9(FindInventoryV9 searchInventory)
+            throws ParseException {
+        FindInventorySpecification spec = new FindInventorySpecification(searchInventory);
+        List<InventoryV2> results = inventoryV2Repository.findAll(spec);
+        return results;
+    }
+
+
+    /**
+     *
+     * @param searchInventory
+     * @return
+     * @throws Exception
+     */
+    public List<IInventoryImpl> findInventoryV9ForBinLikeSearch(SearchInventoryV2 searchInventory) throws Exception {
+
+        log.info("SearchInventory Input: " + searchInventory);
+        if (searchInventory.getCompanyCodeId() == null || searchInventory.getCompanyCodeId().isEmpty()) {
+            searchInventory.setCompanyCodeId(null);
+        }
+        if (searchInventory.getPlantId() == null || searchInventory.getPlantId().isEmpty()) {
+            searchInventory.setPlantId(null);
+        }
+        if (searchInventory.getLanguageId() == null || searchInventory.getLanguageId().isEmpty()) {
+            searchInventory.setLanguageId(null);
+        }
+        if (searchInventory.getWarehouseId() == null || searchInventory.getWarehouseId().isEmpty()) {
+            searchInventory.setWarehouseId(null);
+        }
+        if (searchInventory.getReferenceDocumentNo() == null || searchInventory.getReferenceDocumentNo().isEmpty()) {
+            searchInventory.setReferenceDocumentNo(null);
+        }
+        if (searchInventory.getBarcodeId() == null || searchInventory.getBarcodeId().isEmpty()) {
+            searchInventory.setBarcodeId(null);
+        }
+        if (searchInventory.getManufacturerCode() == null || searchInventory.getManufacturerCode().isEmpty()) {
+            searchInventory.setManufacturerCode(null);
+        }
+        if (searchInventory.getManufacturerName() == null || searchInventory.getManufacturerName().isEmpty()) {
+            searchInventory.setManufacturerName(null);
+        }
+        if (searchInventory.getPackBarcodes() == null || searchInventory.getPackBarcodes().isEmpty()) {
+            searchInventory.setPackBarcodes(null);
+        }
+        if (searchInventory.getItemCode() == null || searchInventory.getItemCode().isEmpty()) {
+            searchInventory.setItemCode(null);
+        }
+        if (searchInventory.getStorageBin() == null || searchInventory.getStorageBin().isEmpty()) {
+            searchInventory.setStorageBin(null);
+        }
+        if (searchInventory.getStockTypeId() == null || searchInventory.getStockTypeId().isEmpty()) {
+            searchInventory.setStockTypeId(null);
+        }
+        if (searchInventory.getStorageSectionId() == null || searchInventory.getStorageSectionId().isEmpty()) {
+            searchInventory.setStorageSectionId(null);
+        }
+        if (searchInventory.getSpecialStockIndicatorId() == null || searchInventory.getSpecialStockIndicatorId().isEmpty()) {
+            searchInventory.setSpecialStockIndicatorId(null);
+        }
+        if (searchInventory.getLevelId() == null || searchInventory.getLevelId().isEmpty()) {
+            searchInventory.setLevelId(null);
+        }
+        if (searchInventory.getItemType() != null && searchInventory.getItemType().isEmpty()) {
+            searchInventory.setItemType(null);
+        }
+        if (searchInventory.getBinClassId() == null || searchInventory.getBinClassId().isEmpty()) {
+            searchInventory.setBinClassId(null);
+        }
+        if (searchInventory.getDescription() == null || searchInventory.getDescription().isEmpty()) {
+            searchInventory.setDescription(null);
+        }
+        if (searchInventory.getPartnerCode() == null || searchInventory.getPartnerCode().isEmpty()) {
+            searchInventory.setPartnerCode(null);
+        }
+        if (searchInventory.getMaterialNo() != null && searchInventory.getMaterialNo().isEmpty()) {
+            searchInventory.setMaterialNo(null);
+        }
+        if (searchInventory.getPriceSegment() != null && searchInventory.getPriceSegment().isEmpty()) {
+            searchInventory.setPriceSegment(null);
+        }
+        if (searchInventory.getArticleNo() != null && searchInventory.getArticleNo().isEmpty()) {
+            searchInventory.setArticleNo(null);
+        }
+        if (searchInventory.getGender() != null && searchInventory.getGender().isEmpty()) {
+            searchInventory.setGender(null);
+        }
+        if (searchInventory.getColor() != null && searchInventory.getColor().isEmpty()) {
+            searchInventory.setColor(null);
+        }
+        if (searchInventory.getSize() != null && searchInventory.getSize().isEmpty()) {
+            searchInventory.setSize(null);
+        }
+        if (searchInventory.getNoPairs() != null && searchInventory.getNoPairs().isEmpty()) {
+            searchInventory.setNoPairs(null);
+        }
+        if (searchInventory.getAlternateUom() != null && searchInventory.getAlternateUom().isEmpty()) {
+            searchInventory.setAlternateUom(null);
+        }
+        if (searchInventory.getPalletCode() != null && searchInventory.getPalletCode().isEmpty()) {
+            searchInventory.setPalletCode(null);
+        }
+
+        List<IInventoryImpl> results = inventoryV2Repository.findInventory9(
+                searchInventory.getCompanyCodeId(),
+                searchInventory.getPlantId(),
+                searchInventory.getLanguageId(),
+                searchInventory.getWarehouseId(),
+                searchInventory.getBarcodeId(),
+                searchInventory.getManufacturerCode(),
+                searchInventory.getManufacturerName(),
+                searchInventory.getPackBarcodes(),
+                searchInventory.getItemCode(),
+                searchInventory.getStorageBin(),
+                searchInventory.getStockTypeId(),
+                searchInventory.getStorageSectionId(),
+                searchInventory.getLevelId(),
+                searchInventory.getPartnerCode(),
+                searchInventory.getBinClassId());
+        log.info("Inventory results: " + results.size());
+        return results;
+    }
+
+    /**
+     * @param companyCode
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param itemCode
+     * @param manufacturerName
+     * @param barCodeId
+     * @return
+     */
+    public synchronized InventoryV2 getInventoryBinClassId3V9(String companyCode, String plantId, String languageId, String warehouseId,
+                                                              String itemCode, String manufacturerName, String barCodeId, Long binClassId, String palletCode) {
+        InventoryV2 dbInventoryV2 = new InventoryV2();
+        IInventoryImpl inventory = inventoryV2Repository.getInboundInventoryforBin3V9(companyCode, plantId, languageId, warehouseId, barCodeId, null,
+                itemCode, manufacturerName, null, null, palletCode, binClassId);
+        if (inventory != null) {
+            BeanUtils.copyProperties(inventory, dbInventoryV2, CommonUtils.getNullPropertyNames(inventory));
+            log.info("Inventory BinClassId is BinClassId {} queried V9 --------------> result is {} ", binClassId, dbInventoryV2);
+            return dbInventoryV2;
+        }
+        return null;
+    }
+
+    /**
+     * @param companyCode
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param itemCode
+     * @param manufacturerName
+     * @param barCodeId
+     * @return
+     */
+    public synchronized InventoryV2 getInventoryBinClassId1V9(String companyCode, String plantId, String languageId, String warehouseId,
+                                                              String itemCode, String manufacturerName, String barCodeId, String palletCode) {
+        InventoryV2 dbInventoryV2 = new InventoryV2();
+        List<Long> binClassIds = Arrays.asList(1L, 7L);
+        IInventoryImpl inventory = inventoryV2Repository.getInboundInventoryV9(companyCode, plantId, languageId, warehouseId, barCodeId, palletCode, null,
+                itemCode, manufacturerName, null, null, binClassIds);
+        if (inventory != null) {
+            BeanUtils.copyProperties(inventory, dbInventoryV2, CommonUtils.getNullPropertyNames(inventory));
+            log.info("Inventory BinClassId is BinClassId {} queried V9 --------------> result is {} ", binClassIds, dbInventoryV2);
+            return dbInventoryV2;
+        }
+        return null;
+    }
 }

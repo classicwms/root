@@ -92,4 +92,7 @@ public class ASNLineV2 {
     private String customerId;
     private String customerName;
 
+    /*-----------------------------BP----------------------------------------*/
+    private String unitType;
+
 }

@@ -18,5 +18,6 @@ public class StagingLineUpdate {
     private String refDocNumber;
     private String stagingNo;
     private String printLabel;
+    private String barcodeId;
 
 }

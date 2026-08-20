@@ -72,4 +72,8 @@ public interface PutAwayHeaderImpl {
      String getSourceBranchCode();
      String getSourceCompanyCode();
      String getLevelId();
+     String getQtyInCase();
+     String getQtyInCreate();
+     String getParentProductionOrderNo();
+
 }

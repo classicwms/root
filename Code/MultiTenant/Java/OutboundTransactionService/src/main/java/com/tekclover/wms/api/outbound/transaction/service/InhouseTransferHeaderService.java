@@ -1,5 +1,6 @@
 package com.tekclover.wms.api.outbound.transaction.service;
 
+import com.tekclover.wms.api.outbound.transaction.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.outbound.transaction.model.auth.AuthToken;
 import com.tekclover.wms.api.outbound.transaction.model.dto.*;
 import com.tekclover.wms.api.outbound.transaction.model.inventory.InventoryMovement;
@@ -1370,7 +1371,9 @@ public class InhouseTransferHeaderService extends BaseService {
 
             inventorySourceItemCode.setInventoryQuantity(inventoryQty);
             inventorySourceItemCode.setAllocatedQuantity(inventorySourceItemCode.getAllocatedQuantity());
+//            inventorySourceItemCode.setNoBags(createdInhouseTransferLine.getNoBags());
             inventorySourceItemCode.setNoBags(inventorySourceItemCode.getNoBags());
+
             inventorySourceItemCode.setReferenceField4(inventoryQty + inventorySourceItemCode.getAllocatedQuantity());
 
             log.info("Total Qty --------------> {}", inventorySourceItemCode.getReferenceField4());
@@ -1393,8 +1396,8 @@ public class InhouseTransferHeaderService extends BaseService {
             InventoryV2 newInventoryV2 = new InventoryV2();
             BeanUtils.copyProperties(inventorySourceItemCode, newInventoryV2, CommonUtils.getNullPropertyNames(inventorySourceItemCode));
             newInventoryV2.setUpdatedOn(new Date());
-            newInventoryV2.setInventoryId(null);
             newInventoryV2.setManufacturerCode(mfrName);
+            newInventoryV2.setInventoryId(null);
             try {
                 InventoryV2 createdInventoryV2 = inventoryV2Repository.save(newInventoryV2);
                 log.info("InventoryV2 created : " + createdInventoryV2);
@@ -1406,8 +1409,8 @@ public class InhouseTransferHeaderService extends BaseService {
                     deleteInventoryV2.setInventoryQuantity(0D);
                     deleteInventoryV2.setAllocatedQuantity(0D);
                     deleteInventoryV2.setReferenceField4(0D);
-                    deleteInventoryV2.setNoBags(0D);
                     deleteInventoryV2.setInventoryId(null);
+                    deleteInventoryV2.setNoBags(0D);
                     inventoryV2Repository.save(deleteInventoryV2);
                     log.info("---------inventory-----deleted-----");
                     try {
@@ -1445,7 +1448,9 @@ public class InhouseTransferHeaderService extends BaseService {
 
                     inventoryTargetItemCode.setInventoryQuantity(inventoryQty);
                     inventoryTargetItemCode.setAllocatedQuantity(inventoryTargetItemCode.getAllocatedQuantity());
+//                    inventoryTargetItemCode.setNoBags(createdInhouseTransferLine.getNoBags());
                     inventoryTargetItemCode.setNoBags(inventoryTargetItemCode.getNoBags());
+
                     inventoryTargetItemCode.setReferenceField4(inventoryQty + inventoryTargetItemCode.getAllocatedQuantity());
 
                     log.info("Total Qty --------------> {}", inventoryTargetItemCode.getReferenceField4());
@@ -2618,4 +2623,885 @@ public class InhouseTransferHeaderService extends BaseService {
         return inventoryTarget;
     }
 
+
+    //=========SPAREX============================================
+    /**
+     * createInHouseTransferHeader
+     *
+     * @param newInhouseTransferHeader
+     * @param loginUserID
+     * @return
+     * @throws Exception
+     */
+    @Transactional
+    public InhouseTransferHeaderEntity createInHouseTransferHeaderV10(AddInhouseTransferHeader newInhouseTransferHeader, String loginUserID) throws Exception {
+        log.info("newInhouseTransferHeader: ---> " + newInhouseTransferHeader);
+        Map<String, AtomicInteger> transferInhouseLineSeq = new ConcurrentHashMap<>();
+        try {
+            if (newInhouseTransferHeader != null) {
+                if (newInhouseTransferHeader.getInhouseTransferLine() != null) {
+                    Long transferQtyNull = newInhouseTransferHeader
+                            .getInhouseTransferLine()
+                            .stream()
+                            .filter(a -> a.getTransferOrderQty() == null || a.getTransferConfirmedQty() == null)
+                            .count();
+                    if (transferQtyNull > 0) {
+                        throw new BadRequestException("TransferQty is Missing!");
+                    }
+                }
+            }
+
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb("SPAREX");
+
+            String companyCodeId = newInhouseTransferHeader.getCompanyCodeId();
+            String plantId = newInhouseTransferHeader.getPlantId();
+            String languageId = newInhouseTransferHeader.getLanguageId();
+            String warehouseId = newInhouseTransferHeader.getWarehouseId();
+            String idMasterAuthToken = getIdMasterAuthToken();
+            Long transferTypeId = newInhouseTransferHeader.getTransferTypeId();                 // - TR_TYP_ID -
+
+            InhouseTransferHeader dbInhouseTransferHeader = new InhouseTransferHeader();
+            BeanUtils.copyProperties(newInhouseTransferHeader, dbInhouseTransferHeader, CommonUtils.getNullPropertyNames(newInhouseTransferHeader));
+
+            // TR_NO
+            String TRANSFER_NO = getTransferNoV2(companyCodeId, plantId, languageId, warehouseId, idMasterAuthToken);
+            dbInhouseTransferHeader.setTransferNumber(TRANSFER_NO);
+
+            // STATUS_ID - Hard Coded Value="30" at the time of Confirmation
+            dbInhouseTransferHeader.setStatusId(30L);
+            description = getDescription(companyCodeId, plantId, languageId, warehouseId);
+            statusDescription = getStatusDescription(30L, languageId);
+
+            dbInhouseTransferHeader.setCompanyDescription(description.getCompanyDesc());
+            dbInhouseTransferHeader.setPlantDescription(description.getPlantDesc());
+            dbInhouseTransferHeader.setWarehouseDescription(description.getWarehouseDesc());
+            dbInhouseTransferHeader.setStatusDescription(statusDescription);
+            dbInhouseTransferHeader.setDeletionIndicator(0L);
+            dbInhouseTransferHeader.setCreatedBy(loginUserID);
+            dbInhouseTransferHeader.setUpdatedBy(loginUserID);
+            dbInhouseTransferHeader.setCreatedOn(new Date());
+            dbInhouseTransferHeader.setUpdatedOn(new Date());
+
+            /*
+             * LINES Table
+             */
+            InhouseTransferHeaderEntity responseHeader = new InhouseTransferHeaderEntity();
+            List<InhouseTransferLineEntity> responseLines = new ArrayList<>();
+            for (AddInhouseTransferLine newInhouseTransferLine : newInhouseTransferHeader.getInhouseTransferLine()) {
+
+                String sourceStorageBin = newInhouseTransferLine.getSourceStorageBin();
+                String targetStorageBin = newInhouseTransferLine.getTargetStorageBin();
+                List<Long> binClassIds = Arrays.asList(1L, 5L, 7L, 10L);
+
+                if (transferTypeId.equals(3L) && sourceStorageBin.equalsIgnoreCase(targetStorageBin)) {
+                    throw new BadRequestException("Source Bin and Target Bin cannot be same for Bin to Bin transfer");
+                }
+                if (newInhouseTransferLine.getTransferOrderQty() <= 0L || newInhouseTransferLine.getTransferConfirmedQty() <= 0L) {
+                    throw new BadRequestException("Transfer Qty must be greater than zero");
+                }
+
+                log.info("The Given Values : companyCodeId --> " + companyCodeId + " and plantId --> " + plantId + " and languageId --> " + languageId + " and warehouseId --> " +
+                        warehouseId + " and binClassId --> " + binClassIds + " and sourceStorageBin " + sourceStorageBin);
+
+                boolean sourceBin = storageBinService.isStorageBinExists(companyCodeId, plantId, languageId, warehouseId, binClassIds, sourceStorageBin);
+                boolean targetBin = storageBinService.isStorageBinExists(companyCodeId, plantId, languageId, warehouseId, binClassIds, targetStorageBin);
+
+                if (!sourceBin) {
+                    throw new BadRequestException("Check SourceBin Exists in Live Location - Either BinClassId 1 or 7");
+                }
+                if (!targetBin) {
+                    throw new BadRequestException("Check TargetBin Exists in Live Location - Either BinClassId 1 or 7");
+                }
+
+                InhouseTransferLine dbInhouseTransferLine = new InhouseTransferLine();
+                BeanUtils.copyProperties(newInhouseTransferLine, dbInhouseTransferLine, CommonUtils.getNullPropertyNames(newInhouseTransferLine));
+
+                AtomicInteger sequence = transferInhouseLineSeq.computeIfAbsent(TRANSFER_NO, k -> new AtomicInteger(1));
+                int seqNum = sequence.getAndIncrement(); // 1, 2, 3...
+
+                String formattedSeq = String.format("%02d", seqNum); // 001, 002, ...
+                String TRANS_LINE_NO = TRANSFER_NO + formattedSeq;
+
+                // TR_NO AutoIncrement by %02d format
+                dbInhouseTransferLine.setTransferNumber(TRANS_LINE_NO);
+                dbInhouseTransferLine.setReferenceField1(TRANSFER_NO);
+
+                String mfrName = dbInhouseTransferLine.getManufacturerName() != null ? dbInhouseTransferLine.getManufacturerName() : MFR_NAME;
+                dbInhouseTransferLine.setManufacturerName(mfrName);
+
+                // STATUS_ID - Hard Coded Value="30" at the time of Confirmation
+                dbInhouseTransferLine.setStatusId(30L);
+                dbInhouseTransferLine.setStatusDescription(statusDescription);
+                dbInhouseTransferLine.setDeletionIndicator(0L);
+                dbInhouseTransferLine.setCreatedBy(loginUserID);
+                dbInhouseTransferLine.setCreatedOn(new Date());
+                dbInhouseTransferLine.setUpdatedBy(loginUserID);
+                dbInhouseTransferLine.setUpdatedOn(new Date());
+                dbInhouseTransferLine.setConfirmedBy(loginUserID);
+                dbInhouseTransferLine.setConfirmedOn(new Date());
+
+                dbInhouseTransferLine.setCompanyCodeId(companyCodeId);
+                dbInhouseTransferLine.setLanguageId(languageId);
+                dbInhouseTransferLine.setPlantId(plantId);
+                dbInhouseTransferLine.setWarehouseId(warehouseId);
+
+                dbInhouseTransferLine.setCompanyDescription(description.getCompanyDesc());
+                dbInhouseTransferLine.setPlantDescription(description.getPlantDesc());
+                dbInhouseTransferLine.setWarehouseDescription(description.getWarehouseDesc());
+
+                // Save InhouseTransferLine
+                InhouseTransferLine createdInhouseTransferLine = inhouseTransferLineRepository.save(dbInhouseTransferLine);
+                log.info("InhouseTransferLine created : " + createdInhouseTransferLine);
+
+                /* Response List */
+                InhouseTransferLineEntity responseInhouseTransferLineEntity = new InhouseTransferLineEntity();
+                BeanUtils.copyProperties(createdInhouseTransferLine, responseInhouseTransferLineEntity, CommonUtils.getNullPropertyNames(createdInhouseTransferLine));
+                responseLines.add(responseInhouseTransferLineEntity);
+
+                if (createdInhouseTransferLine != null) {
+                    // Save InhouseTransferHeader
+                    log.info("InhouseTransferHeader before create-->: " + dbInhouseTransferHeader);
+                    InhouseTransferHeader createdInhouseTransferHeader = inhouseTransferHeaderRepository.save(dbInhouseTransferHeader);
+                    log.info("InhouseTransferHeader created: " + createdInhouseTransferHeader);
+                    log.info("InhouseTransferLine created: " + createdInhouseTransferLine);
+
+                    /*--------------------INVENTORY TABLE UPDATES-----------------------------------------------*/
+                    updateInventoryV4(createdInhouseTransferHeader, createdInhouseTransferLine, loginUserID);
+
+                    /*--------------------INVENTORYMOVEMENT TABLE UPDATES-----------------------------------------------*/
+                    /*
+                     * If TR_TYP_ID = 01, insert 2 records in INVENTORYMOVEMENT table.
+                     * One record with STCK_TYP_ID = SRCE_STCK_TYP_ID and other record with STCK_TYP_ID = TGT_STCK_TYP_ID
+                     */
+                    if (transferTypeId == 1L) {
+                        // Row insertion for Source
+                        Long stockTypeId = createdInhouseTransferLine.getSourceStockTypeId();
+                        String movementQtyValue = "N";
+                        String itemCode = createdInhouseTransferLine.getSourceItemCode();
+                        String storageBin = createdInhouseTransferLine.getSourceStorageBin();
+                        createInventoryMovement(createdInhouseTransferLine, transferTypeId, stockTypeId, itemCode, storageBin,
+                                movementQtyValue, loginUserID);
+
+                        // Row insertion for Target
+                        stockTypeId = createdInhouseTransferLine.getTargetStockTypeId();
+                        movementQtyValue = "P";
+                        storageBin = createdInhouseTransferLine.getTargetStorageBin();
+                        createInventoryMovement(createdInhouseTransferLine, transferTypeId, stockTypeId, itemCode, storageBin,
+                                movementQtyValue, loginUserID);
+                    }
+
+                    /*
+                     * "1. If TR_TYP_ID = 02, insert 2 records in INVENTORYMOVEMENT table.
+                     * One record with ITM_CODE = SRCE_ITM_CODE and other record with ITM_CODE = TGT_ITM_CODE
+                     */
+                    if (transferTypeId == 2L) {
+                        // Row insertion for Source
+                        Long stockTypeId = createdInhouseTransferLine.getSourceStockTypeId();
+                        String storageBin = createdInhouseTransferLine.getSourceStorageBin();
+                        String movementQtyValue = "N";
+                        String itemCode = createdInhouseTransferLine.getSourceItemCode();
+                        createInventoryMovement(createdInhouseTransferLine, transferTypeId, stockTypeId, itemCode, storageBin,
+                                movementQtyValue, loginUserID);
+
+                        // Row insertion for Target
+                        movementQtyValue = "P";
+                        itemCode = createdInhouseTransferLine.getTargetItemCode();
+                        storageBin = createdInhouseTransferLine.getTargetStorageBin();
+                        createInventoryMovement(createdInhouseTransferLine, transferTypeId, stockTypeId, itemCode, storageBin,
+                                movementQtyValue, loginUserID);
+                    }
+
+                    /*
+                     * If TR_TYP_ID = 03, insert 2 records in INVENTORYMOVEMENT table.
+                     * One record with ST_BIN = SRCE_ST_BIN and other record with ST_BIN = TGT_ST_BIN
+                     */
+                    if (transferTypeId == 3L) {
+                        // Row insertion for Source
+                        Long stockTypeId = createdInhouseTransferLine.getSourceStockTypeId();
+                        String itemCode = createdInhouseTransferLine.getSourceItemCode();
+                        String movementQtyValue = "N";
+                        String storageBin = createdInhouseTransferLine.getSourceStorageBin();
+                        createInventoryMovementV2(createdInhouseTransferLine, transferTypeId, stockTypeId, itemCode, createdInhouseTransferLine.getManufacturerName(),
+                                storageBin, movementQtyValue, loginUserID);
+
+                        // Row insertion for Target
+                        movementQtyValue = "P";
+                        storageBin = createdInhouseTransferLine.getTargetStorageBin();
+                        createInventoryMovementV2(createdInhouseTransferLine, transferTypeId, stockTypeId, itemCode, createdInhouseTransferLine.getManufacturerName(),
+                                storageBin, movementQtyValue, loginUserID);
+                    }
+
+                    /* Response Header */
+                    BeanUtils.copyProperties(createdInhouseTransferHeader, responseHeader, CommonUtils.getNullPropertyNames(createdInhouseTransferHeader));
+                }
+            }
+
+            responseHeader.setInhouseTransferLine(responseLines);
+            return responseHeader;
+        } catch (Exception e) {
+            log.error("Exception while Make and Change : " + e.toString());
+            throw e;
+        }
+    }
+
+    // BF && KKF
+    /**
+     * createInHouseTransferHeader
+     *
+     * @param newInhouseTransferHeader
+     * @param loginUserID
+     * @return
+     * @throws Exception
+     */
+    @Transactional
+    public InhouseTransferHeaderEntity createInHouseTransferHeaderV9(AddInhouseTransferHeader newInhouseTransferHeader, String loginUserID) throws Exception {
+        log.info("newInhouseTransferHeader: ---> " + newInhouseTransferHeader);
+        Map<String, AtomicInteger> transferInhouseLineSeq = new ConcurrentHashMap<>();
+        try {
+            if (newInhouseTransferHeader != null) {
+                if (newInhouseTransferHeader.getInhouseTransferLine() != null) {
+                    Long transferQtyNull = newInhouseTransferHeader
+                            .getInhouseTransferLine()
+                            .stream()
+                            .filter(a -> a.getTransferOrderQty() == null || a.getTransferConfirmedQty() == null)
+                            .count();
+                    if (transferQtyNull > 0) {
+                        throw new BadRequestException("TransferQty is Missing!");
+                    }
+                }
+            }
+
+            String companyCodeId = newInhouseTransferHeader.getCompanyCodeId();
+            String plantId = newInhouseTransferHeader.getPlantId();
+            String languageId = newInhouseTransferHeader.getLanguageId();
+            String warehouseId = newInhouseTransferHeader.getWarehouseId();
+            String idMasterAuthToken = getIdMasterAuthToken();
+            Long transferTypeId = newInhouseTransferHeader.getTransferTypeId();                 // - TR_TYP_ID -
+
+            InhouseTransferHeader dbInhouseTransferHeader = new InhouseTransferHeader();
+            BeanUtils.copyProperties(newInhouseTransferHeader, dbInhouseTransferHeader, CommonUtils.getNullPropertyNames(newInhouseTransferHeader));
+
+            // TR_NO
+            String TRANSFER_NO = getTransferNoV2(companyCodeId, plantId, languageId, warehouseId, idMasterAuthToken);
+            dbInhouseTransferHeader.setTransferNumber(TRANSFER_NO);
+
+            // STATUS_ID - Hard Coded Value="30" at the time of Confirmation
+            dbInhouseTransferHeader.setStatusId(30L);
+            description = getDescription(companyCodeId, plantId, languageId, warehouseId);
+            statusDescription = getStatusDescription(30L, languageId);
+
+            dbInhouseTransferHeader.setCompanyDescription(description.getCompanyDesc());
+            dbInhouseTransferHeader.setPlantDescription(description.getPlantDesc());
+            dbInhouseTransferHeader.setWarehouseDescription(description.getWarehouseDesc());
+            dbInhouseTransferHeader.setStatusDescription(statusDescription);
+            dbInhouseTransferHeader.setDeletionIndicator(0L);
+            dbInhouseTransferHeader.setCreatedBy(loginUserID);
+            dbInhouseTransferHeader.setUpdatedBy(loginUserID);
+            dbInhouseTransferHeader.setCreatedOn(new Date());
+            dbInhouseTransferHeader.setUpdatedOn(new Date());
+
+            /*
+             * LINES Table
+             */
+            InhouseTransferHeaderEntity responseHeader = new InhouseTransferHeaderEntity();
+            List<InhouseTransferLineEntity> responseLines = new ArrayList<>();
+            for (AddInhouseTransferLine newInhouseTransferLine : newInhouseTransferHeader.getInhouseTransferLine()) {
+
+                String sourceStorageBin = newInhouseTransferLine.getSourceStorageBin();
+                String targetStorageBin = newInhouseTransferLine.getTargetStorageBin();
+                List<Long> binClassIds = Arrays.asList(1L, 7L, 5L);
+
+                if (newInhouseTransferLine.getTransferOrderQty() <= 0L || newInhouseTransferLine.getTransferConfirmedQty() <= 0L) {
+                    throw new BadRequestException("Transfer Qty must be greater than zero");
+                }
+
+                log.info("The Given Values : companyCodeId --> " + companyCodeId + " and plantId --> " + plantId + " and languageId --> " + languageId + " and warehouseId --> " +
+                        warehouseId + " and binClassId --> " + binClassIds + " and sourceStorageBin " + sourceStorageBin);
+
+                InhouseTransferLine dbInhouseTransferLine = new InhouseTransferLine();
+                BeanUtils.copyProperties(newInhouseTransferLine, dbInhouseTransferLine, CommonUtils.getNullPropertyNames(newInhouseTransferLine));
+
+                AtomicInteger sequence = transferInhouseLineSeq.computeIfAbsent(TRANSFER_NO, k -> new AtomicInteger(1));
+                int seqNum = sequence.getAndIncrement(); // 1, 2, 3...
+
+                dbInhouseTransferLine.setTransferNumber(TRANSFER_NO);
+
+                if(newInhouseTransferHeader.getWarehouseId().equalsIgnoreCase("4100")) {
+                    String mfrName = dbInhouseTransferLine.getManufacturerName() != null ? dbInhouseTransferLine.getManufacturerName() : MFR_NAME_V9;
+                    dbInhouseTransferLine.setManufacturerName(mfrName);
+                }
+                if(newInhouseTransferHeader.getWarehouseId().equalsIgnoreCase("4200")) {
+                    String mfrName = dbInhouseTransferLine.getManufacturerName() != null ? dbInhouseTransferLine.getManufacturerName() : MFR_NAME_V11;
+                    dbInhouseTransferLine.setManufacturerName(mfrName);
+                }
+                if(newInhouseTransferHeader.getWarehouseId().equalsIgnoreCase("4300")) {
+                    String mfrName = dbInhouseTransferLine.getManufacturerName() != null ? dbInhouseTransferLine.getManufacturerName() : MFR_NAME_V12;
+                    dbInhouseTransferLine.setManufacturerName(mfrName);
+                }
+
+                // STATUS_ID - Hard Coded Value="30" at the time of Confirmation
+                dbInhouseTransferLine.setStatusId(30L);
+                dbInhouseTransferLine.setStatusDescription(statusDescription);
+                dbInhouseTransferLine.setDeletionIndicator(0L);
+                dbInhouseTransferLine.setCreatedBy(loginUserID);
+                dbInhouseTransferLine.setCreatedOn(new Date());
+                dbInhouseTransferLine.setUpdatedBy(loginUserID);
+                dbInhouseTransferLine.setUpdatedOn(new Date());
+                dbInhouseTransferLine.setConfirmedBy(loginUserID);
+                dbInhouseTransferLine.setConfirmedOn(new Date());
+
+                dbInhouseTransferLine.setCompanyCodeId(companyCodeId);
+                dbInhouseTransferLine.setLanguageId(languageId);
+                dbInhouseTransferLine.setPlantId(plantId);
+                dbInhouseTransferLine.setWarehouseId(warehouseId);
+
+                dbInhouseTransferLine.setCompanyDescription(description.getCompanyDesc());
+                dbInhouseTransferLine.setPlantDescription(description.getPlantDesc());
+                dbInhouseTransferLine.setWarehouseDescription(description.getWarehouseDesc());
+
+                // Save InhouseTransferLine
+                InhouseTransferLine createdInhouseTransferLine = inhouseTransferLineRepository.save(dbInhouseTransferLine);
+                log.info("InhouseTransferLine created : " + createdInhouseTransferLine);
+
+                /* Response List */
+                InhouseTransferLineEntity responseInhouseTransferLineEntity = new InhouseTransferLineEntity();
+                BeanUtils.copyProperties(createdInhouseTransferLine, responseInhouseTransferLineEntity, CommonUtils.getNullPropertyNames(createdInhouseTransferLine));
+                responseLines.add(responseInhouseTransferLineEntity);
+
+                if (createdInhouseTransferLine != null) {
+                    // Save InhouseTransferHeader
+                    log.info("InhouseTransferHeader before create-->: " + dbInhouseTransferHeader);
+                    InhouseTransferHeader createdInhouseTransferHeader = inhouseTransferHeaderRepository.save(dbInhouseTransferHeader);
+                    log.info("InhouseTransferHeader created: " + createdInhouseTransferHeader);
+                    log.info("InhouseTransferLine created: " + createdInhouseTransferLine);
+
+//                    /*--------------------INVENTORY TABLE UPDATES-----------------------------------------------*/
+                    updateInventoryV9(createdInhouseTransferHeader, createdInhouseTransferLine, loginUserID);
+
+                    /* Response Header */
+                    BeanUtils.copyProperties(createdInhouseTransferHeader, responseHeader, CommonUtils.getNullPropertyNames(createdInhouseTransferHeader));
+                }
+            }
+
+
+            responseHeader.setInhouseTransferLine(responseLines);
+            return responseHeader;
+        } catch (Exception e) {
+            log.error("Exception while Make and Change : " + e.toString());
+            throw e;
+        }
+    }
+
+    /**
+     * @param createdInhouseTransferHeader
+     * @param createdInhouseTransferLine
+     * @param loginUserID
+     * @throws Exception
+     */
+    private void updateInventoryV9(InhouseTransferHeader createdInhouseTransferHeader,
+                                   InhouseTransferLine createdInhouseTransferLine, String loginUserID) throws Exception {
+        try {
+            Long transferTypeId = createdInhouseTransferHeader.getTransferTypeId();
+            String transferMethod = createdInhouseTransferHeader.getTransferMethod();
+
+            String companyCode = createdInhouseTransferHeader.getCompanyCodeId();
+            String plantId = createdInhouseTransferHeader.getPlantId();
+            String languageId = createdInhouseTransferHeader.getLanguageId();
+            String warehouseId = createdInhouseTransferHeader.getWarehouseId();
+
+            log.info("--------transferTypeId-------- : " + transferTypeId);
+            log.info("--------transferMethod-------- : " + transferMethod);
+            /*
+             * 1 .TR_TYP_ID = 01, TR_MTD = ONESTEP
+             * Pass WH_ID/ITM_CODE in INVENTORY TABLE and update STCK_TYP_ID with TGT_STCK_TYP_ID
+             */
+            if (transferTypeId == 1L && transferMethod.equalsIgnoreCase(ONESTEP)) {
+                updateTransferInventoryV9(companyCode, plantId, languageId, warehouseId, createdInhouseTransferLine, loginUserID, transferTypeId);
+            }
+
+            /*
+             * 2 .TR_TYP_ID = 02, TR_MTD = ONESTEP
+             * Pass WH_ID/SRCE_ITM_CODE as ITM_CODE in INVENTORY TABLE and update SRC
+             * E_ITM_CODE with TGT_ITM_CODE
+             */
+            if (transferTypeId == 2L && transferMethod.equalsIgnoreCase(ONESTEP)) {
+                updateTransferInventoryV9(companyCode, plantId, languageId, warehouseId, createdInhouseTransferLine, loginUserID, transferTypeId);
+            }
+
+            /*
+             * 3 .TR_TYP_ID = 03, TR_MTD=ONESTEP
+             * Pass WH_ID/SRCE_ITM_CODE/PACK_BARCOE/SRCE_ST_BIN in INVENTORY TABLE and
+             * update INV_QTY value (INV_QTY - TR_CNF_QTY) and delete the record if INV_QTY becomes Zero
+             */
+            if (transferTypeId == 3L && transferMethod.equalsIgnoreCase(ONESTEP)) {
+                updateTransferInventoryV9(companyCode, plantId, languageId, warehouseId, createdInhouseTransferLine, loginUserID, transferTypeId);
+            }
+        } catch (Exception e) {
+            log.error("Exception while Make and Change : " + e.toString());
+            throw e;
+        }
+    }
+
+    /**
+     * @param companyCode
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param createdInhouseTransferLine
+     * @param loginUserID
+     */
+    private void updateTransferInventoryV9(String companyCode, String plantId, String languageId, String warehouseId,
+                                           InhouseTransferLine createdInhouseTransferLine, String loginUserID, Long transferTypeId) {
+        Long sourceStockTypeId = createdInhouseTransferLine.getSourceStockTypeId() != null ? createdInhouseTransferLine.getSourceStockTypeId() : 1L;
+        Long targetStockTypeId = createdInhouseTransferLine.getTargetStockTypeId() != null ? createdInhouseTransferLine.getTargetStockTypeId() : 1L;
+        String mfrName = createdInhouseTransferLine.getManufacturerName() != null ? createdInhouseTransferLine.getManufacturerName() : MFR_NAME_V5;
+        log.info("mfrName -----> {}", mfrName);
+
+        // PalletCode sourcePallet
+        InventoryV2 inventorySourceItemCode = inventoryV2Repository.getInventoryAllocationTransferV9(companyCode, plantId, languageId, warehouseId,
+                createdInhouseTransferLine.getSourceItemCode(), createdInhouseTransferLine.getSourceBarcodeId(),createdInhouseTransferLine.getPalletCode(),
+                createdInhouseTransferLine.getSourceStorageBin(), sourceStockTypeId);
+
+        log.info("Source ----inventory----------> : " + inventorySourceItemCode);
+        if (inventorySourceItemCode != null) {
+            log.info("Inventory Source .................");
+            log.info("InventoryQty --------------------------> {}", inventorySourceItemCode.getInventoryQuantity());
+            log.info("BagSize ------------------------> {}", inventorySourceItemCode.getBagSize());
+            log.info("No Of Bags --------------------> {}", inventorySourceItemCode.getNoBags());
+
+            Double sourceInventoryQty = inventorySourceItemCode.getInventoryQuantity();
+            double sourceBagSize = inventorySourceItemCode.getBagSize() != null ? inventorySourceItemCode.getBagSize() : 0D;
+
+            double inventoryQty = sourceInventoryQty - createdInhouseTransferLine.getTransferConfirmedQty();
+            log.info("Actual InventoryQty ------------------> {}", inventoryQty);
+            log.info("Allocated InventoryQty ------------------> {}", inventorySourceItemCode.getAllocatedQuantity());
+
+            if (inventorySourceItemCode.getAllocatedQuantity() == null) {
+                Double allocatedQty = 0.0;
+                inventorySourceItemCode.setAllocatedQuantity(allocatedQty);
+            }
+
+            log.info("After AllocQty-------->" + inventorySourceItemCode.getAllocatedQuantity());
+            inventorySourceItemCode.setInventoryQuantity(inventoryQty);
+            inventorySourceItemCode.setAllocatedQuantity(inventorySourceItemCode.getAllocatedQuantity());
+            inventorySourceItemCode.setNoBags(createdInhouseTransferLine.getNoBags());
+            inventorySourceItemCode.setReferenceField4(inventoryQty + inventorySourceItemCode.getAllocatedQuantity());
+
+            log.info("Total Qty --------------> {}", inventorySourceItemCode.getReferenceField4());
+
+            if (inventorySourceItemCode.getStockTypeDescription() == null) {
+                if (inventorySourceItemCode.getStockTypeId() != null) {
+                    inventorySourceItemCode.setStockTypeDescription(getStockTypeDesc(companyCode, plantId, languageId, warehouseId, inventorySourceItemCode.getStockTypeId()));
+                }
+            }
+
+            InventoryV2 newInventoryV2 = new InventoryV2();
+            BeanUtils.copyProperties(inventorySourceItemCode, newInventoryV2, CommonUtils.getNullPropertyNames(inventorySourceItemCode));
+
+            //Explicitly setting INV_ID as NULL to insert the record instead of UPDATING it.
+            newInventoryV2.setInventoryId(null);
+
+            newInventoryV2.setUpdatedOn(new Date());
+            newInventoryV2.setManufacturerCode(mfrName);
+            newInventoryV2.setSelfLife(inventorySourceItemCode.getSelfLife());
+            newInventoryV2.setRemainingDays(inventorySourceItemCode.getRemainingDays());
+            newInventoryV2.setManufacturerDate(inventorySourceItemCode.getManufacturerDate());
+            newInventoryV2.setExpiryDate(inventorySourceItemCode.getExpiryDate());
+            newInventoryV2.setRemainingSelfLifePercentage(inventorySourceItemCode.getRemainingSelfLifePercentage());
+            newInventoryV2.setReferenceField2(inventorySourceItemCode.getReferenceField2());
+            newInventoryV2.setPriceSegment(inventorySourceItemCode.getPriceSegment());
+            newInventoryV2.setOrigin(inventorySourceItemCode.getOrigin());
+            //MFR_NAME
+            newInventoryV2.setManufacturerCode(inventorySourceItemCode.getManufacturerCode());
+            newInventoryV2.setManufacturerName(inventorySourceItemCode.getManufacturerName());
+
+            //New -- TransferNo
+            if(createdInhouseTransferLine.getRemarks().equalsIgnoreCase("1")){
+                newInventoryV2.setGender(createdInhouseTransferLine.getTransferNumber());
+            }
+
+            try {
+                if (newInventoryV2.getInventoryQuantity() < 0) {
+                    newInventoryV2.setInventoryQuantity(0D);
+                }
+
+                // Setting Material No
+                String customerId = imBasicData1V2Repository.getCustomerIdV9(newInventoryV2.getCompanyCodeId(), newInventoryV2.getLanguageId(),
+                        newInventoryV2.getPlantId(), newInventoryV2.getWarehouseId(), newInventoryV2.getItemCode(), newInventoryV2.getManufacturerName());
+                newInventoryV2.setMaterialNo(customerId);
+                log.info("CustomerId-----> "+customerId);
+
+                InventoryV2 createdInventoryV2 = inventoryV2Repository.save(newInventoryV2);
+                log.info("InventoryV2 created : " + createdInventoryV2);
+
+                if (createdInventoryV2.getInventoryQuantity() == 0 && (inventorySourceItemCode.getAllocatedQuantity() == null || inventorySourceItemCode.getAllocatedQuantity() == 0D)) {
+                    InventoryV2 deleteInventoryV2 = new InventoryV2();
+                    BeanUtils.copyProperties(inventorySourceItemCode, deleteInventoryV2, CommonUtils.getNullPropertyNames(inventorySourceItemCode));
+                    deleteInventoryV2.setUpdatedOn(new Date());
+                    deleteInventoryV2.setInventoryQuantity(0D);
+                    deleteInventoryV2.setAllocatedQuantity(0D);
+                    deleteInventoryV2.setReferenceField4(0D);
+                    deleteInventoryV2.setNoBags(0D);
+                    inventoryV2Repository.save(deleteInventoryV2);
+                    log.info("---------inventory-----deleted-----");
+                    try {
+                        // Check whether Inventory has record or not for that storageBin
+                        Double inventoryByStBin = inventoryService.getInventoryByStorageBinV4(companyCode, plantId, languageId, warehouseId, createdInhouseTransferLine.getSourceStorageBin());
+                        if (inventoryByStBin == null && transferTypeId == 1L) {
+                            // Setting up statusId = 0
+                            storageBinRepository.updateEmptyBinStatus(createdInhouseTransferLine.getSourceStorageBin(), companyCode, plantId, warehouseId, 0L);
+//                            pickupLineService.updateStorageBinEmptyStatus(companyCode, plantId, languageId, warehouseId, createdInhouseTransferLine.getSourceStorageBin(), loginUserID);
+                        }
+                    } catch (Exception e) {
+                        log.error("---------storagebin-update-----" + e);
+                    }
+                }
+
+                //createdInhouseTransferLine.getReferenceField1() Target PalletCode
+                InventoryV2 inventoryTargetItemCode = inventoryV2Repository.getInventoryAllocationTransferV9(companyCode, plantId, languageId, warehouseId,
+                        createdInhouseTransferLine.getTargetItemCode(), createdInhouseTransferLine.getTargetBarcodeId(), createdInhouseTransferLine.getReferenceField1(),
+                        createdInhouseTransferLine.getTargetStorageBin(), createdInhouseTransferLine.getTargetStockTypeId());
+                log.info("Inventory Target .................Values -->  {} ", inventoryTargetItemCode);
+                if (inventoryTargetItemCode != null) {
+
+                    log.info("InventoryQty --------------------------> {}", inventoryTargetItemCode.getInventoryQuantity());
+                    log.info("BagSize ------------------------> {}", inventoryTargetItemCode.getBagSize());
+                    log.info("No Of Bags --------------------> {}", inventoryTargetItemCode.getNoBags());
+//                double actualTransferConfirmedQty = getQuantity(createdInhouseTransferLine.getTransferConfirmedQty(), inventoryTargetItemCode.getBagSize());
+                    double actualTransferConfirmedQty = createdInhouseTransferLine.getTransferConfirmedQty();
+                    double transferConfirmedQty = sourceInventoryQty >= actualTransferConfirmedQty ? actualTransferConfirmedQty : sourceInventoryQty;
+                    inventoryQty = inventoryTargetItemCode.getInventoryQuantity() + transferConfirmedQty;
+
+                    log.info("Actual InventoryQty ------------------> {}", inventoryQty);
+                    log.info("Allocated InventoryQty ------------------> {}", inventoryTargetItemCode.getAllocatedQuantity());
+
+                    if (inventorySourceItemCode.getAllocatedQuantity() == null) {
+                        Double allocatedQty = 0.0;
+                        inventorySourceItemCode.setAllocatedQuantity(allocatedQty);
+                    }
+                    inventoryTargetItemCode.setInventoryQuantity(inventoryQty);
+                    inventoryTargetItemCode.setAllocatedQuantity(inventoryTargetItemCode.getAllocatedQuantity());
+                    inventoryTargetItemCode.setOrigin(inventoryTargetItemCode.getOrigin());
+                    inventoryTargetItemCode.setNoBags(createdInhouseTransferLine.getNoBags());
+                    inventoryTargetItemCode.setReferenceField4(inventoryQty + inventoryTargetItemCode.getAllocatedQuantity());
+
+
+                    inventoryTargetItemCode.setInventoryUom(inventorySourceItemCode.getInventoryUom());
+                    inventoryTargetItemCode.setVehicleNo(inventorySourceItemCode.getVehicleNo());
+                    inventoryTargetItemCode.setVehicleReportingDate(inventorySourceItemCode.getVehicleReportingDate());
+                    inventoryTargetItemCode.setVehicleUnloadingDate(inventorySourceItemCode.getVehicleUnloadingDate());
+                    inventoryTargetItemCode.setReferenceOrderNo(inventorySourceItemCode.getReferenceOrderNo());
+                    inventoryTargetItemCode.setReferenceField2(inventorySourceItemCode.getReferenceField2());
+                    inventoryTargetItemCode.setPriceSegment(inventorySourceItemCode.getPriceSegment());
+                    inventoryTargetItemCode.setArticleNo(inventorySourceItemCode.getArticleNo());
+                    inventoryTargetItemCode.setItemTypeDescription(inventorySourceItemCode.getItemTypeDescription());
+                    inventoryTargetItemCode.setItemGroup(inventorySourceItemCode.getItemGroup());
+
+
+                    log.info("Total Qty --------------> {}", inventoryTargetItemCode.getReferenceField4());
+                    if (inventoryTargetItemCode.getStockTypeDescription() == null) {
+                        Long stockTypeId = createdInhouseTransferLine.getTargetStockTypeId() != null ? createdInhouseTransferLine.getTargetStockTypeId() : inventorySourceItemCode.getStockTypeId();
+                        inventoryTargetItemCode.setStockTypeId(stockTypeId);
+                        inventoryTargetItemCode.setStockTypeDescription(getStockTypeDesc(companyCode, plantId, languageId, warehouseId, stockTypeId));
+                    }
+                    InventoryV2 newInventoryV2_1 = new InventoryV2();
+                    BeanUtils.copyProperties(inventoryTargetItemCode, newInventoryV2_1, CommonUtils.getNullPropertyNames(inventoryTargetItemCode));
+
+                    //Explicitly setting INV_ID as NULL to insert the record instead of UPDATING it.
+                    newInventoryV2_1.setInventoryId(null);
+                    newInventoryV2_1.setUpdatedOn(new Date());
+                    newInventoryV2_1.setManufacturerCode(mfrName);
+                    if (newInventoryV2_1.getInventoryQuantity() < 0) {
+                        newInventoryV2_1.setInventoryQuantity(0D);
+                    }
+
+                    log.info("Inventory QTY ------- {} Capacity ----- {} ", newInventoryV2_1.getInventoryQuantity(), createdInhouseTransferLine.getReferenceField3());
+                    Double capacity = createdInhouseTransferLine.getReferenceField3() != null ? Double.valueOf(createdInhouseTransferLine.getReferenceField3()) : 0.0;
+                    if(Objects.equals(newInventoryV2_1.getInventoryQuantity(), capacity)) {
+                        newInventoryV2_1.setReferenceField7("1");
+                    } else {
+                        newInventoryV2_1.setReferenceField7("0");
+                    }
+                    newInventoryV2_1.setReferenceField2(createdInhouseTransferLine.getReferenceField3());
+                    // Setting Material No
+                    String targetcustomerId = imBasicData1V2Repository.getCustomerIdV9(newInventoryV2_1.getCompanyCodeId(), newInventoryV2_1.getLanguageId(),
+                            newInventoryV2_1.getPlantId(), newInventoryV2_1.getWarehouseId(), newInventoryV2_1.getItemCode(), newInventoryV2_1.getManufacturerName());
+                    newInventoryV2_1.setMaterialNo(targetcustomerId);
+                    log.info("CustomerId-----> " + targetcustomerId);
+
+                    createdInventoryV2 = inventoryV2Repository.save(newInventoryV2_1);
+                    log.info("InventoryV2 created : " + createdInventoryV2);
+                } else {
+                    createdInhouseTransferLine.setBagSize(sourceBagSize);
+                    createdInhouseTransferLine.setNoBags(createdInhouseTransferLine.getNoBags());
+                    createdInhouseTransferLine.setAlternateUom(inventorySourceItemCode.getAlternateUom());
+
+                    createInventoryV9(companyCode, plantId, languageId, warehouseId, sourceInventoryQty,
+                            createdInhouseTransferLine.getTransferConfirmedQty(), createdInhouseTransferLine, createdInventoryV2, loginUserID);
+                }
+            } catch (Exception e) {
+                log.error("--ERROR--updateInventoryV3----level1--inventory--error----> :" + e.toString());
+                e.printStackTrace();
+                InventoryTrans newInventoryTrans = new InventoryTrans();
+                BeanUtils.copyProperties(newInventoryV2, newInventoryTrans, CommonUtils.getNullPropertyNames(newInventoryV2));
+                newInventoryTrans.setReRun(0L);
+                InventoryTrans inventoryTransCreated = inventoryTransRepository.save(newInventoryTrans);
+                log.error("inventoryTransCreated -------- :" + inventoryTransCreated);
+            }
+        }
+    }
+
+    /**
+     * @param companyCode
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param createdInhouseTransferLine
+     * @param loginUserID
+     */
+    private void createInventoryV9(String companyCode, String plantId, String languageId, String warehouseId,
+                                   Double sourceInventoryQty, Double transferConfirmedQty,
+                                   InhouseTransferLine createdInhouseTransferLine, InventoryV2 createdSourceInventoryV5, String loginUserID) {
+        try {
+            /*
+             * Fetch from INHOUSETRANSFERLINE table and insert in INVENTORY table as
+             * WH_ID/ TGT_ITM_CODE/PAL_CODE/PACK_BARCODE/TGT_ST_BIN/CASE_CODE/STCK_TYP_ID/SP_ST_IND_ID/INV_QTY=TR_CNF_QTY/
+             * INV_UOM as QTY_UOM/BIN_CL_ID of ST_BIN from STORAGEBIN table
+             */
+            log.info("createdInhouseTransferLine for New Inventory : " + createdInhouseTransferLine);
+            log.info("createdSourceInventoryV5 for New Inventory --------> " + createdSourceInventoryV5);
+
+
+            // "LANG_ID", "C_ID", "PLANT_ID", "WH_ID", "PACK_BARCODE", "ITM_CODE", "ST_BIN", "SP_ST_IND_ID"
+            InventoryV2 newInventory = new InventoryV2();
+            BeanUtils.copyProperties(createdInhouseTransferLine, newInventory, CommonUtils.getNullPropertyNames(createdInhouseTransferLine));
+
+            newInventory.setItemCode(createdInhouseTransferLine.getTargetItemCode());
+            newInventory.setPalletCode(createdInhouseTransferLine.getPalletCode());
+            newInventory.setPackBarcodes(createdInhouseTransferLine.getPackBarcodes());
+            newInventory.setStorageBin(createdInhouseTransferLine.getTargetStorageBin());
+            newInventory.setCaseCode(createdInhouseTransferLine.getCaseCode());
+            newInventory.setStockTypeId(createdInhouseTransferLine.getTargetStockTypeId());
+            if(createdInhouseTransferLine.getTargetBarcodeId() != null) {
+                newInventory.setBarcodeId(createdInhouseTransferLine.getTargetBarcodeId());
+            } else {
+                newInventory.setBarcodeId(createdInhouseTransferLine.getSourceBarcodeId());
+            }
+            String stockTypeDesc = getStockTypeDesc(companyCode, plantId, languageId, warehouseId, createdInhouseTransferLine.getTargetStockTypeId());
+            newInventory.setStockTypeDescription(stockTypeDesc);
+
+            if (createdInhouseTransferLine.getCompanyDescription() == null) {
+                description = getDescription(companyCode, plantId, languageId, warehouseId);
+                newInventory.setCompanyDescription(description.getCompanyDesc());
+                newInventory.setPlantDescription(description.getPlantDesc());
+                newInventory.setWarehouseDescription(description.getWarehouseDesc());
+            }
+            if(createdInhouseTransferLine.getRemarks().equalsIgnoreCase("1")){
+                newInventory.setGender(createdInhouseTransferLine.getTransferNumber());
+            }
+
+            if (createdInhouseTransferLine.getSpecialStockIndicatorId() == null) {
+                newInventory.setSpecialStockIndicatorId(1L);
+            } else {
+                newInventory.setSpecialStockIndicatorId(createdInhouseTransferLine.getSpecialStockIndicatorId());
+            }
+
+            double BAG_SIZE = createdInhouseTransferLine.getBagSize() != null ? createdInhouseTransferLine.getBagSize() : 0D;
+            double actualTransferQty = transferConfirmedQty;
+            double INV_QTY = sourceInventoryQty >= actualTransferQty ? actualTransferQty : sourceInventoryQty;
+            double ALLOC_QTY = 0D;
+            double TOT_QTY = INV_QTY + ALLOC_QTY;
+            double NO_OF_BAGS = createdInhouseTransferLine.getNoBags() != null ? createdInhouseTransferLine.getNoBags() : 1;
+            newInventory.setInventoryQuantity(round(INV_QTY));
+            newInventory.setAllocatedQuantity(ALLOC_QTY);
+            newInventory.setReferenceField4(round(TOT_QTY));
+            newInventory.setNoBags(NO_OF_BAGS);
+            log.info("INV_QTY--->ALLOC_QTY--->TOT_QTY----> : " + INV_QTY + "|" + ALLOC_QTY + "|" + TOT_QTY + "|" + NO_OF_BAGS);
+            newInventory.setInventoryUom(createdInhouseTransferLine.getTransferUom());
+
+            StorageBinV2 storageBin = storageBinService.getStorageBinV2(companyCode, plantId, languageId, warehouseId, createdInhouseTransferLine.getTargetStorageBin());
+            if (storageBin != null) {
+
+                newInventory.setBinClassId(storageBin.getBinClassId());
+//                newInventory.setReferenceField10(storageBin.getStorageSectionId());
+                String binDesc = inventoryV2Repository.getBinClassIdDecription(storageBin.getBinClassId(), storageBin.getCompanyCodeId(), storageBin.getPlantId(), storageBin.getLanguageId());
+                newInventory.setReferenceField10(binDesc);
+                newInventory.setStorageSectionId(storageBin.getStorageSectionId());
+                newInventory.setReferenceField5(storageBin.getAisleNumber());
+//                newInventory.setReferenceField6(storageBin.getShelfId());
+//                newInventory.setReferenceField7(storageBin.getRowId());
+                newInventory.setLevelId(String.valueOf(storageBin.getFloorId()));
+            }
+            ImBasicData1V2 imbasicdata1 = imBasicData1V2Repository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndManufacturerPartNoAndDeletionIndicator(
+                    languageId, companyCode, plantId, warehouseId, createdInhouseTransferLine.getTargetItemCode(), createdInhouseTransferLine.getManufacturerName(), 0L);
+            log.info("ImBasicData1 : " + imbasicdata1);
+
+            newInventory.setReferenceField6(createdSourceInventoryV5.getReferenceField6());
+            newInventory.setReferenceField2(createdSourceInventoryV5.getReferenceField2());
+
+            if (imbasicdata1 != null) {
+                newInventory.setReferenceField8(imbasicdata1.getDescription());
+                newInventory.setReferenceField9(imbasicdata1.getManufacturerPartNo());
+                newInventory.setManufacturerCode(imbasicdata1.getManufacturerPartNo());
+                newInventory.setManufacturerName(imbasicdata1.getManufacturerPartNo());
+                newInventory.setDescription(imbasicdata1.getDescription());
+            } else {
+                newInventory.setManufacturerCode(createdInhouseTransferLine.getManufacturerName());
+            }
+
+            newInventory.setDeletionIndicator(0L);
+            newInventory.setCreatedBy(loginUserID);
+            newInventory.setCreatedOn(new Date());
+            newInventory.setUpdatedOn(new Date());
+
+            /**
+             * Reeferon transfer fields setting
+             */
+            newInventory.setSelfLife(createdSourceInventoryV5.getSelfLife());
+            newInventory.setRemainingDays(createdSourceInventoryV5.getRemainingDays());
+            newInventory.setManufacturerDate(createdSourceInventoryV5.getManufacturerDate());
+            newInventory.setExpiryDate(createdSourceInventoryV5.getExpiryDate());
+            newInventory.setRemainingSelfLifePercentage(createdSourceInventoryV5.getRemainingSelfLifePercentage());
+            newInventory.setOrigin(createdSourceInventoryV5.getOrigin());
+
+            // Adding additional fields from sourceInventory
+            newInventory.setReferenceField3(createdSourceInventoryV5.getReferenceField3());
+            newInventory.setPriceSegment(createdSourceInventoryV5.getPriceSegment());
+            newInventory.setMrp(createdSourceInventoryV5.getMrp());
+            newInventory.setThreePLPartnerId(createdSourceInventoryV5.getThreePLPartnerId());
+            newInventory.setReferenceField8(createdSourceInventoryV5.getReferenceField8());
+
+            newInventory.setInventoryUom(createdSourceInventoryV5.getInventoryUom());
+            newInventory.setVehicleNo(createdSourceInventoryV5.getVehicleNo());
+            newInventory.setVehicleReportingDate(createdSourceInventoryV5.getVehicleReportingDate());
+            newInventory.setVehicleUnloadingDate(createdSourceInventoryV5.getVehicleUnloadingDate());
+            newInventory.setReferenceOrderNo(createdSourceInventoryV5.getReferenceOrderNo());
+            newInventory.setReferenceField2(createdSourceInventoryV5.getReferenceField2());
+
+            newInventory.setArticleNo(createdSourceInventoryV5.getArticleNo());
+            newInventory.setItemTypeDescription(createdSourceInventoryV5.getItemTypeDescription());
+            newInventory.setItemGroup(createdSourceInventoryV5.getItemGroup());
+
+//            InventoryV2 inventoryTargetNewCreate = setAlternateUomQuantitiesTarget(newInventory);
+//            newInventory.setQtyInPiece(inventoryTargetNewCreate.getQtyInPiece());
+//            newInventory.setQtyInCreate(inventoryTargetNewCreate.getQtyInCreate());
+            newInventory.setQtyInCase(newInventory.getInventoryQuantity());
+            newInventory.setReferenceField7(createdSourceInventoryV5.getReferenceField7());
+            newInventory.setManufacturerCode(createdSourceInventoryV5.getManufacturerCode());
+            newInventory.setManufacturerName(createdSourceInventoryV5.getManufacturerName());
+
+            // Setting Material No
+            String customerId = imBasicData1V2Repository.getCustomerIdV9(newInventory.getCompanyCodeId(), newInventory.getLanguageId(),
+                    newInventory.getPlantId(), newInventory.getWarehouseId(), newInventory.getItemCode(), newInventory.getManufacturerName());
+            newInventory.setMaterialNo(customerId);
+            log.info("CustomerId-----> " + customerId);
+
+            try {
+                String capacityValue;
+                if (createdInhouseTransferLine.getReferenceField3() != null){
+                    capacityValue = createdInhouseTransferLine.getReferenceField3();
+                }else {
+                    capacityValue = createdSourceInventoryV5.getReferenceField2();
+                }
+
+//                log.info("Inventory QTY ------- {} Capacity ----- {} ", newInventory.getInventoryQuantity(), createdInhouseTransferLine.getReferenceField3());
+//                Double capacity = createdInhouseTransferLine.getReferenceField3() != null ? Double.valueOf(createdInhouseTransferLine.getReferenceField3()) : 0.0;
+
+                log.info("Inventory QTY ------- {} Capacity ----- {} ", newInventory.getInventoryQuantity(), capacityValue);
+                Double capacity = capacityValue != null ? Double.valueOf(capacityValue) : 0.0;
+
+                if(Objects.equals(newInventory.getInventoryQuantity(), capacity)) {
+                    newInventory.setReferenceField7("1");
+                } else {
+                    newInventory.setReferenceField7("0");
+                }
+                newInventory.setReferenceField2(createdSourceInventoryV5.getReferenceField2());
+                newInventory.setInventoryId(null);
+                InventoryV2 createdInventory = inventoryV2Repository.save(newInventory);
+                log.info("createdInventory------> : " + createdInventory);
+            } catch (Exception e) {
+                log.error("--ERROR--updateInventoryV3----level1--inventory--error----> :" + e.toString());
+                e.printStackTrace();
+                InventoryTrans newInventoryTrans = new InventoryTrans();
+                BeanUtils.copyProperties(newInventory, newInventoryTrans, CommonUtils.getNullPropertyNames(newInventory));
+                newInventoryTrans.setReRun(0L);
+                InventoryTrans inventoryTransCreated = inventoryTransRepository.save(newInventoryTrans);
+                log.error("inventoryTransCreated -------- :" + inventoryTransCreated);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error("Make n Change Create Inventory Error ! ");
+        }
+    }
+
+    /**
+     * @param inventoryV2
+     */
+    public InventoryV2 setAlternateUomQuantitiesV9(InventoryV2 inventoryV2) {
+
+        InventoryV2 inventorySource = new InventoryV2();
+
+        try {
+            Double qtyInCase = null;
+            Double qtyInCreate = null;
+
+            String orderUom = inventoryV2.getInventoryUom();
+            log.info("orderUom---->" + orderUom);
+            String companyCodeId = inventoryV2.getCompanyCodeId();
+            String plantId = inventoryV2.getPlantId();
+            String warehouseId = inventoryV2.getWarehouseId();
+            String itemCode = inventoryV2.getItemCode();
+
+            if ("case".equalsIgnoreCase(orderUom)) {
+                log.info("OrderUom is CASE");
+
+//                IKeyValuePair pieceQty = stagingLineV2Repository.getAlternateUomQty(companyCodeId, plantId, warehouseId, itemCode, "1", "2");
+                IKeyValuePair createQty = stagingLineV2Repository.getAlternateUomQty(companyCodeId, plantId, warehouseId, itemCode, "1", "3");
+
+                qtyInCase = inventoryV2.getInventoryQuantity();
+
+                log.info("Case Qty --- {}", inventoryV2.getInventoryQuantity());
+//                log.info("Piece Qty ALT_UOM: {}", pieceQty);
+                log.info("Create Qty ALT_UOM: {}", createQty);
+
+//                if (inventoryV2.getInventoryQuantity() != null && pieceQty != null && pieceQty.getUomQty() != null) {
+//                    qtyInPiece = inventoryV2.getInventoryQuantity() * pieceQty.getUomQty();
+//                }
+
+                if (inventoryV2.getInventoryQuantity() != null && createQty != null && createQty.getUomQty() != null) {
+                    qtyInCreate = qtyInCase / createQty.getUomQty();
+                }
+            } else if ("crate".equalsIgnoreCase(orderUom)) {
+                log.info("OrderUom is Crate");
+                qtyInCreate = inventoryV2.getInventoryQuantity();
+
+//                IKeyValuePair pieceQty = stagingLineV2Repository.getAlternateUomQty(companyCodeId, plantId, warehouseId, itemCode, "1", "3");
+                IKeyValuePair caseQy = stagingLineV2Repository.getAlternateUomQty(companyCodeId, plantId, warehouseId, itemCode, "1", "2");
+
+                log.info("Crate Qty --- {}", inventoryV2.getInventoryQuantity());
+//                log.info("Piece Qty ALT_UOM: {}", pieceQty);
+                log.info("Create Qty ALT_UOM: {}", caseQy);
+
+//                if (inventoryV2.getInventoryQuantity() != null && pieceQty != null && pieceQty.getUomQty() != null) {
+//                    qtyInPiece = inventoryV2.getInventoryQuantity() * pieceQty.getUomQty();
+//                }
+
+                if (inventoryV2.getInventoryQuantity() != null && caseQy != null && caseQy.getUomQty() != null) {
+                    qtyInCase = inventoryV2.getInventoryQuantity() / caseQy.getUomQty();
+                }
+            } else {
+                throw new BadRequestException("Order Uom is Doesn't Match [Piece, Case, Crate] " + inventoryV2.getInventoryUom());
+            }
+
+//            inventorySource.setQtyInPiece(qtyInPiece);
+            inventorySource.setQtyInCase(qtyInCase);
+            inventorySource.setQtyInCreate(qtyInCreate);
+
+        } catch (Exception e) {
+            log.error("Error setting UOM quantities: {}", e.getMessage(), e);
+        }
+
+        return inventorySource;
+    }
 }

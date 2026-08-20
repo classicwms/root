@@ -27,5 +27,8 @@ public class ShipmentDeliveryReport {
 	private String vehicleNo;
 	private Double orderQty;
 	private Date expiryDate;
+  //BF
+    private String barcodeId;
+    private Date manufacturerDate;
 
 }

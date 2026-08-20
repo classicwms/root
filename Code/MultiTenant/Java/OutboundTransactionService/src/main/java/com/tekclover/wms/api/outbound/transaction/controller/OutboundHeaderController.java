@@ -8,6 +8,7 @@ import java.util.stream.Stream;
 import javax.validation.Valid;
 
 import com.tekclover.wms.api.outbound.transaction.config.dynamicConfig.DataBaseContextHolder;
+import com.tekclover.wms.api.outbound.transaction.model.dto.UpdateOutboundOrder;
 import com.tekclover.wms.api.outbound.transaction.model.outbound.*;
 import com.tekclover.wms.api.outbound.transaction.model.outbound.v2.OutboundHeaderV2;
 import com.tekclover.wms.api.outbound.transaction.model.outbound.v2.OutboundHeaderV2Stream;
@@ -221,6 +222,23 @@ public class OutboundHeaderController {
         }
         }
 
+//    @ApiOperation(response = OutboundHeaderV2.class, value = "Search OutboundHeader Rfd") // label for swagger
+//    @PostMapping("/v2/findOutboundHeaderRfd")
+//    public List<OutboundHeaderV2Stream> findOutboundHeaderrfdV2(@RequestBody SearchOutboundHeaderV2 searchOutboundHeader)
+//            throws Exception {
+//        try {
+//            DataBaseContextHolder.setCurrentDb("MT");
+//            String routingDb = dbConfigRepository.getDbList(searchOutboundHeader.getCompanyCodeId(), searchOutboundHeader.getPlantId(), searchOutboundHeader.getWarehouseId());
+//            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+//            DataBaseContextHolder.clear();
+//            DataBaseContextHolder.setCurrentDb(routingDb);
+//        return outboundheaderService.findOutboundHeaderRfdV2(searchOutboundHeader);
+//    }
+//        finally {
+//            DataBaseContextHolder.clear();
+//        }
+//        }
+
     @ApiOperation(response = OutboundHeaderV2.class, value = "Search OutboundHeader Rfd") // label for swagger
     @PostMapping("/v2/findOutboundHeaderRfd")
     public List<OutboundHeaderV2Stream> findOutboundHeaderrfdV2(@RequestBody SearchOutboundHeaderV2 searchOutboundHeader)
@@ -231,12 +249,20 @@ public class OutboundHeaderController {
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
             DataBaseContextHolder.setCurrentDb(routingDb);
-        return outboundheaderService.findOutboundHeaderRfdV2(searchOutboundHeader);
-    }
-        finally {
+            List<OutboundHeaderV2Stream> response;
+            if (routingDb.equalsIgnoreCase("BP")){
+                response = outboundheaderService.findOutboundHeaderRfdV6(searchOutboundHeader);
+            }else if (routingDb.equalsIgnoreCase("SPAREX")) {
+                response = outboundheaderService.findOutboundHeaderRfdV10(searchOutboundHeader);
+            } else {
+                return outboundheaderService.findOutboundHeaderRfdV2(searchOutboundHeader);
+            }
+            return response;
+
+        } finally {
             DataBaseContextHolder.clear();
         }
-        }
+    }
 
     @ApiOperation(response = OutboundHeaderV2.class, value = "Create OutboundHeader") // label for swagger
     @PostMapping("/v2")
@@ -299,4 +325,23 @@ public class OutboundHeaderController {
             DataBaseContextHolder.clear();
         }
         }
+
+        // BF
+    @ApiOperation(response = UpdateOutboundOrder.class, value = "Update OutboundOrders") // label for swagger
+    @PostMapping("/orders/update/v9")
+    public ResponseEntity<?> postOutBound(@Valid @RequestBody List<UpdateOutboundOrder> outboundOrder)
+            throws IllegalAccessException, InvocationTargetException, ParseException {
+        try {
+            DataBaseContextHolder.setCurrentDb("MT");
+            String routingDb = dbConfigRepository.getDbName(outboundOrder.get(0).getCompanyCodeId(), outboundOrder.get(0).getPlantId(), outboundOrder.get(0).getWarehouseId());
+            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(routingDb);
+            List<UpdateOutboundOrder> createdOutboundHeader = outboundheaderService.updateOutboundOrdersV9(outboundOrder);
+            return new ResponseEntity<>(createdOutboundHeader, HttpStatus.OK);
+        }
+        finally {
+            DataBaseContextHolder.clear();
+        }
+    }
 }

@@ -80,6 +80,10 @@ public class PutAwayHeaderService extends BaseService {
     @Autowired
     private GrLineService grLineService;
 
+
+    @Autowired
+    private PushNotificationService pushNotificationService;
+
     //-------------------------------------------------------------------------------------------------
     @Autowired
     private InboundLineV2Repository inboundLineV2Repository;
@@ -2804,5 +2808,207 @@ public class PutAwayHeaderService extends BaseService {
         PutAwayHeaderV2 dbPutAwayHeader = putAwayHeaderV2Repository.findTopByCompanyCodeIdAndPlantIdAndWarehouseIdAndReferenceField5AndManufacturerNameAndReferenceField9AndLanguageIdAndPutAwayNumberAndDeletionIndicator(
                 companyId, plantId, warehouseId, itemCode, manufactureName, lineReferenceNo, languageId, putAwayNumber, 0L);
         return dbPutAwayHeader;
+    }
+
+    //=============SPAREX============================
+    public List<PutAwayHeaderV2> updatePutAwayHeaderBatchV10(String loginUserID, List<PutAwayHeaderV2> updatePutAwayHeader)
+            throws IllegalAccessException, InvocationTargetException, ParseException {
+
+        List<PutAwayHeaderV2> putAwayHeaderV2List = new ArrayList<>();
+
+        for (PutAwayHeaderV2 putAwayHeaderV2 : updatePutAwayHeader) {
+            PutAwayHeaderV2 dbPutAwayHeader = putAwayHeaderV2Repository.findByPutAwayNumberAndBarcodeIdAndDeletionIndicator(putAwayHeaderV2.getPutAwayNumber(), putAwayHeaderV2.getBarcodeId(), 0L);
+            log.info("dbPutAwayHeader -----> {}", dbPutAwayHeader);
+            if (putAwayHeaderV2.getProposedStorageBin() != null) {
+                putAwayHeaderV2Repository.delete(dbPutAwayHeader);
+            }
+            if (dbPutAwayHeader != null) {
+                BeanUtils.copyProperties(putAwayHeaderV2, dbPutAwayHeader, CommonUtils.getNullPropertyNames(putAwayHeaderV2));
+                dbPutAwayHeader.setReferenceField1(dbPutAwayHeader.getProposedStorageBin());
+                dbPutAwayHeader.setProposedStorageBin(putAwayHeaderV2.getProposedStorageBin());
+                dbPutAwayHeader.setUpdatedBy(loginUserID);
+                dbPutAwayHeader.setUpdatedOn(new Date());
+                dbPutAwayHeader.setAssignedUserId(putAwayHeaderV2.getAssignedUserId());
+                PutAwayHeaderV2 savePutAway = putAwayHeaderV2Repository.save(dbPutAwayHeader);
+//                fireBaseNotification(updatePutAwayHeader.get(0), loginUserID);
+                putAwayHeaderV2List.add(savePutAway);
+            }
+        }
+        return putAwayHeaderV2List;
+    }
+
+    /**
+     * SQL - Method - to set Inventory Qty
+     *
+     * @param searchPutAwayHeader
+     * @return
+     * @throws Exception
+     */
+    public List<PutAwayHeaderImpl> findPutAwayHeaderSQLV9(SearchPutAwayHeaderV2 searchPutAwayHeader)
+            throws Exception {
+        if (searchPutAwayHeader.getStartCreatedOn() != null && searchPutAwayHeader.getEndCreatedOn() != null) {
+            Date[] dates = DateUtils.addTimeToDatesForSearch(searchPutAwayHeader.getStartCreatedOn(),
+                    searchPutAwayHeader.getEndCreatedOn());
+            searchPutAwayHeader.setStartCreatedOn(dates[0]);
+            searchPutAwayHeader.setEndCreatedOn(dates[1]);
+        }
+        log.info("searchPutAwayHeader V2: " + searchPutAwayHeader);
+
+        if (searchPutAwayHeader.getCompanyCodeId() == null || searchPutAwayHeader.getCompanyCodeId().isEmpty()) {
+            searchPutAwayHeader.setCompanyCodeId(null);
+        }
+        if (searchPutAwayHeader.getPlantId() == null || searchPutAwayHeader.getPlantId().isEmpty()) {
+            searchPutAwayHeader.setPlantId(null);
+        }
+        if (searchPutAwayHeader.getLanguageId() == null || searchPutAwayHeader.getLanguageId().isEmpty()) {
+            searchPutAwayHeader.setLanguageId(null);
+        }
+        if (searchPutAwayHeader.getWarehouseId() == null || searchPutAwayHeader.getWarehouseId().isEmpty()) {
+            searchPutAwayHeader.setWarehouseId(null);
+        }
+        if (searchPutAwayHeader.getItemCode() == null || searchPutAwayHeader.getItemCode().isEmpty()) {
+            searchPutAwayHeader.setItemCode(null);
+        }
+        if (searchPutAwayHeader.getManufacturerName() == null || searchPutAwayHeader.getManufacturerName().isEmpty()) {
+            searchPutAwayHeader.setManufacturerName(null);
+        }
+        if (searchPutAwayHeader.getManufacturerCode() == null || searchPutAwayHeader.getManufacturerCode().isEmpty()) {
+            searchPutAwayHeader.setManufacturerCode(null);
+        }
+        if (searchPutAwayHeader.getRefDocNumber() == null || searchPutAwayHeader.getRefDocNumber().isEmpty()) {
+            searchPutAwayHeader.setRefDocNumber(null);
+        }
+        if (searchPutAwayHeader.getPreInboundNo() == null || searchPutAwayHeader.getPreInboundNo().isEmpty()) {
+            searchPutAwayHeader.setPreInboundNo(null);
+        }
+        if (searchPutAwayHeader.getPackBarcodes() == null || searchPutAwayHeader.getPackBarcodes().isEmpty()) {
+            searchPutAwayHeader.setPackBarcodes(null);
+        }
+        if (searchPutAwayHeader.getPutAwayNumber() == null || searchPutAwayHeader.getPutAwayNumber().isEmpty()) {
+            searchPutAwayHeader.setPutAwayNumber(null);
+        }
+        if (searchPutAwayHeader.getProposedHandlingEquipment() == null || searchPutAwayHeader.getProposedHandlingEquipment().isEmpty()) {
+            searchPutAwayHeader.setProposedHandlingEquipment(null);
+        }
+        if (searchPutAwayHeader.getProposedStorageBin() == null || searchPutAwayHeader.getProposedStorageBin().isEmpty()) {
+            searchPutAwayHeader.setProposedStorageBin(null);
+        }
+        if (searchPutAwayHeader.getCreatedBy() == null || searchPutAwayHeader.getCreatedBy().isEmpty()) {
+            searchPutAwayHeader.setCreatedBy(null);
+        }
+        if (searchPutAwayHeader.getBarcodeId() == null || searchPutAwayHeader.getBarcodeId().isEmpty()) {
+            searchPutAwayHeader.setBarcodeId(null);
+        }
+        if (searchPutAwayHeader.getOrigin() == null || searchPutAwayHeader.getOrigin().isEmpty()) {
+            searchPutAwayHeader.setOrigin(null);
+        }
+        if (searchPutAwayHeader.getBrand() == null || searchPutAwayHeader.getBrand().isEmpty()) {
+            searchPutAwayHeader.setBrand(null);
+        }
+        if (searchPutAwayHeader.getApprovalStatus() == null || searchPutAwayHeader.getApprovalStatus().isEmpty()) {
+            searchPutAwayHeader.setApprovalStatus(null);
+        }
+        if (searchPutAwayHeader.getStatusId() == null || searchPutAwayHeader.getStatusId().isEmpty()) {
+            searchPutAwayHeader.setStatusId(null);
+        }
+        if (searchPutAwayHeader.getStartCreatedOn() == null || searchPutAwayHeader.getEndCreatedOn() == null) {
+            searchPutAwayHeader.setStartCreatedOn(null);
+        }
+
+        List<PutAwayHeaderImpl> results = putAwayHeaderV2Repository.findPutAwayHeaderV9(
+                searchPutAwayHeader.getCompanyCodeId(),
+                searchPutAwayHeader.getPlantId(),
+                searchPutAwayHeader.getLanguageId(),
+                searchPutAwayHeader.getWarehouseId(),
+                searchPutAwayHeader.getItemCode(),
+                searchPutAwayHeader.getManufacturerName(),
+                searchPutAwayHeader.getRefDocNumber(),
+                searchPutAwayHeader.getPreInboundNo(),
+                searchPutAwayHeader.getPackBarcodes(),
+                searchPutAwayHeader.getPutAwayNumber(),
+                searchPutAwayHeader.getProposedStorageBin(),
+                searchPutAwayHeader.getProposedHandlingEquipment(),
+                searchPutAwayHeader.getCreatedBy(),
+                searchPutAwayHeader.getBarcodeId(),
+                searchPutAwayHeader.getManufacturerCode(),
+                searchPutAwayHeader.getOrigin(),
+                searchPutAwayHeader.getBrand(),
+                searchPutAwayHeader.getApprovalStatus(),
+                searchPutAwayHeader.getStatusId(),
+                searchPutAwayHeader.getInboundOrderTypeId(),
+                searchPutAwayHeader.getStartCreatedOn(),
+                searchPutAwayHeader.getEndCreatedOn());
+        log.info("putAwayHeader results:" + results.size());
+        return results;
+    }
+
+    public List<PutAwayHeaderV2> updatePutAwayHeaderBatchV9(String loginUserID, List<PutAwayHeaderV2> updatePutAwayHeader)
+            throws IllegalAccessException, InvocationTargetException, ParseException {
+
+        List<PutAwayHeaderV2> putAwayHeaderV2List = new ArrayList<>();
+
+        for (PutAwayHeaderV2 putAwayHeaderV2 : updatePutAwayHeader) {
+            PutAwayHeaderV2 dbPutAwayHeader = putAwayHeaderV2Repository.findByPutAwayNumberAndBarcodeIdAndPalletCodeAndDeletionIndicator(putAwayHeaderV2.getPutAwayNumber(), putAwayHeaderV2.getBarcodeId(), putAwayHeaderV2.getPalletCode(), 0L);
+            log.info("dbPutAwayHeader -----> {}", dbPutAwayHeader);
+            if (putAwayHeaderV2.getProposedStorageBin() != null) {
+                putAwayHeaderV2Repository.delete(dbPutAwayHeader);
+            }
+            if (dbPutAwayHeader != null) {
+                BeanUtils.copyProperties(putAwayHeaderV2, dbPutAwayHeader, CommonUtils.getNullPropertyNames(putAwayHeaderV2));
+//                dbPutAwayHeader.setReferenceField1(dbPutAwayHeader.getProposedStorageBin());
+                dbPutAwayHeader.setProposedStorageBin(putAwayHeaderV2.getProposedStorageBin());
+                dbPutAwayHeader.setUpdatedBy(loginUserID);
+                dbPutAwayHeader.setUpdatedOn(new Date());
+                dbPutAwayHeader.setAssignedUserId(putAwayHeaderV2.getAssignedUserId());
+                PutAwayHeaderV2 savePutAway = putAwayHeaderV2Repository.save(dbPutAwayHeader);
+                fireBaseNotification(updatePutAwayHeader.get(0), loginUserID);
+                putAwayHeaderV2List.add(savePutAway);
+            }
+        }
+        return putAwayHeaderV2List;
+    }
+
+    /**
+     * @param putAwayHeaderV2
+     * @param loginUserID
+     */
+    private void fireBaseNotification(PutAwayHeaderV2 putAwayHeaderV2, String loginUserID) {
+        try {
+//            try {
+//                DataBaseContextHolder.setCurrentDb("MT");
+//                String profile = dbConfigRepository.getDbName(putAwayLine.getCompanyCode(), putAwayLine.getPlantId(), putAwayLine.getWarehouseId());
+//                log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", profile);
+//                DataBaseContextHolder.clear();
+//                DataBaseContextHolder.setCurrentDb(profile);
+
+            log.info("Notification Input ----> | " + putAwayHeaderV2.getCompanyCodeId() + " | " + putAwayHeaderV2.getPlantId() + " | " + putAwayHeaderV2.getLanguageId() + " | " + putAwayHeaderV2.getWarehouseId());
+            List<String> deviceToken = grLineV2Repository.getDeviceToken(putAwayHeaderV2.getCompanyCodeId(), putAwayHeaderV2.getPlantId(), putAwayHeaderV2.getLanguageId(), putAwayHeaderV2.getWarehouseId(), loginUserID);
+            log.info("deviceToken ------> {}", deviceToken);
+            if (deviceToken != null && !deviceToken.isEmpty()) {
+                String title = "Inbound Create";
+                String message = "Putaway Header Created Sucessfully - " + putAwayHeaderV2.getPutAwayNumber();
+
+                NotificationSave notificationInput = new NotificationSave();
+                notificationInput.setUserId(Collections.singletonList(loginUserID));
+                notificationInput.setUserType(null);
+                notificationInput.setMessage(message);
+                notificationInput.setTopic(title);
+                notificationInput.setReferenceNumber(putAwayHeaderV2.getRefDocNumber());
+                notificationInput.setDocumentNumber(putAwayHeaderV2.getPreInboundNo());
+                notificationInput.setCompanyCodeId(putAwayHeaderV2.getCompanyCodeId());
+                notificationInput.setPlantId(putAwayHeaderV2.getPlantId());
+                notificationInput.setLanguageId(putAwayHeaderV2.getLanguageId());
+                notificationInput.setWarehouseId(putAwayHeaderV2.getWarehouseId());
+                notificationInput.setCreatedOn(putAwayHeaderV2.getCreatedOn());
+                notificationInput.setCreatedBy(loginUserID);
+                log.info("PutawayNotification----->" + notificationInput);
+
+                log.info("pushNotification started");
+                pushNotificationService.sendPushNotification(deviceToken, notificationInput);
+                log.info("pushNotification completed");
+            }
+        } catch (Exception e) {
+            log.error("Inbound firebase notification error", e); // This logs the full stack trace
+        }
     }
 }

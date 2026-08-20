@@ -19,6 +19,7 @@ import com.tekclover.wms.api.inbound.transaction.model.warehouse.inbound.confirm
 import com.tekclover.wms.api.inbound.transaction.repository.DbConfigRepository;
 import com.tekclover.wms.api.inbound.transaction.repository.WarehouseRepository;
 import com.tekclover.wms.api.inbound.transaction.service.CrossDockService;
+import com.tekclover.wms.api.inbound.transaction.service.CrossDockServiceV9;
 import com.tekclover.wms.api.inbound.transaction.service.GrLineService;
 import com.tekclover.wms.api.inbound.transaction.model.impl.GrLineImpl;
 import com.tekclover.wms.api.inbound.transaction.model.inbound.gr.v2.AddGrLineV2;
@@ -69,6 +70,9 @@ public class GrLineController {
 
     @Autowired
     WarehouseRepository warehouseRepository;
+
+    @Autowired
+    CrossDockServiceV9 crossDockServiceV9;
 
     @ApiOperation(response = GrLine.class, value = "Get all GrLine details") // label for swagger
     @GetMapping("")
@@ -282,6 +286,22 @@ public class GrLineController {
 //                    case "BP":
 //                        createGrLineResponse = grlineService.createGrLineNonCBMV6(newGrLine, loginUserID);
 //                        break;
+
+                    case "SPAREX":
+                        createGrLineResponse = grlineService.createGrLineNonCBMV10(newGrLine, loginUserID);
+                        break;
+                    case "BF":
+//                        createGrLineResponse = grlineService.createGrLineNonCBMV9(newGrLine, loginUserID);
+                        createGrLineResponse = grlineService.createNewGrLineV9(newGrLine, loginUserID, 0L);
+                        break;
+                    case "KKF":
+//                        createGrLineResponse = grlineService.createGrLineNonCBMV9(newGrLine, loginUserID);
+                        createGrLineResponse = grlineService.createNewGrLineV9(newGrLine, loginUserID, 0L);
+                        break;
+                    case "KSP":
+//                        createGrLineResponse = grlineService.createGrLineNonCBMV9(newGrLine, loginUserID);
+                        createGrLineResponse = grlineService.createNewGrLineV9(newGrLine, loginUserID, 0L);
+                        break;
                 }
             }
             return new ResponseEntity<>(createGrLineResponse, HttpStatus.OK);

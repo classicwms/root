@@ -394,4 +394,25 @@ public class PickupHeaderController {
             DataBaseContextHolder.clear();
         }
     }
+
+    //===========SPAREX===========================
+    @ApiOperation(response = PickupHeaderV2.class, value = "Update PickupHeader V10") // label for swagger
+    @PatchMapping("/v10")
+    public ResponseEntity<?> patchPickupHeaderV10( @Valid @RequestBody PickupHeaderV2 updatePickupHeader,
+                                                   @RequestParam String loginUserID)
+            throws IllegalAccessException, InvocationTargetException, ParseException, FirebaseMessagingException {
+        try {
+            DataBaseContextHolder.setCurrentDb("MT");
+            String routingDb = dbConfigRepository.getDbName(updatePickupHeader.getCompanyCodeId(), updatePickupHeader.getPlantId(),
+                    updatePickupHeader.getWarehouseId());
+            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(routingDb);
+            PickupHeaderV2 createdPickupHeader =
+                    pickupheaderService.updatePickupHeaderV10(loginUserID, updatePickupHeader);
+            return new ResponseEntity<>(createdPickupHeader, HttpStatus.OK);
+        } finally {
+            DataBaseContextHolder.clear();
+        }
+    }
 }

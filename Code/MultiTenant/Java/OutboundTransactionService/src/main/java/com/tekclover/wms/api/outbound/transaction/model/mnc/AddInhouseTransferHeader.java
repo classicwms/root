@@ -63,6 +63,8 @@ public class AddInhouseTransferHeader {
 	private String plantDescription;
 	private String warehouseDescription;
 	private String statusDescription;
+	//BP
+	private String targetWarehouseId;
 
 	private List<AddInhouseTransferLine> inhouseTransferLine;
 }

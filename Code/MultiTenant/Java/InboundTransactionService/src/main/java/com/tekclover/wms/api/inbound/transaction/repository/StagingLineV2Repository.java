@@ -1,6 +1,7 @@
 package com.tekclover.wms.api.inbound.transaction.repository;
 
 import com.tekclover.wms.api.inbound.transaction.model.dto.AlternateUomImpl;
+import com.tekclover.wms.api.inbound.transaction.model.dto.PalletInvOwnerDto;
 import com.tekclover.wms.api.inbound.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 import com.tekclover.wms.api.inbound.transaction.model.IKeyValuePair;
 import com.tekclover.wms.api.inbound.transaction.model.inbound.staging.v2.StagingLineEntityV2;
@@ -304,6 +305,10 @@ public interface StagingLineV2Repository extends JpaRepository<StagingLineEntity
             String languageId, String companyCode, String plantId, String warehouseId,
             String itemCode, String manufacturerName, Long deletionIndicator);
 
+    void deleteByCompanyCodeAndPlantIdAndWarehouseIdAndItemCodeAndRefDocNumberAndLineNoAndPreInboundNoAndDeletionIndicator(
+            String companyCode, String plantId, String warehouseId, String itemCode,String refDocNumber, Long lineNo, String preInboundNo, Long deletionIndicator);
+
+
     @Transactional
     @Procedure(procedureName = "staging_line_update_proc")
     public void updateStagingLineUpdateProc(
@@ -520,5 +525,126 @@ public interface StagingLineV2Repository extends JpaRepository<StagingLineEntity
                                         @Param("lineNo") Long lineNo,
                                         @Param("statusId") Long statusId,
                                         @Param("statusText") String statusText);
+
+    void deleteByCompanyCodeAndPlantIdAndWarehouseIdAndItemCodeAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
+            String companyCode, String plantId, String warehouseId, String itemCode,String refDocNumber, String preInboundNo, Long deletionIndicator);
+
+
+    @Query(value = "select uom_qty uomQty from tblimalternateuom where " +
+            "c_id = :companyCode and plant_id = :plantId and wh_id = :warehouseId and itm_code = :itemCode and " +
+            "uom_id = :uomId and alt_uom = :altUom", nativeQuery = true)
+    public Double getUomQtyV9(@Param("companyCode") String companyCode,
+                              @Param("plantId") String plantId,
+                              @Param("warehouseId") String warehouseId,
+                              @Param("itemCode") String itemCode,
+                              @Param("uomId") String uomId,
+                              @Param("altUom") String altUom);
+
+    @Query(value = "select parent_production_order_no as palletId, MATERIAL_NO as inventoryOwner, PRICE_SEGMENT as priceSegment from tblstagingline where c_id = :companyCode  and plant_id = :plantId " +
+            " and lang_id = :languageId and wh_id = :warehouseId and ref_doc_no = :refDocNumber " +
+            " and pre_ib_no = :preInboundNo and itm_code = :itemCode and stg_no = :stagingNo " +
+            " and case_code = :caseCode and pal_code = :palCode and barcode_id = :barcodeId and ib_line_no = :lineNo ", nativeQuery = true)
+    PalletInvOwnerDto getStagingLineParentProductionV9(@Param("companyCode") String companyCodeId,
+                                                       @Param("plantId") String plantId,
+                                                       @Param("languageId") String languageId,
+                                                       @Param("warehouseId") String warehouseId,
+                                                       @Param("refDocNumber") String refDocNumber,
+                                                       @Param("preInboundNo") String preInboundNo,
+                                                       @Param("lineNo") Long lineNo,
+                                                       @Param("itemCode") String itemCode,
+                                                       @Param("barcodeId") String barcodeId,
+                                                       @Param("caseCode") String caseCode,
+                                                       @Param("palCode") String palCode,
+                                                       @Param("stagingNo") String stagingNo);
+
+    @Modifying
+    @Query(value = "UPDATE tblstagingline \n" +
+            "SET status_id = :statusId, status_text = :statusText \n" +
+            "WHERE ref_doc_no = :refDocNo and c_id = :companyId and plant_id = :plantId and lang_id = :languageId and wh_id = :warehouseId and PARENT_PRODUCTION_ORDER_NO = :palletId and itm_code = :itemCode and is_deleted = 0 \n" +
+            "AND (select sum(gr_qty) from tblgrline where REF_DOC_NO = :refDocNo and itm_code = :itemCode and PARENT_PRODUCTION_ORDER_NO = :palletId and is_deleted = 0) = " +
+            "(select sum(ord_qty) from tblstagingline where REF_DOC_NO = :refDocNo and itm_code = :itemCode and PARENT_PRODUCTION_ORDER_NO = :palletId and is_deleted = 0)", nativeQuery = true)
+    int updatestagingLineV9(@Param("companyId") String companyId,
+                            @Param("plantId") String plantId,
+                            @Param("languageId") String languageId,
+                            @Param("warehouseId") String warehouseId,
+                            @Param("refDocNo") String refDocNo,
+                            @Param("statusId") Long statusId,
+                            @Param("statusText") String statusText,
+                            @Param("itemCode") String itemCode,
+                            @Param("palletId") String palletId);
+
+
+    @Modifying
+    @Query(value = "update tblstagingline set MFR_DATE = :manufacturerDate, EXP_DATE = :expiryDate, " +
+            "PRINT_LABEL = :printLabel where ITM_CODE = :itemCode and BARCODE_ID = :barcodeId  " +
+            "and REF_DOC_NO = :refDocNumber and is_deleted = 0", nativeQuery = true)
+    public void updateExpiryMfrV9(@Param("itemCode") String itemcode,
+                                  @Param("barcodeId") String barcodeId,
+                                  @Param("refDocNumber") String refDocNumber,
+                                  @Param("manufacturerDate") Date manufacturerDate,
+                                  @Param("expiryDate") Date expiryDate,
+                                  @Param("printLabel") String printLabel);
+
+    Optional<StagingLineEntityV2> findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndPreInboundNoAndRefDocNumberAndStagingNoAndCaseCodeAndLineNoAndDeletionIndicator(
+            String languageId, String companyCodeId, String plantId, String warehouseId,
+            String preInboundNo, String refDocNumber, String stagingNo,
+            String caseCode, Long lineNo, Long deletionIndicator);
+
+    @Modifying
+    @Transactional
+    @Query(value = "DELETE FROM tblstagingline WHERE WH_ID = :warehouseId AND PRE_IB_NO = :preInboundNo And CASE_CODE = :caseCode \r\n"
+            + "AND REF_DOC_NO = :refDocNumber AND STG_NO = :stagingNo and C_ID = :companyCodeId And Plant_id = :plantId \r\n"
+            + "AND IB_LINE_NO = :lineNumber AND ITM_CODE = :itemCode", nativeQuery = true)
+    void deleteStagingLineV9(@Param("warehouseId") String warehouseId,
+                             @Param("preInboundNo") String preInboundNo,
+                             @Param("refDocNumber") String refDocNumber,
+                             @Param("caseCode") String caseCode,
+                             @Param("stagingNo") String stagingNo,
+                             @Param("companyCodeId") String companyCodeId,
+                             @Param("plantId") String plantId,
+                             @Param("lineNumber") Long lineNumber,
+                             @Param("itemCode") String itemCode);
+
+    Optional<StagingLineEntityV2> findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndPreInboundNoAndRefDocNumberAndStagingNoAndCaseCodeAndLineNoAndItemCodeAndDeletionIndicator(
+            String languageId, String companyCodeId, String plantId, String warehouseId,
+            String preInboundNo, String refDocNumber, String stagingNo,
+            String caseCode, Long lineNo, String itemCode, Long deletionIndicator);
+
+    @Query(value = "select * from tblstagingline where itm_code = :itemCode and status_id in (14,17) and is_deleted=0 ", nativeQuery = true)
+    List<StagingLineEntityV2> findStagingLineByItemV9(@Param("itemCode") String itemCode);
+
+    @Modifying
+    @Query(value = "update tblstagingline set CROSS_DOCK = 'true' where C_ID = :companyCode " +
+            " and PLANT_ID = :plantId and LANG_ID = :languageId and WH_ID = :warehouseId " +
+            " and REF_DOC_NO = :refDocNumber and PRE_IB_NO = :preInboundNo and " +
+            " ITM_CODE = :itemCode and IB_LINE_NO = :lineNo ", nativeQuery = true)
+    void updateStagingLineCrossDockV6(@Param("companyCode") String companyCodeId,
+                                      @Param("plantId") String plantId,
+                                      @Param("languageId") String languageId,
+                                      @Param("warehouseId") String warehouseId,
+                                      @Param("refDocNumber") String refDocNumber,
+                                      @Param("preInboundNo") String preInboundNo,
+                                      @Param("lineNo") Long lineNo,
+                                      @Param("itemCode") String itemCode);
+
+
+    @Query(value = "SELECT OB_STRATEGY, FIFO_MD FROM tblwarehouse WHERE " +
+            "C_ID = :companyId AND PLANT_ID = :plantId " +
+            "AND WH_ID = :warehouseId AND " +
+            "IS_DELETED = 0 ", nativeQuery = true)
+    List<Object[]> getStrategy(@Param("companyId") String companyId,
+                               @Param("plantId") String plantId,
+                               @Param("warehouseId") String warehouseId);
+
+    @Query(value = "select alt_uom_qty alterUomQty, uom_qty uomQty from tblimalternateuom where " +
+            "c_id = :companyCode and plant_id = :plantId and wh_id = :warehouseId and itm_code = :itemCode and " +
+            "uom_id = :uomId and alt_uom = :altUom", nativeQuery = true)
+    public IKeyValuePair getAlternateUomQty(@Param("companyCode") String companyCode,
+                                            @Param("plantId") String plantId,
+                                            @Param("warehouseId") String warehouseId,
+                                            @Param("itemCode") String itemCode,
+                                            @Param("uomId") String uomId,
+                                            @Param("altUom") String altUom);
+
 
 }

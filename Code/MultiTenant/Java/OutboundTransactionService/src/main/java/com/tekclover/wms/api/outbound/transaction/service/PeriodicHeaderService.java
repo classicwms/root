@@ -1890,5 +1890,13 @@ public class PeriodicHeaderService extends BaseService {
             throw new BadRequestException("Exception while periodic stock count create : " + e.getLocalizedMessage());
         }
     }
-
+    /**
+     * @param cycleCountNo
+     * @return
+     */
+    public PeriodicHeaderV2 getPeriodicHeaderV9(String companyCode, String plantId, String languageId, String warehouseId, String cycleCountNo) {
+        PeriodicHeaderV2 periodicHeader = periodicHeaderV2Repository.getPeriodicHeaderV9(
+                companyCode, plantId, languageId, warehouseId, cycleCountNo);
+        return periodicHeader;
+    }
 }

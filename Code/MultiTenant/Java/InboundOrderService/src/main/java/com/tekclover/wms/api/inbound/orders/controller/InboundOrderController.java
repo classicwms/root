@@ -2,7 +2,9 @@ package com.tekclover.wms.api.inbound.orders.controller;
 
 import com.tekclover.wms.api.inbound.orders.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.inbound.orders.model.inbound.InboundOrderMobileApp;
+import com.tekclover.wms.api.inbound.orders.model.inbound.preinbound.v2.PreInboundLineEntityV2;
 import com.tekclover.wms.api.inbound.orders.model.inbound.v2.InboundHeaderEntityV2;
+import com.tekclover.wms.api.inbound.orders.model.warehouse.inbound.ASNV9;
 import com.tekclover.wms.api.inbound.orders.model.warehouse.inbound.SaleOrderReturn;
 import com.tekclover.wms.api.inbound.orders.model.warehouse.inbound.WarehouseApiResponse;
 import com.tekclover.wms.api.inbound.orders.model.warehouse.inbound.v2.*;
@@ -63,6 +65,9 @@ public class InboundOrderController {
 
     @Autowired
     TransactionService transactionService;
+
+    @Autowired
+    SupplierInvoiceServiceV9 supplierInvoiceServiceV9;
 //
 //    // ASN V2
 //    @ApiOperation(response = ASNV2.class, value = "ASN V2") // label for swagger
@@ -316,6 +321,18 @@ public class InboundOrderController {
                         case "KNOWELL":
                             createdInterWarehouseTransferInV2 = warehouseService.postWarehouseASNV7(asnv2);
                             break;
+                        case "SPAREX":
+                            createdInterWarehouseTransferInV2 = warehouseService.postWarehouseASNV10(asnv2);
+                            break;
+                        case "BF":
+                            createdInterWarehouseTransferInV2 = warehouseService.postWarehouseASNV9(asnv2);
+                            break;
+                        case "KKF":
+                            createdInterWarehouseTransferInV2 = warehouseService.postWarehouseASNV9(asnv2);
+                            break;
+                        case "KSP":
+                            createdInterWarehouseTransferInV2 = warehouseService.postWarehouseASNV9(asnv2);
+                            break;
 //                        case "BP":
 //                            createdInterWarehouseTransferInV2 = warehouseService.postWarehouseASNV4(asnv2);
 //                            break;
@@ -400,6 +417,15 @@ public class InboundOrderController {
                         case "KNOWELL":
                             createdSoReturnV2 = warehouseService.postSOReturnV2(soReturnV2);
                             break;
+                        case "BF":
+                            createdSoReturnV2 = warehouseService.postSOReturnV9(soReturnV2);
+                            break;
+                        case "KKF":
+                            createdSoReturnV2 = warehouseService.postSOReturnV9(soReturnV2);
+                            break;
+                        case "KSP":
+                            createdSoReturnV2 = warehouseService.postSOReturnV9(soReturnV2);
+                            break;
                         default:
                             createdSoReturnV2 = warehouseService.postSOReturnV2(soReturnV2);
                             break;
@@ -458,4 +484,142 @@ public class InboundOrderController {
         }
     }
 
+    //------------------------------BF & BFS --------------------------------
+    @ApiOperation(response = ASNV2.class, value = "ASN V9") // label for swagger
+    @PostMapping("/inbound/asn/upload/v9")
+    public ResponseEntity<?> postASNUploadV9(@Valid @RequestBody List<ASNV2> asnList)
+            throws Exception {
+        List<WarehouseApiResponse> responseList = new ArrayList<>();
+        try {
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb("MT");
+            String routingDb = dbConfigRepository.getDbName(asnList.get(0).getAsnHeader().getCompanyCode(), asnList.get(0).getAsnHeader().getBranchCode(),asnList.get(0).getAsnHeader().getWarehouseId());
+            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(routingDb);
+
+            asnList.forEach(asnv2 -> {
+                supplierInvoiceServiceV9.saveASNUploadV9(asnv2);
+            });
+//            if (asnList.get(0).getAsnHeader().getInboundOrderTypeId().equals(1L)) {
+            supplierInvoiceServiceV9.inboundOrderUploadV9(asnList);
+//            }
+            WarehouseApiResponse response = new WarehouseApiResponse();
+            response.setStatusCode("200");
+            response.setMessage("Success");
+            responseList.add(response);
+            return new ResponseEntity<>(responseList, HttpStatus.OK);
+        } catch (Exception e) {
+            WarehouseApiResponse response = new WarehouseApiResponse();
+            response.setStatusCode("400");
+            response.setMessage("Not Success");
+            responseList.add(response);
+            return new ResponseEntity<>(response, HttpStatus.EXPECTATION_FAILED);
+        } finally {
+            DataBaseContextHolder.clear();
+        }
+    }
+
+    // ASN UPLOAD
+    @ApiOperation(response = ASNV9.class, value = "ASN V9") // label for swagger
+    @PostMapping("/inbound/asn/v9")
+    public ResponseEntity<?> postASNV9(@Valid @RequestBody List<ASNV9> asnList)
+            throws Exception {
+        List<WarehouseApiResponse> responseList = new ArrayList<>();
+        try {
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb("MT");
+            String routingDb = dbConfigRepository.getDbName(asnList.get(0).getAsnHeader().getCompanyCode(), asnList.get(0).getAsnHeader().getBranchCode(),asnList.get(0).getAsnHeader().getWareHouseId());
+            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(routingDb);
+
+
+            for(ASNV9 asnv2 : asnList) {
+                supplierInvoiceServiceV9.saveASNV9(asnv2);
+            }
+            log.info("Inbound Order Process Started ----------> ");
+            supplierInvoiceServiceV9.inboundOrderV9(asnList);
+            log.info("Inbound Order Process Completed --------> ");
+
+//            if (asnList.get(0).getAsnHeader().getInboundOrderTypeId().equals(1L)) {
+//            supplierInvoiceServiceV9.inboundOrderV9(asnList);
+//            }
+//
+//
+//            for (ASNV9 asnv9 : asnList) {
+//                supplierInvoiceServiceV9.saveASNV9(asnv9);
+//            }
+
+            WarehouseApiResponse response = new WarehouseApiResponse();
+            response.setStatusCode("200");
+            response.setMessage("Success");
+            responseList.add(response);
+            return new ResponseEntity<>(responseList, HttpStatus.OK);
+        } catch (Exception e) {
+            WarehouseApiResponse response = new WarehouseApiResponse();
+            response.setStatusCode("400");
+            response.setMessage("Not Success");
+            responseList.add(response);
+            return new ResponseEntity<>(response, HttpStatus.EXPECTATION_FAILED);
+        } finally {
+            DataBaseContextHolder.clear();
+        }
+    }
+
+    @ApiOperation(response = WarehouseApiResponse.class, value = "create inbound")
+    @PostMapping("bf/order/process/v9")
+    public ResponseEntity<WarehouseApiResponse[]> processInboundOrderV9(@RequestBody List<PreInboundLineEntityV2> preInboundLineEntityV2List) {
+
+        try {
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb("MT");
+            String routingDb = dbConfigRepository.getDbName(preInboundLineEntityV2List.get(0).getCompanyCode(),preInboundLineEntityV2List.get(0).getPlantId(),preInboundLineEntityV2List.get(0).getWarehouseId());
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(routingDb);
+            supplierInvoiceServiceV9.orderProcessV9(preInboundLineEntityV2List);
+            WarehouseApiResponse response = new WarehouseApiResponse();
+            response.setStatusCode("200");
+            response.setMessage("Success");
+            WarehouseApiResponse[] responseArray = {response};
+            return new ResponseEntity<>(responseArray, HttpStatus.OK);
+        } catch (Exception e) {
+            WarehouseApiResponse error = new WarehouseApiResponse();
+            error.setStatusCode("400");
+            error.setMessage("Error processing inbound: " + e.getMessage());
+            WarehouseApiResponse[] responseArray = {error};
+            return new ResponseEntity<>(responseArray, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    //==============================BF InterWarehouseTransferIn=====================================
+    @ApiOperation(response = InterWarehouseTransferInV2.class, value = "Inter Warehouse Transfer V9")
+    @PostMapping("/inbound/interWarehouseTransferIn/v9")
+    public ResponseEntity<?> postInterWarehouseTransferInV9(@Valid @RequestBody InterWarehouseTransferInV2 interWarehouseTransferInV2)
+            throws IllegalAccessException, InvocationTargetException {
+        try {
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb("MT");
+            String routingDb = dbConfigRepository.getDbName(interWarehouseTransferInV2.getInterWarehouseTransferInHeader().getSourceCompanyCode(),
+                    interWarehouseTransferInV2.getInterWarehouseTransferInHeader().getSourceBranchCode(), interWarehouseTransferInV2.getInterWarehouseTransferInHeader().getWarehouseId());
+            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(routingDb);
+            warehouseService.postInterWarehouseTransferInV9(interWarehouseTransferInV2);
+            WarehouseApiResponse response = new WarehouseApiResponse();
+            response.setStatusCode("200");
+            response.setMessage("Success");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+
+        } catch (Exception e) {
+            log.info("interWarehouseTransfer order Error: " + interWarehouseTransferInV2);
+            e.printStackTrace();
+            WarehouseApiResponse response = new WarehouseApiResponse();
+            response.setStatusCode("1400");
+            response.setMessage("Not Success: " + e.getLocalizedMessage());
+            return new ResponseEntity<>(response, HttpStatus.EXPECTATION_FAILED);
+        } finally {
+            DataBaseContextHolder.clear();
+        }
+    }
 }

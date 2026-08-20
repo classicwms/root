@@ -62,4 +62,6 @@ public class UpdateImAlternateUom {
 	private String updatedBy;
 
 	private Double uomIdQty;
+	
+	private Double alternateUomQty;
 }

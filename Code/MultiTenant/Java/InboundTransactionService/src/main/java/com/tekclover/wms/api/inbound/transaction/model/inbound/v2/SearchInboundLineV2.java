@@ -32,4 +32,12 @@ public class SearchInboundLineV2 extends SearchInboundLine {
 	private List<String> size;
 	private List<String> noPairs;
 	private List<String> barcodeId;
+
+	private List<String> erpStatus;
+
+	private Date startConfirmedOn;
+	private Date endConfirmedOn;
+
+	private List<String> vehicleNo;
+	private List<String> referenceDocumentType;
 }

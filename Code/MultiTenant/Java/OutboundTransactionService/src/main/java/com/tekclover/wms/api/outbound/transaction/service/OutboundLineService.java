@@ -1,6 +1,7 @@
 package com.tekclover.wms.api.outbound.transaction.service;
 
 import com.tekclover.wms.api.outbound.transaction.config.PropertiesConfig;
+import com.tekclover.wms.api.outbound.transaction.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.outbound.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.outbound.transaction.model.IKeyValuePair;
 import com.tekclover.wms.api.outbound.transaction.model.auth.AXAuthToken;
@@ -27,6 +28,7 @@ import com.tekclover.wms.api.outbound.transaction.model.outbound.pickup.UpdatePi
 import com.tekclover.wms.api.outbound.transaction.model.outbound.pickup.v2.PickupHeaderV2;
 import com.tekclover.wms.api.outbound.transaction.model.outbound.pickup.v2.PickupLineV2;
 import com.tekclover.wms.api.outbound.transaction.model.outbound.preoutbound.v2.OutboundIntegrationHeaderV2;
+import com.tekclover.wms.api.outbound.transaction.model.outbound.preoutbound.v2.PreOutboundLineV2;
 import com.tekclover.wms.api.outbound.transaction.model.outbound.quality.QualityHeader;
 import com.tekclover.wms.api.outbound.transaction.model.outbound.quality.QualityLine;
 import com.tekclover.wms.api.outbound.transaction.model.outbound.quality.v2.QualityHeaderV2;
@@ -38,6 +40,8 @@ import com.tekclover.wms.api.outbound.transaction.model.report.StockMovementRepo
 import com.tekclover.wms.api.outbound.transaction.model.report.StockMovementReport1;
 import com.tekclover.wms.api.outbound.transaction.model.trans.InventoryTrans;
 import com.tekclover.wms.api.outbound.transaction.model.warehouse.inbound.confirmation.AXApiResponse;
+import com.tekclover.wms.api.outbound.transaction.model.warehouse.inbound.v2.InboundOrderLinesV2;
+import com.tekclover.wms.api.outbound.transaction.model.warehouse.inbound.v2.InboundOrderV2;
 import com.tekclover.wms.api.outbound.transaction.model.warehouse.outbound.confirmation.*;
 import com.tekclover.wms.api.outbound.transaction.repository.*;
 import com.tekclover.wms.api.outbound.transaction.repository.specification.*;
@@ -52,6 +56,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -63,6 +69,24 @@ public class OutboundLineService extends BaseService {
     private OutboundLineInterimRepository outboundLineInterimRepository;
     @Autowired
     private OutboundHeaderRepository outboundHeaderRepository;
+
+    @Autowired
+    OutboundOrderV2Repository outboundOrderV2Repository;
+
+    @Autowired
+    InboundOrderLinesV2Repository inboundOrderLinesV2Repository;
+
+    @Autowired
+    OutboundOrderLinesV2Repository outboundOrderLinesV2Repository;
+
+    @Autowired
+    InboundOrderV2Repository inboundOrderV2Repository;
+
+    @Autowired
+    PickupHeaderV2Repository pickupHeaderV2Repository;
+
+    @Autowired
+    OrderManagementHeaderV2Repository orderManagementHeaderV2Repository;
 
     @Autowired
     private OutboundLineRepository outboundLineRepository;
@@ -153,6 +177,8 @@ public class OutboundLineService extends BaseService {
     StagingLineV2Repository stagingLineV2Repository;
     @Autowired
     InventoryTransRepository inventoryTransRepository;
+    @Autowired
+    QualityHeaderV2Repository qualityHeaderV2Repository;
 
     String statusDescription = null;
     //------------------------------------------------------------------------------------------------------
@@ -5112,4 +5138,1996 @@ public class OutboundLineService extends BaseService {
         }
     }
 
-}
+    //===========SPAREX======================
+    /**
+     *
+     * @param searchOutboundLine
+     * @return
+     * @throws ParseException
+     */
+    public List<OutboundLineOutput> findOutboundLineNewV10(SearchOutboundLineV2 searchOutboundLine) throws ParseException {
+
+        try {
+            if (searchOutboundLine.getFromDeliveryDate() != null && searchOutboundLine.getToDeliveryDate() != null) {
+                Date[] dates = DateUtils.addTimeToDatesForSearch(searchOutboundLine.getFromDeliveryDate(),
+                        searchOutboundLine.getToDeliveryDate());
+                searchOutboundLine.setFromDeliveryDate(dates[0]);
+                searchOutboundLine.setToDeliveryDate(dates[1]);
+            }
+
+            if (searchOutboundLine.getWarehouseId() == null || searchOutboundLine.getWarehouseId().isEmpty()) {
+                searchOutboundLine.setWarehouseId(null);
+            }
+            if (searchOutboundLine.getPreOutboundNo() == null || searchOutboundLine.getPreOutboundNo().isEmpty()) {
+                searchOutboundLine.setPreOutboundNo(null);
+            }
+            if (searchOutboundLine.getRefDocNumber() == null || searchOutboundLine.getRefDocNumber().isEmpty()) {
+                searchOutboundLine.setRefDocNumber(null);
+            }
+            if (searchOutboundLine.getLineNumber() == null || searchOutboundLine.getLineNumber().isEmpty()) {
+                searchOutboundLine.setLineNumber(null);
+            }
+            if (searchOutboundLine.getItemCode() == null || searchOutboundLine.getItemCode().isEmpty()) {
+                searchOutboundLine.setItemCode(null);
+            }
+            if (searchOutboundLine.getStatusId() == null || searchOutboundLine.getStatusId().isEmpty()) {
+                searchOutboundLine.setStatusId(null);
+            }
+            if (searchOutboundLine.getOrderType() == null || searchOutboundLine.getOrderType().isEmpty()) {
+                searchOutboundLine.setOrderType(null);
+            }
+            if (searchOutboundLine.getPartnerCode() == null || searchOutboundLine.getPartnerCode().isEmpty()) {
+                searchOutboundLine.setPartnerCode(null);
+            }
+            if (searchOutboundLine.getSalesOrderNumber() == null || searchOutboundLine.getSalesOrderNumber().isEmpty()) {
+                searchOutboundLine.setSalesOrderNumber(null);
+            }
+            if (searchOutboundLine.getTargetBranchCode() == null || searchOutboundLine.getTargetBranchCode().isEmpty()) {
+                searchOutboundLine.setTargetBranchCode(null);
+            }
+            if (searchOutboundLine.getManufacturerName() == null || searchOutboundLine.getManufacturerName().isEmpty()) {
+                searchOutboundLine.setManufacturerName(null);
+            }
+
+            log.info("Find OutboundLine Search Input: " + searchOutboundLine);
+            List<OutboundLineOutput> outboundLineSearchResults = outboundLineV2Repository.findOutboundLineV10(
+                    searchOutboundLine.getCompanyCodeId(), searchOutboundLine.getLanguageId(),
+                    searchOutboundLine.getPlantId(), searchOutboundLine.getWarehouseId(),
+                    searchOutboundLine.getFromDeliveryDate(), searchOutboundLine.getToDeliveryDate(), searchOutboundLine.getPreOutboundNo(),
+                    searchOutboundLine.getRefDocNumber(), searchOutboundLine.getLineNumber(), searchOutboundLine.getItemCode(),
+                    searchOutboundLine.getSalesOrderNumber(), searchOutboundLine.getTargetBranchCode(), searchOutboundLine.getManufacturerName(),
+                    searchOutboundLine.getStatusId(), searchOutboundLine.getOrderType(), searchOutboundLine.getPartnerCode());
+            log.info("OutboundLine search results : " + outboundLineSearchResults.size());
+            return outboundLineSearchResults;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public List<OutboundLineV2> deliveryConfirmationV10(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                                        String preOutboundNo, String refDocNumber, String partnerCode, String loginUserID)
+            throws IllegalAccessException, InvocationTargetException {
+        /*--------------------OutboundLine-Check---------------------------------------------------------------------------*/
+        List<Long> statusIds = Arrays.asList(59L);
+        long outboundLineProcessedCount = getOutboundLineV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode, statusIds);
+        log.info("outboundLineProcessedCount : " + outboundLineProcessedCount);
+        boolean isAlreadyProcessed = (outboundLineProcessedCount > 0 ? true : false);
+        log.info("outboundLineProcessed Already Processed? : " + isAlreadyProcessed);
+        if (isAlreadyProcessed) {
+            throw new BadRequestException("Order is already processed.");
+        }
+
+        /*--------------------OrderManagementLine-Check---------------------------------------------------------------------*/
+        // OrderManagementLine checking for STATUS_ID - 42L, 43L
+        long orderManagementLineCount = orderManagementLineService.getOrderManagementLineV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, Arrays.asList(42L, 43L));
+        boolean isConditionMet = (orderManagementLineCount > 0 ? true : false);
+        log.info("orderManagementLineCount ---- isConditionMet : " + isConditionMet);
+        if (isConditionMet) {
+            throw new BadRequestException("OrderManagementLine is not completely Processed.");
+        }
+
+        /*--------------------PickupHeader-Check---------------------------------------------------------------------*/
+        // PickupHeader checking for STATUS_ID - 48
+        long pickupHeaderCount = pickupHeaderService.getPickupHeaderCountForDeliveryConfirmationV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, 48L);
+        isConditionMet = (pickupHeaderCount > 0 ? true : false);
+        log.info("pickupHeaderCount ---- isConditionMet : " + isConditionMet);
+        if (isConditionMet) {
+            throw new BadRequestException("Pickup is not completely Processed.");
+        }
+
+        // QualityHeader checking for STATUS_ID - 54
+        long qualityHeaderCount = qualityHeaderService.getQualityHeaderCountForDeliveryConfirmationV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, 54L);
+        isConditionMet = (qualityHeaderCount > 0 ? true : false);
+        log.info("qualityHeaderCount ---- isConditionMet : " + isConditionMet);
+        if (isConditionMet) {
+            throw new BadRequestException("Quality check is not completely Processed.");
+        }
+
+        //----------------------------------------------------------------------------------------------------------
+//        List<Long> statusIdsToBeChecked = Arrays.asList(57L, 47L, 51L, 41L);
+        List<Long> statusIdsToBeChecked = Arrays.asList(57L, 47L, 51L);
+        long outboundLineListCount = getOutboundLineV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode, statusIdsToBeChecked);
+        log.info("outboundLineListCount : " + outboundLineListCount);
+        isConditionMet = (outboundLineListCount > 0 ? true : false);
+        log.info("isConditionMet : " + isConditionMet);
+
+        if (!isConditionMet) {
+            throw new BadRequestException("OutboundLine: Order is not completely Processed.");
+        } else {
+            log.info("Order can be Processed.");
+        }
+
+        try {
+            Long STATUS_ID_59 = 59L;
+            List<Long> statusId57 = Arrays.asList(57L);
+            statusDescription = stagingLineV2Repository.getStatusDescription(STATUS_ID_59, languageId);
+            List<OutboundLineV2> outboundLineByStatus57List = findOutboundLineByStatusV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode, statusId57);
+
+            // ----------------OutboundLine update-----------------------------------------------------------------------------------------
+            List<Long> lineNumbers = outboundLineByStatus57List.stream().map(OutboundLine::getLineNumber).collect(Collectors.toList());
+            List<String> itemCodes = outboundLineByStatus57List.stream().map(OutboundLine::getItemCode).collect(Collectors.toList());
+            Date deliveryConfirmedOn = new Date();
+            outboundLineV2Repository.updateOutboundLineStatusV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, STATUS_ID_59, statusDescription, lineNumbers, deliveryConfirmedOn);
+            log.info("OutboundLine updated ");
+
+            //----------------Outbound Header update----------------------------------------------------------------------------------------
+            log.info("c_id, plant_id, lang_id, wh_id, ref_doc_no, status_id, Status_desc, date:---->OBH Update----> "
+                    + companyCodeId + "," + plantId + "," + languageId + "," + warehouseId + "," + refDocNumber + "," + STATUS_ID_59 + "," + statusDescription + "," + new Date() + "," + preOutboundNo);
+            outboundHeaderV2Repository.updateOutboundHeaderStatusNewV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, STATUS_ID_59, statusDescription, new Date());
+//            OutboundHeaderV2 isOrderConfirmedOutboundHeader = outboundHeaderService.getOutboundHeaderV10(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber);
+//            log.info("OutboundHeader updated----1---> : " + isOrderConfirmedOutboundHeader.getRefDocNumber() + "---" + isOrderConfirmedOutboundHeader.getStatusId());
+//            if (isOrderConfirmedOutboundHeader.getStatusId() != 59L) {
+//                log.info("OutboundHeader is still updated not updated.");
+//                log.info("Updating again OutboundHeader.");
+//                isOrderConfirmedOutboundHeader.setStatusId(STATUS_ID_59);
+//                isOrderConfirmedOutboundHeader.setStatusDescription(statusDescription);
+//                isOrderConfirmedOutboundHeader.setUpdatedBy(loginUserID);
+//                isOrderConfirmedOutboundHeader.setUpdatedOn(new Date());
+//                isOrderConfirmedOutboundHeader.setDeliveryConfirmedOn(new Date());
+//                outboundHeaderV2Repository.saveAndFlush(isOrderConfirmedOutboundHeader);
+//                log.info("OutboundHeader updated---2---> : " + isOrderConfirmedOutboundHeader.getRefDocNumber() + "---" + isOrderConfirmedOutboundHeader.getStatusId());
+//            }
+
+            int outboundHeaderUpdate = outboundHeaderV2Repository.updateOutboundHeaderV10(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, STATUS_ID_59, statusDescription, loginUserID, new Date(), new Date());
+            log.info("OutboundHeader updated---2---> : " + refDocNumber + " | Count ---> : " + outboundHeaderUpdate);
+
+            //----------------Preoutbound Line----------------------------------------------------------------------------------------------
+            preOutboundLineV2Repository.updatePreOutboundLineStatusV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, STATUS_ID_59, statusDescription);
+            log.info("PreOutbound Line updated");
+
+            //----------------Preoutbound Header--------------------------------------------------------------------------------------------
+            preOutboundHeaderV2Repository.updatePreOutboundHeaderStatusV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, STATUS_ID_59, statusDescription);
+            log.info("PreOutbound Header updated");
+
+            //----------------OrderManagement Line--------------------------------------------------------------------------------------------
+            orderManagementLineV2Repository.updateOrderManagementLineStatus(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, STATUS_ID_59, statusDescription);
+            log.info("OrderManagement Line updated");
+
+            //----------------Pickup Line--------------------------------------------------------------------------------------------
+            pickupLineV2Repository.updatePickupLineStatus(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, STATUS_ID_59, statusDescription);
+            log.info("PickupLine Line updated");
+
+            return outboundLineByStatus57List;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+    //===========SPAREX================
+    /**
+     * @param outboundLines
+     * @param loginUserID
+     * @return
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     */
+    public List<OutboundLine> deliveryConfirmationV10(List<OutboundLineV2> outboundLines, String loginUserID) throws IllegalAccessException, InvocationTargetException {
+        /*--------------------OutboundLine-Check---------------------------------------------------------------------------*/
+
+        for (OutboundLineV2 outboundLine : outboundLines) {
+
+            String companyId = outboundLine.getCompanyCodeId();
+            String plantId = outboundLine.getPlantId();
+            String languageId = outboundLine.getLanguageId();
+            String warehouseId = outboundLine.getWarehouseId();
+
+            String refDocNumber = outboundLine.getRefDocNumber();
+            String preOutboundNo = outboundLine.getPreOutboundNo();
+            String itemCode = outboundLine.getItemCode();
+            Long lineNumber = outboundLine.getLineNumber();
+            String partnerCode = outboundLine.getPartnerCode();
+
+            List<Long> statusIds = Arrays.asList(59L);
+            long outboundLineProcessedCount = getOutboundLine(warehouseId, preOutboundNo, refDocNumber, partnerCode, statusIds);
+            log.info("outboundLineProcessedCount : " + outboundLineProcessedCount);
+            boolean isAlreadyProcessed = (outboundLineProcessedCount > 0 ? true : false);
+            log.info("outboundLineProcessed Already Processed? : " + isAlreadyProcessed);
+            if (isAlreadyProcessed) {
+                throw new BadRequestException("Order is already processed.");
+            }
+
+            /*--------------------OrderManagementLine-Check---------------------------------------------------------------------*/
+            // OrderManagementLine checking for STATUS_ID - 42L, 43L
+            long orderManagementLineCount = orderManagementLineService.getOrderManagementLine(warehouseId, refDocNumber, preOutboundNo, Arrays.asList(42L, 43L));
+            boolean isConditionMet = (orderManagementLineCount > 0 ? true : false);
+            log.info("orderManagementLineCount ---- isConditionMet : " + isConditionMet);
+            if (isConditionMet) {
+                throw new BadRequestException("OrderManagementLine is not completely Processed.");
+            }
+
+            /*--------------------PickupHeader-Check---------------------------------------------------------------------*/
+            // PickupHeader checking for STATUS_ID - 48
+            long pickupHeaderCount = pickupHeaderService.getPickupHeaderCountForDeliveryConfirmation(warehouseId, refDocNumber, preOutboundNo, 48L);
+            isConditionMet = (pickupHeaderCount > 0 ? true : false);
+            log.info("pickupHeaderCount ---- isConditionMet : " + isConditionMet);
+            if (isConditionMet) {
+                throw new BadRequestException("Pickup is not completely Processed.");
+            }
+
+            // QualityHeader checking for STATUS_ID - 54
+            long qualityHeaderCount = qualityHeaderService.getQualityHeaderCountForDeliveryConfirmation(warehouseId, refDocNumber, preOutboundNo, 54L);
+            isConditionMet = (qualityHeaderCount > 0 ? true : false);
+            log.info("qualityHeaderCount ---- isConditionMet : " + isConditionMet);
+            if (isConditionMet) {
+                throw new BadRequestException("Quality check is not completely Processed.");
+            }
+
+            //----------------------------------------------------------------------------------------------------------
+            List<Long> statusIdsToBeChecked = Arrays.asList(57L, 47L, 51L, 41L);
+            long outboundLineListCount = getOutboundLine(warehouseId, preOutboundNo, refDocNumber, partnerCode, statusIdsToBeChecked);
+            log.info("outboundLineListCount : " + outboundLineListCount);
+            isConditionMet = (outboundLineListCount > 0 ? true : false);
+            log.info("isConditionMet : " + isConditionMet);
+
+            AXApiResponse axapiResponse = null;
+            if (!isConditionMet) {
+                throw new BadRequestException("OutboundLine: Order is not completely Processed.");
+            } else {
+                log.info("Order can be Processed.");
+                /*
+                 * Call this respective API end points when REF_DOC_NO is confirmed with STATUS_ID = 59 in OUTBOUNDHEADER and
+                 * OUTBOUNDLINE tables and based on OB_ORD_TYP_ID as per API document
+                 */
+                OutboundHeader confirmedOutboundHeader = outboundHeaderService.getOutboundHeader(warehouseId, preOutboundNo, refDocNumber);
+                List<OutboundLine> confirmedOutboundLines = getOutboundLine(warehouseId, preOutboundNo, refDocNumber);
+                log.info("OutboundOrderTypeId : " + confirmedOutboundHeader.getOutboundOrderTypeId());
+                log.info("confirmedOutboundLines: " + confirmedOutboundLines);
+            }
+
+            try {
+                Long STATUS_ID_59 = 59L;
+                List<Long> statusId57 = Arrays.asList(57L);
+                AuthToken authTokenForIDService = authTokenService.getIDMasterServiceAuthToken();
+                List<OutboundLine> outboundLineByStatus57List = findOutboundLineByStatus(warehouseId, preOutboundNo, refDocNumber, partnerCode, statusId57);
+
+                // ----------------OoutboundLine update-----------------------------------------------------------------------------------------
+                List<Long> lineNumbers = outboundLineByStatus57List.stream().map(OutboundLine::getLineNumber).collect(Collectors.toList());
+                List<String> itemCodes = outboundLineByStatus57List.stream().map(OutboundLine::getItemCode).collect(Collectors.toList());
+
+                outboundLineRepository.updateOutboundLineStatus(warehouseId, refDocNumber, STATUS_ID_59, lineNumbers);
+                log.info("OutboundLine updated ");
+
+                //----------------Outbound Header update----------------------------------------------------------------------------------------
+                outboundHeaderRepository.updateOutboundHeaderStatus(warehouseId, refDocNumber, STATUS_ID_59, new Date());
+                OutboundHeader isOrderConfirmedOutboundHeader = outboundHeaderService.getOutboundHeader(warehouseId, preOutboundNo, refDocNumber);
+                log.info("OutboundHeader updated----1---> : " + isOrderConfirmedOutboundHeader.getRefDocNumber() + "---" + isOrderConfirmedOutboundHeader.getStatusId());
+                if (isOrderConfirmedOutboundHeader.getStatusId() != 59L) {
+                    log.info("OutboundHeader is still updated not updated.");
+                    log.info("Updating again OutboundHeader.");
+                    isOrderConfirmedOutboundHeader.setStatusId(STATUS_ID_59);
+                    isOrderConfirmedOutboundHeader.setUpdatedBy(loginUserID);
+                    isOrderConfirmedOutboundHeader.setUpdatedOn(new Date());
+                    isOrderConfirmedOutboundHeader.setDeliveryConfirmedOn(new Date());
+                    outboundHeaderRepository.saveAndFlush(isOrderConfirmedOutboundHeader);
+                    log.info("OutboundHeader updated---2---> : " + isOrderConfirmedOutboundHeader.getRefDocNumber() + "---" + isOrderConfirmedOutboundHeader.getStatusId());
+                }
+
+                //----------------Preoutbound Line----------------------------------------------------------------------------------------------
+                preOutboundLineRepository.updatePreOutboundLineStatus(warehouseId, refDocNumber, STATUS_ID_59);
+                log.info("PreOutbound Line updated");
+
+                //----------------Preoutbound Header--------------------------------------------------------------------------------------------
+                StatusId idStatus = idmasterService.getStatus(STATUS_ID_59, warehouseId, authTokenForIDService.getAccess_token());
+                preOutboundHeaderRepository.updatePreOutboundHeaderStatus(warehouseId, refDocNumber, STATUS_ID_59, idStatus.getStatus());
+                log.info("PreOutbound Header updated");
+
+                /*-----------------Inventory Updates---------------------------*/
+                List<QualityLine> dbQualityLine = qualityLineService.getQualityLine(warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumbers, itemCodes);
+                Long BIN_CL_ID = 5L;
+                for (QualityLine qualityLine : dbQualityLine) {
+                    //------------Update Lock applied---------------------------------------------------------------------------------
+                    List<Inventory> inventoryList = inventoryService.getInventoryForDeliveryConfirmtion(qualityLine.getWarehouseId(),
+                            qualityLine.getItemCode(), qualityLine.getPickPackBarCode(), BIN_CL_ID);
+                    for (Inventory inventory : inventoryList) {
+                        Double INV_QTY = inventory.getInventoryQuantity() - qualityLine.getQualityQty();
+
+                        if (INV_QTY < 0) {
+                            INV_QTY = 0D;
+                        }
+
+                        if (INV_QTY >= 0) {
+                            inventory.setInventoryQuantity(INV_QTY);
+
+                            // INV_QTY > 0 then, update Inventory Table
+                            inventory = inventoryRepository.save(inventory);
+                        }
+                    }
+                    log.info("Inventory updated");
+                }
+
+                /*-------------------Inserting record in InventoryMovement-------------------------------------*/
+                Long BIN_CLASS_ID = 5L;
+                AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
+                StorageBin storageBin = mastersService.getStorageBin(warehouseId, BIN_CLASS_ID, authTokenForMastersService.getAccess_token());
+                String movementDocumentNo = refDocNumber;
+                String stBin = storageBin.getStorageBin();
+                String movementQtyValue = "N";
+
+                List<PickupLine> dbPickupLine = pickupLineService.getPickupLine(warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumbers, itemCodes);
+                log.info("dbPickupLine: " + dbPickupLine.size());
+                if (dbPickupLine != null) {
+                    List<InventoryMovement> newInventoryMovementList = new ArrayList<>();
+                    for (PickupLine pickupLine : dbPickupLine) {
+                        InventoryMovement inventoryMovement = createInventoryMovement(pickupLine, movementDocumentNo, stBin,
+                                movementQtyValue, loginUserID, true);
+                        newInventoryMovementList.add(inventoryMovement);
+                    }
+                    if (newInventoryMovementList.size() > 0) {
+                        inventoryMovementRepository.saveAll(newInventoryMovementList);
+                        log.info("InventoryMovement list created.");
+                    }
+                }
+
+                return outboundLineByStatus57List;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+    //===========SPAREX New Order Reversal========================
+    /**
+     * @param outboundCancellations Outbound Cancellation
+     */
+    public void outboundReversalV10(List<OutboundCancellation> outboundCancellations) {
+
+        log.info("OutboundCancellationInput ------> {}", outboundCancellations);
+
+        for (OutboundCancellation outboundReversalInput : outboundCancellations) {
+            List<Long> statusIdList = Arrays.asList(59L);
+            boolean pickUpConfirm = pickupLineV2Repository.existsByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndStatusIdInAndDeletionIndicator(
+                    outboundReversalInput.getCompanyCodeId(), outboundReversalInput.getPlantId(), outboundReversalInput.getWarehouseId(),
+                    outboundReversalInput.getRefDocNumber(), outboundReversalInput.getPreOutboundNo(), statusIdList, 0L);
+            log.info("pickUpConfirm Status Checking " + pickUpConfirm);
+            if (pickUpConfirm) {
+                throw new BadRequestException("This Order Delivered for this  --------> RefDocNo  " + outboundReversalInput.getRefDocNumber());
+            }
+            for (OutboundCancellation outboundCancellation : outboundCancellations) {
+                if (outboundCancellation.getItemCode() != null) {
+                    log.info("Outbound Lines Cancellation Started");
+//                    for (Long line : outboundCancellation.getLineNumber()) {
+
+//                        PreOutboundLineV2 list = preOutboundLineV2Repository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndLineNumberAndDeletionIndicator(
+//                                "EN", outboundCancellation.getCompanyCodeId(), outboundCancellation.getPlantId(), outboundCancellation.getWarehouseId(),
+//                                outboundCancellation.getRefDocNumber(), line, 0L);
+//                        log.info("PreOutbound Line " + list);
+
+                    List<PreOutboundLineV2> list = preOutboundLineV2Repository.findByCompanyCodeIdAndLanguageIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
+                            outboundCancellation.getCompanyCodeId(), "EN", outboundCancellation.getPlantId(), outboundCancellation.getWarehouseId(),
+                            outboundCancellation.getRefDocNumber(), 0L);
+                    log.info("PreOutbound Line " + list);
+                    if (list != null) {
+                        PreOutboundLineV2 preOutboundLine = list.get(0);
+
+//                        outboundLineV2Repository.deleteOutboundLine(outboundCancellation.getCompanyCodeId(), outboundCancellation.getPlantId(), outboundCancellation.getWarehouseId(),
+//                                outboundCancellation.getItemCode(), outboundCancellation.getRefDocNumber(), line, list.getPreOutboundNo(), 0L);
+//                        log.info("OutboundLine V10 Deleted Successfully ---> ItemCode , RefDocNo is {}", outboundCancellation.getRefDocNumber());
+//
+//                        orderManagementLineV2Repository.deleteOrderManagementLine(
+//                                outboundCancellation.getCompanyCodeId(), outboundCancellation.getPlantId(), outboundCancellation.getWarehouseId(),
+//                                outboundCancellation.getItemCode(), outboundCancellation.getRefDocNumber(), line, list.getPreOutboundNo(), 0L);
+//                        log.info("OrderManagementLine V10 Deleted Successfully ---> ItemCode , RefDocNo is {}", outboundCancellation.getRefDocNumber());
+//
+//                        int deletedRows = preOutboundLineV2Repository.deletePreOutboundLine(outboundCancellation.getCompanyCodeId(),
+//                                outboundCancellation.getPlantId(), outboundCancellation.getWarehouseId(),
+//                                outboundCancellation.getItemCode(), outboundCancellation.getRefDocNumber(), line,
+//                                list.getPreOutboundNo(), 0L);
+//                        log.info("PreOutboundLine deleted rows = {}", deletedRows);
+//
+//                        pickupHeaderV2Repository.deletePickupHeader(outboundCancellation.getCompanyCodeId(),
+//                                outboundCancellation.getPlantId(), outboundCancellation.getWarehouseId(),
+//                                outboundCancellation.getItemCode(), outboundCancellation.getRefDocNumber(), line,
+//                                list.getPreOutboundNo(), 0L);
+//                        log.info("PickupHeader Deleted Successfully V10 ---> RefDocNo is {}", outboundCancellation.getRefDocNumber());
+
+
+                        outboundLineV2Repository.deleteOutboundLine(
+                                outboundCancellation.getCompanyCodeId(), outboundCancellation.getPlantId(), outboundCancellation.getWarehouseId(),
+                                outboundCancellation.getItemCode(), outboundCancellation.getRefDocNumber(), preOutboundLine.getPreOutboundNo(), 0L);
+                        log.info("OutboundLine Deleted Successfully V10 ---> RefDocNo is {}",
+                                outboundCancellation.getRefDocNumber());
+
+                        orderManagementLineV2Repository.deleteOrderManagementLine(
+                                outboundCancellation.getCompanyCodeId(), outboundCancellation.getPlantId(), outboundCancellation.getWarehouseId(),
+                                outboundCancellation.getItemCode(), outboundCancellation.getRefDocNumber(), preOutboundLine.getPreOutboundNo(), 0L);
+                        log.info("OrderManagementLine Deleted Successfully V10 ---> RefDocNo is {}",
+                                outboundCancellation.getRefDocNumber());
+
+                        preOutboundLineV2Repository.deletePreOutboundLine(
+                                outboundCancellation.getCompanyCodeId(), outboundCancellation.getPlantId(), outboundCancellation.getWarehouseId(),
+                                outboundCancellation.getItemCode(), outboundCancellation.getRefDocNumber(), preOutboundLine.getPreOutboundNo(), 0L);
+                        log.info("PreOutboundLine Deleted Successfully V10 ---> RefDocNo is {}",
+                                outboundCancellation.getRefDocNumber());
+
+                        pickupHeaderV2Repository.deletePickupHeader(
+                                outboundCancellation.getCompanyCodeId(), outboundCancellation.getPlantId(), outboundCancellation.getWarehouseId(),
+                                outboundCancellation.getItemCode(), outboundCancellation.getRefDocNumber(), preOutboundLine.getPreOutboundNo(), 0L);
+
+                        log.info("PickupHeader Deleted Successfully V10 ---> RefDocNo is {}",
+                                outboundCancellation.getRefDocNumber());
+
+                        obOrderReversalV10(outboundCancellation.getItemCode(), outboundCancellation.getRefDocNumber());
+
+                        //Check Remaining Lines
+                        long lineCount = preOutboundLineV2Repository.getLinePreOutboundLineCount(outboundCancellation.getCompanyCodeId(), "EN", outboundCancellation.getPlantId(),
+                                outboundCancellation.getWarehouseId(), outboundCancellation.getRefDocNumber(), 0L);
+
+                        if (lineCount == 0) {
+
+                            preOutboundHeaderV2Repository.deletePreOutboundHeader(outboundCancellation.getCompanyCodeId(),
+                                    outboundCancellation.getPlantId(), outboundCancellation.getWarehouseId(),
+                                    outboundCancellation.getRefDocNumber(), preOutboundLine.getPreOutboundNo(),
+                                    0L);
+                            log.info("PreOutboundHeader Deleted Successfully V10 ---> RefDocNo: {}, ItemCode: {}",
+                                    outboundCancellation.getRefDocNumber(),
+                                    outboundCancellation.getItemCode());
+
+                            outboundHeaderV2Repository.deleteOutboundHeader(outboundCancellation.getCompanyCodeId(),
+                                    outboundCancellation.getPlantId(), outboundCancellation.getWarehouseId(),
+                                    outboundCancellation.getRefDocNumber(), preOutboundLine.getPreOutboundNo(),
+                                    0L);
+
+                            log.info("OutboundHeader Deleted Successfully V10 ---> RefDocNo: {}, ItemCode: {}",
+                                    outboundCancellation.getRefDocNumber(),
+                                    outboundCancellation.getItemCode());
+
+                            orderManagementHeaderV2Repository.deleteOrderManagementHeader(outboundCancellation.getCompanyCodeId(),
+                                    outboundCancellation.getPlantId(), outboundCancellation.getWarehouseId(),
+                                    outboundCancellation.getRefDocNumber(), outboundCancellation.getPreOutboundNo());
+
+                            log.info("OrderManagementHeader Deleted Successfully V10 ---> RefDocNo: {}, ItemCode: {}", outboundCancellation.getRefDocNumber(), outboundCancellation.getItemCode());
+
+
+                            int outboundOrderHeader =  outboundOrderV2Repository.deleteByItemCodeAndOrderId(outboundCancellation.getRefDocNumber());
+                            log.info("Affected rows -----> {}",outboundOrderHeader);
+
+                            log.info("All lines deleted. Headers deleted for RefDocNo: {}", outboundCancellation.getRefDocNumber());
+
+                        } else {
+
+                            log.info("Remaining line count = {}. Headers not deleted for RefDocNo: {}", lineCount, outboundCancellation.getRefDocNumber());
+                        }
+
+//                        obOrderReversalV10(outboundCancellation.getItemCode(), outboundCancellation.getRefDocNumber());
+
+                        Double totalPickConfirmQty = pickupLineV2Repository.getTotalPickConfirmQty(outboundCancellation.getCompanyCodeId(),
+                                outboundCancellation.getPlantId(), "EN", outboundCancellation.getWarehouseId(),
+                                outboundCancellation.getPreOutboundNo(), outboundCancellation.getRefDocNumber(),
+                                outboundCancellation.getItemCode());
+
+                        log.info("Total PickConfirmQty for ItemCode {} = {}", outboundCancellation.getItemCode(), totalPickConfirmQty);
+
+                        if (totalPickConfirmQty > 0) {
+
+                            PickupLineV2 pickupLine = pickupLineV2Repository.findTopPickupLine(outboundCancellation.getCompanyCodeId(),
+                                    outboundCancellation.getPlantId(), "EN", outboundCancellation.getWarehouseId(),
+                                    outboundCancellation.getPreOutboundNo(), outboundCancellation.getRefDocNumber(), outboundCancellation.getItemCode());
+
+                            log.info("PickupLine found for ItemCode: {} , Count: {}", outboundCancellation.getItemCode(), totalPickConfirmQty);
+
+                            InboundOrderV2 inboundOrderV2List = new InboundOrderV2();
+
+                            inboundOrderV2List.setCompanyCode(pickupLine.getCompanyCodeId());
+                            inboundOrderV2List.setBranchCode(pickupLine.getPlantId());
+                            inboundOrderV2List.setLanguageId(pickupLine.getLanguageId());
+                            inboundOrderV2List.setWarehouseID(pickupLine.getWarehouseId());
+                            inboundOrderV2List.setInboundOrderTypeId(2L);
+                            inboundOrderV2List.setRefDocumentNo(pickupLine.getRefDocNumber());
+                            inboundOrderV2List.setOrderId(pickupLine.getRefDocNumber());
+
+                            //ItemCode
+                            inboundOrderV2List.setPurchaseOrderNumber(pickupLine.getItemCode());
+                            inboundOrderV2List.setProcessedStatusId(0L);
+                            inboundOrderV2List.setRefDocumentType("Sales Return");
+                            inboundOrderV2List.setOrderReceivedOn(new Date());
+                            inboundOrderV2List.setOrderProcessedOn(new Date());
+
+                            InboundOrderLinesV2 inboundOrderLinesV2 = new InboundOrderLinesV2();
+
+                            inboundOrderLinesV2.setCompanyCode(pickupLine.getCompanyCodeId());
+                            inboundOrderLinesV2.setBranchCode(pickupLine.getPlantId());
+                            inboundOrderLinesV2.setLineReference(pickupLine.getLineNumber());
+                            inboundOrderLinesV2.setFromCompanyCode(pickupLine.getCompanyCodeId());
+                            inboundOrderLinesV2.setOrderId(pickupLine.getRefDocNumber());
+                            inboundOrderLinesV2.setItemCode(pickupLine.getItemCode());
+                            inboundOrderLinesV2.setItemText(pickupLine.getDescription());
+                            inboundOrderLinesV2.setManufacturerCode(pickupLine.getManufacturerCode());
+                            inboundOrderLinesV2.setManufacturerName(pickupLine.getManufacturerName());
+                            inboundOrderLinesV2.setManufacturerPartNo(pickupLine.getManufacturerPartNo());
+                            inboundOrderLinesV2.setManufacturerFullName(pickupLine.getManufacturerFullName());
+                            inboundOrderLinesV2.setMiddlewareTable(pickupLine.getPickedStorageBin());
+                            inboundOrderLinesV2.setOrderedQty(totalPickConfirmQty);
+                            inboundOrderLinesV2.setExpectedQty(totalPickConfirmQty);
+
+                            inboundOrderLinesV2.setInboundOrderTypeId(2L);
+                            inboundOrderLinesV2.setSupplierName(pickupLine.getCustomerName());
+                            inboundOrderV2List.setLines(Collections.singleton(inboundOrderLinesV2));
+                            createInboundOrdersV10(inboundOrderV2List);
+                            log.info("Sales Return created successfully");
+
+                            pickupLineV2Repository.deletePickupLineByItemCode(pickupLine.getCompanyCodeId(),
+                                    pickupLine.getPlantId(), pickupLine.getWarehouseId(), pickupLine.getItemCode());
+
+                            log.info("PickupLine deleted successfully for ItemCode: {}", pickupLine.getItemCode());
+
+                        }
+
+                    }
+                } else {
+                    log.info("Outbound Order Cancellation Started");
+                    List<PreOutboundLineV2> list = preOutboundLineV2Repository.findByCompanyCodeIdAndLanguageIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
+                            outboundCancellation.getCompanyCodeId(),"EN",  outboundCancellation.getPlantId(), outboundCancellation.getWarehouseId(),
+                            outboundCancellation.getRefDocNumber(), 0L);
+                    log.info("PreOutbound List ---> {}", list);
+
+                    if (list != null && !list.isEmpty()) {
+                        PreOutboundLineV2 preOutboundLine = list.get(0);
+                        String preOutboundNo = preOutboundLine.getPreOutboundNo();
+                        preOutboundHeaderV2Repository.deletePreOutboundHeader(
+                                outboundCancellation.getCompanyCodeId(), outboundCancellation.getPlantId(), outboundCancellation.getWarehouseId(),
+                                outboundCancellation.getRefDocNumber(), preOutboundLine.getPreOutboundNo(), 0L);
+                        log.info("PreOutboundHeader Deleted Successfully V10 ---> RefDocNo is {}", outboundCancellation.getRefDocNumber());
+
+                        preOutboundLineV2Repository.deletePreOutboundLine(
+                                outboundCancellation.getCompanyCodeId(), outboundCancellation.getPlantId(), outboundCancellation.getWarehouseId(),
+                                outboundCancellation.getRefDocNumber(), preOutboundLine.getPreOutboundNo(), 0L);
+                        log.info("PreOutboundLine Deleted Successfully V10 ---> RefDocNo is {}", outboundCancellation.getRefDocNumber());
+
+                        outboundHeaderV2Repository.deleteOutboundHeader(
+                                outboundCancellation.getCompanyCodeId(), outboundCancellation.getPlantId(), outboundCancellation.getWarehouseId(),
+                                outboundCancellation.getRefDocNumber(), preOutboundLine.getPreOutboundNo(), 0L);
+                        log.info("OutboundHeader Deleted Successfully V10 ---> RefDocNo is {}", outboundCancellation.getRefDocNumber());
+
+                        outboundLineV2Repository.deleteOutboundLine(outboundCancellation.getCompanyCodeId(), outboundCancellation.getPlantId(), outboundCancellation.getWarehouseId(),
+                                outboundCancellation.getRefDocNumber(), preOutboundLine.getPreOutboundNo(), 0L);
+                        log.info("OutboundLine Deleted Successfully V10 ---> RefDocNo is {}", outboundCancellation.getRefDocNumber());
+
+                        orderManagementHeaderV2Repository.deleteOrderManagementHeader(
+                                outboundCancellation.getCompanyCodeId(), outboundCancellation.getPlantId(), outboundCancellation.getWarehouseId(),
+                                outboundCancellation.getRefDocNumber(), outboundCancellation.getPreOutboundNo());
+                        log.info("OrderManagementHeader Deleted Successfully V10 ---> RefDocNo is {}", outboundCancellation.getRefDocNumber());
+
+                        orderManagementLineV2Repository.deleteOrderManagementLine(
+                                outboundCancellation.getCompanyCodeId(), outboundCancellation.getPlantId(), outboundCancellation.getWarehouseId(),
+                                outboundCancellation.getRefDocNumber(), preOutboundLine.getPreOutboundNo(), 0L);
+                        log.info("OrderManagementLine Deleted Successfully V10 ---> RefDocNo is {}", outboundCancellation.getRefDocNumber());
+
+                        pickupHeaderV2Repository.deletePickupHeader(outboundCancellation.getCompanyCodeId(), outboundCancellation.getPlantId(), outboundCancellation.getWarehouseId(),
+                                outboundCancellation.getRefDocNumber(), preOutboundLine.getPreOutboundNo(), 0L);
+                        log.info("PickupHeader Deleted Successfully V10 ---> RefDocNo is {}", outboundCancellation.getRefDocNumber());
+
+                        obOrderCancellationV10(outboundCancellation.getRefDocNumber());
+                        //PickConfirm Quantity
+                        List<IKeyValuePair> iKeyValuePairs = pickupLineV2Repository.getTotalPickConfirmQty(outboundCancellation.getCompanyCodeId(),
+                                outboundCancellation.getPlantId(), "EN", outboundCancellation.getWarehouseId(), preOutboundNo,
+                                outboundCancellation.getRefDocNumber());
+
+                        if (iKeyValuePairs != null && !iKeyValuePairs.isEmpty()) {
+
+                            log.info("Total PickConfirmQty for RefDocNo {} = {}", outboundCancellation.getRefDocNumber(), iKeyValuePairs.get(0).getPickConfirmQty());
+
+                            PickupLineV2 pickupLine = pickupLineV2Repository.findTopPickupLine(outboundCancellation.getCompanyCodeId(),
+                                    outboundCancellation.getPlantId(), "EN",
+                                    outboundCancellation.getWarehouseId(), preOutboundNo,
+                                    outboundCancellation.getRefDocNumber(), iKeyValuePairs.get(0).getItemCode());
+
+                            log.info("PickupLine found for RefDocNo: {} and ItemCode: {}",
+                                    outboundCancellation.getRefDocNumber(),
+                                    iKeyValuePairs.get(0).getItemCode());
+
+
+                            InboundOrderV2 inboundOrderV2List = new InboundOrderV2();
+
+                            inboundOrderV2List.setCompanyCode(pickupLine.getCompanyCodeId());
+                            inboundOrderV2List.setBranchCode(pickupLine.getPlantId());
+                            inboundOrderV2List.setLanguageId(pickupLine.getLanguageId());
+                            inboundOrderV2List.setWarehouseID(pickupLine.getWarehouseId());
+                            inboundOrderV2List.setInboundOrderTypeId(2L);
+                            inboundOrderV2List.setRefDocumentNo(pickupLine.getRefDocNumber());
+                            inboundOrderV2List.setOrderId(pickupLine.getRefDocNumber());
+
+                            inboundOrderV2List.setProcessedStatusId(0L);
+                            inboundOrderV2List.setRefDocumentType("Sales Return");
+                            inboundOrderV2List.setOrderReceivedOn(new Date());
+                            inboundOrderV2List.setOrderProcessedOn(new Date());
+
+                            Set<InboundOrderLinesV2> inboundOrderLines = new HashSet<>();
+                            for (IKeyValuePair ikey : iKeyValuePairs) {
+                                if (ikey.getItemCode() != null && ikey.getPickConfirmQty() != 0) {
+                                    InboundOrderLinesV2 inboundOrderLinesV2 = new InboundOrderLinesV2();
+
+                                    inboundOrderLinesV2.setCompanyCode(pickupLine.getCompanyCodeId());
+                                    inboundOrderLinesV2.setBranchCode(pickupLine.getPlantId());
+                                    inboundOrderLinesV2.setLineReference(pickupLine.getLineNumber());
+                                    inboundOrderLinesV2.setFromCompanyCode(pickupLine.getCompanyCodeId());
+                                    inboundOrderLinesV2.setOrderId(pickupLine.getRefDocNumber());
+                                    inboundOrderLinesV2.setItemCode(ikey.getItemCode());
+                                    inboundOrderLinesV2.setItemText(pickupLine.getDescription());
+                                    inboundOrderLinesV2.setManufacturerCode(pickupLine.getManufacturerCode());
+                                    inboundOrderLinesV2.setManufacturerName(pickupLine.getManufacturerName());
+                                    inboundOrderLinesV2.setManufacturerPartNo(pickupLine.getManufacturerPartNo());
+                                    inboundOrderLinesV2.setManufacturerFullName(pickupLine.getManufacturerFullName());
+                                    inboundOrderLinesV2.setMiddlewareTable(pickupLine.getPickedStorageBin());
+                                    inboundOrderLinesV2.setOrderedQty(ikey.getPickConfirmQty());
+                                    inboundOrderLinesV2.setExpectedQty(ikey.getPickConfirmQty());
+                                    inboundOrderLinesV2.setInboundOrderTypeId(2L);
+                                    inboundOrderLinesV2.setSupplierName(pickupLine.getCustomerName());
+
+                                    inboundOrderLines.add(inboundOrderLinesV2);
+
+                                    log.info("Inbound Order Line added | ItemCode: {} | Qty: {}", ikey.getItemCode(), ikey.getPickConfirmQty());
+                                }
+                            }
+
+                            inboundOrderV2List.setLine(inboundOrderLines);
+
+                            createInboundOrdersV10(inboundOrderV2List);
+                            log.info("Sales Return created successfully | Total Lines: {}", inboundOrderLines.size());
+
+                            // PickupLine delete
+                            pickupLineV2Repository.deletePickupLineByRefNo(pickupLine.getCompanyCodeId(),
+                                    pickupLine.getPlantId(), pickupLine.getWarehouseId(),
+                                    pickupLine.getRefDocNumber());
+
+                            log.info("PickupLine deleted successfully for RefDocNo: {}", pickupLine.getRefDocNumber());
+                        }
+                    }
+                }
+            }
+        }
+    }
+    //======SPAREX=======================
+    /**
+     * @param newInboundOrderV2
+     * @return
+     */
+    public InboundOrderV2 createInboundOrdersV10(InboundOrderV2 newInboundOrderV2) {
+        InboundOrderV2 dbInboundOrder = inboundOrderV2Repository.
+                findByRefDocumentNoAndPurchaseOrderNumberAndInboundOrderTypeId(newInboundOrderV2.getOrderId(), newInboundOrderV2.getPurchaseOrderNumber(), newInboundOrderV2.getInboundOrderTypeId());
+        if (dbInboundOrder != null) {
+            throw new BadRequestException("Order is getting Duplicated V10");
+        }
+        return inboundOrderV2Repository.save(newInboundOrderV2);
+    }
+
+
+//    //===========SPAREX========================
+//    /**
+//     * @param refDocNumber
+//     * @param itemCode
+//     * @param lineNumber
+//     */
+//    public void obOrderReversalV10(String refDocNumber, String itemCode, List<Long> lineNumber) {
+//
+//        if (refDocNumber != null) {
+//            outboundOrderLinesV2Repository.findByItemCodeAndOrderIdAndLineReference(refDocNumber, itemCode, lineNumber);
+//            log.info("OBOrderLines Deleted Successfully V10----------------> OrderNo {}", refDocNumber);
+//        }
+//    }
+
+    //===========SPAREX========================
+    /**
+     * @param refDocNumber
+     * @param itemCode
+     */
+    public void obOrderReversalV10(String itemCode, String refDocNumber) {
+
+        if (refDocNumber != null) {
+            int outboundOrderLines =  outboundOrderLinesV2Repository.deleteByItemCodeAndOrderId(itemCode, refDocNumber);
+            log.info("OBOrderLines Deleted Successfully V10----------------> OrderNo {},Affected rows -----> {}", refDocNumber,outboundOrderLines);
+        }
+    }
+
+    //========SPAREX========================
+    /**
+     * @param refDocNumber refDocNo
+     */
+    public void obOrderCancellationV10(String refDocNumber) {
+
+        if (refDocNumber != null) {
+            outboundOrderLinesV2Repository.deleteByOrderId(refDocNumber);
+            outboundOrderV2Repository.deleteByOrderId(refDocNumber);
+            log.info("OBOrder - OBOrderLines Deleted Successfully V10 ----------------> OrderNo {}", refDocNumber);
+        }
+    }
+
+
+    //==========SPAREX==========================
+    /**
+     *
+     * @param pickupNewUpdates
+     * @throws java.text.ParseException
+     */
+    public void pickupReversalV10(List<PickupNewUpdate> pickupNewUpdates) throws java.text.ParseException {
+        try {
+            for (PickupNewUpdate pickupNewUpdate : pickupNewUpdates) {
+                log.info("pickupNewUpdates----------------->" + pickupNewUpdates);
+                List<Long> statusIdList;
+                statusIdList = Arrays.asList(57L,52L);
+                PickupLineV2 pickUpConfirm = pickupLineV2Repository.findByCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndRefDocNumberAndPreOutboundNoAndStatusIdInAndLineNumberAndDeletionIndicator(
+                        pickupNewUpdate.getCompanyCodeId(), pickupNewUpdate.getPlantId(), pickupNewUpdate.getWarehouseId(), pickupNewUpdate.getItemCode(),
+                        pickupNewUpdate.getRefDocNumber(), pickupNewUpdate.getPreOutboundNo(), statusIdList, pickupNewUpdate.getLineNumber(), 0L);
+                log.info("pickLine List with Status Checking {} ", pickUpConfirm);
+                if (pickUpConfirm != null) {
+                    if (pickupNewUpdate.getOrderQty() < pickUpConfirm.getPickConfirmQty()) {
+
+                        Double orderQty = pickUpConfirm.getPickConfirmQty() - pickupNewUpdate.getOrderQty();
+                        log.info("Inbound process Started for Existing pickupLine ----> " + orderQty);
+                        InboundOrderV2 inboundOrderV2List = new InboundOrderV2();
+
+                        inboundOrderV2List.setCompanyCode(pickUpConfirm.getCompanyCodeId());
+                        inboundOrderV2List.setBranchCode(pickUpConfirm.getPlantId());
+                        inboundOrderV2List.setLanguageId(pickUpConfirm.getLanguageId());
+                        inboundOrderV2List.setWarehouseID(pickUpConfirm.getWarehouseId());
+                        inboundOrderV2List.setInboundOrderTypeId(2L);
+                        inboundOrderV2List.setRefDocumentNo(pickUpConfirm.getRefDocNumber());
+                        inboundOrderV2List.setOrderId(pickUpConfirm.getRefDocNumber());
+
+                        //ItemCode
+                        inboundOrderV2List.setPurchaseOrderNumber(pickUpConfirm.getItemCode());
+
+                        inboundOrderV2List.setProcessedStatusId(0L);
+                        inboundOrderV2List.setRefDocumentType("Sales Return");
+                        inboundOrderV2List.setOrderReceivedOn(new Date());
+                        inboundOrderV2List.setOrderProcessedOn(new Date());
+
+                        InboundOrderLinesV2 inboundOrderLinesV2 = new InboundOrderLinesV2();
+
+                        inboundOrderLinesV2.setCompanyCode(pickUpConfirm.getCompanyCodeId());
+                        inboundOrderLinesV2.setBranchCode(pickUpConfirm.getPlantId());
+
+                        Long lineNo = inboundOrderLinesV2Repository.getLineNoV10(pickupNewUpdate.getCompanyCodeId(), pickupNewUpdate.getPlantId(),  pickupNewUpdate.getRefDocNumber());
+                        inboundOrderLinesV2.setLineReference(lineNo);
+
+                        inboundOrderLinesV2.setFromCompanyCode(pickUpConfirm.getCompanyCodeId());
+                        inboundOrderLinesV2.setOrderId(pickUpConfirm.getRefDocNumber());
+                        inboundOrderLinesV2.setItemCode(pickUpConfirm.getItemCode());
+                        inboundOrderLinesV2.setItemText(pickUpConfirm.getDescription());
+                        inboundOrderLinesV2.setManufacturerCode(pickUpConfirm.getManufacturerCode());
+                        inboundOrderLinesV2.setManufacturerName(pickUpConfirm.getManufacturerName());
+                        inboundOrderLinesV2.setManufacturerPartNo(pickUpConfirm.getManufacturerPartNo());
+                        inboundOrderLinesV2.setManufacturerFullName(pickUpConfirm.getManufacturerFullName());
+                        log.info("StBin------->"+ pickUpConfirm.getPickedStorageBin());
+                        inboundOrderLinesV2.setMiddlewareTable(pickUpConfirm.getPickedStorageBin());
+                        inboundOrderLinesV2.setOrderedQty(orderQty);
+                        inboundOrderLinesV2.setExpectedQty(orderQty);
+                        inboundOrderLinesV2.setInboundOrderTypeId(2L);
+                        inboundOrderLinesV2.setSupplierName(pickUpConfirm.getCustomerName());
+                        inboundOrderV2List.setLines(Collections.singleton(inboundOrderLinesV2));
+                        createInboundOrdersV10(inboundOrderV2List);
+                        log.info("Sales Return created successfully");
+
+                        log.info("update started  CompanyCodeId: {}, PlantId: {}, Warehouse: {}, RefDocNumber: {}, ItemCode: {}, LineNumber: {}, OrderQty: {} " , pickupNewUpdate.getCompanyCodeId(), pickupNewUpdate.getPlantId(),
+                                pickupNewUpdate.getWarehouseId(), pickupNewUpdate.getRefDocNumber(), pickupNewUpdate.getItemCode(), pickUpConfirm.getLineNumber(), orderQty );
+
+                        int outboundLines = outboundLineV2Repository.updateOrderQtyV10(pickupNewUpdate.getCompanyCodeId(), pickupNewUpdate.getPlantId(),
+                                pickupNewUpdate.getWarehouseId(),  pickupNewUpdate.getRefDocNumber(),pickupNewUpdate.getItemCode(),  pickUpConfirm.getLineNumber(), pickupNewUpdate.getOrderQty());
+                        log.info("Affected rows -----> {}" ,outboundLines);
+
+                        int preOutboundLine = preOutboundLineV2Repository.updateOrderQtyV10(pickupNewUpdate.getCompanyCodeId(), pickupNewUpdate.getPlantId(),
+                                pickupNewUpdate.getWarehouseId(),  pickupNewUpdate.getRefDocNumber(),pickupNewUpdate.getItemCode(), pickupNewUpdate.getOrderQty());
+                        log.info("Affected rows -----> {}" ,preOutboundLine);
+
+                        int orderManagementLine = orderManagementLineV2Repository.updateOrderQtyAndAllQtyV10(pickupNewUpdate.getCompanyCodeId(), pickupNewUpdate.getPlantId(),
+                                pickupNewUpdate.getWarehouseId(),  pickupNewUpdate.getRefDocNumber(),pickupNewUpdate.getItemCode(),  pickUpConfirm.getLineNumber(), pickupNewUpdate.getOrderQty());
+                        log.info("orderManagementLine Affected rows -----> {}" ,orderManagementLine);
+
+                        int pickupHeader = pickupHeaderV2Repository.updateOrderQtyV10(pickupNewUpdate.getCompanyCodeId(), pickupNewUpdate.getPlantId(),
+                                pickupNewUpdate.getWarehouseId(),  pickupNewUpdate.getRefDocNumber(),pickupNewUpdate.getItemCode(),  pickUpConfirm.getLineNumber(), pickupNewUpdate.getOrderQty());
+                        log.info("pickupHeader Affected rows -----> {}" ,pickupHeader);
+
+                        int pickupLine = pickupLineV2Repository.updateOrderQtyV10(pickupNewUpdate.getCompanyCodeId(), pickupNewUpdate.getPlantId(),
+                                pickupNewUpdate.getWarehouseId(),  pickupNewUpdate.getRefDocNumber(),pickupNewUpdate.getItemCode(),  pickUpConfirm.getLineNumber(), pickupNewUpdate.getOrderQty());
+                        log.info("pickupLine Affected rows -----> {}" ,pickupLine);
+
+
+                    } else if (pickupNewUpdate.getOrderQty() > pickUpConfirm.getPickConfirmQty()) {
+                        Double orderQty = pickupNewUpdate.getOrderQty() - pickUpConfirm.getPickConfirmQty();
+                        log.info("Outbound process Started for existing pickupLine----> " + orderQty);
+                        PreOutboundLineV2 preOutboundLine = createPreOutboundLineV10(orderQty, pickUpConfirm);
+                        PreOutboundLineV2 createdPreOutboundLine = preOutboundLineV2Repository.save(preOutboundLine);
+                        List<OrderManagementLineV2> orderManagementLinList = createOderManagementLineV10(createdPreOutboundLine);
+
+                        // Create outboundline
+                        for (OrderManagementLineV2 orderManagementLine : orderManagementLinList) {
+                            OutboundLineV2 newOutboundLine = new OutboundLineV2();
+                            BeanUtils.copyProperties(orderManagementLine, newOutboundLine, CommonUtils.getNullPropertyNames(orderManagementLine));
+                            newOutboundLine.setLineNumber(orderManagementLine.getLineNumber());
+                            outboundLineV2Repository.save(newOutboundLine);
+                        }
+                    }
+                }
+                if (pickUpConfirm == null) {
+                    statusIdList = Arrays.asList(48L);
+                    PickupHeaderV2 pickUpHeader = pickupHeaderV2Repository.findByCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndRefDocNumberAndPreOutboundNoAndStatusIdInAndLineNumberAndDeletionIndicator(
+                            pickupNewUpdate.getCompanyCodeId(), pickupNewUpdate.getPlantId(), pickupNewUpdate.getWarehouseId(), pickupNewUpdate.getItemCode(),
+                            pickupNewUpdate.getRefDocNumber(), pickupNewUpdate.getPreOutboundNo(), statusIdList, pickupNewUpdate.getLineNumber(), 0L);
+                    log.info("pickHeader List with Status Checking  {} ", pickUpHeader);
+
+                    if (pickUpHeader != null) {
+                        if (pickupNewUpdate.getOrderQty() < pickUpHeader.getPickToQty()) {
+
+//                            Double orderQty = pickUpHeader.getPickToQty() - pickupNewUpdate.getOrderQty();
+                            log.info("Inbound process Started for Existing pickupHeader ----> " + pickupNewUpdate.getOrderQty());
+//                            InboundOrderV2 inboundOrderV2List = new InboundOrderV2();
+//
+//                            inboundOrderV2List.setCompanyCode(pickUpHeader.getCompanyCodeId());
+//                            inboundOrderV2List.setBranchCode(pickUpHeader.getPlantId());
+//                            inboundOrderV2List.setLanguageId(pickUpHeader.getLanguageId());
+//                            inboundOrderV2List.setWarehouseID(pickUpHeader.getWarehouseId());
+//                            inboundOrderV2List.setInboundOrderTypeId(2L);
+//                            inboundOrderV2List.setRefDocumentNo(pickUpHeader.getRefDocNumber());
+//                            inboundOrderV2List.setOrderId(pickUpHeader.getRefDocNumber());
+//
+//                            //ItemCode
+//                            inboundOrderV2List.setPurchaseOrderNumber(pickUpHeader.getItemCode());
+//
+//                            inboundOrderV2List.setProcessedStatusId(0L);
+//                            inboundOrderV2List.setRefDocumentType("Sales Return");
+//                            inboundOrderV2List.setOrderReceivedOn(new Date());
+//                            inboundOrderV2List.setOrderProcessedOn(new Date());
+//
+//                            InboundOrderLinesV2 inboundOrderLinesV2 = new InboundOrderLinesV2();
+//
+//                            inboundOrderLinesV2.setCompanyCode(pickUpHeader.getCompanyCodeId());
+//                            inboundOrderLinesV2.setBranchCode(pickUpHeader.getPlantId());
+//
+//                            Long lineNo = inboundOrderLinesV2Repository.getLineNoV10(pickupNewUpdate.getCompanyCodeId(), pickupNewUpdate.getPlantId(),  pickupNewUpdate.getRefDocNumber());
+//                            inboundOrderLinesV2.setLineReference(lineNo);
+//
+//                            inboundOrderLinesV2.setFromCompanyCode(pickUpHeader.getCompanyCodeId());
+//                            inboundOrderLinesV2.setOrderId(pickUpHeader.getRefDocNumber());
+//                            inboundOrderLinesV2.setItemCode(pickUpHeader.getItemCode());
+//                            inboundOrderLinesV2.setItemText(pickUpHeader.getReferenceField5());
+//                            inboundOrderLinesV2.setManufacturerCode(pickUpHeader.getManufacturerCode());
+//                            inboundOrderLinesV2.setManufacturerName(pickUpHeader.getManufacturerName());
+//                            inboundOrderLinesV2.setManufacturerPartNo(pickUpHeader.getManufacturerPartNo());
+//                            inboundOrderLinesV2.setManufacturerFullName(pickUpHeader.getManufacturerName());
+//                            inboundOrderLinesV2.setOrderedQty(orderQty);
+//                            inboundOrderLinesV2.setExpectedQty(orderQty);
+//                            inboundOrderLinesV2.setInboundOrderTypeId(2L);
+//                            inboundOrderLinesV2.setSupplierName(pickUpHeader.getCustomerName());
+//                            inboundOrderV2List.setLines(Collections.singleton(inboundOrderLinesV2));
+//                            createInboundOrdersV10(inboundOrderV2List);
+//                            log.info("Sales Return created successfully");
+
+                            log.info("update started  CompanyCodeId: {}, PlantId: {}, Warehouse: {}, RefDocNumber: {}, ItemCode: {}, LineNumber: {}, OrderQty: {} " , pickupNewUpdate.getCompanyCodeId(), pickupNewUpdate.getPlantId(),
+                                    pickupNewUpdate.getWarehouseId(), pickupNewUpdate.getRefDocNumber(), pickupNewUpdate.getItemCode(), pickUpHeader.getLineNumber(), pickupNewUpdate.getOrderQty() );
+
+                            int outboundLines =  outboundLineV2Repository.updateOrderQtyV10(pickupNewUpdate.getCompanyCodeId(), pickupNewUpdate.getPlantId(),
+                                    pickupNewUpdate.getWarehouseId(),  pickupNewUpdate.getRefDocNumber(),pickupNewUpdate.getItemCode(),  pickUpHeader.getLineNumber(), pickupNewUpdate.getOrderQty());
+                            log.info("outboundLines Affected rows -----> {}" ,outboundLines);
+
+                            int preOutboundLine = preOutboundLineV2Repository.updateOrderQtyV10(pickupNewUpdate.getCompanyCodeId(), pickupNewUpdate.getPlantId(),
+                                    pickupNewUpdate.getWarehouseId(),  pickupNewUpdate.getRefDocNumber(),pickupNewUpdate.getItemCode(),pickupNewUpdate.getOrderQty());
+                            log.info("preOutboundLine Affected rows -----> {}" ,preOutboundLine);
+
+                            int orderManagementLine = orderManagementLineV2Repository.updateOrderQtyAndAllQtyV10(pickupNewUpdate.getCompanyCodeId(), pickupNewUpdate.getPlantId(),
+                                    pickupNewUpdate.getWarehouseId(),  pickupNewUpdate.getRefDocNumber(),pickupNewUpdate.getItemCode(),  pickUpHeader.getLineNumber(), pickupNewUpdate.getOrderQty());
+                            log.info("orderManagementLine Affected rows -----> {}" ,orderManagementLine);
+
+                            int pickupHeader = pickupHeaderV2Repository.updateOrderQtyV10(pickupNewUpdate.getCompanyCodeId(), pickupNewUpdate.getPlantId(),
+                                    pickupNewUpdate.getWarehouseId(),  pickupNewUpdate.getRefDocNumber(),pickupNewUpdate.getItemCode(),  pickUpHeader.getLineNumber(), pickupNewUpdate.getOrderQty());
+                            log.info("pickupHeader Affected rows -----> {}" ,pickupHeader);
+
+
+                        } else if (pickupNewUpdate.getOrderQty() > pickUpHeader.getPickToQty()) {
+                            Double orderQty = pickupNewUpdate.getOrderQty() - pickUpHeader.getPickToQty();
+                            log.info("Outbound process Started for existing pickupHeader----> " + orderQty);
+                            PreOutboundLineV2 preOutboundLine = createPreOutboundLineNewV10(orderQty, pickUpHeader);
+                            PreOutboundLineV2 createdPreOutboundLine = preOutboundLineV2Repository.save(preOutboundLine);
+                            List<OrderManagementLineV2> orderManagementLinList = createOderManagementLineV10(createdPreOutboundLine);
+
+                            // Create outboundline
+                            for (OrderManagementLineV2 orderManagementLine : orderManagementLinList) {
+                                OutboundLineV2 newOutboundLine = new OutboundLineV2();
+                                BeanUtils.copyProperties(orderManagementLine, newOutboundLine, CommonUtils.getNullPropertyNames(orderManagementLine));
+                                newOutboundLine.setLineNumber(orderManagementLine.getLineNumber());
+                                outboundLineV2Repository.save(newOutboundLine);
+                            }
+                        }
+                    }
+                    else if (pickUpConfirm == null && pickUpHeader == null ) {
+                        throw new BadRequestException("No Pickup Header and Line for the given refDocNo ---> " + pickupNewUpdate.getRefDocNumber());
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    //============SPAREX==========================
+    /**
+     *
+     * @param orderQty
+     * @param pickupLineV2
+     * @return
+     * @throws java.text.ParseException
+     */
+    public PreOutboundLineV2 createPreOutboundLineV10( Double orderQty, PickupLineV2 pickupLineV2) throws java.text.ParseException {
+
+        PreOutboundLineV2 preOutboundLine = new PreOutboundLineV2();
+        BeanUtils.copyProperties(pickupLineV2, preOutboundLine, CommonUtils.getNullPropertyNames(pickupLineV2));
+        preOutboundLine.setLanguageId(pickupLineV2.getLanguageId());
+        preOutboundLine.setCompanyCodeId(pickupLineV2.getCompanyCodeId());
+        preOutboundLine.setPlantId(pickupLineV2.getPlantId());
+        preOutboundLine.setCustomerName(pickupLineV2.getCustomerName());
+        preOutboundLine.setWarehouseId(pickupLineV2.getWarehouseId());
+        preOutboundLine.setRefDocNumber(pickupLineV2.getRefDocNumber());
+
+        preOutboundLine.setPreOutboundNo(pickupLineV2.getPreOutboundNo());
+
+        preOutboundLine.setPartnerCode(pickupLineV2.getPartnerCode());
+        preOutboundLine.setBarcodeId(pickupLineV2.getBarcodeId());
+
+        Long lineNo = preOutboundLineV2Repository.getLineNoV10(pickupLineV2.getCompanyCodeId(), pickupLineV2.getPlantId(),
+                pickupLineV2.getLanguageId(), pickupLineV2.getWarehouseId(), pickupLineV2.getRefDocNumber());
+
+        preOutboundLine.setLineNumber(lineNo);
+        preOutboundLine.setItemCode(pickupLineV2.getItemCode());
+        preOutboundLine.setOutboundOrderTypeId(pickupLineV2.getOutboundOrderTypeId());
+        preOutboundLine.setStatusId(39L);
+        preOutboundLine.setStockTypeId(1L);
+        preOutboundLine.setSpecialStockIndicatorId(1L);
+        preOutboundLine.setManufacturerName(pickupLineV2.getManufacturerName());
+        description = getDescription(preOutboundLine.getCompanyCodeId(), preOutboundLine.getPlantId(), preOutboundLine.getLanguageId(), preOutboundLine.getWarehouseId());
+        if (description != null) {
+            preOutboundLine.setCompanyDescription(description.getCompanyDesc());
+            preOutboundLine.setPlantDescription(description.getPlantDesc());
+            preOutboundLine.setWarehouseDescription(description.getWarehouseDesc());
+        }
+        statusDescription = stagingLineV2Repository.getStatusDescription(39L, pickupLineV2.getLanguageId());
+        preOutboundLine.setStatusDescription(statusDescription);
+        preOutboundLine.setPickListNumber(pickupLineV2.getPickListNumber());
+
+        preOutboundLine.setDescription(pickupLineV2.getDescription());
+        preOutboundLine.setManufacturerCode(pickupLineV2.getManufacturerCode());
+        preOutboundLine.setManufacturerName(pickupLineV2.getManufacturerName());
+        preOutboundLine.setManufacturerFullName(pickupLineV2.getManufacturerFullName());
+
+        preOutboundLine.setOrderQty(orderQty);
+        preOutboundLine.setDeletionIndicator(0L);
+        preOutboundLine.setCreatedBy("SPAREX");
+        preOutboundLine.setCreatedOn(new Date());
+        log.info("preOutboundLine : " + preOutboundLine);
+        return preOutboundLine;
+    }
+
+
+    //=============SPAREX===============
+    /**
+     *
+     * @param preOutboundLineV2
+     * @return
+     */
+    public List<OrderManagementLineV2> createOderManagementLineV10(PreOutboundLineV2 preOutboundLineV2) {
+
+        log.info("Started Order Allocation V10 for ItemCode: {}, Warehouse: {}, OrderQty: {}",
+                preOutboundLineV2.getItemCode(), preOutboundLineV2.getWarehouseId(), preOutboundLineV2.getOrderQty());
+
+        List<OrderManagementLineV2> orderManagementLineList = new ArrayList<>();
+        DataBaseContextHolder.clear();
+        DataBaseContextHolder.setCurrentDb("SPAREX");
+        String companyCodeId = preOutboundLineV2.getCompanyCodeId();
+        String plantId = preOutboundLineV2.getPlantId();
+        String warehouseId = preOutboundLineV2.getWarehouseId();
+        String languageId = preOutboundLineV2.getLanguageId();
+        String itemCode = preOutboundLineV2.getItemCode();
+        String itemDescription = preOutboundLineV2.getDescription();
+        Long lineNo = preOutboundLineV2.getLineNumber();
+        String preOutboundNo = preOutboundLineV2.getPreOutboundNo();
+        double balanceOrderQty = preOutboundLineV2.getOrderQty();
+
+        try {
+
+            List<InventoryV2> inventoryV2List;
+            inventoryV2List = inventoryV2Repository.getInventoryV10New(companyCodeId, plantId, languageId, warehouseId, itemCode, 1L);
+            log.info("Inventory List {} in Order Allocation", inventoryV2List.size());
+
+            if (inventoryV2List.isEmpty()) {
+                inventoryV2List = inventoryV2Repository.getInventoryV10New(companyCodeId, plantId, languageId, warehouseId, itemCode, 10L);
+                log.info("Inventory List {} in Order Allocation", inventoryV2List.size());
+            }
+
+            Long STATUS_ID = null;
+
+            if(!inventoryV2List.isEmpty()) {
+
+                Long binClassId = inventoryV2List.get(0).getBinClassId();
+
+                for (InventoryV2 inventory : inventoryV2List) {
+
+                    Double allocatableQty = 0D;
+                    Double INV_QTY = inventory.getInventoryQuantity();
+
+                    if (balanceOrderQty <= inventory.getInventoryQuantity()) {
+                        allocatableQty = balanceOrderQty;
+                    } else if (balanceOrderQty > INV_QTY) {
+                        allocatableQty = INV_QTY;
+                    } else if (INV_QTY == 0) {
+                        allocatableQty = 0D;
+                    }
+
+
+                    OrderManagementLineV2 orderLine = new OrderManagementLineV2();
+                    BeanUtils.copyProperties(preOutboundLineV2, orderLine, CommonUtils.getNullPropertyNames(preOutboundLineV2));
+                    orderLine.setItemCode(companyCodeId);
+                    orderLine.setItemCode(plantId);
+                    orderLine.setItemCode(warehouseId);
+                    orderLine.setItemCode(languageId);
+
+                    orderLine.setBarcodeId(preOutboundLineV2.getBarcodeId());
+                    orderLine.setInventoryQty(inventory.getInventoryQuantity());
+                    orderLine.setAllocatedQty(allocatableQty);
+                    orderLine.setProposedStorageBin(inventory.getStorageBin());
+                    orderLine.setItemCode(itemCode);
+                    orderLine.setDescription(itemDescription);
+                    orderLine.setOrderQty(preOutboundLineV2.getOrderQty());
+
+                    STATUS_ID = (allocatableQty.equals(balanceOrderQty)) ? 43L : 42L;
+                    String statusDescription = getStatusDescription(STATUS_ID, languageId);
+                    orderLine.setStatusId(STATUS_ID);
+                    orderLine.setStatusDescription(statusDescription);
+                    orderLine.setReferenceField7(statusDescription);
+                    orderLine.setLineNumber(lineNo);
+                    orderLine.setPickupUpdatedBy("SPAREX");
+                    orderLine.setPickupUpdatedOn(new Date());
+                    orderLine.setProposedPackBarCode("99999");
+                    orderLine.setManufacturerCode(inventory.getManufacturerCode());
+                    orderLine.setManufacturerName(inventory.getManufacturerName());
+                    orderLine.setManufacturerFullName(inventory.getManufacturerName());
+                    orderLine.setReferenceField5(preOutboundLineV2.getReferenceField5());
+                    orderLine.setCustomerName(preOutboundLineV2.getCustomerName());
+
+                    orderManagementLineV2Repository.save(orderLine);
+                    orderManagementLineList.add(orderLine);
+
+
+                    balanceOrderQty -= allocatableQty;
+                    log.info("Allocated {}, Remaining: {}", allocatableQty, balanceOrderQty);
+                    if (balanceOrderQty <= 0) break;
+                }
+
+                if (balanceOrderQty > 0 && binClassId.equals(1L)) {
+
+                    List<InventoryV2> inventoryV2ForBinCl10 = inventoryV2Repository.getInventoryV10New(companyCodeId, plantId, languageId, warehouseId, itemCode, 10L);
+                    log.info("Inventory List {} in Order Allocation", inventoryV2ForBinCl10.size());
+
+                    if (!inventoryV2ForBinCl10.isEmpty()) {
+                        for (InventoryV2 inventory : inventoryV2ForBinCl10) {
+
+                            Double allocatableQty = 0D;
+                            Double INV_QTY = inventory.getInventoryQuantity();
+
+                            if (balanceOrderQty <= inventory.getInventoryQuantity()) {
+                                allocatableQty = balanceOrderQty;
+                            } else if (balanceOrderQty > INV_QTY) {
+                                allocatableQty = INV_QTY;
+                            } else if (INV_QTY == 0) {
+                                allocatableQty = 0D;
+                            }
+
+                            if (allocatableQty > 0) {
+                                OrderManagementLineV2 orderLine = new OrderManagementLineV2();
+                                BeanUtils.copyProperties(preOutboundLineV2, orderLine, CommonUtils.getNullPropertyNames(preOutboundLineV2));
+                                orderLine.setItemCode(companyCodeId);
+                                orderLine.setItemCode(plantId);
+                                orderLine.setItemCode(warehouseId);
+                                orderLine.setItemCode(languageId);
+
+                                orderLine.setBarcodeId(inventory.getBarcodeId());
+                                orderLine.setInventoryQty(inventory.getInventoryQuantity());
+                                orderLine.setAllocatedQty(allocatableQty);
+                                orderLine.setProposedStorageBin(inventory.getStorageBin());
+                                orderLine.setItemCode(itemCode);
+                                orderLine.setDescription(itemDescription);
+                                orderLine.setOrderQty(preOutboundLineV2.getOrderQty());
+
+                                STATUS_ID = (allocatableQty.equals(balanceOrderQty)) ? 43L : 42L;
+                                String statusDescription = getStatusDescription(STATUS_ID, languageId);
+                                orderLine.setStatusId(STATUS_ID);
+                                orderLine.setStatusDescription(statusDescription);
+                                orderLine.setReferenceField7(statusDescription);
+                                orderLine.setLineNumber(lineNo);
+                                orderLine.setPickupUpdatedBy("SPAREX");
+                                orderLine.setPickupUpdatedOn(new Date());
+                                orderLine.setProposedPackBarCode("99999");
+                                orderLine.setManufacturerCode(inventory.getManufacturerCode());
+                                orderLine.setManufacturerName(inventory.getManufacturerName());
+                                orderLine.setManufacturerFullName(inventory.getManufacturerName());
+                                orderLine.setReferenceField5(preOutboundLineV2.getReferenceField5());
+                                orderLine.setCustomerName(preOutboundLineV2.getCustomerName());
+
+                                orderManagementLineV2Repository.save(orderLine);
+                                orderManagementLineList.add(orderLine);
+                            }
+
+                            balanceOrderQty -= allocatableQty;
+                            log.info("Allocated {}, Remaining: {}", allocatableQty, balanceOrderQty);
+                            if (balanceOrderQty <= 0) break;
+                        }
+                    }
+                }
+            }
+            if (balanceOrderQty > 0 || inventoryV2List.isEmpty()) {
+
+                OrderManagementLineV2 orderManagementLine = new OrderManagementLineV2();
+                BeanUtils.copyProperties(preOutboundLineV2, orderManagementLine, CommonUtils.getNullPropertyNames(preOutboundLineV2));
+                orderManagementLine.setLineNumber(lineNo);
+                orderManagementLine.setOrderQty(preOutboundLineV2.getOrderQty());
+                orderManagementLine.setBarcodeId(preOutboundLineV2.getBarcodeId());
+                orderManagementLine.setStatusId(47L);
+                statusDescription = stagingLineV2Repository.getStatusDescription(47L, orderManagementLine.getLanguageId());
+                orderManagementLine.setStatusDescription(statusDescription);
+                orderManagementLine.setReferenceField7(statusDescription);
+                orderManagementLine.setProposedStorageBin("");
+                orderManagementLine.setProposedPackBarCode("");
+                orderManagementLine.setInventoryQty(0D);
+                orderManagementLine.setAllocatedQty(0D);
+                orderManagementLineV2Repository.save(orderManagementLine);
+                orderManagementLineList.add(orderManagementLine);
+                log.info("orderManagementLine created for UnAllocated Order V10" + orderManagementLine);
+            }
+
+            createPickupHeaderNoV10(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, itemCode, balanceOrderQty, orderManagementLineList);
+
+            return orderManagementLineList;
+
+        } catch (Exception ex) {
+            log.error("Unexpected error during order allocation V10 : {}", ex.getMessage(), ex);
+            throw new RuntimeException("Order allocation process failed V10", ex);
+        }
+    }
+
+
+    //==========SPAREX====================
+    /**
+     * @param orderQty
+     * @param pickupLineV2
+     * @return
+     * @throws java.text.ParseException
+     */
+    public PreOutboundLineV2 createPreOutboundLineNewV10(Double orderQty, PickupHeaderV2 pickupLineV2) throws java.text.ParseException {
+
+        PreOutboundLineV2 preOutboundLine = new PreOutboundLineV2();
+        BeanUtils.copyProperties(pickupLineV2, preOutboundLine, CommonUtils.getNullPropertyNames(pickupLineV2));
+        preOutboundLine.setLanguageId(pickupLineV2.getLanguageId());
+        preOutboundLine.setCompanyCodeId(pickupLineV2.getCompanyCodeId());
+        preOutboundLine.setPlantId(pickupLineV2.getPlantId());
+        preOutboundLine.setCustomerName(pickupLineV2.getCustomerName());
+        preOutboundLine.setWarehouseId(pickupLineV2.getWarehouseId());
+        preOutboundLine.setRefDocNumber(pickupLineV2.getRefDocNumber());
+
+        preOutboundLine.setPreOutboundNo(pickupLineV2.getPreOutboundNo());
+
+        preOutboundLine.setPartnerCode(pickupLineV2.getPartnerCode());
+        preOutboundLine.setBarcodeId(pickupLineV2.getBarcodeId());
+
+        Long lineNo = preOutboundLineV2Repository.getLineNoV10(pickupLineV2.getCompanyCodeId(), pickupLineV2.getPlantId(),
+                pickupLineV2.getLanguageId(), pickupLineV2.getWarehouseId(), pickupLineV2.getRefDocNumber());
+
+        preOutboundLine.setLineNumber(lineNo);
+        preOutboundLine.setItemCode(pickupLineV2.getItemCode());
+        preOutboundLine.setOutboundOrderTypeId(pickupLineV2.getOutboundOrderTypeId());
+        preOutboundLine.setStatusId(39L);
+        preOutboundLine.setStockTypeId(1L);
+        preOutboundLine.setSpecialStockIndicatorId(1L);
+        preOutboundLine.setManufacturerName(pickupLineV2.getManufacturerName());
+        description = getDescription(preOutboundLine.getCompanyCodeId(), preOutboundLine.getPlantId(), preOutboundLine.getLanguageId(), preOutboundLine.getWarehouseId());
+        if (description != null) {
+            preOutboundLine.setCompanyDescription(description.getCompanyDesc());
+            preOutboundLine.setPlantDescription(description.getPlantDesc());
+            preOutboundLine.setWarehouseDescription(description.getWarehouseDesc());
+        }
+        statusDescription = stagingLineV2Repository.getStatusDescription(39L, pickupLineV2.getLanguageId());
+        preOutboundLine.setStatusDescription(statusDescription);
+        preOutboundLine.setPickListNumber(pickupLineV2.getPickListNumber());
+
+        preOutboundLine.setDescription(pickupLineV2.getReferenceField5());
+        preOutboundLine.setManufacturerCode(pickupLineV2.getManufacturerCode());
+        preOutboundLine.setManufacturerName(pickupLineV2.getManufacturerName());
+        preOutboundLine.setManufacturerFullName(pickupLineV2.getManufacturerName());
+
+        preOutboundLine.setOrderQty(orderQty);
+        preOutboundLine.setDeletionIndicator(0L);
+        preOutboundLine.setCreatedBy("SPAREX");
+        preOutboundLine.setCreatedOn(new Date());
+        log.info("preOutboundLine : " + preOutboundLine);
+        return preOutboundLine;
+    }
+
+
+    //==========SPAREX======================
+    /**
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param preOutboundNo
+     * @param itemCode
+     * @param orderQty
+     * @param orderManagementLines
+     * @throws Exception
+     */
+    public void createPickupHeaderNoV10(String companyCodeId, String plantId, String languageId, String warehouseId, String preOutboundNo,
+                                        String itemCode, Double orderQty, List<OrderManagementLineV2> orderManagementLines) throws Exception {
+
+
+        DataBaseContextHolder.clear();
+        DataBaseContextHolder.setCurrentDb("SPAREX");
+        if (orderManagementLines != null && !orderManagementLines.isEmpty()) {
+            for (OrderManagementLineV2 orderManagementLine : orderManagementLines) {
+                long NUM_RAN_CODE = 10;
+                String PU_NO = getNextRangeNumber(NUM_RAN_CODE, companyCodeId, plantId, languageId, warehouseId);
+                log.info("----------New PU_NO--------> : " + PU_NO);
+
+                PickupHeaderV2 newPickupHeader = new PickupHeaderV2();
+                BeanUtils.copyProperties(orderManagementLine, newPickupHeader, CommonUtils.getNullPropertyNames(orderManagementLine));
+                newPickupHeader.setPickupNumber(PU_NO);
+                newPickupHeader.setPickToQty(orderManagementLine.getAllocatedQty());
+                newPickupHeader.setPickUom(orderManagementLine.getOrderUom());
+                newPickupHeader.setBarcodeId(orderManagementLine.getBarcodeId());
+
+                // STATUS_ID
+                newPickupHeader.setStatusId(48L);
+                statusDescription = stagingLineV2Repository.getStatusDescription(48L,warehouseId);
+                newPickupHeader.setStatusDescription(statusDescription);
+
+                newPickupHeader.setProposedPackBarCode(orderManagementLine.getProposedPackBarCode());
+
+                newPickupHeader.setInventoryQuantity(orderManagementLine.getInventoryQty());
+
+                newPickupHeader.setRefDocNumber(orderManagementLine.getRefDocNumber());
+                newPickupHeader.setReferenceField5(orderManagementLine.getDescription());
+                newPickupHeader.setBatchSerialNumber(orderManagementLine.getProposedBatchSerialNumber());
+                newPickupHeader.setCustomerName(orderManagementLine.getCustomerName());
+                newPickupHeader.setStorageSectionId(orderManagementLine.getStorageSectionId());
+                PickupHeaderV2 createdPickupHeader = createOutboundOrderProcessingPickupHeaderV10(newPickupHeader, orderManagementLine.getPickupCreatedBy());
+                log.info("pickupHeader created: " + createdPickupHeader);
+
+                orderManagementLineV2Repository.updateOrderManagementLineNewV10(
+                        companyCodeId, plantId, languageId, warehouseId, preOutboundNo,
+                        orderManagementLine.getLineNumber(), orderManagementLine.getItemCode(),
+                        48L, statusDescription, PU_NO, new Date());
+            }
+
+            outboundHeaderV2Repository.updateOutboundHeaderStatusNewV10(companyCodeId, plantId, languageId, warehouseId, preOutboundNo,  48L, statusDescription);
+            orderManagementHeaderV2Repository.updateOrderManagementHeaderStatusV10(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, 48L, statusDescription);
+        }
+    }
+
+
+    //==========SPAREX================================
+    /**
+     * @param newPickupHeader
+     * @param loginUserID
+     * @return
+     * @throws Exception
+     */
+    public PickupHeaderV2 createOutboundOrderProcessingPickupHeaderV10(PickupHeaderV2 newPickupHeader, String loginUserID) throws Exception {
+        try {
+            PickupHeaderV2 dbPickupHeader = new PickupHeaderV2();
+            log.info("newPickupHeader : " + newPickupHeader);
+            BeanUtils.copyProperties(newPickupHeader, dbPickupHeader, CommonUtils.getNullPropertyNames(newPickupHeader));
+
+            IKeyValuePair description = stagingLineV2Repository.getDescription(dbPickupHeader.getCompanyCodeId(),
+                    dbPickupHeader.getLanguageId(),
+                    dbPickupHeader.getPlantId(),
+                    dbPickupHeader.getWarehouseId());
+
+            if (dbPickupHeader.getStatusId() != null) {
+                statusDescription = stagingLineV2Repository.getStatusDescription(dbPickupHeader.getStatusId(), dbPickupHeader.getLanguageId());
+                dbPickupHeader.setStatusDescription(statusDescription);
+            }
+
+            dbPickupHeader.setCompanyDescription(description.getCompanyDesc());
+            dbPickupHeader.setPlantDescription(description.getPlantDesc());
+            dbPickupHeader.setWarehouseDescription(description.getWarehouseDesc());
+
+            statusDescription = stagingLineV2Repository.getStatusDescription(48L, dbPickupHeader.getLanguageId());
+            outboundLineV2Repository.updateOutboundLineV2(dbPickupHeader.getCompanyCodeId(),
+                    dbPickupHeader.getPlantId(),
+                    dbPickupHeader.getLanguageId(),
+                    dbPickupHeader.getWarehouseId(),
+                    dbPickupHeader.getPreOutboundNo(),
+                    dbPickupHeader.getRefDocNumber(),
+                    dbPickupHeader.getPartnerCode(),
+                    dbPickupHeader.getLineNumber(),
+                    dbPickupHeader.getItemCode(),
+                    48L,
+                    statusDescription,
+                    dbPickupHeader.getAssignedPickerId(),
+                    dbPickupHeader.getManufacturerName(),
+                    loginUserID,
+                    new Date());
+
+            String customerName = getCustomerName(dbPickupHeader.getCompanyCodeId(), dbPickupHeader.getPlantId(),
+                    dbPickupHeader.getLanguageId(), dbPickupHeader.getWarehouseId(),
+                    dbPickupHeader.getCustomerCode());
+            if (customerName != null) {
+                dbPickupHeader.setCustomerName(customerName);
+            }
+            dbPickupHeader.setDeletionIndicator(0L);
+            dbPickupHeader.setPickupCreatedBy(loginUserID);
+            dbPickupHeader.setPickupCreatedOn(new Date());
+            PickupHeaderV2 pickupHeaderV2 = pickupHeaderV2Repository.save(dbPickupHeader);
+
+            return pickupHeaderV2;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+
+    //========SPAREX===========================
+    /**
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param preOutboundNo
+     * @param refDocNumber
+     * @param partnerCode
+     * @param lineNumber
+     * @param itemCode
+     * @param loginUserID
+     * @param updateOutboundLine
+     * @return
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     */
+    public OutboundLineV2 updateOutboundLineV10(String companyCodeId, String plantId, String languageId, String warehouseId, String preOutboundNo, String refDocNumber,
+                                                String partnerCode, Long lineNumber, String itemCode, String loginUserID, OutboundLineV2 updateOutboundLine)
+            throws IllegalAccessException, InvocationTargetException, java.text.ParseException {
+        OutboundLineV2 outboundLine = getOutboundLineV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, itemCode, updateOutboundLine.getManufacturerName());
+        BeanUtils.copyProperties(updateOutboundLine, outboundLine, CommonUtils.getNullPropertyNames(updateOutboundLine));
+        outboundLine.setUpdatedBy(loginUserID);
+        outboundLine.setUpdatedOn(new Date());
+
+        if (updateOutboundLine != null && updateOutboundLine.getStatus() != null) {
+            statusDescription = pickupLineRepository.getStatusDescription(updateOutboundLine.getStatusId(), languageId);
+            outboundLine.setStatusDescription(statusDescription);
+        }
+
+        List<OutboundLineV2> outboundLineList = getOutboundLineV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber);
+        List<OutboundLineV2> outboundLineListStatus90 = null;
+        if (outboundLineList != null && !outboundLineList.isEmpty()) {
+            Long outboundLineCount = outboundLineList.stream().count();
+            log.info("outboundLine count : " + outboundLineCount);
+            outboundLineListStatus90 = outboundLineList.stream().filter(a -> a.getStatusId() == 90L).collect(Collectors.toList());
+            Long outboundLineCountStatus90 = outboundLineListStatus90.stream().count();
+            log.info("outboundLineListCount : " + outboundLineCountStatus90);
+            if (outboundLineCount.equals(outboundLineCountStatus90)) {
+                OutboundHeaderV2 outboundHeader = outboundHeaderService.getOutboundHeaderV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber);
+                if (outboundHeader != null) {
+                    outboundHeader.setStatusId(90L);
+                    statusDescription = pickupLineRepository.getStatusDescription(90L, languageId);
+                    outboundHeader.setStatusDescription(statusDescription);
+                    outboundHeaderV2Repository.delete(outboundHeader); // to prevent duplicate in mt
+                    outboundHeaderV2Repository.save(outboundHeader);
+                    log.info("Outbound Header Updated to Status 90: " + outboundHeader);
+                }
+            }
+        }
+
+        outboundLineV2Repository.delete(outboundLine);   // to prevent duplicate in mt
+        outboundLineV2Repository.save(outboundLine);
+        return outboundLine;
+    }
+
+    //=============SPAREX============================
+    /**
+     *
+     * @param pickupLine
+     * @param loginUserID
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     * @throws java.text.ParseException
+     */
+    public List<PickupLineV2> updateOutboundV10(List<PickupLineV2> pickupLine, String loginUserID) throws IllegalAccessException, InvocationTargetException, java.text.ParseException {
+
+        for (PickupLineV2 list : pickupLine) {
+
+            Long HEADER_STATUS_ID = 57L;
+            String statusDescription = stagingLineV2Repository.getStatusDescription(HEADER_STATUS_ID, list.getLanguageId());
+            String statusDescription51 = stagingLineV2Repository.getStatusDescription(51L, list.getLanguageId());
+            pickupLineV2Repository.updatePickupWithoutLinesV10(list.getCompanyCodeId(), list.getPlantId(), list.getLanguageId(), list.getWarehouseId(),
+                    list.getRefDocNumber(), list.getItemCode(), HEADER_STATUS_ID, statusDescription);
+
+            outboundLineV2Repository.updateOutboundWithoutLineV10(list.getCompanyCodeId(), list.getPlantId(), list.getLanguageId(), list.getWarehouseId(), list.getPreOutboundNo(), list.getRefDocNumber(),
+                    list.getItemCode(), HEADER_STATUS_ID, statusDescription, list.getAssignedPickerId(),
+                    list.getManufacturerName(), loginUserID, new Date(), String.valueOf(list.getPickConfirmQty()));
+            log.info("outboundLine updated using Stored Procedure Completed...... ");
+
+            pickupHeaderV2Repository.updatePickupHeaderWithoutLineProcV10(
+                    list.getCompanyCodeId(), list.getPlantId(), list.getLanguageId(), list.getWarehouseId(), list.getRefDocNumber(), list.getPreOutboundNo(), list.getItemCode(),
+                    list.getManufacturerName(), list.getPartnerCode(), list.getPickupNumber(),
+                    HEADER_STATUS_ID, statusDescription, loginUserID, new Date());
+
+            orderManagementLineV2Repository.updateOrderManagementWithoutLineV10(list.getCompanyCodeId(), list.getPlantId(), list.getWarehouseId(), list.getLanguageId(), list.getRefDocNumber(),
+                    list.getPreOutboundNo(), list.getItemCode(), list.getBarcodeId(),
+                    list.getPickupNumber(), HEADER_STATUS_ID, statusDescription, loginUserID, new Date());
+
+            preOutboundLineV2Repository.updatePreOutboundLineV10(list.getCompanyCodeId(), list.getPlantId(), list.getLanguageId(), list.getWarehouseId(), list.getRefDocNumber(), list.getPreOutboundNo(),
+                    list.getItemCode(), HEADER_STATUS_ID, statusDescription);
+
+            Double deliveryQty = pickupLineV2Repository.getPickupWithoutLineCountV10(list.getCompanyCodeId(), list.getPlantId(), list.getLanguageId(), list.getWarehouseId(), list.getRefDocNumber(),
+                    list.getPreOutboundNo(), list.getItemCode());
+
+            log.info("Sum Of PickConfirmQty Group By RefDocNo From PickupLine  ----------> Qty is -->  {} ", deliveryQty);
+            outboundLineV2Repository.updateOutboundLineForDeliveryConfirmNewV10(list.getCompanyCodeId(), list.getPlantId(), list.getLanguageId(), list.getWarehouseId(),
+                    list.getPreOutboundNo(), list.getRefDocNumber(), list.getPartnerCode(),
+                    list.getItemCode(), list.getManufacturerName(),
+                    deliveryQty, HEADER_STATUS_ID, statusDescription, loginUserID, new Date());
+
+            outboundHeaderV2Repository.updateObheaderPreobheaderUpdateProc(
+                    list.getCompanyCodeId(), list.getPlantId(), list.getLanguageId(), list.getWarehouseId(), list.getRefDocNumber(), list.getPreOutboundNo(), new Date(),
+                    loginUserID, 47L, HEADER_STATUS_ID, 51L, statusDescription, statusDescription51);
+            log.info("outboundHeader, preOutboundHeader updated as 57 / 51 when respective condition met");
+
+        }
+
+        return pickupLine;
+    }
+
+    // BF
+    /**
+     * @param searchOutboundLine
+     * @return
+     * @throws ParseException
+     */
+    public List<OutboundLineOutput> findOutboundLineNewV9(SearchOutboundLineV2 searchOutboundLine) throws ParseException {
+
+        try {
+            if (searchOutboundLine.getFromDeliveryDate() != null && searchOutboundLine.getToDeliveryDate() != null) {
+                Date[] dates = DateUtils.addTimeToDatesForSearch(searchOutboundLine.getFromDeliveryDate(),
+                        searchOutboundLine.getToDeliveryDate());
+                searchOutboundLine.setFromDeliveryDate(dates[0]);
+                searchOutboundLine.setToDeliveryDate(dates[1]);
+            }
+
+            if (searchOutboundLine.getWarehouseId() == null || searchOutboundLine.getWarehouseId().isEmpty()) {
+                searchOutboundLine.setWarehouseId(null);
+            }
+            if (searchOutboundLine.getPreOutboundNo() == null || searchOutboundLine.getPreOutboundNo().isEmpty()) {
+                searchOutboundLine.setPreOutboundNo(null);
+            }
+            if (searchOutboundLine.getRefDocNumber() == null || searchOutboundLine.getRefDocNumber().isEmpty()) {
+                searchOutboundLine.setRefDocNumber(null);
+            }
+            if (searchOutboundLine.getLineNumber() == null || searchOutboundLine.getLineNumber().isEmpty()) {
+                searchOutboundLine.setLineNumber(null);
+            }
+            if (searchOutboundLine.getItemCode() == null || searchOutboundLine.getItemCode().isEmpty()) {
+                searchOutboundLine.setItemCode(null);
+            }
+            if (searchOutboundLine.getStatusId() == null || searchOutboundLine.getStatusId().isEmpty()) {
+                searchOutboundLine.setStatusId(null);
+            }
+            if (searchOutboundLine.getOrderType() == null || searchOutboundLine.getOrderType().isEmpty()) {
+                searchOutboundLine.setOrderType(null);
+            }
+            if (searchOutboundLine.getPartnerCode() == null || searchOutboundLine.getPartnerCode().isEmpty()) {
+                searchOutboundLine.setPartnerCode(null);
+            }
+            if (searchOutboundLine.getSalesOrderNumber() == null || searchOutboundLine.getSalesOrderNumber().isEmpty()) {
+                searchOutboundLine.setSalesOrderNumber(null);
+            }
+            if (searchOutboundLine.getTargetBranchCode() == null || searchOutboundLine.getTargetBranchCode().isEmpty()) {
+                searchOutboundLine.setTargetBranchCode(null);
+            }
+            if (searchOutboundLine.getManufacturerName() == null || searchOutboundLine.getManufacturerName().isEmpty()) {
+                searchOutboundLine.setManufacturerName(null);
+            }
+
+
+            if (searchOutboundLine.getMaterialNo() != null && searchOutboundLine.getMaterialNo().isEmpty()) {
+                searchOutboundLine.setMaterialNo(null);
+            }
+            if (searchOutboundLine.getPriceSegment() != null && searchOutboundLine.getPriceSegment().isEmpty()) {
+                searchOutboundLine.setPriceSegment(null);
+            }
+            if (searchOutboundLine.getArticleNo() != null && searchOutboundLine.getArticleNo().isEmpty()) {
+                searchOutboundLine.setArticleNo(null);
+            }
+            if (searchOutboundLine.getGender() != null && searchOutboundLine.getGender().isEmpty()) {
+                searchOutboundLine.setGender(null);
+            }
+            if (searchOutboundLine.getColor() != null && searchOutboundLine.getColor().isEmpty()) {
+                searchOutboundLine.setColor(null);
+            }
+            if (searchOutboundLine.getSize() != null && searchOutboundLine.getSize().isEmpty()) {
+                searchOutboundLine.setSize(null);
+            }
+            if (searchOutboundLine.getNoPairs() != null && searchOutboundLine.getNoPairs().isEmpty()) {
+                searchOutboundLine.setNoPairs(null);
+            }
+            if (searchOutboundLine.getBarcodeId() != null && searchOutboundLine.getBarcodeId().isEmpty()) {
+                searchOutboundLine.setBarcodeId(null);
+            }
+
+
+            log.info("Find OutboundLine Search Input: " + searchOutboundLine);
+            List<OutboundLineOutput> outboundLineSearchResults = outboundLineV2Repository.findOutboundLineV5(
+                    searchOutboundLine.getCompanyCodeId(), searchOutboundLine.getLanguageId(),
+                    searchOutboundLine.getPlantId(), searchOutboundLine.getWarehouseId(),
+                    searchOutboundLine.getFromDeliveryDate(), searchOutboundLine.getToDeliveryDate(), searchOutboundLine.getPreOutboundNo(),
+                    searchOutboundLine.getRefDocNumber(), searchOutboundLine.getLineNumber(), searchOutboundLine.getItemCode(),
+                    searchOutboundLine.getSalesOrderNumber(), searchOutboundLine.getTargetBranchCode(), searchOutboundLine.getManufacturerName(),
+                    searchOutboundLine.getStatusId(), searchOutboundLine.getOrderType(),
+                    searchOutboundLine.getMaterialNo(), searchOutboundLine.getPriceSegment(),
+                    searchOutboundLine.getArticleNo(), searchOutboundLine.getGender(),
+                    searchOutboundLine.getColor(), searchOutboundLine.getSize(),
+                    searchOutboundLine.getNoPairs(),
+                    searchOutboundLine.getPartnerCode());
+            log.info("OutboundLine search results : " + outboundLineSearchResults.size());
+            return outboundLineSearchResults;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    // BF
+    /**
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param preOutboundNo
+     * @param refDocNumber
+     * @param partnerCode
+     * @param loginUserID
+     * @return
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     */
+    public List<OutboundLineV2> deliveryConfirmationV9(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                                       String preOutboundNo, String refDocNumber, String partnerCode, String loginUserID)
+            throws IllegalAccessException, InvocationTargetException {
+        /*--------------------OutboundLine-Check---------------------------------------------------------------------------*/
+        log.info("c_id, plant_id, lang_id, wh_id, ref_doc_no, partnerCode, preOutboundNo----> "
+                + companyCodeId + "," + plantId + "," + languageId + "," + warehouseId + "," + refDocNumber + "," + partnerCode + "," + preOutboundNo);
+
+        String partnerCodeTrimSpace;
+        if (partnerCode != null && partnerCode.contains("%20")) {
+            partnerCodeTrimSpace = URLDecoder.decode(partnerCode, StandardCharsets.UTF_8);
+        }else{
+            partnerCodeTrimSpace = partnerCode;
+        }
+
+        List<Long> statusIds = Arrays.asList(59L);
+        long outboundLineProcessedCount = getOutboundLineV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, partnerCodeTrimSpace, statusIds);
+        log.info("outboundLineProcessedCount : " + outboundLineProcessedCount);
+        boolean isAlreadyProcessed = (outboundLineProcessedCount > 0 ? true : false);
+        log.info("outboundLineProcessed Already Processed? : " + isAlreadyProcessed);
+        if (isAlreadyProcessed) {
+            throw new BadRequestException("Order is already processed.");
+        }
+
+        /*--------------------OrderManagementLine-Check---------------------------------------------------------------------*/
+        // OrderManagementLine checking for STATUS_ID - 42L, 43L
+        long orderManagementLineCount = orderManagementLineService.getOrderManagementLineV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, Arrays.asList(42L, 43L));
+        boolean isConditionMet = (orderManagementLineCount > 0 ? true : false);
+        log.info("orderManagementLineCount ---- isConditionMet : " + isConditionMet);
+        if (isConditionMet) {
+            throw new BadRequestException("OrderManagementLine is not completely Processed.");
+        }
+
+        /*--------------------PickupHeader-Check---------------------------------------------------------------------*/
+        // PickupHeader checking for STATUS_ID - 48
+        long pickupHeaderCount = pickupHeaderService.getPickupHeaderCountForDeliveryConfirmationV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, 48L);
+        isConditionMet = (pickupHeaderCount > 0 ? true : false);
+        log.info("pickupHeaderCount ---- isConditionMet : " + isConditionMet);
+        if (isConditionMet) {
+            throw new BadRequestException("Pickup is not completely Processed.");
+        }
+
+        // QualityHeader checking for STATUS_ID - 54
+        long qualityHeaderCount = qualityHeaderService.getQualityHeaderCountForDeliveryConfirmationV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, 54L);
+        isConditionMet = (qualityHeaderCount > 0 ? true : false);
+        log.info("qualityHeaderCount ---- isConditionMet : " + isConditionMet);
+//        if (isConditionMet) {
+//            throw new BadRequestException("Quality check is not completely Processed.");
+//        }
+
+        //----------------------------------------------------------------------------------------------------------
+//        List<Long> statusIdsToBeChecked = Arrays.asList(57L, 51L, 41L);
+        List<Long> statusIdsToBeChecked = Arrays.asList(57L, 51L);
+        log.info("statusIdsToBeChecked : " + statusIdsToBeChecked);
+        long outboundLineListCount = getOutboundLineV9(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, partnerCodeTrimSpace, statusIdsToBeChecked);
+        log.info("outboundLineListCount : " + outboundLineListCount);
+        isConditionMet = (outboundLineListCount > 0 ? true : false);
+        log.info("isConditionMet : " + isConditionMet);
+
+        if (!isConditionMet) {
+            throw new BadRequestException("OutboundLine: Order is not completely Processed.");
+        } else {
+            log.info("Order can be Processed.");
+        }
+
+        try {
+            Long STATUS_ID_59 = 59L;
+            List<Long> statusId57 = Arrays.asList(57L);
+            statusDescription = stagingLineV2Repository.getStatusDescription(STATUS_ID_59, languageId);
+            List<OutboundLineV2> outboundLineByStatus57List = findOutboundLineByStatusV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, partnerCodeTrimSpace, statusId57);
+
+            // ----------------OutboundLine update-----------------------------------------------------------------------------------------
+            List<Long> lineNumbers = outboundLineByStatus57List.stream().map(OutboundLine::getLineNumber).collect(Collectors.toList());
+            List<String> itemCodes = outboundLineByStatus57List.stream().map(OutboundLine::getItemCode).collect(Collectors.toList());
+            Date deliveryConfirmedOn = new Date();
+            for (OutboundLineV2 outboundLineV2List : outboundLineByStatus57List) {
+                OutboundLineV2 outboundLineV2 = getOutboundLineNewV9(companyCodeId, plantId, languageId, warehouseId, refDocNumber, partnerCodeTrimSpace, outboundLineV2List.getItemCode(), outboundLineV2List.getLineNumber());
+                String deliveredPercentage = outboundLineV2.getDeliveredPercentage() != null ? outboundLineV2.getDeliveredPercentage() : "";
+                log.info("DeliveryPercentage-------> " + outboundLineV2.getDeliveredPercentage());
+                outboundLineV2Repository.updateOutboundLineStatusNewV9(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, STATUS_ID_59, statusDescription, lineNumbers, deliveredPercentage, deliveryConfirmedOn, outboundLineV2.getItemCode());
+                log.info("OutboundLine updated ");
+                log.info("ItemCode--->" + outboundLineV2List.getItemCode());
+                log.info("Count : " + outboundLineV2List.getLineNumber());
+            }
+            //----------------Outbound Header update----------------------------------------------------------------------------------------
+            log.info("c_id, plant_id, lang_id, wh_id, ref_doc_no, status_id, Status_desc, date:---->OBH Update----> "
+                    + companyCodeId + "," + plantId + "," + languageId + "," + warehouseId + "," + refDocNumber + "," + STATUS_ID_59 + "," + statusDescription + "," + new Date());
+            outboundHeaderV2Repository.updateOutboundHeaderStatusNewV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, STATUS_ID_59, statusDescription, new Date());
+            OutboundHeaderV2 isOrderConfirmedOutboundHeader = outboundHeaderService.getOutboundHeaderV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber);
+            log.info("OutboundHeader updated----1---> : " + isOrderConfirmedOutboundHeader.getRefDocNumber() + "---" + isOrderConfirmedOutboundHeader.getStatusId());
+            if (isOrderConfirmedOutboundHeader.getStatusId() != 59L) {
+                log.info("OutboundHeader is still updated not updated.");
+                log.info("Updating again OutboundHeader.");
+                isOrderConfirmedOutboundHeader.setStatusId(STATUS_ID_59);
+                isOrderConfirmedOutboundHeader.setStatusDescription(statusDescription);
+                isOrderConfirmedOutboundHeader.setUpdatedBy(loginUserID);
+                isOrderConfirmedOutboundHeader.setUpdatedOn(new Date());
+                isOrderConfirmedOutboundHeader.setDeliveryConfirmedOn(new Date());
+                outboundHeaderV2Repository.saveAndFlush(isOrderConfirmedOutboundHeader);
+                log.info("OutboundHeader updated---2---> : " + isOrderConfirmedOutboundHeader.getRefDocNumber() + "---" + isOrderConfirmedOutboundHeader.getStatusId());
+            }
+
+            //----------------Preoutbound Line----------------------------------------------------------------------------------------------
+            preOutboundLineV2Repository.updatePreOutboundLineStatusV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, STATUS_ID_59, statusDescription);
+            log.info("PreOutbound Line updated");
+
+            //----------------Preoutbound Header--------------------------------------------------------------------------------------------
+            preOutboundHeaderV2Repository.updatePreOutboundHeaderStatusV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, STATUS_ID_59, statusDescription);
+            log.info("PreOutbound Header updated");
+
+            //----------------OrderManagement Line--------------------------------------------------------------------------------------------
+            orderManagementLineV2Repository.updateOrderManagementLineStatus(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, STATUS_ID_59, statusDescription);
+            log.info("OrderManagement Line updated");
+
+            //----------------Pickup Line--------------------------------------------------------------------------------------------
+            pickupLineV2Repository.updatePickupLineStatus(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, STATUS_ID_59, statusDescription);
+            log.info("PickupLine Line updated");
+
+            List<PickupLineV2> pickupLineV2List = pickupLineV2Repository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
+                    companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, 0L);
+            log.info("Delivery confirmation Get PickupLines for Inventory Creation -----------> PickupLine Size is {} ", pickupLineV2List.size());
+            createInventoryV9(pickupLineV2List, loginUserID);
+
+            //----------------Quality Header--------------------------------------------------------------------------------------------
+            qualityHeaderV2Repository.updateQualityHeaderStatusUpdateV9(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, STATUS_ID_59, statusDescription);
+            log.info("QualityHeader updated");
+
+            return outboundLineByStatus57List;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * @param warehouseId
+     * @param preOutboundNo
+     * @param refDocNumber
+     * @param partnerCode
+     * @param statusIds
+     * @return
+     */
+    public long getOutboundLineV9(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                  String preOutboundNo, String refDocNumber, String partnerCode, List<Long> statusIds) {
+        long outboundLineCount =
+                outboundLineV2Repository.getOutboundLineV9(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode, statusIds, 0);
+        log.info("OuboundLine status Id 51L,57L :----------->" + outboundLineCount);
+        return outboundLineCount;
+    }
+
+    /**
+     * @param createdPickupLineList pickupLineList
+     */
+    public void createInventoryV9(List<PickupLineV2> createdPickupLineList, String loginUserID) {
+
+        AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
+        for (PickupLineV2 dbPickupLine : createdPickupLineList) {
+            Long BIN_CLS_ID = null;
+            if (dbPickupLine.getOutboundOrderTypeId() == 3L || dbPickupLine.getOutboundOrderTypeId() == 1L) {
+                BIN_CLS_ID = 1L;
+            }
+            if (dbPickupLine.getOutboundOrderTypeId() == 2L) {
+                BIN_CLS_ID = 7L;
+            }
+            if (dbPickupLine.getOutboundOrderTypeId() == 11L) {
+                BIN_CLS_ID = 1L;
+            }
+
+            // Get Inventory
+            InventoryV2 inventory = null;
+            if (dbPickupLine.getOutboundOrderTypeId() == 11L) {
+                inventory = inventoryService.getInventoryWithoutBarcodeV9(dbPickupLine.getCompanyCodeId(),
+                        dbPickupLine.getPlantId(), dbPickupLine.getLanguageId(), dbPickupLine.getWarehouseId(),
+                        dbPickupLine.getItemCode(), BIN_CLS_ID);
+            } else if (dbPickupLine.getOutboundOrderTypeId() == 2L)  {
+                inventory = inventoryService.getInventoryV9(dbPickupLine.getCompanyCodeId(),
+                        dbPickupLine.getPlantId(), dbPickupLine.getLanguageId(), dbPickupLine.getWarehouseId(),
+                        dbPickupLine.getBarcodeId(), dbPickupLine.getItemCode(), BIN_CLS_ID, dbPickupLine.getPickedStorageBin());
+            } else {
+                inventory = inventoryV2Repository.getInventoryListForPickup(dbPickupLine.getCompanyCodeId(), dbPickupLine.getLanguageId(),
+                        dbPickupLine.getPlantId(), dbPickupLine.getWarehouseId(), dbPickupLine.getBarcodeId(), dbPickupLine.getItemCode(),
+                        dbPickupLine.getManufacturerName(), dbPickupLine.getPickedStorageBin(), dbPickupLine.getReferenceField2());
+            }
+
+            log.info("DeliveryConfirm Inventory Values ----------> "+ inventory);
+            log.info("inventory record queried: " + inventory);
+
+            if (inventory != null) {
+                if (dbPickupLine.getAllocatedQty() > 0D) {
+                    try {
+                        log.info("AllocatedQtyInv------>" + inventory.getAllocatedQuantity());
+                        log.info("AllocatedQtyPic------>" + dbPickupLine.getAllocatedQty());
+                        log.info("PickConfirmQty ------> " + dbPickupLine.getPickConfirmQty());
+                        Double INV_QTY = inventory.getInventoryQuantity();
+                        Double ALLOC_QTY = inventory.getAllocatedQuantity() - dbPickupLine.getAllocatedQty();
+//                        log.info("INV_QTY" + INV_QTY);
+                        log.info("ALLOC_QTY" + ALLOC_QTY);
+
+                        /*
+                         * [Prod Fix: 17-08] - Discussed to make negative inventory to zero
+                         */
+                        // Start
+                        if (INV_QTY < 0D) {
+                            INV_QTY = 0D;
+                        }
+
+                        if (ALLOC_QTY < 0D) {
+                            ALLOC_QTY = 0D;
+                        }
+                        // End
+
+                        Double qtyInCase = null;
+                        Double qtyInCreate = null;
+                        inventory.setInventoryQuantity(INV_QTY);
+                        inventory.setAllocatedQuantity(ALLOC_QTY);
+                        inventory.setReferenceField4(INV_QTY + ALLOC_QTY);
+
+                        InventoryV2 inventoryV2 = new InventoryV2();
+                        BeanUtils.copyProperties(inventory, inventoryV2, CommonUtils.getNullPropertyNames(inventory));
+                        inventoryV2.setUpdatedOn(new Date());
+                        inventoryV2.setQtyInPiece(inventoryV2.getInventoryQuantity());
+                        log.info(("QTYPIECE---->" + inventoryV2.getQtyInPiece()));
+
+                        inventoryV2.setVehicleReportingDate(inventory.getVehicleReportingDate());                 //containerReceiptCreatedDate
+                        inventoryV2.setPalletId(inventory.getPalletId());                             //containerReceiptCreatedBy
+                        inventoryV2.setVehicleNo(inventory.getVehicleNo());                              //GRNo
+                        inventoryV2.setReferenceOrderNo(inventory.getReferenceOrderNo());                     //ContainerReceiptInvoiceNo
+                        inventoryV2.setVehicleUnloadingDate(inventory.getVehicleUnloadingDate());
+
+                        if (inventoryV2.getQtyInPiece() == 0) {
+                            Double crateQty = 0.0;
+                            Double caseQty = 0.0;
+                            inventoryV2.setQtyInCreate(crateQty);
+                            inventoryV2.setQtyInCase(caseQty);
+                        } else {
+                            IKeyValuePair caseQty = stagingLineV2Repository.getAlternateUomQty(dbPickupLine.getCompanyCodeId(), dbPickupLine.getPlantId(), dbPickupLine.getWarehouseId(),
+                                    dbPickupLine.getItemCode(), "1", "2");
+                            IKeyValuePair createQty = stagingLineV2Repository.getAlternateUomQty(dbPickupLine.getCompanyCodeId(), dbPickupLine.getPlantId(), dbPickupLine.getWarehouseId(),
+                                    dbPickupLine.getItemCode(), "1", "3");
+                            if (caseQty != null) {
+                                qtyInCase = inventoryV2.getInventoryQuantity() / caseQty.getUomQty();
+                                inventoryV2.setQtyInCase(qtyInCase);
+                            }
+                            if (createQty != null) {
+                                qtyInCreate = inventoryV2.getInventoryQuantity() / createQty.getUomQty();
+                                inventoryV2.setQtyInCreate(qtyInCreate);
+                            }
+                        }
+                        inventoryV2 = inventoryV2Repository.save(inventoryV2);
+                        log.info("-----Inventory2 updated-------: " + inventoryV2);
+
+                        //--------------------------------------------------------------------------------------------------------------
+
+                        if (INV_QTY == 0) {
+                            // Setting up statusId = 0
+                            try {
+                                // Check whether Inventory has record or not
+                                InventoryV2 inventoryByStBin = inventoryService.getInventoryByStorageBinV9(dbPickupLine.getCompanyCodeId(),
+                                        dbPickupLine.getPlantId(), dbPickupLine.getLanguageId(),
+                                        dbPickupLine.getWarehouseId(), inventory.getStorageBin());
+                                if (inventoryByStBin == null || (inventoryByStBin != null && inventoryByStBin.getReferenceField4() == 0)) {
+                                    StorageBinV2 dbStorageBin = mastersService.getStorageBinV2(inventory.getStorageBin(),
+                                            dbPickupLine.getWarehouseId(),
+                                            dbPickupLine.getCompanyCodeId(),
+                                            dbPickupLine.getPlantId(),
+                                            dbPickupLine.getLanguageId(),
+                                            authTokenForMastersService.getAccess_token());
+
+                                    if (dbStorageBin != null) {
+                                        dbStorageBin.setStatusId(0L);
+                                        log.info("Bin Emptied");
+                                        mastersService.updateStorageBinV2(inventory.getStorageBin(), dbStorageBin, dbPickupLine.getCompanyCodeId(),
+                                                dbPickupLine.getPlantId(), dbPickupLine.getLanguageId(), dbPickupLine.getWarehouseId(), loginUserID,
+                                                authTokenForMastersService.getAccess_token());
+                                        log.info("Bin Update Success");
+                                    }
+                                }
+                            } catch (Exception e) {
+                                log.error("updateStorageBin Error :" + e.toString());
+                                e.printStackTrace();
+                            }
+                        }
+                    } catch (Exception e) {
+                        log.error("Inventory Update :" + e.toString());
+                        e.printStackTrace();
+                    }
+                }
+
+                if (dbPickupLine.getAllocatedQty() == null || dbPickupLine.getAllocatedQty() == 0D) {
+                    Double INV_QTY;
+                    try {
+                        INV_QTY = inventory.getInventoryQuantity() - dbPickupLine.getPickConfirmQty();
+                        /*
+                         * [Prod Fix: 17-08] - Discussed to make negative inventory to zero
+                         */
+                        // Start
+                        if (INV_QTY < 0D) {
+                            INV_QTY = 0D;
+                        }
+                        // End
+                        inventory.setInventoryQuantity(INV_QTY);
+                        inventory.setReferenceField4(INV_QTY);
+
+                        InventoryV2 newInventoryV2 = new InventoryV2();
+                        BeanUtils.copyProperties(inventory, newInventoryV2, CommonUtils.getNullPropertyNames(inventory));
+
+                        newInventoryV2.setVehicleReportingDate(inventory.getVehicleReportingDate());                 //containerReceiptCreatedDate
+                        newInventoryV2.setPalletId(inventory.getPalletId());                             //containerReceiptCreatedBy
+                        newInventoryV2.setVehicleNo(inventory.getVehicleNo());                              //GRNo
+                        newInventoryV2.setReferenceOrderNo(inventory.getReferenceOrderNo());                     //ContainerReceiptInvoiceNo
+                        newInventoryV2.setVehicleUnloadingDate(inventory.getVehicleUnloadingDate());
+                        newInventoryV2.setUpdatedOn(new Date());
+                        newInventoryV2.setQtyInPiece(dbPickupLine.getQtyInPiece());
+                        newInventoryV2.setQtyInCase(dbPickupLine.getQtyInCase());
+                        newInventoryV2.setQtyInCreate(dbPickupLine.getQtyInCrate());
+
+                        try {
+                            InventoryV2 createdInventoryV2 = inventoryV2Repository.save(newInventoryV2);
+                            log.info("InventoryV2 created : " + createdInventoryV2);
+                        } catch (Exception e) {
+                            log.error("--ERROR--updateInventoryV3----level1--inventory--error----> :" + e.toString());
+                            e.printStackTrace();
+                            InventoryTrans newInventoryTrans = new InventoryTrans();
+                            BeanUtils.copyProperties(newInventoryV2, newInventoryTrans, CommonUtils.getNullPropertyNames(newInventoryV2));
+                            newInventoryTrans.setReRun(0L);
+                            InventoryTrans inventoryTransCreated = inventoryTransRepository.save(newInventoryTrans);
+                            log.error("inventoryTransCreated -------- :" + inventoryTransCreated);
+                        }
+
+                        //-------------------------------------------------------------------
+                        // PASS PickedConfirmedStBin, WH_ID to inventory
+                        // 	If inv_qty && alloc_qty is zero or null then do the below logic.
+                        //-------------------------------------------------------------------
+                        InventoryV2 inventoryBySTBIN = inventoryService.getInventoryByStorageBinV2(dbPickupLine.getCompanyCodeId(),
+                                dbPickupLine.getPlantId(), dbPickupLine.getLanguageId(), dbPickupLine.getWarehouseId(), dbPickupLine.getPickedStorageBin());
+                        if (inventoryBySTBIN != null && (inventoryBySTBIN.getAllocatedQuantity() == null || inventoryBySTBIN.getAllocatedQuantity() == 0D)
+                                && (inventoryBySTBIN.getInventoryQuantity() == null || inventoryBySTBIN.getInventoryQuantity() == 0D)) {
+                            try {
+                                // Setting up statusId = 0
+                                StorageBinV2 dbStorageBin = mastersService.getStorageBinV2(inventory.getStorageBin(),
+                                        dbPickupLine.getWarehouseId(),
+                                        dbPickupLine.getCompanyCodeId(),
+                                        dbPickupLine.getPlantId(),
+                                        dbPickupLine.getLanguageId(),
+                                        authTokenForMastersService.getAccess_token());
+                                dbStorageBin.setStatusId(0L);
+
+                                mastersService.updateStorageBinV2(inventory.getStorageBin(), dbStorageBin, dbPickupLine.getCompanyCodeId(),
+                                        dbPickupLine.getPlantId(), dbPickupLine.getLanguageId(), dbPickupLine.getWarehouseId(), loginUserID,
+                                        authTokenForMastersService.getAccess_token());
+                            } catch (Exception e) {
+                                log.error("updateStorageBin Error :" + e.toString());
+                                e.printStackTrace();
+                            }
+                        }
+                    } catch (Exception e1) {
+                        log.error("Inventory cum StorageBin update: Error :" + e1.toString());
+                        e1.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param refDocNumber
+     * @param partnerCode
+     * @return
+     */
+    public OutboundLineV2 getOutboundLine5(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                           String refDocNumber, String partnerCode, String itemCode, Long lineNumber) {
+        OutboundLineV2 outboundLine =
+                outboundLineV2Repository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPartnerCodeAndItemCodeAndLineNumberAndDeletionIndicator(
+                        companyCodeId, plantId, languageId, warehouseId, refDocNumber, partnerCode, itemCode, lineNumber, 0L);
+        if (outboundLine != null) {
+            return outboundLine;
+        } else {
+            throw new BadRequestException("The given OutboundLine ID : "
+                    + "companyCodeId : " + companyCodeId
+                    + "plantId : " + plantId
+                    + "languageId : " + languageId
+                    + "warehouseId : " + warehouseId
+                    + ", refDocNumber : " + refDocNumber
+                    + ", partnerCode : " + partnerCode
+                    + ", itemCode : " + itemCode
+                    + ", lineNumber : " + lineNumber
+                    + " doesn't exist.");
+        }
+    } /**
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param refDocNumber
+     * @param partnerCode
+     * @return
+     */
+    public OutboundLineV2 getOutboundLineNewV9(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                           String refDocNumber, String partnerCode, String itemCode, Long lineNumber) {
+        OutboundLineV2 outboundLine =
+                outboundLineV2Repository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPartnerCodeAndItemCodeAndLineNumberAndDeletionIndicator(
+                        companyCodeId, plantId, languageId, warehouseId, refDocNumber, partnerCode, itemCode, lineNumber, 0L);
+        if (outboundLine != null) {
+            return outboundLine;
+        } else {
+            throw new BadRequestException("The given OutboundLine ID : "
+                    + "companyCodeId : " + companyCodeId
+                    + "plantId : " + plantId
+                    + "languageId : " + languageId
+                    + "warehouseId : " + warehouseId
+                    + ", refDocNumber : " + refDocNumber
+                    + ", partnerCode : " + partnerCode
+                    + ", itemCode : " + itemCode
+                    + ", lineNumber : " + lineNumber
+                    + " doesn't exist.");
+        }
+    }}

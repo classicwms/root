@@ -103,4 +103,6 @@ public class AddInhouseTransferLine {
 	private Double noBags;
 	private Double bagSize;
 
+	//BP
+	private String targetWarehouseId;
 }

@@ -1,5 +1,6 @@
 package com.tekclover.wms.api.inbound.transaction.repository;
 
+import com.tekclover.wms.api.inbound.transaction.model.report.InboundReceiptConfirm;
 import com.tekclover.wms.api.inbound.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 import com.tekclover.wms.api.inbound.transaction.model.impl.GrLineImpl;
 import com.tekclover.wms.api.inbound.transaction.model.inbound.gr.v2.GrLineV2;
@@ -364,6 +365,11 @@ public interface GrLineV2Repository extends JpaRepository<GrLineV2, Long>, JpaSp
                               @Param("preInboundNo") String preInboundNo,
                               @Param("barcodeId") String barcodeId);
 
+    @Modifying
+    @Query(value = "update tblgrline set is_deleted = 1 where REF_DOC_NO = :refDocNumber AND PRE_IB_NO = :preInboundNo ", nativeQuery = true)
+    int softDeleteByRefDocNo(@Param("refDocNumber") String refDocNumber,
+                             @Param("preInboundNo") String preInboundNo);
+
 
     //===========================================================FireBase Notification=========================================================
     @Query(value = "select token_id from tblhhtnotification where \n" +
@@ -385,4 +391,43 @@ public interface GrLineV2Repository extends JpaRepository<GrLineV2, Long>, JpaSp
     void updateGrLineRefField(@Param("status") String status,
                               @Param("refDocNo") String refDocNo,
                               @Param("barcodeId") String barcodeId);
+
+    void deleteByCompanyCodeAndPlantIdAndWarehouseIdAndItemCodeAndRefDocNumberAndLineNoAndPreInboundNoAndDeletionIndicator(
+            String companyCode, String plantId, String warehouseId, String itemCode,String refDocNumber, Long lineNo, String preInboundNo, Long deletionIndicator);
+
+
+    void deleteByCompanyCodeAndPlantIdAndWarehouseIdAndItemCodeAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
+            String companyCode, String plantId, String warehouseId, String itemCode,String refDocNumber, String preInboundNo, Long deletionIndicator);
+
+
+
+    @Query(value = "select * from tblgrline where ref_doc_no = :refDocNo and PRE_IB_NO = :preInboundNo and WH_ID = :warehouseId and PLANT_ID = :plantId and \n " +
+            "C_ID = :companyId AND LANG_ID = :languageId AND is_deleted = 0 ", nativeQuery = true)
+    List<GrLineV2> findGrLineForReportV9(@Param("refDocNo") String refDocNo, @Param("preInboundNo") String preInboundNo,
+                                         @Param("warehouseId") String warehouseId, @Param("plantId") String plantId,
+                                         @Param("companyId") String companyId, @Param("languageId") String languageId);
+
+
+    @Query(value = "select sum(ord_qty) orderQty, ITM_CODE itemCode, BARCODE_ID barcodeId, MFR_DATE manufacturerDate, EXP_DATE expiryDate, max(MFR_NAME) manufacturerName, sum(ACCEPT_QTY) acceptedQty, " +
+            "sum(DAMAGE_QTY) damageQty, sum(NO_BAGS) noBags, max(ITEM_TEXT) description, ROUND(sum(ord_qty) - (sum(ACCEPT_QTY) + sum(DAMAGE_QTY)), 2) as missingQty from tblgrline \n" +
+            " where ref_doc_no = :refDocNo and PRE_IB_NO = :preInboundNo and WH_ID = :warehouseId and PLANT_ID = :plantId and \n " +
+            "C_ID = :companyId AND LANG_ID = :languageId AND is_deleted = 0 group by ITM_CODE, BARCODE_ID, MFR_DATE, EXP_DATE ", nativeQuery = true)
+    List<InboundReceiptConfirm> findGrLineV9(@Param("refDocNo") String refDocNo, @Param("preInboundNo") String preInboundNo,
+                                             @Param("warehouseId") String warehouseId, @Param("plantId") String plantId,
+                                             @Param("companyId") String companyId, @Param("languageId") String languageId);
+
+
+    @Query(value = "SELECT gr_no from tblgrheader \n" +
+            "where c_id = :companyCodeId and plant_id = :plantId and lang_id = :languageId and \n" +
+            "wh_id = :warehouseId and REF_DOC_NO = :refDocNumber and PRE_IB_NO = :preInboundNo and \n" +
+            "pal_code = :palletCode and case_code = :caseCode and stg_no = :stagingNo and is_deleted = 0", nativeQuery = true)
+    String getGrNumberV9(@Param("companyCodeId") String companyCodeId,
+                         @Param("plantId") String plantId,
+                         @Param("languageId") String languageId,
+                         @Param("warehouseId") String warehouseId,
+                         @Param("refDocNumber") String refDocNumber,
+                         @Param("preInboundNo") String preInboundNo,
+                         @Param("palletCode") String palletCode,
+                         @Param("caseCode") String caseCode,
+                         @Param("stagingNo") String stagingNo);
 }

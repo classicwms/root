@@ -235,4 +235,23 @@ public class ContainerReceiptController {
 			DataBaseContextHolder.clear();
 		}
 	}
+
+    @ApiOperation(response = ContainerReceiptV2.class, value = "Delete ContainerReceipt V9 New") // label for swagger
+    @DeleteMapping("/v9/{containerReceiptNo}")
+    public ResponseEntity<?> deleteContainerReceiptV9New(@PathVariable String containerReceiptNo, @RequestParam String companyCode,
+                                                         @RequestParam String plantId, @RequestParam String languageId,
+                                                         @RequestParam String refDocNumber,
+                                                         @RequestParam String warehouseId, @RequestParam String loginUserID) throws ParseException {
+        try {
+            DataBaseContextHolder.setCurrentDb("MT");
+            String routingDb = dbConfigRepository.getDbName(companyCode, plantId, warehouseId);
+            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(routingDb);
+            containerreceiptService.deleteContainerReceiptV9New(companyCode, plantId, languageId, warehouseId, refDocNumber, containerReceiptNo, loginUserID);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } finally {
+            DataBaseContextHolder.clear();
+        }
+    }
 }

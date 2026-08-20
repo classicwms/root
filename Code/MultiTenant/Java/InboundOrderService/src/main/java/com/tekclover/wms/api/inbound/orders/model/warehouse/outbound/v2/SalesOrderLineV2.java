@@ -54,4 +54,7 @@ public class SalesOrderLineV2 {
     private Long middlewareId;
     private Long middlewareHeaderId;
     private String middlewareTable;
+
+    /*-----------------------------BP----------------------------------------*/
+    private String unitType;
 }

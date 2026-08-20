@@ -13,10 +13,7 @@ import com.tekclover.wms.api.outbound.transaction.model.warehouse.cyclecount.per
 import com.tekclover.wms.api.outbound.transaction.model.warehouse.inbound.v2.InterWarehouseTransferInV2;
 import com.tekclover.wms.api.outbound.transaction.model.warehouse.outbound.FileUpdateUpload;
 import com.tekclover.wms.api.outbound.transaction.model.warehouse.outbound.ShipmentOrder;
-import com.tekclover.wms.api.outbound.transaction.model.warehouse.outbound.v2.OutboundOrderV2;
-import com.tekclover.wms.api.outbound.transaction.model.warehouse.outbound.v2.ReturnPOV2;
-import com.tekclover.wms.api.outbound.transaction.model.warehouse.outbound.v2.SalesInvoice;
-import com.tekclover.wms.api.outbound.transaction.model.warehouse.outbound.v2.SalesOrderV2;
+import com.tekclover.wms.api.outbound.transaction.model.warehouse.outbound.v2.*;
 import com.tekclover.wms.api.outbound.transaction.model.warehouse.stockAdjustment.StockAdjustment;
 import com.tekclover.wms.api.outbound.transaction.repository.DbConfigRepository;
 import com.tekclover.wms.api.outbound.transaction.service.WarehouseService;
@@ -418,4 +415,113 @@ public class WarehouseController {
             DataBaseContextHolder.clear();
         }
     }
+
+    /*--------SPAREX----Inter-warehouse Transfer_Out------------------------------------------------------------*/
+    @ApiOperation(response = InterWarehouseTransferOutV2.class, value = "Inter Warehouse Transfer Out")
+    @PostMapping("/outbound/interwarehousetransferoutv10")
+    public ResponseEntity<?> postReturnPOV10(@Valid @RequestBody InterWarehouseTransferOutV2 interWarehouseTransfer)
+            throws IllegalAccessException, InvocationTargetException {
+        try {
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb("SPAREX");
+            warehouseService.postInterWarehouseTransferOutboundV10(interWarehouseTransfer);
+            WarehouseApiResponse response = new WarehouseApiResponse();
+            response.setStatusCode("200");
+            response.setMessage("Success");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            log.info("InterWarehouseTransferOut order Error: " + interWarehouseTransfer);
+            e.printStackTrace();
+            WarehouseApiResponse response = new WarehouseApiResponse();
+            response.setStatusCode("1400");
+            response.setMessage("Not Success: " + e.getLocalizedMessage());
+            return new ResponseEntity<>(response, HttpStatus.EXPECTATION_FAILED);
+        }
+    }
+
+	//=================BF && KKF Upload API=========================
+	@ApiOperation(response = SalesOrderV2.class, value = "Sales order") // label for swagger
+	@PostMapping("/outbound/upload/salesorderv9")
+	public ResponseEntity<?> postSalesOrderV9(@Valid @RequestBody List<SalesOrderV2> salesOrders) {
+		try {
+			log.info("------------salesOrders : " + salesOrders);
+			WarehouseApiResponse response = new WarehouseApiResponse();
+			for (SalesOrderV2 salesOrder : salesOrders) {
+				DataBaseContextHolder.setCurrentDb("MT");
+				String routingDb = dbConfigRepository.getDbName(salesOrders.get(0).getSalesOrderHeader().getCompanyCode(),salesOrders.get(0).getSalesOrderHeader().getBranchCode(), salesOrders.get(0).getSalesOrderHeader().getWarehouseId());
+				DataBaseContextHolder.clear();
+				DataBaseContextHolder.setCurrentDb(routingDb);
+				OutboundOrderV2 createdSalesOrder = warehouseService.postSalesOrderV9(salesOrder);
+				if (createdSalesOrder != null) {
+					response.setStatusCode("200");
+					response.setMessage("Success");
+				}
+			}
+			return new ResponseEntity<>(response, HttpStatus.OK);
+		} catch (Exception e) {
+			log.info("SalesOrder order Error: " + salesOrders);
+			e.printStackTrace();
+			WarehouseApiResponse response = new WarehouseApiResponse();
+			response.setStatusCode("1400");
+			response.setMessage("Not Success: " + e.getLocalizedMessage());
+			return new ResponseEntity<>(response, HttpStatus.EXPECTATION_FAILED);
+		}
+	}
+
+//	@ApiOperation(response = InterWarehouseTransferInV2.class, value = "Upload Inter Warehouse Transfer V9")
+//	@PostMapping("/outbound/interWarehouseTransferOut/upload/v9")
+//	public ResponseEntity<?> postInterWarehouseTransferInUploadV9(@RequestBody List<InterWarehouseTransferOutV2> interWarehouseTransferOutV2s)
+//			throws IllegalAccessException, InvocationTargetException {
+//		try {
+//			WarehouseApiResponse response = new WarehouseApiResponse();
+//			for (InterWarehouseTransferOutV2 interWarehouseTransfer : interWarehouseTransferOutV2s) {
+//				DataBaseContextHolder.setCurrentDb("MT");
+//				String routingDb = dbConfigRepository.getDbName(interWarehouseTransfer.getInterWarehouseTransferOutHeader().getFromCompanyCode(),
+//						interWarehouseTransfer.getInterWarehouseTransferOutHeader().getFromBranchCode(),interWarehouseTransfer.getInterWarehouseTransferOutHeader().getFromWarehouseId());
+//				DataBaseContextHolder.clear();
+//				DataBaseContextHolder.setCurrentDb(routingDb);
+//				log.info("routing DB " + routingDb);
+//				warehouseService.postInterWarehouseTransferOutboundV9(interWarehouseTransfer);
+//				response.setStatusCode("200");
+//				response.setMessage("Success");
+//			}
+//			return new ResponseEntity<>(response, HttpStatus.OK);
+//		} catch (Exception e) {
+//			log.info("interWarehouseTransfer order Error: " + e);
+//			e.printStackTrace();
+//			WarehouseApiResponse response = new WarehouseApiResponse();
+//			response.setStatusCode("1400");
+//			response.setMessage("Not Success: " + e.getLocalizedMessage());
+//			return new ResponseEntity<>(response, HttpStatus.EXPECTATION_FAILED);
+//		} finally {
+//			DataBaseContextHolder.clear();
+//		}
+//	}
+//
+//	@ApiOperation(response = InterWarehouseTransferOutV2.class, value = "Inter Warehouse Transfer Out V9")
+//	@PostMapping("/outbound/interwarehousetransferout/v9")
+//	public ResponseEntity<?> postReturnPOV9(@Valid @RequestBody InterWarehouseTransferOutV2 interWarehouseTransfer)
+//			throws IllegalAccessException, InvocationTargetException {
+//		try {
+//			DataBaseContextHolder.setCurrentDb("MT");
+//			String routingDb = dbConfigRepository.getDbName(interWarehouseTransfer.getInterWarehouseTransferOutHeader().getFromCompanyCode(),
+//					interWarehouseTransfer.getInterWarehouseTransferOutHeader().getFromBranchCode(),interWarehouseTransfer.getInterWarehouseTransferOutHeader().getFromWarehouseId());
+//			DataBaseContextHolder.clear();
+//			DataBaseContextHolder.setCurrentDb(routingDb);
+//			log.info("routing DB " + routingDb);
+//			warehouseService.postInterWarehouseTransferOutboundV9(interWarehouseTransfer);
+//			WarehouseApiResponse response = new WarehouseApiResponse();
+//			response.setStatusCode("200");
+//			response.setMessage("Success");
+//			return new ResponseEntity<>(response, HttpStatus.OK);
+//		} catch (Exception e) {
+//			log.info("InterWarehouseTransferOut order Error: " + interWarehouseTransfer);
+//			e.printStackTrace();
+//			WarehouseApiResponse response = new WarehouseApiResponse();
+//			response.setStatusCode("1400");
+//			response.setMessage("Not Success: " + e.getLocalizedMessage());
+//			return new ResponseEntity<>(response, HttpStatus.EXPECTATION_FAILED);
+//		}
+//	}
+
 }

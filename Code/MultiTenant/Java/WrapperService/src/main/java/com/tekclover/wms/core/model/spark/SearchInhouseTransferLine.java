@@ -33,4 +33,6 @@ public class SearchInhouseTransferLine {
     private Date endCreatedOn;
     private Date startConfirmedOn;
     private Date endConfirmedOn;
+    private List<String> referenceField10;
+
 }

@@ -180,4 +180,23 @@ public class PreOutboundLineController {
             DataBaseContextHolder.clear();
         }
         }
+
+    @ApiOperation(response = PreOutboundLineV2.class, value = "Update PreOutboundLine") // label for swagger
+    @PatchMapping("/v2/update")
+    public ResponseEntity<?> patchPreOutboundLineBF(@Valid @RequestBody UpdatePreOutboundLine updatePreOutboundLine, @RequestParam String loginUserID)
+            throws IllegalAccessException, InvocationTargetException, ParseException {
+        try {
+            DataBaseContextHolder.setCurrentDb("MT");
+            String routingDb = dbConfigRepository.getDbName(updatePreOutboundLine.getCompanyCodeId(), updatePreOutboundLine.getPlantId(), updatePreOutboundLine.getWarehouseId());
+            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(routingDb);
+            PreOutboundLineV2 createdPreOutboundLine =
+                    preoutboundlineService.updatePreOutboundLineV9(loginUserID, updatePreOutboundLine);
+            return new ResponseEntity<>(createdPreOutboundLine, HttpStatus.OK);
+        }
+        finally {
+            DataBaseContextHolder.clear();
+        }
+    }
 }

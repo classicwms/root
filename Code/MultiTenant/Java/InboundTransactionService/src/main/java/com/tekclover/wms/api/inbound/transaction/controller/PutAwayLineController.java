@@ -262,6 +262,18 @@ public class PutAwayLineController {
 					case "BP":
 						createdPutAwayLine = putawaylineService.putAwayLineConfirmNonCBMV4(newPutAwayLine, loginUserID);
 						break;
+                    case "SPAREX":
+                        createdPutAwayLine = putawaylineService.putAwayLineConfirmNonCBMV10(newPutAwayLine, loginUserID);
+                        break;
+                    case "BF":
+                        createdPutAwayLine = putawaylineService.putAwayLineConfirmNonCBMV9(newPutAwayLine, loginUserID);
+                        break;
+                    case "KKF":
+                        createdPutAwayLine = putawaylineService.putAwayLineConfirmNonCBMV9(newPutAwayLine, loginUserID);
+                        break;
+                    case "KSP":
+                        createdPutAwayLine = putawaylineService.putAwayLineConfirmNonCBMV9(newPutAwayLine, loginUserID);
+                        break;
 				}
 			}
 			if(createdPutAwayLine == null) {

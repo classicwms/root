@@ -26,4 +26,5 @@ public class WarehouseId {
 	private Date createdOn = new Date();
 	private String updatedBy;
 	private Date updatedOn = new Date();
+	private Long noOfUsers;
 }

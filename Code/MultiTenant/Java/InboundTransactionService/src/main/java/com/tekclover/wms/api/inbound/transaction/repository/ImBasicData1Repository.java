@@ -72,4 +72,23 @@ public interface ImBasicData1Repository extends PagingAndSortingRepository<ImBas
 					   @Param(value = "languageId") String languageId,
 					   @Param(value = "warehouseId") String warehouseId,
 					   @Param(value = "manufactureName") String manufactureName);
+
+    @Query(value = "select * from tblimbasicdata1 where c_id = :companyCodeId " +
+            " and LANG_ID = :languageId and plant_id = :plantId  and wh_id = :warehouseId and itm_code = :sourceItemCode " +
+            " and ref_field_1 = :targetStorageBin and is_deleted = 0 ",nativeQuery = true)
+    ImBasicData1 getItemAndBinV10(@Param(value = "companyCodeId") String companyCodeId,
+                                  @Param(value = "languageId") String languageId,
+                                  @Param(value = "plantId") String plantId,
+                                  @Param(value = "warehouseId") String warehouseId,
+                                  @Param(value = "sourceItemCode") String sourceItemCode,
+                                  @Param(value = "targetStorageBin") String targetStorageBin);
+
+    @Query(value = "select REF_FIELD_2 from tblimbasicdata1 where c_id = :companyCodeId and plant_id = :plantId and LANG_ID = :languageId " +
+            " and wh_id = :warehouseId and itm_code = :itemCode and mfr_part = :manufactureName and  is_deleted = 0 ",nativeQuery = true)
+    public String getCustomerIdV9(@Param(value = "companyCodeId") String companyCodeId,
+                                  @Param(value = "languageId") String languageId,
+                                  @Param(value = "plantId") String plantId,
+                                  @Param(value = "warehouseId") String warehouseId,
+                                  @Param(value = "itemCode") String itemCode,
+                                  @Param(value = "manufactureName") String manufactureName);
 }

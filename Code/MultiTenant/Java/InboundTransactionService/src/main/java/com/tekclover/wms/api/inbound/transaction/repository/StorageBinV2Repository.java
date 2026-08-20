@@ -294,4 +294,149 @@ public interface StorageBinV2Repository extends JpaRepository<StorageBinV2, Long
                                 @Param("plantId") String plantId,
                                 @Param("warehouseId") String warehouseId);
 
+    @Query(value = "SELECT * from tblstoragebin where bin_cl_id =:binClassId " +
+            "AND c_id = :companyCodeId AND plant_id = :plantId AND wh_id = :warehouseId " +
+            "AND lang_id = :languageId AND st_bin IN (:storageBin) and  IS_DELETED = 0", nativeQuery = true)
+    public StorageBinV2 getStorageBin1V10(@Param("companyCodeId") String companyCodeId,
+                                          @Param("plantId") String plantId,
+                                          @Param("languageId") String languageId,
+                                          @Param("warehouseId") String warehouseId,
+                                          @Param("storageBin") List<String> storageBin,
+                                          @Param("binClassId") Long binClassId);
+
+    @Query(value = "SELECT * from tblstoragebin where bin_cl_id =:binClassId " +
+            "AND c_id = :companyCodeId AND plant_id = :plantId AND wh_id = :warehouseId " +
+            "AND lang_id = :languageId AND IS_DELETED = 0", nativeQuery = true)
+    public StorageBinV2 getStorageBinV10(@Param("companyCodeId") String companyCodeId,
+                                         @Param("plantId") String plantId,
+                                         @Param("languageId") String languageId,
+                                         @Param("warehouseId") String warehouseId,
+                                         @Param("binClassId") Long binClassId);
+
+    @Query(value = "SELECT * from tblstoragebin where bin_cl_id = :binClassId " +
+            "AND c_id = :companyCodeId AND plant_id = :plantId AND wh_id = :warehouseId " +
+            "AND lang_id = :languageId AND st_bin = :storageBin and IS_DELETED = 0", nativeQuery = true)
+    Optional<StorageBinV2> getBinClass1V10(@Param("storageBin") String storageBin,
+                                           @Param("binClassId") Long binClassId,
+                                           @Param("companyCodeId") String companyCodeId,
+                                           @Param("plantId") String plantId,
+                                           @Param("warehouseId") String warehouseId,
+                                           @Param("languageId") String languageId);
+
+    @Query(value = "SELECT TOP 1 * FROM tblstoragebin " +
+            "WHERE bin_cl_id = :binclassId " +
+            "AND c_id = :companyCode " +
+            "AND plant_id = :plantId " +
+            "AND wh_id = :warehouseId " +
+            "AND lang_id = :languageId " +
+            "AND is_deleted = 0 " +
+            "AND level_id is null " +
+            "AND status_id in (0) " +
+            "ORDER BY st_bin ASC, status_id ASC",
+            nativeQuery = true)
+    StorageBinV2 getStorageBinLevelIdV9(@Param("binclassId") Long binclassId,
+                                        @Param("companyCode") String companyCode,
+                                        @Param("plantId") String plantId,
+                                        @Param("languageId") String languageId,
+                                        @Param("warehouseId") String warehouseId);
+
+    @Query(value = "SELECT TOP 1 * FROM tblstoragebin " +
+            "WHERE bin_cl_id = :binclassId " +
+            "AND c_id = :companyCode " +
+            "AND plant_id = :plantId " +
+            "AND wh_id = :warehouseId " +
+            "AND lang_id = :languageId " +
+            "AND is_deleted = 0 " +
+            "AND (COALESCE(:levelId, null) IS NULL OR (level_id IN (:levelId))) " +
+            "AND status_id in (0,10) " +
+            "ORDER BY st_bin ASC, status_id ASC",
+            nativeQuery = true)
+    StorageBinV2 getStorageBinV9(@Param("binclassId") Long binclassId,
+                                 @Param("companyCode") String companyCode,
+                                 @Param("plantId") String plantId,
+                                 @Param("languageId") String languageId,
+                                 @Param("warehouseId") String warehouseId,
+                                 @Param("levelId") Long levelId);
+
+    @Query(value = "SELECT TOP 1 * FROM tblstoragebin " +
+            "WHERE bin_cl_id = :binclassId " +
+            "AND c_id = :companyCode " +
+            "AND plant_id = :plantId " +
+            "AND wh_id = :warehouseId " +
+            "AND lang_id = :languageId " +
+            "AND is_deleted = 0 " +
+            "AND (COALESCE(:levelId, null) IS NULL OR (level_id IN (:levelId))) " +
+            "AND status_id in (0) " +
+            "ORDER BY st_bin ASC, status_id ASC",
+            nativeQuery = true)
+    StorageBinV2 getStorageBinForEmptyV9(@Param("binclassId") Long binclassId,
+                                         @Param("companyCode") String companyCode,
+                                         @Param("plantId") String plantId,
+                                         @Param("languageId") String languageId,
+                                         @Param("warehouseId") String warehouseId,
+                                         @Param("levelId") Long levelId);
+
+    @Query(value = "SELECT TOP 1 * FROM tblstoragebin " +
+            "WHERE bin_cl_id = :binclassId " +
+            "AND c_id = :companyCode " +
+            "AND plant_id = :plantId " +
+            "AND wh_id = :warehouseId " +
+            "AND lang_id = :languageId " +
+            "AND is_deleted = 0 " +
+            "AND status_id in (0) " +
+            "ORDER BY st_bin ASC, status_id ASC",
+            nativeQuery = true)
+    StorageBinV2 getStorageBinInPutAwayHeader(@Param("binclassId") Long binclassId,
+                                              @Param("companyCode") String companyCode,
+                                              @Param("plantId") String plantId,
+                                              @Param("languageId") String languageId,
+                                              @Param("warehouseId") String warehouseId);
+
+    @Query(value = "SELECT TOP 1 * FROM tblstoragebin " +
+            "WHERE bin_cl_id = :binclassId " +
+            "AND c_id = :companyCode " +
+            "AND plant_id = :plantId " +
+            "AND wh_id = :warehouseId " +
+            "AND lang_id = :languageId " +
+            "AND CAP_CHECK = 'FALSE' " +
+            "AND is_deleted = 0 " +
+            "AND st_bin <> 'REC-AL-B2' " +
+            "ORDER BY st_bin ASC, status_id ASC",
+            nativeQuery = true)
+    StorageBinV2 getStorageBinNonBinCls2V9(@Param("binclassId") Long binclassId,
+                                           @Param("companyCode") String companyCode,
+                                           @Param("plantId") String plantId,
+                                           @Param("languageId") String languageId,
+                                           @Param("warehouseId") String warehouseId);
+
+    @Modifying
+    @Query(value = "UPDATE tblstoragebin set status_id =:statusId where \n " +
+            "st_bin = :storageBin AND c_id = :companyCode AND plant_id = :plantId \n" +
+            "AND wh_id = :warehouseId AND lang_id = :languageId ", nativeQuery = true)
+    void updateStorageBinV5(@Param("storageBin") String storageBin,
+                            @Param("companyCode") String companyCode,
+                            @Param("plantId") String plantId,
+                            @Param("warehouseId") String warehouseId,
+                            @Param("languageId") String languageId,
+                            @Param("statusId") Long statusId);
+
+    @Query(value = "select BIN_QUANTITY from tblstoragebin where st_bin = :storageBin and c_id = :companyId and \n" +
+            "plant_id = :plantId and wh_id = :warehouseId and is_deleted = 0", nativeQuery = true)
+    public Long getOccupaidQtyV5(@Param("storageBin") String storageBin,
+                                 @Param("companyId") String companyId,
+                                 @Param("plantId") String plantId,
+                                 @Param("warehouseId") String warehouseId);
+
+    @Modifying
+    @Query(value = "UPDATE tblstoragebin set status_id =:statusId, occ_qty = :balanceQty, BIN_QUANTITY = :balanceQty where \n " +
+            "st_bin = :storageBin AND c_id = :companyCode AND plant_id = :plantId \n" +
+            "AND wh_id = :warehouseId AND lang_id = :languageId ", nativeQuery = true)
+    void updateStorageBinV5(@Param("storageBin") String storageBin,
+                            @Param("companyCode") String companyCode,
+                            @Param("plantId") String plantId,
+                            @Param("warehouseId") String warehouseId,
+                            @Param("languageId") String languageId,
+                            @Param("statusId") Long statusId,
+                            @Param("balanceQty") long balanceQty);
+
 }

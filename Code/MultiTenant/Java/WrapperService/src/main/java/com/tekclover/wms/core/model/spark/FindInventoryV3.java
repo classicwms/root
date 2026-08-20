@@ -25,5 +25,8 @@ public class FindInventoryV3 {
     private List<String> levelId;
     private List<Long> specialStockIndicatorId;
     private List<Long> binClassId;
-
+    private List<String> partnerCode;
+    private List<String> referenceField7;
+    private List<String> inventoryOwner;
+    private List<String> origin;
 }

@@ -163,7 +163,7 @@
 //                break;
 //            case "NAMRATHA":
 //                dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-//                dataSource.setUrl("jdbc:sqlserver://35.154.84.178;databaseName=WMS_NAMRATHA");
+//                dataSource.setUrl("jdbc:sqlserver://35.154.84.178;databaseName=WMS_NAMRATHA_DEV");
 //                dataSource.setUsername("sa");
 //                dataSource.setPassword("30NcyBuK");
 //                break;

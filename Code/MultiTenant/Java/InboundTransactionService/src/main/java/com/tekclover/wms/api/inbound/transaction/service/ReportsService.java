@@ -1,6 +1,7 @@
 package com.tekclover.wms.api.inbound.transaction.service;
 
 
+import com.tekclover.wms.api.inbound.transaction.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.inbound.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.inbound.transaction.model.auth.AuthToken;
 import com.tekclover.wms.api.inbound.transaction.model.dto.BusinessPartner;
@@ -8,6 +9,7 @@ import com.tekclover.wms.api.inbound.transaction.model.dto.ImBasicData1;
 import com.tekclover.wms.api.inbound.transaction.model.dto.StorageBin;
 import com.tekclover.wms.api.inbound.transaction.model.impl.OrderStatusReportImpl;
 import com.tekclover.wms.api.inbound.transaction.model.impl.StockReportImpl;
+import com.tekclover.wms.api.inbound.transaction.model.inbound.InboundCancellation;
 import com.tekclover.wms.api.inbound.transaction.model.inbound.InboundLine;
 import com.tekclover.wms.api.inbound.transaction.model.inbound.gr.GrHeader;
 import com.tekclover.wms.api.inbound.transaction.model.inbound.gr.v2.GrHeaderV2;
@@ -16,6 +18,7 @@ import com.tekclover.wms.api.inbound.transaction.model.inbound.inventory.Invento
 import com.tekclover.wms.api.inbound.transaction.model.inbound.inventory.InventoryMovement;
 import com.tekclover.wms.api.inbound.transaction.model.inbound.inventory.SearchInventory;
 import com.tekclover.wms.api.inbound.transaction.model.inbound.inventory.v2.InventoryV2;
+import com.tekclover.wms.api.inbound.transaction.model.inbound.preinbound.PreInboundHeaderEntity;
 import com.tekclover.wms.api.inbound.transaction.model.inbound.preinbound.v2.PreInboundHeaderEntityV2;
 import com.tekclover.wms.api.inbound.transaction.model.inbound.preinbound.v2.PreInboundLineEntityV2;
 import com.tekclover.wms.api.inbound.transaction.model.inbound.putaway.PutAwayHeader;
@@ -91,6 +94,9 @@ public class ReportsService extends BaseService {
     @Autowired
     private InboundOrderLinesV2Repository inboundOrderLinesV2Repository;
 
+    @Autowired
+    DbConfigRepository dbConfigRepository;
+
 
     @Autowired
     InventoryService inventoryService;
@@ -149,6 +155,9 @@ public class ReportsService extends BaseService {
 
     @Autowired
     GrHeaderService grHeaderService;
+
+    @Autowired
+    private PreInboundHeaderRepository preInboundHeaderRepository;
 
 
     /**
@@ -1521,11 +1530,12 @@ public class ReportsService extends BaseService {
         inboundOrderV2Repository.deleteAll(inboundOrderList);
         log.info("Deleted all InboundOrders for RefDocNumber: {}", refDocNumber);
     }
-    public List<BarcodeGeneration> postBarcode(List<AddBarcodeGeneration> barcode){
+
+    public List<BarcodeGeneration> postBarcode(List<AddBarcodeGeneration> barcode) {
 
         List<BarcodeGeneration> generations = new ArrayList<>();
 
-        for(AddBarcodeGeneration barcodeGeneration : barcode) {
+        for (AddBarcodeGeneration barcodeGeneration : barcode) {
             BarcodeGeneration barcode1 = new BarcodeGeneration();
 
             AuthToken authTokenForIDMasterService = authTokenService.getIDMasterServiceAuthToken();
@@ -1545,4 +1555,1281 @@ public class ReportsService extends BaseService {
         }
         return generations;
     }
+
+    //===============SPAREX Inbound Cancel And Reprocess===========================================
+
+    /**
+     * @param inboundCancellations Inbound Cancel And Reprocess
+     */
+    public void inboundCancelReprocessV10New(List<InboundCancellation> inboundCancellations) {
+        for (InboundCancellation inboundCancellation : inboundCancellations) {
+            if (inboundCancellation.getLineNo() != null) {
+                log.info("Inbound Lines Cancellation Started");
+                inboundLineCancelV10(inboundCancellations);
+            } else {
+                log.info("Inbound Order Cancellation Started");
+                inboundOrderCancelV10(inboundCancellations);
+            }
+        }
+    }
+    //===============SPAREX Inbound Cancel And Reprocess===========================================
+
+    /**
+     * @param inboundCancellations Inbound Cancel And Reprocess
+     */
+    public void inboundLineCancelV10(List<InboundCancellation> inboundCancellations) {
+
+        InboundOrderV2 inboundOrderV2List = new InboundOrderV2();
+
+        log.info("Inbound Lines CancellationInput ------> {}", inboundCancellations);
+        for (InboundCancellation inboundCancellation : inboundCancellations) {
+
+            InboundOrderV2 inboundOrderLineList = inboundOrderV2Repository.findByOrderId(inboundCancellation.getRefDocNumber());
+            log.info("Iborders ----> " + inboundOrderLineList);
+
+            InboundOrderLinesV2 inboundOrderLineList2 = inboundOrderLinesV2Repository.findByItemCodeAndOrderIdAndLineReference(inboundCancellation.getItemCode(), inboundCancellation.getRefDocNumber(), inboundCancellation.getLineNo());
+            log.info("IborderLines ----> " + inboundOrderLineList2);
+
+            for (Long line : inboundCancellation.getLineNo()) {
+                preInboundLineV2Repository.deleteByCompanyCodeAndPlantIdAndWarehouseIdAndItemCodeAndRefDocNumberAndLineNoAndPreInboundNoAndDeletionIndicator(
+                        inboundCancellation.getCompanyCode(), inboundCancellation.getPlantId(), inboundCancellation.getWarehouseId(),
+                        inboundCancellation.getItemCode(), inboundCancellation.getRefDocNumber(), line, inboundCancellation.getPreInboundNo(), 0L);
+                log.info("PreInboundLine V10 Deleted Successfully ---> ItemCode , RefDocNo is {}", inboundCancellation.getRefDocNumber());
+
+                inboundLineV2Repository.deleteByCompanyCodeAndPlantIdAndWarehouseIdAndItemCodeAndRefDocNumberAndLineNoAndPreInboundNoAndDeletionIndicator(
+                        inboundCancellation.getCompanyCode(), inboundCancellation.getPlantId(), inboundCancellation.getWarehouseId(),
+                        inboundCancellation.getItemCode(), inboundCancellation.getRefDocNumber(), line, inboundCancellation.getPreInboundNo(), 0L);
+                log.info("InboundLine V10 Deleted Successfully ---> ItemCode , RefDocNo is {}", inboundCancellation.getRefDocNumber());
+
+                stagingLineV2Repository.deleteByCompanyCodeAndPlantIdAndWarehouseIdAndItemCodeAndRefDocNumberAndLineNoAndPreInboundNoAndDeletionIndicator(
+                        inboundCancellation.getCompanyCode(), inboundCancellation.getPlantId(), inboundCancellation.getWarehouseId(),
+                        inboundCancellation.getItemCode(), inboundCancellation.getRefDocNumber(), line, inboundCancellation.getPreInboundNo(), 0L);
+                log.info("StagingLine V10 Deleted Successfully ---> ItemCode , RefDocNo is {}", inboundCancellation.getRefDocNumber());
+
+                grLineV2Repository.deleteByCompanyCodeAndPlantIdAndWarehouseIdAndItemCodeAndRefDocNumberAndLineNoAndPreInboundNoAndDeletionIndicator(
+                        inboundCancellation.getCompanyCode(), inboundCancellation.getPlantId(), inboundCancellation.getWarehouseId(),
+                        inboundCancellation.getItemCode(), inboundCancellation.getRefDocNumber(), line, inboundCancellation.getPreInboundNo(), 0L);
+                log.info("GrLine V10 Deleted Successfully ---> ItemCode , RefDocNo is {}", inboundCancellation.getRefDocNumber());
+
+                putAwayLineV2Repository.deleteByCompanyCodeAndPlantIdAndWarehouseIdAndItemCodeAndRefDocNumberAndLineNoAndPreInboundNoAndDeletionIndicator(
+                        inboundCancellation.getCompanyCode(), inboundCancellation.getPlantId(), inboundCancellation.getWarehouseId(),
+                        inboundCancellation.getItemCode(), inboundCancellation.getRefDocNumber(), line, inboundCancellation.getPreInboundNo(), 0L);
+                log.info("PutAwayLine V10 Deleted Successfully ---> ItemCode , RefDocNo is {}", inboundCancellation.getRefDocNumber());
+            }
+
+            inboundOrderV2List.setCompanyCode(inboundOrderLineList.getCompanyCode());
+            inboundOrderV2List.setBranchCode(inboundOrderLineList.getBranchCode());
+            inboundOrderV2List.setLanguageId(inboundOrderLineList.getLanguageId());
+            inboundOrderV2List.setWarehouseID(inboundOrderLineList.getWarehouseID());
+            inboundOrderV2List.setInboundOrderTypeId(2L);
+            inboundOrderV2List.setRefDocumentNo(inboundOrderLineList.getRefDocumentNo());
+            inboundOrderV2List.setOrderId(inboundOrderLineList.getOrderId());
+            inboundOrderV2List.setProcessedStatusId(0L);
+            inboundOrderV2List.setRefDocumentType("Reprocessed Order");
+            inboundOrderV2List.setOrderReceivedOn(new Date());
+            inboundOrderV2List.setOrderProcessedOn(new Date());
+
+            InboundOrderLinesV2 inboundOrderLinesV2 = new InboundOrderLinesV2();
+
+            inboundOrderLinesV2.setCompanyCode(inboundOrderLineList2.getCompanyCode());
+            inboundOrderLinesV2.setBranchCode(inboundOrderLineList2.getBranchCode());
+            inboundOrderLinesV2.setLineReference(inboundOrderLineList2.getLineReference());
+            inboundOrderLinesV2.setFromCompanyCode(inboundOrderLineList2.getFromCompanyCode());
+            inboundOrderLinesV2.setOrderId(inboundOrderLineList2.getOrderId());
+            inboundOrderLinesV2.setItemCode(inboundOrderLineList2.getItemCode());
+            inboundOrderLinesV2.setItemText(inboundOrderLineList2.getItemText());
+            inboundOrderLinesV2.setManufacturerCode(inboundOrderLineList2.getManufacturerCode());
+            inboundOrderLinesV2.setManufacturerName(inboundOrderLineList2.getManufacturerName());
+            inboundOrderLinesV2.setManufacturerPartNo(inboundOrderLineList2.getManufacturerPartNo());
+            inboundOrderLinesV2.setManufacturerFullName(inboundOrderLineList2.getManufacturerFullName());
+            inboundOrderLinesV2.setOrderedQty(inboundOrderLineList2.getOrderedQty());
+            inboundOrderLinesV2.setExpectedQty(inboundOrderLineList2.getExpectedQty());
+            inboundOrderLinesV2.setExpectedDate(inboundOrderLineList2.getExpectedDate());
+            inboundOrderLinesV2.setInboundOrderTypeId(2L);
+            inboundOrderLinesV2.setPackQty(inboundOrderLineList2.getPackQty());
+            inboundOrderLinesV2.setStoreID(inboundOrderLineList2.getStoreID());
+            inboundOrderLinesV2.setSupplierName(inboundOrderLineList2.getSupplierName());
+
+            inboundOrderV2List.setLines(Collections.singleton(inboundOrderLinesV2));
+
+            obOrderCancellationV10(inboundCancellation.getRefDocNumber(), inboundCancellation.getItemCode(), inboundCancellation.getLineNo(), inboundOrderLineList2.getInboundOrderTypeId());
+
+        }
+    }
+
+    /**
+     * @param refDocNumber
+     * @param itemCode
+     * @param lineNo
+     */
+    public void obOrderCancellationV10(String refDocNumber, String itemCode, List<Long> lineNo, Long InboundOrderTypeId) {
+
+        if (refDocNumber != null) {
+            inboundOrderLinesV2Repository.getItemCodeAndOrderIdAndLineReferenceAndInboundOrderTypeId(refDocNumber, itemCode, lineNo, InboundOrderTypeId);
+            log.info("Old IBOrderLines Deleted Successfully ----------------> OrderNo {}", refDocNumber);
+        }
+    }
+
+
+    //===============SPAREX Inbound Cancel And Reprocess===========================================
+
+    /**
+     * @param inboundCancellations Inbound Cancel And Reprocess
+     */
+    public void inboundOrderCancelV10(List<InboundCancellation> inboundCancellations) {
+
+        log.info("Inbound Order CancellationInput ------> {}", inboundCancellations);
+        for (InboundCancellation inboundCancellation : inboundCancellations) {
+
+            preInboundHeaderRepository.deleteByCompanyCodeAndPlantIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
+                    inboundCancellation.getCompanyCode(), inboundCancellation.getPlantId(), inboundCancellation.getWarehouseId(),
+                    inboundCancellation.getRefDocNumber(), inboundCancellation.getPreInboundNo(), 0L);
+            log.info("PreInboundLine V10 Deleted Successfully ---> ItemCode , RefDocNo is {}", inboundCancellation.getRefDocNumber());
+
+            preInboundLineV2Repository.deleteByCompanyCodeAndPlantIdAndWarehouseIdAndItemCodeAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
+                    inboundCancellation.getCompanyCode(), inboundCancellation.getPlantId(), inboundCancellation.getWarehouseId(),
+                    inboundCancellation.getItemCode(), inboundCancellation.getRefDocNumber(), inboundCancellation.getPreInboundNo(), 0L);
+            log.info("PreInboundLine V10 Deleted Successfully ---> ItemCode , RefDocNo is {}", inboundCancellation.getRefDocNumber());
+
+
+            inboundHeaderV2Repository.deleteByCompanyCodeAndPlantIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
+                    inboundCancellation.getCompanyCode(), inboundCancellation.getPlantId(), inboundCancellation.getWarehouseId(),
+                    inboundCancellation.getRefDocNumber(), inboundCancellation.getPreInboundNo(), 0L);
+            log.info("InboundLine V10 Deleted Successfully ---> ItemCode , RefDocNo is {}", inboundCancellation.getRefDocNumber());
+
+            inboundLineV2Repository.deleteByCompanyCodeAndPlantIdAndWarehouseIdAndItemCodeAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
+                    inboundCancellation.getCompanyCode(), inboundCancellation.getPlantId(), inboundCancellation.getWarehouseId(),
+                    inboundCancellation.getItemCode(), inboundCancellation.getRefDocNumber(), inboundCancellation.getPreInboundNo(), 0L);
+            log.info("InboundLine V10 Deleted Successfully ---> ItemCode , RefDocNo is {}", inboundCancellation.getRefDocNumber());
+
+
+            stagingHeaderV2Repository.deleteByCompanyCodeAndPlantIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
+                    inboundCancellation.getCompanyCode(), inboundCancellation.getPlantId(), inboundCancellation.getWarehouseId(),
+                    inboundCancellation.getRefDocNumber(), inboundCancellation.getPreInboundNo(), 0L);
+            log.info("StagingLine V10 Deleted Successfully ---> ItemCode , RefDocNo is {}", inboundCancellation.getRefDocNumber());
+
+            stagingLineV2Repository.deleteByCompanyCodeAndPlantIdAndWarehouseIdAndItemCodeAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
+                    inboundCancellation.getCompanyCode(), inboundCancellation.getPlantId(), inboundCancellation.getWarehouseId(),
+                    inboundCancellation.getItemCode(), inboundCancellation.getRefDocNumber(), inboundCancellation.getPreInboundNo(), 0L);
+            log.info("StagingLine V10 Deleted Successfully ---> ItemCode , RefDocNo is {}", inboundCancellation.getRefDocNumber());
+
+
+            grHeaderV2Repository.deleteByCompanyCodeAndPlantIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
+                    inboundCancellation.getCompanyCode(), inboundCancellation.getPlantId(), inboundCancellation.getWarehouseId(),
+                    inboundCancellation.getRefDocNumber(), inboundCancellation.getPreInboundNo(), 0L);
+            log.info("GrLine V10 Deleted Successfully ---> ItemCode , RefDocNo is {}", inboundCancellation.getRefDocNumber());
+
+            grLineV2Repository.deleteByCompanyCodeAndPlantIdAndWarehouseIdAndItemCodeAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
+                    inboundCancellation.getCompanyCode(), inboundCancellation.getPlantId(), inboundCancellation.getWarehouseId(),
+                    inboundCancellation.getItemCode(), inboundCancellation.getRefDocNumber(), inboundCancellation.getPreInboundNo(), 0L);
+            log.info("GrLine V10 Deleted Successfully ---> ItemCode , RefDocNo is {}", inboundCancellation.getRefDocNumber());
+
+
+            putAwayHeaderV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
+                    inboundCancellation.getCompanyCode(), inboundCancellation.getPlantId(), inboundCancellation.getWarehouseId(),
+                    inboundCancellation.getRefDocNumber(), inboundCancellation.getPreInboundNo(), 0L);
+            log.info("PutAwayLine V10 Deleted Successfully ---> ItemCode , RefDocNo is {}", inboundCancellation.getRefDocNumber());
+
+            putAwayLineV2Repository.deleteByCompanyCodeAndPlantIdAndWarehouseIdAndItemCodeAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
+                    inboundCancellation.getCompanyCode(), inboundCancellation.getPlantId(), inboundCancellation.getWarehouseId(),
+                    inboundCancellation.getItemCode(), inboundCancellation.getRefDocNumber(), inboundCancellation.getPreInboundNo(), 0L);
+            log.info("PutAwayLine V10 Deleted Successfully ---> ItemCode , RefDocNo is {}", inboundCancellation.getRefDocNumber());
+
+            inboundOrderReversal(inboundCancellation.getRefDocNumber());
+
+        }
+    }
+
+    //================================================BF===========================================
+    public ReceiptConfimationReport getReceiptConfimationReportV9(String asnNumber, String preInboundNo, String companyCodeId, String plantId,
+                                                                  String languageId, String warehouseId) throws Exception {
+        if (asnNumber == null) {
+            throw new BadRequestException("ASNNumber can't be blank");
+        }
+        if (preInboundNo == null || companyCodeId == null || plantId == null || languageId == null || warehouseId == null) {
+            throw new BadRequestException("paramenters can't be blank");
+        }
+
+        ReceiptConfimationReport receiptConfimation;
+        try {
+            receiptConfimation = new ReceiptConfimationReport();
+            ReceiptHeader receiptHeader = new ReceiptHeader();
+
+            log.info("c_id, plant_id, lang_id, wh_id, preInboundNo, ref_doc_no: " +
+                    companyCodeId + ", " + plantId + ", " + languageId + ", " + warehouseId + ", " + asnNumber + ", " + preInboundNo);
+//            List<InboundLineV2> inboundLineSearchResults = inboundLineService.getInboundLineForReportV2(asnNumber, preInboundNo, companyCodeId, plantId, languageId, warehouseId);
+            List<InboundLineV2> inboundLineSearchResults = inboundLineV2Repository.findInboundLineForReportV5(asnNumber, preInboundNo, warehouseId, plantId, companyCodeId, languageId);
+//            log.info("inboundLineSearchResults ------>: " + inboundLineSearchResults.size());
+
+            List<InboundReceiptConfirm> inboundLineResults = inboundLineV2Repository.findInboundLineV9(asnNumber, preInboundNo, warehouseId, plantId, companyCodeId, languageId);
+
+            Double sumTotalOfExpectedQty = 0.0;
+            Double sumTotalOfAccxpectedQty = 0.0;
+            Double sumTotalOfDamagedQty = 0.0;
+            Double sumTotalOfMissingORExcess = 0.0;
+            Double sumOfNoOfBags = 0.0;
+            List<Receipt> receiptList = new ArrayList<>();
+            log.info("inboundLine---------> : " + inboundLineSearchResults.size());
+            if (!inboundLineSearchResults.isEmpty()) {
+                // Supplier - PARTNER_CODE
+                receiptHeader.setSupplier(inboundLineSearchResults.get(0).getBusinessPartnerCode());
+
+                receiptHeader.setSupplierName(inboundLineSearchResults.get(0).getSupplierName());
+
+                // Container No
+                receiptHeader.setContainerNo(inboundLineSearchResults.get(0).getContainerNo());
+
+                // Order Number - REF_DOC_NO
+                receiptHeader.setOrderNumber(inboundLineSearchResults.get(0).getRefDocNumber());
+
+                // Order Type -> PREINBOUNDHEADER - REF_DOC_TYPE
+                // Pass REF_DOC_NO in PREINBOUNDHEADER and fetch REF_DOC_TYPE
+                String referenceDocumentType = preInboundHeaderService.getReferenceDocumentTypeFromPreInboundHeader(
+                        inboundLineSearchResults.get(0).getWarehouseId(), inboundLineSearchResults.get(0).getPreInboundNo(),
+                        inboundLineSearchResults.get(0).getRefDocNumber());
+                receiptHeader.setOrderType(referenceDocumentType);
+                log.info("preInboundHeader referenceDocumentType--------> : " + referenceDocumentType);
+            }
+
+            for (InboundReceiptConfirm inboundLine : inboundLineResults) {
+
+
+                Receipt receipt = new Receipt();
+
+                // SKU - ITM_CODE
+                receipt.setSku(inboundLine.getItemCode());
+
+                // Description - ITEM_TEXT
+                receipt.setDescription(inboundLine.getDescription());
+
+                // Mfr.Sku - MFR_PART
+                receipt.setMfrSku(inboundLine.getManufacturerName());
+
+                //BarcodeId - BARCODE_ID
+                receipt.setBarcodeId(inboundLine.getBarcodeId());
+
+                //ManufacturerDate - MFR_DATE
+                receipt.setManufacturerDate(inboundLine.getManufacturerDate());
+
+                //ExpiryDate - EXP_DATE
+                receipt.setExpiryDate(inboundLine.getExpiryDate());
+
+
+                // Expected - ORD_QTY
+                Double expQty = 0.0;
+                if (inboundLine.getOrderQty() != null) {
+                    expQty = inboundLine.getOrderQty();
+                    receipt.setExpectedQty(expQty);
+                    sumTotalOfExpectedQty += expQty;
+                    log.info("expQty------#--> : " + expQty);
+                }
+
+                // Accepted - ACCEPT_QTY
+                Double acceptQty = 0.0;
+                if (inboundLine.getAcceptedQty() != null) {
+                    acceptQty = inboundLine.getAcceptedQty();
+                    receipt.setAcceptedQty(acceptQty);
+                    sumTotalOfAccxpectedQty += acceptQty;
+                    log.info("acceptQty------#--> : " + acceptQty);
+                }
+
+                // Damaged - DAMAGE_QTY
+                Double damageQty = 0.0;
+                if (inboundLine.getDamageQty() != null) {
+                    damageQty = inboundLine.getDamageQty();
+                    receipt.setDamagedQty(damageQty);
+                    sumTotalOfDamagedQty += damageQty;
+                    log.info("damageQty------#--> : " + damageQty);
+                }
+
+                Double noOfBags = 0.0;
+                if (inboundLine.getNoBags() != null) {
+                    noOfBags = inboundLine.getNoBags();
+                    receipt.setNoOfBags(noOfBags);
+                    sumOfNoOfBags += noOfBags;
+                    log.info("expQty------#--> : " + noOfBags);
+                }
+
+                // Missing/Excess - SUM(Accepted + Damaged) - Expected
+                Double missingORExcessSum = inboundLine.getMissingQty();
+                sumTotalOfMissingORExcess += missingORExcessSum;
+                receipt.setMissingORExcess(missingORExcessSum);
+                log.info("missingORExcessSum------#--> : " + missingORExcessSum);
+//                Double missingORExcessSum = (acceptQty + damageQty) - expQty;
+//                sumTotalOfMissingORExcess += missingORExcessSum;
+//                receipt.setMissingORExcess(missingORExcessSum);
+//                log.info("missingORExcessSum------#--> : " + missingORExcessSum);
+
+                // Status
+                /*
+                 * 1. If Missing/Excess = 0, then hardcode Status as ""Received"" 2. If Damage
+                 * qty is greater than zero, then Hard code status ""Damage Received"" 3. If
+                 * Missing/Excess is less than 0, then hardcode Status as ""Partial Received""
+                 * 4. If Missing/Excess is excess than 0, then hardcode Status as ""Excess
+                 * Received"" 5. If Sum (Accepted Qty +Damaged qty) is 0, then Hardcode status
+                 * as ""Not yet received""
+                 */
+                if (missingORExcessSum == 0.0) {
+                    receipt.setStatus("Received");
+                } else if (missingORExcessSum.equals(0.0)) {
+                    receipt.setStatus("Received");
+                } else if (damageQty > 0.0) {
+                    receipt.setStatus("Damage Received");
+                } else if (missingORExcessSum < 0.0) {
+                    receipt.setStatus("Partial Received");
+                } else if (missingORExcessSum > 0.0) {
+                    receipt.setStatus("Excess Received");
+                } else if (sumTotalOfMissingORExcess == 0.0) {
+                    receipt.setStatus("Not Received");
+                }
+                log.info("receipt------#--> : " + receipt);
+                receiptList.add(receipt);
+            }
+
+            //---------------------------------------------------------------------------------------
+            // Group by SKU and sum the fields
+
+            Map<String, Receipt> groupedReceipts = new LinkedHashMap<>();
+            for (Receipt r : receiptList) {
+                String key = r.getBarcodeId() + "##" + r.getSku();
+//                groupedReceipts.compute(r.getSku(), (sku, existing) -> {
+                groupedReceipts.compute(key, (k, existing) -> {
+                    if (existing == null) {
+                        Receipt newReceipt = new Receipt();
+                        newReceipt.setSku(r.getSku());
+                        newReceipt.setDescription(r.getDescription());
+                        newReceipt.setMfrSku(r.getMfrSku());
+                        newReceipt.setExpiryDate(r.getExpiryDate());
+                        newReceipt.setManufacturerDate(r.getManufacturerDate());
+                        newReceipt.setBarcodeId(r.getBarcodeId());
+                        newReceipt.setExpectedQty(round1(r.getExpectedQty()));
+                        newReceipt.setAcceptedQty(round1(r.getAcceptedQty()));
+                        newReceipt.setDamagedQty(round1(r.getDamagedQty()));
+                        newReceipt.setMissingORExcess(r.getMissingORExcess() != null ? r.getMissingORExcess() : 0.0);
+                        newReceipt.setStatus(r.getStatus());
+                        newReceipt.setNoOfBags(r.getNoOfBags() != null ? r.getNoOfBags() : 0.0);
+                        return newReceipt;
+                    } else {
+                        existing.setExpectedQty(round1(existing.getExpectedQty()) + round1(r.getExpectedQty()));
+                        existing.setAcceptedQty(round1(existing.getAcceptedQty()) + round1(r.getAcceptedQty()));
+                        existing.setDamagedQty(round1(existing.getDamagedQty()) + round1(r.getDamagedQty()));
+                        existing.setMissingORExcess((existing.getMissingORExcess() != null ? existing.getMissingORExcess() : 0.0) + (r.getMissingORExcess() != null ? r.getMissingORExcess() : 0.0));
+                        existing.setNoOfBags((existing.getNoOfBags() != null ? existing.getNoOfBags() : 0.0) + (r.getNoOfBags() != null ? r.getNoOfBags() : 0.0));
+                        return existing;
+                    }
+                });
+            }
+//---------------------------------------------------------------------------------------
+            receiptHeader.setExpectedQtySum(round1(sumTotalOfExpectedQty));
+            receiptHeader.setAcceptedQtySum(round1(sumTotalOfAccxpectedQty));
+            receiptHeader.setDamagedQtySum(round1(sumTotalOfDamagedQty));
+            receiptHeader.setMissingORExcessSum(sumTotalOfMissingORExcess);
+            receiptHeader.setNoOfBagsSum(sumOfNoOfBags);
+
+            receiptConfimation.setReceiptHeader(receiptHeader);
+            receiptConfimation.setReceiptList(new ArrayList<>(groupedReceipts.values()));
+            log.info("receiptConfimation : " + receiptConfimation);
+            return receiptConfimation;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+    //BP
+    public ReceiptConfimationReport getReceiptConfirmationReportV6(String asnNumber, String preInboundNo, String companyCodeId, String plantId,
+                                                                   String languageId, String warehouseId) throws Exception {
+        if (asnNumber == null) {
+            throw new BadRequestException("ASNNumber can't be blank");
+        }
+        if (preInboundNo == null || companyCodeId == null || plantId == null || languageId == null || warehouseId == null) {
+            throw new BadRequestException("paramenters can't be blank");
+        }
+
+        ReceiptConfimationReport receiptConfimation;
+        try {
+            receiptConfimation = new ReceiptConfimationReport();
+            ReceiptHeader receiptHeader = new ReceiptHeader();
+
+            // 22-08-2022-Hareesh //commented the not used method call
+            log.info("c_id, plant_id, lang_id, wh_id, preInboundNo, ref_doc_no: " +
+                    companyCodeId + ", " + plantId + ", " + languageId + ", " + warehouseId + ", " + asnNumber + ", " + preInboundNo);
+            List<InboundLineV2> inboundLineSearchResults = inboundLineService.getInboundLineForReportV2(asnNumber, preInboundNo, companyCodeId, plantId, languageId, warehouseId);
+            log.info("inboundLineSearchResults ------>: " + inboundLineSearchResults.size());
+
+            double sumTotalOfExpectedQty = 0.0;
+            double sumTotalOfAccxpectedQty = 0.0;
+            double sumTotalOfDamagedQty = 0.0;
+            double sumTotalOfMissingORExcess = 0.0;
+            double sumOfNoOfBags = 0;
+            List<Receipt> receiptList = new ArrayList<>();
+            log.info("inboundLine---------> : " + inboundLineSearchResults.size());
+            if (!inboundLineSearchResults.isEmpty()) {
+                // Supplier - PARTNER_CODE
+                receiptHeader.setSupplier(inboundLineSearchResults.get(0).getManufacturerCode());
+
+                receiptHeader.setSupplierName(inboundLineSearchResults.get(0).getManufacturerName());
+
+                // Container No
+                receiptHeader.setContainerNo(inboundLineSearchResults.get(0).getContainerNo());
+
+                // Order Number - REF_DOC_NO
+                receiptHeader.setOrderNumber(inboundLineSearchResults.get(0).getRefDocNumber());
+
+                // Order Type -> PREINBOUNDHEADER - REF_DOC_TYPE
+                // Pass REF_DOC_NO in PREINBOUNDHEADER and fetch REF_DOC_TYPE
+                String referenceDocumentType = preInboundHeaderService.getReferenceDocumentTypeFromPreInboundHeader(
+                        inboundLineSearchResults.get(0).getWarehouseId(), inboundLineSearchResults.get(0).getPreInboundNo(),
+                        inboundLineSearchResults.get(0).getRefDocNumber());
+                receiptHeader.setOrderType(referenceDocumentType);
+                log.info("preInboundHeader referenceDocumentType--------> : " + referenceDocumentType);
+            }
+
+            Map<String, Long> skuCountMap = inboundLineSearchResults.stream()
+                    .collect(Collectors.groupingBy(InboundLineV2::getItemCode, Collectors.counting()));
+            Map<String, Integer> skuIndexMap = new HashMap<>();
+            for (InboundLineV2 inboundLine : inboundLineSearchResults) {
+
+
+                Receipt receipt = new Receipt();
+
+                String sku = inboundLine.getItemCode();
+                long totalCount = skuCountMap.get(sku);
+                int currentIndex = skuIndexMap.getOrDefault(sku, 0) + 1;
+                skuIndexMap.put(sku, currentIndex);
+                // SKU - ITM_CODE
+                receipt.setSku(sku);
+
+                // Description - ITEM_TEXT
+                receipt.setDescription(inboundLine.getDescription());
+
+                // Mfr.Sku - MFR_PART
+                receipt.setMfrSku(inboundLine.getManufacturerName());
+
+                // Expected - ORD_QTY
+                double expQty = 0;
+                if (inboundLine.getOrderQty() != null) {
+                    expQty = inboundLine.getOrderQty();
+                    receipt.setExpectedQty(expQty);
+                    sumTotalOfExpectedQty += expQty;
+                    log.info("expQty------#--> : " + expQty);
+                }
+
+                // Accepted - ACCEPT_QTY
+                double acceptQty = 0;
+                if (inboundLine.getAcceptedQty() != null) {
+                    acceptQty = inboundLine.getAcceptedQty();
+                    receipt.setAcceptedQty(acceptQty);
+                    sumTotalOfAccxpectedQty += acceptQty;
+                    log.info("acceptQty------#--> : " + acceptQty);
+                }
+
+                // Damaged - DAMAGE_QTY
+                double damageQty = 0;
+                if (inboundLine.getDamageQty() != null) {
+                    damageQty = inboundLine.getDamageQty();
+                    receipt.setDamagedQty(damageQty);
+                    sumTotalOfDamagedQty += damageQty;
+                    log.info("damageQty------#--> : " + damageQty);
+                }
+
+                double noOfBags = 0;
+                if (inboundLine.getNoBags() != null) {
+                    noOfBags = inboundLine.getNoBags();
+                    receipt.setNoOfBags(noOfBags);
+                    sumOfNoOfBags += noOfBags;
+                    log.info("expQty------#--> : " + noOfBags);
+                }
+
+                // Missing/Excess - SUM(Accepted + Damaged) - Expected
+                double missingORExcessSum = (acceptQty + damageQty) - expQty;
+                sumTotalOfMissingORExcess += missingORExcessSum;
+                receipt.setMissingORExcess(missingORExcessSum);
+                log.info("missingORExcessSum------#--> : " + missingORExcessSum);
+
+                // Status
+                /*
+                 * 1. If Missing/Excess = 0, then hardcode Status as ""Received"" 2. If Damage
+                 * qty is greater than zero, then Hard code status ""Damage Received"" 3. If
+                 * Missing/Excess is less than 0, then hardcode Status as ""Partial Received""
+                 * 4. If Missing/Excess is excess than 0, then hardcode Status as ""Excess
+                 * Received"" 5. If Sum (Accepted Qty +Damaged qty) is 0, then Hardcode status
+                 * as ""Not yet received""
+                 */
+                if (missingORExcessSum == 0) {
+                    receipt.setStatus("Received");
+                } else if (damageQty > 0) {
+                    receipt.setStatus("Damage Received");
+                } else if (missingORExcessSum < 0) {
+                    receipt.setStatus("Partial Received");
+                } else if (missingORExcessSum > 0) {
+                    receipt.setStatus("Excess Received");
+                } else if (sumTotalOfMissingORExcess == 0) {
+                    receipt.setStatus("Not Received");
+                }
+                receipt.setReelNo(inboundLine.getBarcodeId());
+                receipt.setOrderQty(currentIndex + "/" + totalCount);
+                log.info("receipt------#--> : " + receipt);
+                receiptList.add(receipt);
+            }
+
+            receiptHeader.setExpectedQtySum(round1(sumTotalOfExpectedQty));
+            receiptHeader.setAcceptedQtySum(round1(sumTotalOfAccxpectedQty));
+            receiptHeader.setDamagedQtySum(round1(sumTotalOfDamagedQty));
+            receiptHeader.setMissingORExcessSum(sumTotalOfMissingORExcess);
+            receiptHeader.setNoOfBagsSum(sumOfNoOfBags);
+
+            receiptConfimation.setReceiptHeader(receiptHeader);
+            receiptConfimation.setReceiptList(receiptList);
+            log.info("receiptConfimation : " + receiptConfimation);
+            return receiptConfimation;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+    public ReceiptConfimationReport getReceiptConfimationReportV5(String asnNumber, String preInboundNo, String companyCodeId, String plantId,
+                                                                  String languageId, String warehouseId) throws Exception {
+        if (asnNumber == null) {
+            throw new BadRequestException("ASNNumber can't be blank");
+        }
+        if (preInboundNo == null || companyCodeId == null || plantId == null || languageId == null || warehouseId == null) {
+            throw new BadRequestException("paramenters can't be blank");
+        }
+
+        ReceiptConfimationReport receiptConfimation;
+        try {
+            receiptConfimation = new ReceiptConfimationReport();
+            ReceiptHeader receiptHeader = new ReceiptHeader();
+
+            log.info("c_id, plant_id, lang_id, wh_id, preInboundNo, ref_doc_no: " +
+                    companyCodeId + ", " + plantId + ", " + languageId + ", " + warehouseId + ", " + asnNumber + ", " + preInboundNo);
+//            List<InboundLineV2> inboundLineSearchResults = inboundLineService.getInboundLineForReportV2(asnNumber, preInboundNo, companyCodeId, plantId, languageId, warehouseId);
+            List<InboundLineV2> inboundLineSearchResults = inboundLineV2Repository.findInboundLineForReportV5(asnNumber, preInboundNo, warehouseId, plantId, companyCodeId, languageId);
+//            log.info("inboundLineSearchResults ------>: " + inboundLineSearchResults.size());
+
+            List<InboundReceiptConfirm> inboundLineResults = inboundLineV2Repository.findInboundLineV5(asnNumber, preInboundNo, warehouseId, plantId, companyCodeId, languageId);
+
+            Double sumTotalOfExpectedQty = 0.0;
+            Double sumTotalOfAccxpectedQty = 0.0;
+            Double sumTotalOfDamagedQty = 0.0;
+            Double sumTotalOfMissingORExcess = 0.0;
+            Double sumOfNoOfBags = 0.0;
+            List<Receipt> receiptList = new ArrayList<>();
+            log.info("inboundLine---------> : " + inboundLineSearchResults.size());
+            if (!inboundLineSearchResults.isEmpty()) {
+                // Supplier - PARTNER_CODE
+                receiptHeader.setSupplier(inboundLineSearchResults.get(0).getBusinessPartnerCode());
+
+                receiptHeader.setSupplierName(inboundLineSearchResults.get(0).getSupplierName());
+
+                // Container No
+                receiptHeader.setContainerNo(inboundLineSearchResults.get(0).getContainerNo());
+
+                // Order Number - REF_DOC_NO
+                receiptHeader.setOrderNumber(inboundLineSearchResults.get(0).getRefDocNumber());
+
+                // Order Type -> PREINBOUNDHEADER - REF_DOC_TYPE
+                // Pass REF_DOC_NO in PREINBOUNDHEADER and fetch REF_DOC_TYPE
+                String referenceDocumentType = preInboundHeaderService.getReferenceDocumentTypeFromPreInboundHeader(
+                        inboundLineSearchResults.get(0).getWarehouseId(), inboundLineSearchResults.get(0).getPreInboundNo(),
+                        inboundLineSearchResults.get(0).getRefDocNumber());
+                receiptHeader.setOrderType(referenceDocumentType);
+                log.info("preInboundHeader referenceDocumentType--------> : " + referenceDocumentType);
+            }
+
+            for (InboundReceiptConfirm inboundLine : inboundLineResults) {
+
+
+                Receipt receipt = new Receipt();
+
+                // SKU - ITM_CODE
+                receipt.setSku(inboundLine.getItemCode());
+
+                // Description - ITEM_TEXT
+                receipt.setDescription(inboundLine.getDescription());
+
+                // Mfr.Sku - MFR_PART
+                receipt.setMfrSku(inboundLine.getManufacturerName());
+
+                // Expected - ORD_QTY
+                Double expQty = 0.0;
+                if (inboundLine.getOrderQty() != null) {
+                    expQty = inboundLine.getOrderQty();
+                    receipt.setExpectedQty(expQty);
+                    sumTotalOfExpectedQty += expQty;
+                    log.info("expQty------#--> : " + expQty);
+                }
+
+                // Accepted - ACCEPT_QTY
+                Double acceptQty = 0.0;
+                if (inboundLine.getAcceptedQty() != null) {
+                    acceptQty = inboundLine.getAcceptedQty();
+                    receipt.setAcceptedQty(acceptQty);
+                    sumTotalOfAccxpectedQty += acceptQty;
+                    log.info("acceptQty------#--> : " + acceptQty);
+                }
+
+                // Damaged - DAMAGE_QTY
+                Double damageQty = 0.0;
+                if (inboundLine.getDamageQty() != null) {
+                    damageQty = inboundLine.getDamageQty();
+                    receipt.setDamagedQty(damageQty);
+                    sumTotalOfDamagedQty += damageQty;
+                    log.info("damageQty------#--> : " + damageQty);
+                }
+
+                Double noOfBags = 0.0;
+                if (inboundLine.getNoBags() != null) {
+                    noOfBags = inboundLine.getNoBags();
+                    receipt.setNoOfBags(noOfBags);
+                    sumOfNoOfBags += noOfBags;
+                    log.info("expQty------#--> : " + noOfBags);
+                }
+
+                // Missing/Excess - SUM(Accepted + Damaged) - Expected
+                Double missingORExcessSum = inboundLine.getMissingQty();
+                sumTotalOfMissingORExcess += missingORExcessSum;
+                receipt.setMissingORExcess(missingORExcessSum);
+                log.info("missingORExcessSum------#--> : " + missingORExcessSum);
+//                Double missingORExcessSum = (acceptQty + damageQty) - expQty;
+//                sumTotalOfMissingORExcess += missingORExcessSum;
+//                receipt.setMissingORExcess(missingORExcessSum);
+//                log.info("missingORExcessSum------#--> : " + missingORExcessSum);
+
+                // Status
+                /*
+                 * 1. If Missing/Excess = 0, then hardcode Status as ""Received"" 2. If Damage
+                 * qty is greater than zero, then Hard code status ""Damage Received"" 3. If
+                 * Missing/Excess is less than 0, then hardcode Status as ""Partial Received""
+                 * 4. If Missing/Excess is excess than 0, then hardcode Status as ""Excess
+                 * Received"" 5. If Sum (Accepted Qty +Damaged qty) is 0, then Hardcode status
+                 * as ""Not yet received""
+                 */
+                if (missingORExcessSum == 0.0) {
+                    receipt.setStatus("Received");
+                } else if (missingORExcessSum.equals(0.0)) {
+                    receipt.setStatus("Received");
+                } else if (damageQty > 0.0) {
+                    receipt.setStatus("Damage Received");
+                } else if (missingORExcessSum < 0.0) {
+                    receipt.setStatus("Partial Received");
+                } else if (missingORExcessSum > 0.0) {
+                    receipt.setStatus("Excess Received");
+                } else if (sumTotalOfMissingORExcess == 0.0) {
+                    receipt.setStatus("Not Received");
+                }
+                log.info("receipt------#--> : " + receipt);
+                receiptList.add(receipt);
+            }
+
+            //---------------------------------------------------------------------------------------
+            // Group by SKU and sum the fields
+            Map<String, Receipt> groupedReceipts = new LinkedHashMap<>();
+
+            for (Receipt r : receiptList) {
+                groupedReceipts.compute(r.getSku(), (sku, existing) -> {
+                    if (existing == null) {
+                        Receipt newReceipt = new Receipt();
+                        newReceipt.setSku(r.getSku());
+                        newReceipt.setDescription(r.getDescription());
+                        newReceipt.setMfrSku(r.getMfrSku());
+                        newReceipt.setExpectedQty(round1(r.getExpectedQty()));
+                        newReceipt.setAcceptedQty(round1(r.getAcceptedQty()));
+                        newReceipt.setDamagedQty(round1(r.getDamagedQty()));
+                        newReceipt.setMissingORExcess(r.getMissingORExcess() != null ? r.getMissingORExcess() : 0.0);
+                        newReceipt.setStatus(r.getStatus());
+                        newReceipt.setNoOfBags(r.getNoOfBags() != null ? r.getNoOfBags() : 0.0);
+                        return newReceipt;
+                    } else {
+                        existing.setExpectedQty(round1(existing.getExpectedQty()) + round1(r.getExpectedQty()));
+                        existing.setAcceptedQty(round1(existing.getAcceptedQty()) + round1(r.getAcceptedQty()));
+                        existing.setDamagedQty(round1(existing.getDamagedQty()) + round1(r.getDamagedQty()));
+                        existing.setMissingORExcess((existing.getMissingORExcess() != null ? existing.getMissingORExcess() : 0.0) + (r.getMissingORExcess() != null ? r.getMissingORExcess() : 0.0));
+                        existing.setNoOfBags((existing.getNoOfBags() != null ? existing.getNoOfBags() : 0.0) + (r.getNoOfBags() != null ? r.getNoOfBags() : 0.0));
+                        return existing;
+                    }
+                });
+            }
+//---------------------------------------------------------------------------------------
+            receiptHeader.setExpectedQtySum(round1(sumTotalOfExpectedQty));
+            receiptHeader.setAcceptedQtySum(round1(sumTotalOfAccxpectedQty));
+            receiptHeader.setDamagedQtySum(round1(sumTotalOfDamagedQty));
+            receiptHeader.setMissingORExcessSum(sumTotalOfMissingORExcess);
+            receiptHeader.setNoOfBagsSum(sumOfNoOfBags);
+
+            receiptConfimation.setReceiptHeader(receiptHeader);
+            receiptConfimation.setReceiptList(new ArrayList<>(groupedReceipts.values()));
+            log.info("receiptConfimation : " + receiptConfimation);
+            return receiptConfimation;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+    // Notifications Dashboard
+    public List<StorageBinDashBoardImpl> getStorageBinDashBoardCountV9(StorageBinDashBoardInput storageBinDashBoardInput) throws Exception {
+        try {
+            Long binClassId = storageBinDashBoardInput.getBinClassId() != null ? storageBinDashBoardInput.getBinClassId() : 1L;
+            return inventoryV2Repository.getStorageBinDashBoardV9(
+                    storageBinDashBoardInput.getCompanyCodeId(),
+                    storageBinDashBoardInput.getPlantId(),
+                    storageBinDashBoardInput.getLanguageId(),
+                    storageBinDashBoardInput.getWarehouseId(),
+                    storageBinDashBoardInput.getStorageBin(),
+                    storageBinDashBoardInput.getStorageSectionId(),
+                    storageBinDashBoardInput.getAisleNumber(),
+                    storageBinDashBoardInput.getRowId(),
+                    storageBinDashBoardInput.getLevelId(),
+                    storageBinDashBoardInput.getStatusId(),
+                    storageBinDashBoardInput.getBusinessPartnerCode(),
+                    binClassId);
+        } catch (Exception e) {
+            log.error("Exception while storageBinDashboard Count : " + storageBinDashBoardInput);
+            throw e;
+        }
+    }
+
+
+    //---------------------------------------------Inbound Reversal-V9------------------------------------------------------------
+
+
+    public void inboundReversalV9(String companyCodeId, String plantId, String warehouseId,
+                                  String refDocNumber, String preInboundNo) {
+
+        if (refDocNumber != null && preInboundNo != null) {
+
+            log.info("Starting deletion process for RefDocNumber: {} and PreInboundNo: {}", refDocNumber, preInboundNo);
+
+            List<PutAwayLineV2> putAwayLine = putAwayLineV2Repository.findByRefDocNumberAndPreInboundNo(refDocNumber, preInboundNo);
+            if (!putAwayLine.isEmpty()) {
+                log.warn("Inbound already confirmed for RefDocNumber: {} and PreInboundNo: {}", refDocNumber, preInboundNo);
+                throw new RuntimeException("Already Inbound confirmed for the given RefDocNumber and PreInboundNo");
+            }
+
+            //delete ibOrder2 and ibOrderLines2
+//            inboundOrderReversal(refDocNumber);
+
+            log.info("Checking existence of PreInboundHeader...");
+            PreInboundHeaderEntity preInboundHeader = preInboundHeaderRepository.findByRefDocNumberAndPreInboundNo(refDocNumber, preInboundNo);
+
+            if (preInboundHeader != null) {
+                log.info("Deleting all related records for RefDocNumber: {} and PreInboundNo: {}", refDocNumber, preInboundNo);
+//                preInboundHeaderRepository.softDeleteByRefDocNo(refDocNumber, preInboundNo);
+//                preInboundLineV2Repository.softDeleteByRefDocNo(refDocNumber, preInboundNo);
+                inboundHeaderV2Repository.softDeleteByRefDocNo(refDocNumber, preInboundNo);
+                inboundLineV2Repository.softDeleteByRefDocNo(refDocNumber, preInboundNo);
+                stagingHeaderV2Repository.softDeleteByRefDocNo(refDocNumber, preInboundNo);
+                stagingLineV2Repository.softDeleteByRefDocNo(refDocNumber, preInboundNo);
+                grHeaderV2Repository.softDeleteByRefDocNo(refDocNumber, preInboundNo);
+                log.info("Delete completed for header, line, staging, and GR header records.");
+            } else {
+                log.warn("PreInboundHeader not found for RefDocNumber: {} and PreInboundNo: {}", refDocNumber, preInboundNo);
+            }
+
+            List<GrLineV2> grLine = grLineV2Repository.findByRefDocNumberAndPreInboundNo(refDocNumber, preInboundNo);
+
+            int putAwayHeader = putAwayHeaderV2Repository.softDeleteByRefDocNo(refDocNumber, preInboundNo);
+            log.info("PutAwayHeader Deletion Row's Affected -------> {} RefDocNo is {} ", putAwayHeader, refDocNumber);
+            int grLineDelete = grLineV2Repository.softDeleteByRefDocNo(refDocNumber, preInboundNo);
+            log.info("GrLine Deletion Row's Affected ---------> {} ", grLineDelete);
+
+            if (!grLine.isEmpty()) {
+                log.info("Processing GR lines for deletion and inventory adjustment for this RefDocNo: {} and PreInboundNo: {}...", refDocNumber, preInboundNo);
+
+                int inventory = inventoryV2Repository.updateInventory(refDocNumber);
+                log.info("Inventory Affected ---------> {} ", inventory);
+//                for (GrLineV2 grLineV2 : grLine) {
+//                    List<InventoryV2> inventoryV2List = inventoryV2Repository.findInventoryInPutAwayV9(
+//                            grLineV2.getCompanyCode(),
+//                            grLineV2.getPlantId(),
+//                            grLineV2.getLanguageId(),
+//                            grLineV2.getWarehouseId(),
+//                            grLineV2.getItemCode(),
+//                            grLineV2.getBarcodeId(),
+//                            grLineV2.getPalletCode(),
+//                            3L
+//                    );
+//                    for (InventoryV2 inventory : inventoryV2List) {
+//                        if (inventory != null) {
+//                            Double updatedQty = inventory.getInventoryQuantity() - grLineV2.getOrderQty();
+//                            log.info("Updating inventory for ItemCode: {} | OldQty: {} | OrderQty: {} | NewQty: {}",
+//                                    grLineV2.getItemCode(), inventory.getInventoryQuantity(), grLineV2.getOrderQty(), updatedQty);
+//
+//                            InventoryV2 inventoryV2 = new InventoryV2();
+//                            BeanUtils.copyProperties(inventory, inventoryV2, CommonUtils.getNullPropertyNames(inventory));
+//                            inventoryV2.setInventoryQuantity(updatedQty);
+//                            inventoryV2.setReferenceField4(updatedQty);
+//                            inventoryV2.setInventoryId(null);
+//                            inventoryV2Repository.save(inventoryV2);
+//                            log.info("Inventory updated and saved for BarcodeId: {}", grLineV2.getBarcodeId());
+//                        } else {
+//                            log.warn("Inventory not found for BarcodeId: {}", grLineV2.getBarcodeId());
+//                        }
+//                    }
+//                }
+            }
+
+            log.info("Completed deletion and inventory adjustment for RefDocNumber: {} and PreInboundNo: {}", refDocNumber, preInboundNo);
+
+        } else {
+            log.error("RefDocNumber and PreInboundNo cannot be null");
+            throw new RuntimeException("RefDocNumber and PreInboundNo cannot be null");
+        }
+
+    }
+
+    //---------------------------------------------Inbound Cancellation-V9------------------------------------------------------------
+
+
+    public void inboundCancellationV9(String companyCodeId, String plantId, String warehouseId,
+                                      String refDocNumber, String preInboundNo) {
+
+        if (refDocNumber != null && preInboundNo != null) {
+
+            log.info("Starting deletion process for RefDocNumber: {} and PreInboundNo: {}", refDocNumber, preInboundNo);
+
+//            List<PutAwayLineV2> putAwayLine = putAwayLineV2Repository.findByRefDocNumberAndPreInboundNo(refDocNumber, preInboundNo);
+//            if (!putAwayLine.isEmpty()) {
+//                log.warn("Inbound already confirmed for RefDocNumber: {} and PreInboundNo: {}", refDocNumber, preInboundNo);
+//                throw new RuntimeException("Already Inbound confirmed for the given RefDocNumber and PreInboundNo");
+//            }
+
+            //delete ibOrder2 and ibOrderLines2
+            inboundOrderReversal(refDocNumber);
+
+            log.info("Checking existence of PreInboundHeader...");
+            PreInboundHeaderEntity preInboundHeader = preInboundHeaderRepository.findByRefDocNumberAndPreInboundNo(refDocNumber, preInboundNo);
+
+            if (preInboundHeader != null) {
+                log.info("Deleting all related records for RefDocNumber: {} and PreInboundNo: {}", refDocNumber, preInboundNo);
+                preInboundHeaderRepository.softDeleteByRefDocNo(refDocNumber, preInboundNo);
+                preInboundLineV2Repository.softDeleteByRefDocNo(refDocNumber, preInboundNo);
+                inboundHeaderV2Repository.softDeleteByRefDocNo(refDocNumber, preInboundNo);
+                inboundLineV2Repository.softDeleteByRefDocNo(refDocNumber, preInboundNo);
+                stagingHeaderV2Repository.softDeleteByRefDocNo(refDocNumber, preInboundNo);
+                stagingLineV2Repository.softDeleteByRefDocNo(refDocNumber, preInboundNo);
+                grHeaderV2Repository.softDeleteByRefDocNo(refDocNumber, preInboundNo);
+                log.info("Delete completed for header, line, staging, and GR header records.");
+            } else {
+                log.warn("PreInboundHeader not found for RefDocNumber: {} and PreInboundNo: {}", refDocNumber, preInboundNo);
+            }
+
+            List<GrLineV2> grLine = grLineV2Repository.findByRefDocNumberAndPreInboundNo(refDocNumber, preInboundNo);
+
+            int putAwayHeader = putAwayHeaderV2Repository.softDeleteByRefDocNo(refDocNumber, preInboundNo);
+            log.info("PutAwayHeader Deletion Row's Affected -------> {} RefDocNo is {} ", putAwayHeader, refDocNumber);
+            int grLineDelete = grLineV2Repository.softDeleteByRefDocNo(refDocNumber, preInboundNo);
+            log.info("GrLine Deletion Row's Affected ---------> {} ", grLineDelete);
+
+            if (!grLine.isEmpty()) {
+                log.info("Inbound Cancellation Process Delete Inventory Table for RefDocNumber: {} and PreInboundNo: {}...", refDocNumber, preInboundNo);
+                int inventory = inventoryV2Repository.updateInventory(refDocNumber);
+                log.info("Inventory Affected ---------> {} ", inventory);
+
+                int putAwayLine = putAwayLineV2Repository.softDeleteByRefDocNo(refDocNumber, preInboundNo);
+                log.info("PutAwayLine Deletion Row's Affected -------> {} RefDocNo is {} ", putAwayLine, refDocNumber);
+
+//                for (GrLineV2 grLineV2 : grLine) {
+//                    log.info("Before Inventory Query Values-> CompanyCode: {}, PlantId: {}, WarehouseId: {}, ItemCode: {}, BarcodeId: {}, PalletCode: {}",
+//                            grLineV2.getCompanyCode(), grLineV2.getPlantId(), grLineV2.getWarehouseId(), grLineV2.getItemCode(), grLineV2.getBarcodeId(), grLineV2.getPalletCode());
+//                    List<InventoryV2> inventoryV2List = inventoryV2Repository.findInventoryInPutAwayCancelV9(
+//                            grLineV2.getCompanyCode(),
+//                            grLineV2.getPlantId(),
+//                            grLineV2.getLanguageId(),
+//                            grLineV2.getWarehouseId(),
+//                            grLineV2.getItemCode(),
+//                            grLineV2.getBarcodeId(),
+//                            grLineV2.getPalletCode());
+//                    log.info("Inbound Cancellation Inventory List: {} ", inventoryV2List.size());
+//                    for (InventoryV2 inventory : inventoryV2List) {
+//                        if (inventory != null) {
+//                            Double updatedQty = inventory.getInventoryQuantity() - grLineV2.getOrderQty();
+//                            log.info("Updating inventory for ItemCode: {} | OldQty: {} | OrderQty: {} | NewQty: {}",
+//                                    grLineV2.getItemCode(), inventory.getInventoryQuantity(), grLineV2.getOrderQty(), updatedQty);
+//
+//                            InventoryV2 inventoryV2 = new InventoryV2();
+//                            BeanUtils.copyProperties(inventory, inventoryV2, CommonUtils.getNullPropertyNames(inventory));
+//                            inventoryV2.setInventoryQuantity(updatedQty);
+//                            inventoryV2.setReferenceField4(updatedQty);
+//                            inventoryV2.setInventoryId(null);
+//                            inventoryV2Repository.save(inventoryV2);
+//                            log.info("Inventory updated and saved for BarcodeId: {}", grLineV2.getBarcodeId());
+//                        } else {
+//                            log.warn("Inventory not found for BarcodeId: {}", grLineV2.getBarcodeId());
+//                        }
+//                    }
+//                    int putAway = putAwayLineV2Repository.softDeleteByRefDocNo(grLineV2.getRefDocNumber(), grLineV2.getPreInboundNo(), grLineV2.getBarcodeId());
+//                    log.info("PutAwayLine Delete Process Completed Affected Row's: {}", putAway);
+//                }
+            }
+
+            log.info("Completed deletion and inventory adjustment for RefDocNumber: {} and PreInboundNo: {}", refDocNumber, preInboundNo);
+
+        } else {
+            log.error("RefDocNumber and PreInboundNo cannot be null");
+            throw new RuntimeException("RefDocNumber and PreInboundNo cannot be null");
+        }
+
+    }
+
+    /**
+     * @param findContainerReceiptInboundLine
+     * @return
+     * @throws Exception
+     */
+    public List<ContainerReceiptInboundLine> getContainerReceiptInboundLine(FindContainerReceiptInboundLine findContainerReceiptInboundLine) throws Exception {
+        List<ContainerReceiptInboundLine> containerReceiptInboundLineList = new ArrayList<>();
+        try {
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb("MT");
+            String routingDb = dbConfigRepository.getDbName1(findContainerReceiptInboundLine.getCompanyCodeId(), findContainerReceiptInboundLine.getPlantId(), findContainerReceiptInboundLine.getWarehouseId());
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(routingDb);
+            log.info("Current Routing Db " + routingDb);
+
+            if (findContainerReceiptInboundLine.getFromDate() != null && findContainerReceiptInboundLine.getToDate() != null) {
+                Date[] dates = DateUtils.addTimeToDatesForSearch(findContainerReceiptInboundLine.getFromDate(),
+                        findContainerReceiptInboundLine.getToDate());
+                findContainerReceiptInboundLine.setFromDate(dates[0]);
+                findContainerReceiptInboundLine.setToDate(dates[1]);
+            }
+
+            List<ContainerReceiptInboundImpl> inboundLineV2 = inboundLineV2Repository.getInboundLineContainerReceipt(findContainerReceiptInboundLine.getWarehouseId(), findContainerReceiptInboundLine.getCompanyCodeId(),
+                    findContainerReceiptInboundLine.getPlantId(), findContainerReceiptInboundLine.getLanguageId(), findContainerReceiptInboundLine.getRefDocNumber(), findContainerReceiptInboundLine.getInventoryOwner(),
+                    findContainerReceiptInboundLine.getFromDate(), findContainerReceiptInboundLine.getToDate());
+            for (ContainerReceiptInboundImpl inboundLine : inboundLineV2) {
+                ContainerReceiptInboundLine containerReceiptInboundLine = new ContainerReceiptInboundLine();
+                BeanUtils.copyProperties(inboundLine, containerReceiptInboundLine, CommonUtils.getNullPropertyNames(inboundLine));
+                containerReceiptInboundLine.setInvoiceNo(inboundLine.getInvoiceNo());
+                containerReceiptInboundLine.setCompanyCodeId(inboundLine.getCompanyCodeId());
+                containerReceiptInboundLine.setRefDocNumber(inboundLine.getInvoiceNo());
+                containerReceiptInboundLine.setPreInboundNo(inboundLine.getPreInboundNo());
+                containerReceiptInboundLine.setReferenceField11(inboundLine.getReferenceField11());
+                containerReceiptInboundLine.setReferenceField12(inboundLine.getReferenceField12());
+                containerReceiptInboundLine.setReferenceField13(inboundLine.getReferenceField13());
+                containerReceiptInboundLine.setReferenceField14(inboundLine.getReferenceField14());
+                containerReceiptInboundLine.setReferenceField15(inboundLine.getReferenceField15());
+                containerReceiptInboundLine.setReferenceField16(inboundLine.getReferenceField16());
+                containerReceiptInboundLine.setReferenceField17(inboundLine.getReferenceField17());
+                containerReceiptInboundLine.setReferenceField18(inboundLine.getReferenceField18());
+                containerReceiptInboundLine.setReferenceField19(inboundLine.getReferenceField19());
+                containerReceiptInboundLine.setReferenceField20(inboundLine.getReferenceField20());
+                containerReceiptInboundLine.setIbReferenceField1(inboundLine.getIbReferenceField1());
+                containerReceiptInboundLine.setIbReferenceField2(inboundLine.getIbReferenceField2());
+                containerReceiptInboundLine.setIbReferenceField3(inboundLine.getIbReferenceField3());
+                containerReceiptInboundLine.setIbReferenceField4(inboundLine.getIbReferenceField4());
+                containerReceiptInboundLine.setIbReferenceField5(inboundLine.getIbReferenceField5());
+                containerReceiptInboundLine.setIbReferenceField6(inboundLine.getIbReferenceField6());
+                containerReceiptInboundLine.setIbReferenceField7(inboundLine.getIbReferenceField7());
+                containerReceiptInboundLine.setIbReferenceField8(inboundLine.getIbReferenceField8());
+                containerReceiptInboundLine.setIbReferenceField9(inboundLine.getIbReferenceField9());
+                containerReceiptInboundLine.setIbReferenceField10(inboundLine.getIbReferenceField10());
+                containerReceiptInboundLine.setLanguageId(inboundLine.getLanguageId());
+                containerReceiptInboundLine.setWarehouseId(inboundLine.getWarehouseId());
+                containerReceiptInboundLine.setPlantId(inboundLine.getPlantId());
+                containerReceiptInboundLine.setItemCode(inboundLine.getItemCode());
+                containerReceiptInboundLine.setHsnCode(inboundLine.getHsnCode());
+                containerReceiptInboundLine.setMrp(inboundLine.getMrp());
+                containerReceiptInboundLine.setManufacturerDate(inboundLine.getManufacturerDate());
+                containerReceiptInboundLine.setExpiryDate(inboundLine.getExpiryDate());
+                containerReceiptInboundLine.setInboundOrderTypeId(inboundLine.getInboundOrderTypeId());
+                containerReceiptInboundLine.setBarcodeId(inboundLine.getBarcodeId());
+                containerReceiptInboundLine.setQtyInCase(inboundLine.getQtyInCase());
+                containerReceiptInboundLine.setQtyInCreate(inboundLine.getQtyInCreate());
+                containerReceiptInboundLine.setLineNo(inboundLine.getLineNo());
+                containerReceiptInboundLine.setDescription(inboundLine.getDescription());
+                containerReceiptInboundLine.setGender(inboundLine.getGender());
+                containerReceiptInboundLineList.add(containerReceiptInboundLine);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return containerReceiptInboundLineList;
+    }
+
+
+    /**
+     * @param receiptInboundLine
+     * @return
+     * @throws Exception
+     */
+    public List<ContainerReceiptInboundLine> getContainerReceiptInboundLineReport(FindContainerReceiptInboundLine receiptInboundLine) throws Exception {
+        List<ContainerReceiptInboundLine> containerReceiptInboundLineList = new ArrayList<>();
+        try {
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb("MT");
+            String routingDb = dbConfigRepository.getDbName1(receiptInboundLine.getCompanyCodeId(), receiptInboundLine.getPlantId(), receiptInboundLine.getWarehouseId());
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(routingDb);
+            log.info("Current Routing Db " + routingDb);
+
+            if (receiptInboundLine.getFromDate() != null && receiptInboundLine.getToDate() != null) {
+                Date[] dates = DateUtils.addTimeToDatesForSearch(receiptInboundLine.getFromDate(),
+                        receiptInboundLine.getToDate());
+                receiptInboundLine.setFromDate(dates[0]);
+                receiptInboundLine.setToDate(dates[1]);
+            }
+
+            List<ContainerReceiptInboundImpl> inboundLineV2 = inboundLineV2Repository.getInboundLineContainerReceiptReport(receiptInboundLine.getWarehouseId(), receiptInboundLine.getCompanyCodeId(),
+                    receiptInboundLine.getPlantId(), receiptInboundLine.getLanguageId(), receiptInboundLine.getRefDocNumber(), receiptInboundLine.getBarcodeId(), receiptInboundLine.getItemCode(),
+                    receiptInboundLine.getInventoryOwner(), receiptInboundLine.getFromDate(), receiptInboundLine.getToDate());
+
+            for (ContainerReceiptInboundImpl inboundLine : inboundLineV2) {
+                ContainerReceiptInboundLine containerReceiptInboundLine = new ContainerReceiptInboundLine();
+                BeanUtils.copyProperties(inboundLine, containerReceiptInboundLine, CommonUtils.getNullPropertyNames(inboundLine));
+                containerReceiptInboundLine.setInvoiceNo(inboundLine.getInvoiceNo());
+                containerReceiptInboundLine.setCompanyCodeId(inboundLine.getCompanyCodeId());
+                containerReceiptInboundLine.setRefDocNumber(inboundLine.getInvoiceNo());
+                containerReceiptInboundLine.setPreInboundNo(inboundLine.getPreInboundNo());
+                containerReceiptInboundLine.setReferenceField11(inboundLine.getReferenceField11());
+                containerReceiptInboundLine.setReferenceField12(inboundLine.getReferenceField12());
+                containerReceiptInboundLine.setReferenceField13(inboundLine.getReferenceField13());
+                containerReceiptInboundLine.setReferenceField14(inboundLine.getReferenceField14());
+                containerReceiptInboundLine.setReferenceField15(inboundLine.getReferenceField15());
+                containerReceiptInboundLine.setReferenceField16(inboundLine.getReferenceField16());
+                containerReceiptInboundLine.setReferenceField17(inboundLine.getReferenceField17());
+                containerReceiptInboundLine.setReferenceField18(inboundLine.getReferenceField18());
+                containerReceiptInboundLine.setReferenceField19(inboundLine.getReferenceField19());
+                containerReceiptInboundLine.setReferenceField20(inboundLine.getReferenceField20());
+                containerReceiptInboundLine.setIbReferenceField1(inboundLine.getIbReferenceField1());
+                containerReceiptInboundLine.setIbReferenceField2(inboundLine.getIbReferenceField2());
+                containerReceiptInboundLine.setIbReferenceField3(inboundLine.getIbReferenceField3());
+                containerReceiptInboundLine.setIbReferenceField4(inboundLine.getIbReferenceField4());
+                containerReceiptInboundLine.setIbReferenceField5(inboundLine.getIbReferenceField5());
+                containerReceiptInboundLine.setIbReferenceField6(inboundLine.getIbReferenceField6());
+                containerReceiptInboundLine.setIbReferenceField7(inboundLine.getIbReferenceField7());
+                containerReceiptInboundLine.setIbReferenceField8(inboundLine.getIbReferenceField8());
+                containerReceiptInboundLine.setIbReferenceField9(inboundLine.getIbReferenceField9());
+                containerReceiptInboundLine.setIbReferenceField10(inboundLine.getIbReferenceField10());
+                containerReceiptInboundLine.setReferenceField30(inboundLine.getReferenceField30());
+                containerReceiptInboundLine.setReferenceField27(inboundLine.getReferenceField27());
+                containerReceiptInboundLine.setCreatedBy(inboundLine.getCreatedBy());
+                containerReceiptInboundLine.setLanguageId(inboundLine.getLanguageId());
+                containerReceiptInboundLine.setWarehouseId(inboundLine.getWarehouseId());
+                containerReceiptInboundLine.setPlantId(inboundLine.getPlantId());
+                containerReceiptInboundLine.setItemCode(inboundLine.getItemCode());
+                containerReceiptInboundLine.setHsnCode(inboundLine.getHsnCode());
+                containerReceiptInboundLine.setMrp(inboundLine.getMrp());
+                containerReceiptInboundLine.setManufacturerDate(inboundLine.getManufacturerDate());
+                containerReceiptInboundLine.setExpiryDate(inboundLine.getExpiryDate());
+                containerReceiptInboundLine.setInboundOrderTypeId(inboundLine.getInboundOrderTypeId());
+                containerReceiptInboundLine.setBarcodeId(inboundLine.getBarcodeId());
+                containerReceiptInboundLine.setQtyInCase(inboundLine.getQtyInCase());
+                containerReceiptInboundLine.setQtyInCreate(inboundLine.getQtyInCreate());
+                containerReceiptInboundLine.setLineNo(inboundLine.getLineNo());
+                containerReceiptInboundLine.setDescription(inboundLine.getDescription());
+                containerReceiptInboundLine.setGender(inboundLine.getGender());
+                containerReceiptInboundLine.setUomQty(inboundLine.getUomQty());
+                containerReceiptInboundLine.setInventoryOwner(inboundLine.getInventoryOwner());
+                containerReceiptInboundLine.setReferenceField25(inboundLine.getReferenceField25());
+                Long qty = inboundLine.getNumberOfPallets();
+                containerReceiptInboundLine.setNumberOfPallets(String.valueOf(qty));
+                containerReceiptInboundLineList.add(containerReceiptInboundLine);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return containerReceiptInboundLineList;
+    }
+
+    //================================================BF===========================================
+
+    /**
+     *
+     * @param asnNumber
+     * @param preInboundNo
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @return
+     * @throws Exception
+     */
+    public ReceiptConfimationReport getReceiptConfimationGrLineReportV9(String asnNumber, String preInboundNo, String companyCodeId, String plantId,
+                                                                        String languageId, String warehouseId) throws Exception {
+        if (asnNumber == null) {
+            throw new BadRequestException("ASNNumber can't be blank");
+        }
+        if (preInboundNo == null || companyCodeId == null || plantId == null || languageId == null || warehouseId == null) {
+            throw new BadRequestException("paramenters can't be blank");
+        }
+
+        ReceiptConfimationReport receiptConfimation;
+        try {
+            receiptConfimation = new ReceiptConfimationReport();
+            ReceiptHeader receiptHeader = new ReceiptHeader();
+
+            log.info("c_id, plant_id, lang_id, wh_id, preInboundNo, ref_doc_no: " +
+                    companyCodeId + ", " + plantId + ", " + languageId + ", " + warehouseId + ", " + asnNumber + ", " + preInboundNo);
+            List<GrLineV2> grLineSearchResults = grLineV2Repository.findGrLineForReportV9(asnNumber, preInboundNo, warehouseId, plantId, companyCodeId, languageId);
+
+            List<InboundReceiptConfirm> grLineResults = grLineV2Repository.findGrLineV9(asnNumber, preInboundNo, warehouseId, plantId, companyCodeId, languageId);
+
+            Double sumTotalOfExpectedQty = 0.0;
+            Double sumTotalOfAccxpectedQty = 0.0;
+            Double sumTotalOfDamagedQty = 0.0;
+            Double sumTotalOfMissingORExcess = 0.0;
+            Double sumOfNoOfBags = 0.0;
+            List<Receipt> receiptList = new ArrayList<>();
+            log.info("GrLine---------> : " + grLineSearchResults.size());
+            if (!grLineSearchResults.isEmpty()) {
+                // Supplier - PARTNER_CODE
+                receiptHeader.setSupplier(grLineSearchResults.get(0).getBusinessPartnerCode());
+
+//                receiptHeader.setSupplierName(grLineSearchResults.get(0).getSupplierName());
+
+                // Container No
+                receiptHeader.setContainerNo(grLineSearchResults.get(0).getContainerNo());
+
+                // Order Number - REF_DOC_NO
+                receiptHeader.setOrderNumber(grLineSearchResults.get(0).getRefDocNumber());
+
+                // Order Type -> PREINBOUNDHEADER - REF_DOC_TYPE
+                // Pass REF_DOC_NO in PREINBOUNDHEADER and fetch REF_DOC_TYPE
+                String referenceDocumentType = preInboundHeaderService.getReferenceDocumentTypeFromPreInboundHeader(
+                        grLineSearchResults.get(0).getWarehouseId(), grLineSearchResults.get(0).getPreInboundNo(),
+                        grLineSearchResults.get(0).getRefDocNumber());
+                receiptHeader.setOrderType(referenceDocumentType);
+                log.info("preInboundHeader referenceDocumentType--------> : " + referenceDocumentType);
+            }
+
+            for (InboundReceiptConfirm inboundLine : grLineResults) {
+
+
+                Receipt receipt = new Receipt();
+
+                // SKU - ITM_CODE
+                receipt.setSku(inboundLine.getItemCode());
+
+                // Description - ITEM_TEXT
+                receipt.setDescription(inboundLine.getDescription());
+
+                // Mfr.Sku - MFR_PART
+                receipt.setMfrSku(inboundLine.getManufacturerName());
+
+                //BarcodeId - BARCODE_ID
+                receipt.setBarcodeId(inboundLine.getBarcodeId());
+
+                //ManufacturerDate - MFR_DATE
+                receipt.setManufacturerDate(inboundLine.getManufacturerDate());
+
+                //ExpiryDate - EXP_DATE
+                receipt.setExpiryDate(inboundLine.getExpiryDate());
+
+
+                // Expected - ORD_QTY
+                Double expQty = 0.0;
+                if (inboundLine.getOrderQty() != null) {
+                    expQty = inboundLine.getOrderQty();
+                    receipt.setExpectedQty(expQty);
+                    sumTotalOfExpectedQty += expQty;
+                    log.info("expQty------#--> : " + expQty);
+                }
+
+                // Accepted - ACCEPT_QTY
+                Double acceptQty = 0.0;
+                if (inboundLine.getAcceptedQty() != null) {
+                    acceptQty = inboundLine.getAcceptedQty();
+                    receipt.setAcceptedQty(acceptQty);
+                    sumTotalOfAccxpectedQty += acceptQty;
+                    log.info("acceptQty------#--> : " + acceptQty);
+                }
+
+                // Damaged - DAMAGE_QTY
+                Double damageQty = 0.0;
+                if (inboundLine.getDamageQty() != null) {
+                    damageQty = inboundLine.getDamageQty();
+                    receipt.setDamagedQty(damageQty);
+                    sumTotalOfDamagedQty += damageQty;
+                    log.info("damageQty------#--> : " + damageQty);
+                }
+
+                Double noOfBags = 0.0;
+                if (inboundLine.getNoBags() != null) {
+                    noOfBags = inboundLine.getNoBags();
+                    receipt.setNoOfBags(noOfBags);
+                    sumOfNoOfBags += noOfBags;
+                    log.info("expQty------#--> : " + noOfBags);
+                }
+
+                // Missing/Excess - SUM(Accepted + Damaged) - Expected
+                Double missingORExcessSum = inboundLine.getMissingQty();
+                sumTotalOfMissingORExcess += missingORExcessSum;
+                receipt.setMissingORExcess(missingORExcessSum);
+                log.info("missingORExcessSum------#--> : " + missingORExcessSum);
+
+                if (missingORExcessSum == 0.0) {
+                    receipt.setStatus("Received");
+                } else if (missingORExcessSum.equals(0.0)) {
+                    receipt.setStatus("Received");
+                } else if (damageQty > 0.0) {
+                    receipt.setStatus("Damage Received");
+                } else if (missingORExcessSum < 0.0) {
+                    receipt.setStatus("Partial Received");
+                } else if (missingORExcessSum > 0.0) {
+                    receipt.setStatus("Excess Received");
+                } else if (sumTotalOfMissingORExcess == 0.0) {
+                    receipt.setStatus("Not Received");
+                }
+                log.info("receipt------#--> : " + receipt);
+                receiptList.add(receipt);
+            }
+
+            //---------------------------------------------------------------------------------------
+            // Group by SKU and sum the fields
+
+            Map<String, Receipt> groupedReceipts = new LinkedHashMap<>();
+            for (Receipt r : receiptList) {
+                String key = r.getBarcodeId() + "##" + r.getSku();
+//                groupedReceipts.compute(r.getSku(), (sku, existing) -> {
+                groupedReceipts.compute(key, (k, existing) -> {
+                    if (existing == null) {
+                        Receipt newReceipt = new Receipt();
+                        newReceipt.setSku(r.getSku());
+                        newReceipt.setDescription(r.getDescription());
+                        newReceipt.setMfrSku(r.getMfrSku());
+                        newReceipt.setExpiryDate(r.getExpiryDate());
+                        newReceipt.setManufacturerDate(r.getManufacturerDate());
+                        newReceipt.setBarcodeId(r.getBarcodeId());
+                        newReceipt.setExpectedQty(round1(r.getExpectedQty()));
+                        newReceipt.setAcceptedQty(round1(r.getAcceptedQty()));
+                        newReceipt.setDamagedQty(round1(r.getDamagedQty()));
+                        newReceipt.setMissingORExcess(r.getMissingORExcess() != null ? r.getMissingORExcess() : 0.0);
+                        newReceipt.setStatus(r.getStatus());
+                        newReceipt.setNoOfBags(r.getNoOfBags() != null ? r.getNoOfBags() : 0.0);
+                        return newReceipt;
+                    } else {
+                        existing.setExpectedQty(round1(existing.getExpectedQty()) + round1(r.getExpectedQty()));
+                        existing.setAcceptedQty(round1(existing.getAcceptedQty()) + round1(r.getAcceptedQty()));
+                        existing.setDamagedQty(round1(existing.getDamagedQty()) + round1(r.getDamagedQty()));
+                        existing.setMissingORExcess((existing.getMissingORExcess() != null ? existing.getMissingORExcess() : 0.0) + (r.getMissingORExcess() != null ? r.getMissingORExcess() : 0.0));
+                        existing.setNoOfBags((existing.getNoOfBags() != null ? existing.getNoOfBags() : 0.0) + (r.getNoOfBags() != null ? r.getNoOfBags() : 0.0));
+                        return existing;
+                    }
+                });
+            }
+//---------------------------------------------------------------------------------------
+            receiptHeader.setExpectedQtySum(round1(sumTotalOfExpectedQty));
+            receiptHeader.setAcceptedQtySum(round1(sumTotalOfAccxpectedQty));
+            receiptHeader.setDamagedQtySum(round1(sumTotalOfDamagedQty));
+            receiptHeader.setMissingORExcessSum(sumTotalOfMissingORExcess);
+            receiptHeader.setNoOfBagsSum(sumOfNoOfBags);
+
+            receiptConfimation.setReceiptHeader(receiptHeader);
+            receiptConfimation.setReceiptList(new ArrayList<>(groupedReceipts.values()));
+            log.info("receiptConfimation : " + receiptConfimation);
+            return receiptConfimation;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }
+

@@ -1,6 +1,7 @@
 package com.tekclover.wms.core.service;
 
 
+import com.tekclover.wms.core.model.pdfextract.InvoiceData;
 import com.tekclover.wms.core.model.warehouse.inbound.almailem.*;
 import com.tekclover.wms.core.model.warehouse.outbound.almailem.*;
 import com.tekclover.wms.core.util.CommonUtils;
@@ -8,10 +9,7 @@ import com.tekclover.wms.core.util.DateUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -1213,4 +1211,676 @@ public class OrderProcessingService {
         }
         return orderList;
     }
+
+    //=========SPAREX Inbound PDF validation=======================
+    /**
+     * Order Via Pdf extraction
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param loginUserId
+     * @param list
+     * @return
+     */
+    public List<ASNV2> orderAsnPdfV10(String companyCodeId, String plantId, String languageId,
+                                      String warehouseId, String loginUserId, List<InvoiceData> list) {
+        List<ASNV2> asnOrderList = new ArrayList<>();
+        ASNHeaderV2 apiHeader = null;
+        List<ASNLineV2> apiLine = new ArrayList<>();
+        boolean oneTimeAllow = true;
+        boolean isSameOrder = true;
+        String orderNumber = null;
+        int i = 1;
+        long lineReference = 1;
+        for (InvoiceData listUploadedData : list) {
+
+            String pickListNumber = listUploadedData.getInvoiceNo();
+
+            if (orderNumber != null && !orderNumber.equalsIgnoreCase(pickListNumber)) {
+                ASNV2 asnOrder = new ASNV2();
+                asnOrder.setAsnHeader(apiHeader);
+                asnOrder.setAsnLine(apiLine);
+                asnOrderList.add(asnOrder);
+
+                apiLine = new ArrayList<>();
+                oneTimeAllow = true;
+            }
+
+            orderNumber = pickListNumber;
+
+            if (oneTimeAllow) {
+                apiHeader = new ASNHeaderV2();
+                BeanUtils.copyProperties(listUploadedData, apiHeader,
+                        CommonUtils.getNullPropertyNames(listUploadedData));
+
+                apiHeader.setCompanyCode(companyCodeId);
+                apiHeader.setBranchCode(plantId);
+                apiHeader.setLanguageId(languageId);
+                apiHeader.setWarehouseId(warehouseId);
+                apiHeader.setLoginUserId(loginUserId);
+                apiHeader.setAsnNumber(listUploadedData.getInvoiceNo());
+                apiHeader.setCustomerName(listUploadedData.getCustomerName());
+
+                oneTimeAllow = false;
+            }
+
+            for (InvoiceData.ItemLine item : listUploadedData.getItems()) {
+
+                ASNLineV2 soLine = new ASNLineV2();
+                soLine.setPurchaseOrderNumber(listUploadedData.getInvoiceNo());
+                soLine.setSku(item.getItemCode());
+                soLine.setLineReference(lineReference++);
+                soLine.setExpectedQty((double) item.getQuantity());
+                soLine.setExpectedDate(listUploadedData.getRequiredDeliveryDate());
+                soLine.setSupplierName(listUploadedData.getCustomerName());
+                apiLine.add(soLine);
+            }
+        }
+
+        if (apiHeader != null) {
+            ASNV2 asnOrder = new ASNV2();
+            asnOrder.setAsnHeader(apiHeader);
+            asnOrder.setAsnLine(apiLine);
+            asnOrderList.add(asnOrder);
+        }
+
+        return asnOrderList;
+    }
+
+    //========================SPAREX=======================================================
+    /**
+     * Order Via Pdf extraction
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param loginUserId
+     * @param list
+     * @return
+     */
+    public List<SalesOrderV2> orderDataPdfV10(String companyCodeId, String plantId, String languageId,
+                                              String warehouseId, String loginUserId, List<InvoiceData> list) {
+        List<SalesOrderV2> salesOrderList = new ArrayList<>();
+        SalesOrderHeaderV2 soHeader = null;
+        List<SalesOrderLineV2> soLines = new ArrayList<>();
+        boolean oneTimeAllow = true;
+        boolean isSameOrder = true;
+        String orderNumber = null;
+        int i = 1;
+        long lineReference = 1;
+        for (InvoiceData listUploadedData : list) {
+
+            String pickListNumber = listUploadedData.getInvoiceNo();
+
+            if (orderNumber != null && !orderNumber.equalsIgnoreCase(pickListNumber)) {
+                SalesOrderV2 salesOrder = new SalesOrderV2();
+                salesOrder.setSalesOrderHeader(soHeader);
+                salesOrder.setSalesOrderLine(soLines);
+                salesOrderList.add(salesOrder);
+
+                soLines = new ArrayList<>();
+                oneTimeAllow = true;
+            }
+
+            orderNumber = pickListNumber;
+
+            if (oneTimeAllow) {
+                soHeader = new SalesOrderHeaderV2();
+                BeanUtils.copyProperties(listUploadedData, soHeader,
+                        CommonUtils.getNullPropertyNames(listUploadedData));
+
+                soHeader.setCompanyCode(companyCodeId);
+                soHeader.setBranchCode(plantId);
+                soHeader.setStoreID(plantId);
+                soHeader.setLanguageId(languageId);
+                soHeader.setWarehouseId(warehouseId);
+                soHeader.setLoginUserId(loginUserId);
+                soHeader.setSalesOrderNumber(listUploadedData.getInvoiceNo());
+                soHeader.setRequiredDeliveryDate(listUploadedData.getRequiredDeliveryDate());
+                soHeader.setCustomerName(listUploadedData.getCustomerName());
+                soHeader.setTokenNumber(listUploadedData.getDeliveryTo());
+
+                oneTimeAllow = false;
+            }
+
+            for (InvoiceData.ItemLine item : listUploadedData.getItems()) {
+
+                SalesOrderLineV2 soLine = new SalesOrderLineV2();
+                soLine.setSalesOrderNo(listUploadedData.getInvoiceNo());
+                soLine.setSku(item.getItemCode());
+                soLine.setLineReference(lineReference++);
+                soLine.setOrderedQty((double) item.getQuantity());
+                soLine.setSupplierName(listUploadedData.getCustomerName());
+
+                soLines.add(soLine);
+            }
+        }
+
+        if (soHeader != null) {
+            SalesOrderV2 salesOrder = new SalesOrderV2();
+            salesOrder.setSalesOrderHeader(soHeader);
+            salesOrder.setSalesOrderLine(soLines);
+            salesOrderList.add(salesOrder);
+        }
+
+        return salesOrderList;
+    }
+
+    //=============SPAREX===================================================
+    /**
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param loginUserId
+     * @param list
+     * @return
+     */
+    public List<ASNV2> prepAsnMultipleDataV10(String companyCodeId, String plantId,
+                                              String languageId, String warehouseId, String loginUserId,
+                                              List<InboundOrderProcessV4> list) {
+        List<InboundOrderProcessV4> allRowsList = list.stream().sorted(Comparator.comparing(InboundOrderProcessV4::getAsnNumber)).collect(Collectors.toList());
+        List<ASNV2> orderList = new ArrayList<>();
+        String orderNumber = null;
+        boolean oneTimeAllow = true;
+        boolean isSameOrder = true;
+        int i = 1;
+        long lineReference = 1;
+        ASNHeaderV2 header = null;
+        List<ASNLineV2> lisAsnLine = new ArrayList<>();
+        for (InboundOrderProcessV4 listUploadedData : allRowsList) {
+            if (orderNumber != null) {
+                isSameOrder = orderNumber.equalsIgnoreCase(listUploadedData.getAsnNumber());
+            }
+
+            if (!isSameOrder) {
+                ASNV2 orders = new ASNV2();
+                orders.setAsnHeader(header);
+                orders.setAsnLine(lisAsnLine);
+                orderList.add(orders);
+
+                //reset to create new order
+                oneTimeAllow = true;
+                isSameOrder = true;
+                orderNumber = null;
+                lisAsnLine = new ArrayList<>();
+                lineReference = 1;
+            }
+
+            if (isSameOrder) {
+                orderNumber = listUploadedData.getAsnNumber();
+                if (oneTimeAllow) {
+                    header = new ASNHeaderV2();
+
+                    header.setBranchCode(plantId);
+                    header.setCompanyCode(companyCodeId);
+                    header.setLanguageId(languageId);
+                    header.setWarehouseId(warehouseId);
+                    header.setLoginUserId(loginUserId);
+                    header.setInboundOrderTypeId(listUploadedData.getInboundOrderTypeId());
+                    header.setAsnNumber(listUploadedData.getAsnNumber());
+
+                }
+                oneTimeAllow = false;
+
+                // Line
+                ASNLineV2 line = new ASNLineV2();
+                BeanUtils.copyProperties(listUploadedData, line, CommonUtils.getNullPropertyNames(listUploadedData));
+
+                line.setBranchCode(plantId);
+                line.setCompanyCode(companyCodeId);
+                line.setLineReference(lineReference);
+                line.setSku(listUploadedData.getSku());
+                line.setSkuDescription(listUploadedData.getSkuDescription());
+                line.setPackQty(listUploadedData.getOrderQty());
+                line.setSupplierName(listUploadedData.getSupplierName());
+                lineReference++;
+                lisAsnLine.add(line);
+            }
+            if (allRowsList.size() == i) {
+                ASNV2 orders = new ASNV2();
+                orders.setAsnHeader(header);
+                orders.setAsnLine(lisAsnLine);
+                orderList.add(orders);
+            }
+            i++;
+        }
+        return orderList;
+    }
+
+    //========================SPAREX=======================================================
+    /**
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param loginUserId
+     * @param list
+     * @return
+     */
+    public List<SalesOrderV2> prepSalesOrderDataV10(String companyCodeId, String plantId, String languageId,
+                                                    String warehouseId, String loginUserId, List<OutboundOrderProcessV4> list) {
+        List<OutboundOrderProcessV4> allRowsList = list.stream().sorted(Comparator.comparing(OutboundOrderProcessV4::getSalesOrderNumber)).collect(Collectors.toList());
+        List<SalesOrderV2> salesOrderList = new ArrayList<>();
+        SalesOrderHeaderV2 soHeader = null;
+        List<SalesOrderLineV2> soLines = new ArrayList<>();
+        boolean oneTimeAllow = true;
+        boolean isSameOrder = true;
+        String orderNumber = null;
+        int i = 1;
+        for (OutboundOrderProcessV4 listUploadedData : allRowsList) {
+            String pickListNumber = listUploadedData.getSalesOrderNumber();
+            if (orderNumber != null) {
+                isSameOrder = orderNumber.equalsIgnoreCase(pickListNumber);
+            }
+            if (!isSameOrder) {
+                SalesOrderV2 salesOrder = new SalesOrderV2();
+                salesOrder.setSalesOrderHeader(soHeader);
+                salesOrder.setSalesOrderLine(soLines);
+                salesOrderList.add(salesOrder);
+
+                //reset to create new order
+                oneTimeAllow = true;
+                isSameOrder = true;
+                orderNumber = null;
+                soLines = new ArrayList<>();
+            }
+            if (isSameOrder) {
+                orderNumber = pickListNumber;
+                // Header
+                if (oneTimeAllow) {
+                    soHeader = new SalesOrderHeaderV2();
+                    BeanUtils.copyProperties(listUploadedData, soHeader, CommonUtils.getNullPropertyNames(listUploadedData));
+                    soHeader.setCompanyCode(companyCodeId);
+                    soHeader.setBranchCode(plantId);
+                    soHeader.setStoreID(plantId);
+                    soHeader.setLanguageId(languageId);
+                    soHeader.setWarehouseId(warehouseId);
+                    soHeader.setLoginUserId(loginUserId);
+                    soHeader.setSalesOrderNumber(listUploadedData.getSalesOrderNumber());
+                    soHeader.setRequiredDeliveryDate(listUploadedData.getRequiredDeliveryDate());
+                    soHeader.setCustomerName(listUploadedData.getCustomerName());
+                }
+                oneTimeAllow = false;
+
+                // Line
+                SalesOrderLineV2 soLine = new SalesOrderLineV2();
+                BeanUtils.copyProperties(listUploadedData, soLine, CommonUtils.getNullPropertyNames(listUploadedData));
+                soLine.setSalesOrderNo(listUploadedData.getSalesOrderNumber());
+                soLine.setSku(listUploadedData.getSku());
+                soLine.setSkuDescription(listUploadedData.getSkuDescription());
+                soLine.setLineReference(listUploadedData.getLineReference());
+                soLine.setOrderedQty(listUploadedData.getOrderedQty());
+                soLine.setSupplierName(listUploadedData.getSupplierName());
+                soLines.add(soLine);
+            }
+
+            if (allRowsList.size() == i) {
+                SalesOrderV2 salesOrder = new SalesOrderV2();
+                salesOrder.setSalesOrderHeader(soHeader);
+                salesOrder.setSalesOrderLine(soLines);
+                salesOrderList.add(salesOrder);
+            }
+            i++;
+        }
+        return salesOrderList;
+    }
+
+    /**
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param loginUserId
+     * @param list
+     * @return
+     */
+    public List<ASNV2> prepAsnMultipleDataV9(String companyCodeId, String plantId,
+                                             String languageId, String warehouseId, String loginUserId,
+                                             List<InboundOrderProcessV4> list) {
+        List<InboundOrderProcessV4> allRowsList = list.stream().sorted(Comparator.comparing(InboundOrderProcessV4::getAsnNumber)).collect(Collectors.toList());
+        List<ASNV2> orderList = new ArrayList<>();
+        String orderNumber = null;
+        boolean oneTimeAllow = true;
+        boolean isSameOrder = true;
+        int i = 1;
+        long lineReference = 1;
+        ASNHeaderV2 header = null;
+        List<ASNLineV2> lisAsnLine = new ArrayList<>();
+        for (InboundOrderProcessV4 listUploadedData : allRowsList) {
+            if (orderNumber != null) {
+                isSameOrder = orderNumber.equalsIgnoreCase(listUploadedData.getAsnNumber());
+            }
+
+            if (!isSameOrder) {
+                ASNV2 orders = new ASNV2();
+                orders.setAsnHeader(header);
+                orders.setAsnLine(lisAsnLine);
+                orderList.add(orders);
+
+                //reset to create new order
+                oneTimeAllow = true;
+                isSameOrder = true;
+                orderNumber = null;
+                lisAsnLine = new ArrayList<>();
+                lineReference = 1;
+            }
+
+            if (isSameOrder) {
+                orderNumber = listUploadedData.getAsnNumber();
+                if (oneTimeAllow) {
+                    header = new ASNHeaderV2();
+
+                    header.setBranchCode(plantId);
+                    header.setCompanyCode(companyCodeId);
+                    header.setLanguageId(languageId);
+                    header.setWarehouseId(warehouseId);
+                    header.setLoginUserId(loginUserId);
+                    header.setAsnNumber(listUploadedData.getAsnNumber());
+                    header.setInboundOrderTypeId(listUploadedData.getInboundOrderTypeId());
+                    header.setCustomerId(listUploadedData.getCustomerId());
+                    header.setCustomerName(listUploadedData.getCustomerName());
+                }
+                oneTimeAllow = false;
+
+                // Line
+                ASNLineV2 line = new ASNLineV2();
+                BeanUtils.copyProperties(listUploadedData, line, CommonUtils.getNullPropertyNames(listUploadedData));
+
+                line.setBranchCode(plantId);
+                line.setCompanyCode(companyCodeId);
+                line.setLineReference(lineReference);
+                line.setNoPairs(listUploadedData.getNoPairs());
+                line.setUom(listUploadedData.getUom());
+                line.setSkuDescription(listUploadedData.getSkuDescription());
+                line.setExpectedDate(DateUtils.date2String_YYYYMMDD(new Date()));
+                line.setVehicleNo(listUploadedData.getVehicleNo());
+                line.setVehicleUnloadingDate(listUploadedData.getVehicleUnloadingDate());
+                line.setVehicleReportingDate(listUploadedData.getVehicleReportingDate());
+                line.setCustomerId(listUploadedData.getCustomerId());
+                line.setCustomerName(listUploadedData.getCustomerName());
+                lineReference++;
+                lisAsnLine.add(line);
+            }
+            if (allRowsList.size() == i) {
+                ASNV2 orders = new ASNV2();
+                orders.setAsnHeader(header);
+                orders.setAsnLine(lisAsnLine);
+                orderList.add(orders);
+            }
+            i++;
+        }
+        return orderList;
+    }
+
+
+    /**
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param loginUserId
+     * @param allRowsList
+     * @return
+     */
+    public List<SaleOrderReturnV2> prepSaleOrderReturnDataV9(String companyCodeId, String plantId,
+                                                             String languageId, String warehouseId, String loginUserId,
+                                                             List<InboundOrderProcessV4> allRowsList) {
+        List<SaleOrderReturnV2> orderList = new ArrayList<>();
+        String orderNumber = null;
+        boolean oneTimeAllow = true;
+        boolean isSameOrder = true;
+        int i = 1;
+        long lineReference = 1;
+        SOReturnHeaderV2 header = null;
+        List<SOReturnLineV2> listLines = new ArrayList<>();
+        for (InboundOrderProcessV4 listUploadedData : allRowsList) {
+            if (orderNumber != null) {
+                isSameOrder = orderNumber.equalsIgnoreCase(listUploadedData.getTransferOrderNumber());
+            }
+            // Header
+            if (!isSameOrder) {
+                SaleOrderReturnV2 orders = new SaleOrderReturnV2();
+                orders.setSoReturnHeader(header);
+                orders.setSoReturnLine(listLines);
+                orderList.add(orders);
+
+                //reset to create new order
+                oneTimeAllow = true;
+                isSameOrder = true;
+                orderNumber = null;
+                listLines = new ArrayList<>();
+            }
+
+            if (isSameOrder) {
+                orderNumber = listUploadedData.getTransferOrderNumber();
+                if (oneTimeAllow) {
+                    header = new SOReturnHeaderV2();
+
+                    header.setBranchCode(plantId);
+                    header.setCompanyCode(companyCodeId);
+                    header.setLanguageId(languageId);
+                    header.setWarehouseId(warehouseId);
+                    header.setLoginUserId(loginUserId);
+                    header.setTransferOrderNumber(listUploadedData.getSalesOrderNumber());
+//                    header.setInboundOrderTypeId(listUploadedData.getInboundOrderTypeId());
+                    header.setInboundOrderTypeId(header.getInboundOrderTypeId());
+                    header.setAsnNumber(listUploadedData.getAsnNumber());
+                    header.setCustomerId(listUploadedData.getCustomerId());
+                    header.setCustomerName(listUploadedData.getCustomerName());
+                }
+                oneTimeAllow = false;
+
+                // Line
+                SOReturnLineV2 line = new SOReturnLineV2();
+                BeanUtils.copyProperties(listUploadedData, line, CommonUtils.getNullPropertyNames(listUploadedData));
+
+
+                line.setLineReference(lineReference);
+                line.setNoPairs(listUploadedData.getNoPairs());
+                line.setUom(listUploadedData.getUom());
+                line.setSkuDescription(listUploadedData.getSkuDescription());
+                line.setExpectedDate(DateUtils.date2String_YYYYMMDD(new Date()));
+                line.setVehicleNo(listUploadedData.getVehicleNo());
+                line.setVehicleUnloadingDate(listUploadedData.getVehicleUnloadingDate());
+                line.setVehicleReportingDate(listUploadedData.getVehicleReportingDate());
+                line.setCustomerId(listUploadedData.getCustomerId());
+                line.setCustomerName(listUploadedData.getCustomerName());
+
+                lineReference++;
+                listLines.add(line);
+            }
+
+            if (allRowsList.size() == i) {
+                SaleOrderReturnV2 orders = new SaleOrderReturnV2();
+                orders.setSoReturnHeader(header);
+                orders.setSoReturnLine(listLines);
+                orderList.add(orders);
+            }
+            i++;
+        }
+        return orderList;
+    }
+
+    /**
+     * ForKnowell
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param loginUserId
+     * @param allRowsList
+     * @return
+     */
+    public List<InterWarehouseTransferInV2> prepInterwareHouseInDataV9(String companyCodeId, String plantId,
+                                                                       String languageId, String warehouseId, String loginUserId,
+                                                                       List<InboundOrderProcessV4> allRowsList) {
+        List<InterWarehouseTransferInV2> whOrderList = new ArrayList<>();
+        String orderNumber = null;
+        boolean oneTimeAllow = true;
+        boolean isSameOrder = true;
+        int i = 1;
+        InterWarehouseTransferInHeaderV2 header = null;
+        List<InterWarehouseTransferInLineV2> listWHLines = new ArrayList<>();
+        for (InboundOrderProcessV4 listUploadedData : allRowsList) {
+            if (orderNumber != null) {
+                isSameOrder = orderNumber.equalsIgnoreCase(listUploadedData.getTransferOrderNumber());
+            }
+            // Header
+            if (!isSameOrder) {
+                InterWarehouseTransferInV2 orders = new InterWarehouseTransferInV2();
+                orders.setInterWarehouseTransferInHeader(header);
+                orders.setInterWarehouseTransferInLine(listWHLines);
+                whOrderList.add(orders);
+
+                //reset to create new order
+                oneTimeAllow = true;
+                isSameOrder = true;
+                orderNumber = null;
+                listWHLines = new ArrayList<>();
+            }
+
+            if (isSameOrder) {
+                orderNumber = listUploadedData.getTransferOrderNumber();
+                if (oneTimeAllow) {
+                    header = new InterWarehouseTransferInHeaderV2();
+
+                    header.setToBranchCode(plantId);
+                    header.setSourceBranchCode(plantId);
+                    header.setToCompanyCode(companyCodeId);
+                    header.setSourceCompanyCode(companyCodeId);
+                    header.setLanguageId(languageId);
+                    header.setWarehouseId(warehouseId);
+                    header.setSourceWarehouseCode(warehouseId);
+                    header.setLoginUserId(loginUserId);
+                    header.setTransferOrderNumber(listUploadedData.getTransferOrderNumber());
+                    header.setInboundOrderTypeId(listUploadedData.getInboundOrderTypeId());
+                }
+                oneTimeAllow = false;
+
+                // Line
+                InterWarehouseTransferInLineV2 line = new InterWarehouseTransferInLineV2();
+                BeanUtils.copyProperties(listUploadedData, line, CommonUtils.getNullPropertyNames(listUploadedData));
+
+                listWHLines.add(line);
+            }
+
+            if (allRowsList.size() == i) {
+                InterWarehouseTransferInV2 orders = new InterWarehouseTransferInV2();
+                orders.setInterWarehouseTransferInHeader(header);
+                orders.setInterWarehouseTransferInLine(listWHLines);
+                whOrderList.add(orders);
+            }
+            i++;
+        }
+        return whOrderList;
+    }
+
+    //==========================================================BF==================================================
+
+    /**
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param loginUserId
+     * @param list
+     * @return
+     */
+    public List<SalesOrderV2> prepSalesOrderDataV9(String companyCodeId, String plantId, String languageId,
+                                                   String warehouseId, String loginUserId, List<OutboundOrderProcessV4> list) {
+        List<OutboundOrderProcessV4> allRowsList =
+                Optional.ofNullable(list)
+                        .orElse(Collections.emptyList())
+                        .stream()
+                        .filter(Objects::nonNull)
+                        .sorted(
+                                Comparator.comparing(
+                                        OutboundOrderProcessV4::getPickListNumber,
+                                        Comparator.nullsLast(Comparator.naturalOrder())
+                                )
+                        )
+                        .collect(Collectors.toList());
+        List<SalesOrderV2> salesOrderList = new ArrayList<>();
+        SalesOrderHeaderV2 soHeader = null;
+        List<SalesOrderLineV2> soLines = new ArrayList<>();
+        boolean oneTimeAllow = true;
+        boolean isSameOrder = true;
+        String orderNumber = null;
+        int i = 1;
+        String salesOrderNo = String.valueOf(System.currentTimeMillis());
+        for (OutboundOrderProcessV4 listUploadedData : allRowsList) {
+            String pickListNumber = listUploadedData.getPickListNumber();
+            if (orderNumber != null) {
+                isSameOrder = orderNumber.equalsIgnoreCase(pickListNumber);
+            }
+            if (!isSameOrder) {
+                SalesOrderV2 salesOrder = new SalesOrderV2();
+                salesOrder.setSalesOrderHeader(soHeader);
+                salesOrder.setSalesOrderLine(soLines);
+                salesOrderList.add(salesOrder);
+
+                //reset to create new order
+                oneTimeAllow = true;
+                isSameOrder = true;
+                orderNumber = null;
+                soLines = new ArrayList<>();
+            }
+            if (isSameOrder) {
+                orderNumber = pickListNumber;
+                // Header
+                if (oneTimeAllow) {
+                    soHeader = new SalesOrderHeaderV2();
+                    BeanUtils.copyProperties(listUploadedData, soHeader, CommonUtils.getNullPropertyNames(listUploadedData));
+                    soHeader.setCompanyCode(companyCodeId);
+                    soHeader.setBranchCode(plantId);
+                    soHeader.setStoreID(plantId);
+                    soHeader.setLanguageId(languageId);
+                    soHeader.setWarehouseId(warehouseId);
+                    soHeader.setLoginUserId(loginUserId);
+                    soHeader.setPickListNumber(pickListNumber);
+                    soHeader.setCustomerId(listUploadedData.getCustomerId());
+                    soHeader.setCustomerName(listUploadedData.getCustomerName());
+                    soHeader.setRequiredDeliveryDate(listUploadedData.getRequiredDeliveryDate());
+                    soHeader.setOrderType(listUploadedData.getOrderType());
+                    soHeader.setTokenNumber(listUploadedData.getTokenNumber());
+                    soHeader.setSalesOrderNumber(pickListNumber);
+                    soHeader.setRequiredDeliveryDate(DateUtils.date2String_YYYYMMDD(new Date()));
+                }
+                oneTimeAllow = false;
+
+                // Line
+                SalesOrderLineV2 soLine = new SalesOrderLineV2();
+                BeanUtils.copyProperties(listUploadedData, soLine, CommonUtils.getNullPropertyNames(listUploadedData));
+                soLine.setPickListNo(pickListNumber);
+                soLine.setSalesOrderNo(pickListNumber);
+                soLine.setSku(listUploadedData.getSku());
+                soLine.setLineReference(listUploadedData.getItm());
+                soLine.setMtoNumber(listUploadedData.getMtoNumber());
+                soLine.setSpecialStock(listUploadedData.getSpecialStock());
+                soLine.setShipToCode(listUploadedData.getShipToCode());
+                soLine.setShipToParty(listUploadedData.getShipToParty());
+                soLine.setQtyInCase(listUploadedData.getQtyInCase());
+                soLine.setQtyInPiece(listUploadedData.getQtyInPiece());
+
+                soLines.add(soLine);
+            }
+
+            if (allRowsList.size() == i) {
+                SalesOrderV2 salesOrder = new SalesOrderV2();
+                salesOrder.setSalesOrderHeader(soHeader);
+                salesOrder.setSalesOrderLine(soLines);
+                salesOrderList.add(salesOrder);
+            }
+            i++;
+        }
+        return salesOrderList;
+    }
+
+
+
 }

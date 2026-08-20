@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -56,6 +57,11 @@ public class OutboundOrderController {
     @Autowired
     SalesOrderServiceV6 salesOrderServiceV6;
 
+    @Autowired
+    SalesOrderV10 salesOrderV10;
+
+    @Autowired
+    SalesOrderServiceV9 salesOrderServiceV9;
 
     //Pick_List
     @ApiOperation(response = SalesOrderV2.class, value = "Sales order") // label for swagger
@@ -310,5 +316,125 @@ public class OutboundOrderController {
         }
 
     }
+    //================SPAREX========================================================
+    //Upload API
+    @ApiOperation(response = SalesOrderV2.class, value = "Sales order V10") // label for swagger
+    @PostMapping("/outbound/upload/salesorderv10")
+    public ResponseEntity<?> postSalesOrderV10(@Valid @RequestBody List<SalesOrderV2> salesOrders) {
+        List<WarehouseApiResponse> responseList = new ArrayList<>();
+        try {
+            log.info("------------salesOrders : " + salesOrders);
+            for (SalesOrderV2 salesOrder : salesOrders) {
+                DataBaseContextHolder.clear();
+                DataBaseContextHolder.setCurrentDb("SPAREX");
+                salesOrderService.postSalesOrderV10(salesOrder);
+                WarehouseApiResponse response = new WarehouseApiResponse();
+                response.setStatusCode("200");
+                response.setMessage("Success");
+                responseList.add(response);
+            }
+            return new ResponseEntity<>(responseList, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            WarehouseApiResponse response = new WarehouseApiResponse();
+            response.setStatusCode("1400");
+            response.setMessage("Not Success: " + e.getLocalizedMessage());
+            responseList.add(response);
+            return new ResponseEntity<>(responseList, HttpStatus.EXPECTATION_FAILED);
+        } finally {
+            DataBaseContextHolder.clear();
+        }
+    }
 
+    @ApiOperation(response = OrderManagementLineV2[].class, value = "OrderManagementLine Manual Allocation")
+    @PostMapping("/outbound/allocate/manual/v10")
+    public ResponseEntity<?> orderAllocationManualV10(@RequestBody List<OrderManagementLineV2> orderManagementLineV2List, @RequestParam String loginUserID) {
+
+        try {
+            DataBaseContextHolder.setCurrentDb("MT");
+            String routingDb = dbConfigRepository.getDbName(orderManagementLineV2List.get(0).getCompanyCodeId(), orderManagementLineV2List.get(0).getPlantId(), orderManagementLineV2List.get(0).getWarehouseId());
+            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(routingDb);
+            List<OrderManagementLineV2> orderManagementLineV2s = salesOrderV10.createOderManagementLineManualV10(orderManagementLineV2List, loginUserID);
+            return new ResponseEntity<>(orderManagementLineV2s, HttpStatus.OK);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            DataBaseContextHolder.clear();
+        }
+    }
+
+
+    //=============BF API======================
+    /*----------------------------Sale order True Express-------------------------------------------------------*/
+    @ApiOperation(response = SalesOrderV2.class, value = "Sales order") // label for swagger
+    @PostMapping("/outbound/salesorderv9")
+    public ResponseEntity<?> postSOV9(@Valid @RequestBody List<SalesOrderV2> salesOrderList)
+            throws IllegalAccessException, InvocationTargetException {
+        List<WarehouseApiResponse> responseList = new ArrayList<>();
+        try {
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb("MT");
+            String routingDb = dbConfigRepository.getDbName(salesOrderList.get(0).getSalesOrderHeader().getCompanyCode(),
+                    salesOrderList.get(0).getSalesOrderHeader().getBranchCode(), salesOrderList.get(0).getSalesOrderHeader().getWarehouseId());
+            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(routingDb);
+            String preOutboundNoAndRefDocNo = null;
+            if (salesOrderList.get(0).getSalesOrderHeader().getPickListNumber() == null || salesOrderList.get(0).getSalesOrderHeader().getPickListNumber().isEmpty()) {
+                String languageId = "EN";
+                preOutboundNoAndRefDocNo = salesOrderServiceV9.getPreOutboundNo(salesOrderList.get(0).getSalesOrderHeader().getWarehouseId(), salesOrderList.get(0).getSalesOrderHeader().getCompanyCode(), salesOrderList.get(0).getSalesOrderHeader().getBranchCode(),
+                        languageId);
+                String orderId = "SO" + preOutboundNoAndRefDocNo;
+                log.info("OrderIDRefDocNo--->" + orderId);
+                salesOrderList.get(0).getSalesOrderHeader().setPickListNumber(orderId);
+            }
+
+            salesOrderList.forEach(salesOrderv2 -> {
+                salesOrderServiceV9.postSOV9(salesOrderv2);
+            });
+            salesOrderServiceV9.outboundOrderV9(salesOrderList, preOutboundNoAndRefDocNo);
+            WarehouseApiResponse response = new WarehouseApiResponse();
+            response.setStatusCode("200");
+            response.setMessage("Success");
+            responseList.add(response);
+            return new ResponseEntity<>(responseList, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            WarehouseApiResponse response = new WarehouseApiResponse();
+            response.setStatusCode("1400");
+            response.setMessage("Not Success: " + e.getLocalizedMessage());
+            responseList.add(response);
+            return new ResponseEntity<>(responseList, HttpStatus.EXPECTATION_FAILED);
+        } finally {
+            DataBaseContextHolder.clear();
+        }
+    }
+
+    @ApiOperation(response = WarehouseApiResponse.class, value = "create inbound")
+    @PostMapping("bf/order/process/v9")
+    public ResponseEntity<WarehouseApiResponse[]> processOutboundOrderV9(@RequestBody List<PreOutboundLineV2> preOutboundLineV2List) {
+
+        try {
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb("MT");
+            String routingDb = dbConfigRepository.getDbName(preOutboundLineV2List.get(0).getCompanyCodeId(), preOutboundLineV2List.get(0).getPlantId(), preOutboundLineV2List.get(0).getWarehouseId());
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(routingDb);
+            log.info("Current Routing Db " + routingDb);
+            salesOrderServiceV9.createOrderManagementLineV9(preOutboundLineV2List);
+            WarehouseApiResponse response = new WarehouseApiResponse();
+            response.setStatusCode("200");
+            response.setMessage("Success");
+            WarehouseApiResponse[] responseArray = {response};
+            return new ResponseEntity<>(responseArray, HttpStatus.OK);
+        } catch (Exception e) {
+            WarehouseApiResponse error = new WarehouseApiResponse();
+            error.setStatusCode("400");
+            error.setMessage("Error processing inbound: " + e.getMessage());
+            WarehouseApiResponse[] responseArray = {error};
+            return new ResponseEntity<>(responseArray, HttpStatus.BAD_REQUEST);
+        }
+    }
 }

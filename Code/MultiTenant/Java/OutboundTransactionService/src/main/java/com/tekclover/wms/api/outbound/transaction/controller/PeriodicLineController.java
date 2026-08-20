@@ -232,23 +232,34 @@ public class PeriodicLineController {
 	@PatchMapping("/v2/confirm/{cycleCountNo}")
 	public ResponseEntity<?> patchPeriodicLineConfirmV2(@PathVariable String cycleCountNo,
 														 @RequestBody List<PeriodicLineV2> updatePerpetualLine, @RequestParam String loginUserID)
-			throws IllegalAccessException, InvocationTargetException {
-		try {
-			for (PeriodicLineV2 updatePerpetualline :updatePerpetualLine) {
-				DataBaseContextHolder.setCurrentDb("MT");
-				String routingDb = dbConfigRepository.getDbName(updatePerpetualline.getCompanyCode(), updatePerpetualline.getPlantId(), updatePerpetualline.getWarehouseId());
-				log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-				DataBaseContextHolder.clear();
-				DataBaseContextHolder.setCurrentDb(routingDb);
+            throws Exception {
+
+		DataBaseContextHolder.setCurrentDb("MT");
+		String routingDb = dbConfigRepository.getDbName(updatePerpetualLine.get(0).getCompanyCode(), updatePerpetualLine.get(0).getPlantId(), updatePerpetualLine.get(0).getWarehouseId());
+		log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+		DataBaseContextHolder.clear();
+		DataBaseContextHolder.setCurrentDb(routingDb);
+
+			WarehouseApiResponse createdPerpetualLine = new WarehouseApiResponse();
+
+			if (routingDb != null) {
+				switch (routingDb) {
+					case "BF":
+						createdPerpetualLine =
+								periodicLineService.updatePeriodicLineConfirmV9(cycleCountNo, updatePerpetualLine, loginUserID);
+						break;
+					case "KKF":
+						createdPerpetualLine =
+								periodicLineService.updatePeriodicLineConfirmV9(cycleCountNo, updatePerpetualLine, loginUserID);
+						break;
+					default:
+						createdPerpetualLine =
+								periodicLineService.updatePeriodicLineConfirmV2(cycleCountNo, updatePerpetualLine, loginUserID);
+				}
 			}
-		WarehouseApiResponse createdPerpetualLine =
-				periodicLineService.updatePeriodicLineConfirmV2(cycleCountNo, updatePerpetualLine, loginUserID);
+
 		return new ResponseEntity<>(createdPerpetualLine, HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
 
 
 	//=================================================Zero Stock to Create Inventory===========================================================

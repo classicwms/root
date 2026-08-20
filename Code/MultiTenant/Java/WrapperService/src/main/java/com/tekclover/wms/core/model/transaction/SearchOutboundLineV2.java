@@ -26,4 +26,6 @@ public class SearchOutboundLineV2 extends SearchOutboundLine {
 	private List<String> size;
 	private List<String> noPairs;
 	private List<String> barcodeId;
+
+	private List<String> erpStatus;
 }

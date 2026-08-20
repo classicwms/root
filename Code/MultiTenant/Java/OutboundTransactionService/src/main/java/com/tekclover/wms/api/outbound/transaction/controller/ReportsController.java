@@ -4,6 +4,7 @@ import com.tekclover.wms.api.outbound.transaction.config.dynamicConfig.DataBaseC
 import com.tekclover.wms.api.outbound.transaction.model.deliveryline.DeliveryLine;
 import com.tekclover.wms.api.outbound.transaction.model.inventory.Inventory;
 import com.tekclover.wms.api.outbound.transaction.model.outbound.OutboundReversalInput;
+import com.tekclover.wms.api.outbound.transaction.model.outbound.OutboundReversalInputNew;
 import com.tekclover.wms.api.outbound.transaction.model.report.*;
 import com.tekclover.wms.api.outbound.transaction.model.warehouse.Warehouse;
 import com.tekclover.wms.api.outbound.transaction.model.warehouse.inbound.WarehouseApiResponse;
@@ -91,6 +92,18 @@ public class ReportsController {
                 switch(routingDb){
                     case "REEFERON":
                         stockReportList = reportsService.stockReportUsingStoredProcedureV5(searchStockReport);
+                        break;
+                    case "SPAREX":
+                        stockReportList = reportsService.stockReportV10(searchStockReport);
+                        break;
+                    case "BF":
+                        stockReportList = reportsService.stockReportUsingStoredProcedureV9(searchStockReport);
+                        break;
+                    case "KKF":
+                        stockReportList = reportsService.stockReportUsingStoredProcedureV9(searchStockReport);
+                        break;
+                    case "KSP":
+                        stockReportList = reportsService.stockReportUsingStoredProcedureV9(searchStockReport);
                         break;
                     default:
                         stockReportList = reportsService.stockReportUsingStoredProcedure(searchStockReport);
@@ -234,6 +247,16 @@ public class ReportsController {
                         shipmentDeliveryList = reportsService.getShipmentDeliveryReportV4(companyCodeId, plantId, languageId, warehouseId,
                                 fromDeliveryDate, toDeliveryDate, storeCode, soType, orderNumber, preOutboundNo);
                         break;
+                    case "BF":
+                        shipmentDeliveryList = reportsService.getShipmentDeliveryReportV9(companyCodeId, plantId, languageId, warehouseId,
+                                fromDeliveryDate, toDeliveryDate, storeCode, soType, orderNumber, preOutboundNo);
+                        break;
+                    case "KKF":
+                        shipmentDeliveryList = reportsService.getShipmentDeliveryReportV9(companyCodeId, plantId, languageId, warehouseId,
+                                fromDeliveryDate, toDeliveryDate, storeCode, soType, orderNumber, preOutboundNo);
+                    case "KSP":
+                        shipmentDeliveryList = reportsService.getShipmentDeliveryReportV9(companyCodeId, plantId, languageId, warehouseId,
+                                fromDeliveryDate, toDeliveryDate, storeCode, soType, orderNumber, preOutboundNo);
                     default:
                         shipmentDeliveryList = reportsService.getShipmentDeliveryReportV2(companyCodeId, plantId, languageId, warehouseId,
                                 fromDeliveryDate, toDeliveryDate, storeCode, soType, orderNumber, preOutboundNo);
@@ -328,6 +351,34 @@ public class ReportsController {
         return new ResponseEntity<>(stockMovementReportList, HttpStatus.OK);
     }
 
+//    // Search DeliveryLine
+//    @ApiOperation(response = MobileDashboard.class, value = "Find MobileDashBoard") // label for swagger
+//    @PostMapping("/dashboard/mobile/find")
+//    public ResponseEntity<?> findMobileDashBoard(@Valid @RequestBody FindMobileDashBoard findMobileDashBoard) throws Exception {
+//
+//        try {
+//            DataBaseContextHolder.setCurrentDb("MT");
+//            String routingDb = null;
+//            if (findMobileDashBoard.getCompanyCode() == null || findMobileDashBoard.getPlantId() == null) {
+//                Warehouse warehouseName = warehouseRepository.findTop1ByWarehouseIdAndDeletionIndicator(findMobileDashBoard.getWarehouseId().get(0), 0L);
+//                routingDb = dbConfigRepository.getDbName(warehouseName.getCompanyCodeId(), warehouseName.getPlantId(), warehouseName.getWarehouseId());
+//                log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+//                DataBaseContextHolder.clear();
+//                DataBaseContextHolder.setCurrentDb(routingDb);
+//            } else {
+//                routingDb = dbConfigRepository.getDbList(findMobileDashBoard.getCompanyCode(), findMobileDashBoard.getPlantId(), findMobileDashBoard.getWarehouseId());
+//                log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+//                DataBaseContextHolder.clear();
+//                DataBaseContextHolder.setCurrentDb(routingDb);
+//            }
+//
+//            MobileDashboard dashboard = reportsService.findMobileDashBoard(findMobileDashBoard);
+//            return new ResponseEntity<>(dashboard, HttpStatus.OK);
+//        } finally {
+//            DataBaseContextHolder.clear();
+//        }
+//    }
+
     // Search DeliveryLine
     @ApiOperation(response = MobileDashboard.class, value = "Find MobileDashBoard") // label for swagger
     @PostMapping("/dashboard/mobile/find")
@@ -348,8 +399,15 @@ public class ReportsController {
                 DataBaseContextHolder.clear();
                 DataBaseContextHolder.setCurrentDb(routingDb);
             }
-
-            MobileDashboard dashboard = reportsService.findMobileDashBoard(findMobileDashBoard);
+            MobileDashboard dashboard;
+            if (routingDb.equalsIgnoreCase("BP")){
+                dashboard = reportsService.findMobileDashBoardCountV6(findMobileDashBoard);
+            }else if (routingDb.equalsIgnoreCase("SPAREX")){
+                dashboard = reportsService.findMobileDashBoardCountV10(findMobileDashBoard);
+            }
+            else {
+                dashboard = reportsService.findMobileDashBoard(findMobileDashBoard);
+            }
             return new ResponseEntity<>(dashboard, HttpStatus.OK);
         } finally {
             DataBaseContextHolder.clear();
@@ -358,20 +416,72 @@ public class ReportsController {
 
 //--------------------------------------------Outbound Reversal--------------------------------------------
 
-
     @ApiOperation(response = MobileDashboard.class, value = "Outbound Reversal") // label for swagger
     @PostMapping("/outboundreversal")
     public ResponseEntity<?> outboundReversal(@RequestBody OutboundReversalInput outboundReversalInput) {
         WarehouseApiResponse response = new WarehouseApiResponse();
         try {
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(outboundReversalInput.getCompanyCodeId(),outboundReversalInput.getPlantId(),outboundReversalInput.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
             DataBaseContextHolder.setCurrentDb(routingDb);
-            reportsService.outboundReversal(outboundReversalInput);
-            DataBaseContextHolder.clear();
+
+            if (routingDb.equals("BF")) {
+                reportsService.outboundReversalV9(outboundReversalInput);
+            } else if (routingDb.equals("KKF")) {
+                reportsService.outboundReversalV9(outboundReversalInput);
+            }
+            else {
+                reportsService.outboundReversal(outboundReversalInput);
+            }
+            response.setStatusCode("200");
+            response.setMessage("Outbound Reversed Successfully");
+            return new ResponseEntity<>(response,HttpStatus.OK);
+
+        } catch (Exception e) {
+            response.setStatusCode("400");
+            response.setMessage("Outbound Not Reversed " + e.getMessage());
+            return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @ApiOperation(response = TransactionHistoryReport.class, value = "Find Transaction History Report")
+    // label for swagger
+    @PostMapping("/transactionHistoryReport/v2")
+    public ResponseEntity<?> getTransactionHistoryReportV2(@RequestBody FindImBasicData1 searchImBasicData1) throws java.text.ParseException {
+        try {
             DataBaseContextHolder.setCurrentDb("MT");
-            reportsService.obOrderReversal(outboundReversalInput.getRefDocNumber());
+            String routingDb = dbConfigRepository.getDbName(searchImBasicData1.getCompanyCodeId(), searchImBasicData1.getPlantId(), searchImBasicData1.getWarehouseId());
+            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(routingDb);
+            List<HistoryReport> transactionHistoryReportList;
+            if(routingDb.equalsIgnoreCase("BP")){
+                transactionHistoryReportList = reportsService.getTransactionHistoryReportV6(searchImBasicData1);
+            }else if(routingDb.equalsIgnoreCase("SPAREX")){
+                transactionHistoryReportList = reportsService.getTransactionHistoryReportV10(searchImBasicData1);
+            } else {
+                transactionHistoryReportList = reportsService.getTransactionHistoryReportV2(searchImBasicData1);
+            }            return new ResponseEntity<>(transactionHistoryReportList, HttpStatus.OK);
+        } finally {
+            DataBaseContextHolder.clear();
+        }
+    }
+
+    // BF && KKF
+    @ApiOperation(response = MobileDashboard.class, value = "Outbound Reversal By Pallet") // label for swagger
+    @PostMapping("/outboundreversal/pallet")
+    public ResponseEntity<?> outboundReversalByPalletV9(@RequestBody OutboundReversalInputNew outboundReversalInput) {
+        WarehouseApiResponse response = new WarehouseApiResponse();
+        try {
+            DataBaseContextHolder.setCurrentDb("MT");
+            String routingDb = dbConfigRepository.getDbName(outboundReversalInput.getCompanyCodeId(),outboundReversalInput.getPlantId(),outboundReversalInput.getWarehouseId());
+            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(routingDb);
+
+            reportsService.outboundReversalV9New(outboundReversalInput);
 
             response.setStatusCode("200");
             response.setMessage("Outbound Reversed Successfully");
@@ -384,4 +494,106 @@ public class ReportsController {
         }
     }
 
+    //=========BF Outbound Cancellation=================
+    @ApiOperation(response = MobileDashboard.class, value = "Outbound Cancellation") // label for swagger
+    @PostMapping("/outboundcancellation")
+    public ResponseEntity<?> outboundReversalV9(@RequestBody OutboundReversalInput outboundReversalInput) {
+        WarehouseApiResponse response = new WarehouseApiResponse();
+        try {
+            DataBaseContextHolder.setCurrentDb("MT");
+            String routingDb = dbConfigRepository.getDbName(outboundReversalInput.getCompanyCodeId(),outboundReversalInput.getPlantId(),outboundReversalInput.getWarehouseId());
+            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(routingDb);
+            reportsService.outboundCancellation(outboundReversalInput);
+            response.setStatusCode("200");
+            response.setMessage("Outbound Reversed Successfully");
+            return new ResponseEntity<>(response,HttpStatus.OK);
+
+        } catch (Exception e) {
+            response.setStatusCode("400");
+            response.setMessage("Outbound Not Reversed " + e.getMessage());
+            return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @ApiOperation(response = ContainerReceiptOutboundLine.class, value = "Get ContainerReceiptOutboundLine Report")
+    @PostMapping("/containerReceiptOutboundLine/v9")
+    public ResponseEntity<?> getContainerReceiptOutboundLine(@RequestBody FindContainerReceiptInboundLine findContainerReceiptInboundLine)
+            throws Exception {
+        List<ContainerReceiptOutboundLine> containerReceiptOutboundLine = reportsService.getContainerReceiptOutboundLine(findContainerReceiptInboundLine);
+        return new ResponseEntity<>(containerReceiptOutboundLine, HttpStatus.OK);
+    }
+
+    @ApiOperation(response = TransactionHistoryReport.class, value = "Closing Stock Report")// label for swagger
+    @PostMapping("/closingstock/v2")
+    public ResponseEntity<?> closingStockReportV9(@RequestBody FindImBasicData1 searchImBasicData1) throws java.text.ParseException {
+        try {
+            DataBaseContextHolder.setCurrentDb("MT");
+            String routingDb = dbConfigRepository.getDbName(searchImBasicData1.getCompanyCodeId(), searchImBasicData1.getPlantId(), searchImBasicData1.getWarehouseId());
+            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(routingDb);
+            List<HistoryReport> transactionHistoryReportList = reportsService.closingStockReportV9(searchImBasicData1);
+            return new ResponseEntity<>(transactionHistoryReportList, HttpStatus.OK);
+        } finally {
+            DataBaseContextHolder.clear();
+        }
+    }
+
+    @ApiOperation(response = ContainerReceiptOutboundLine.class, value = "Get ContainerReceiptOutboundLine Report")
+    @PostMapping("/containerReceiptOutboundLine/report/v9")
+    public ResponseEntity<?> getContainerReceiptOutboundLineReport(@RequestBody FindContainerReceiptInboundLine findContainerReceiptInboundLine)
+            throws Exception {
+        List<ContainerReceiptOutboundLine> containerReceiptOutboundLine = reportsService.getContainerReceiptOutboundLineReport(findContainerReceiptInboundLine);
+        return new ResponseEntity<>(containerReceiptOutboundLine, HttpStatus.OK);
+    }
+
+    @ApiOperation(response = OutwardReportResponse.class, value = "Outward Report")// label for swagger
+    @PostMapping("/outward/report")
+    public ResponseEntity<?> outWardReportV9(@RequestBody OutwardReportInput outwardReportInput) throws java.text.ParseException {
+        try {
+            DataBaseContextHolder.setCurrentDb("MT");
+            String routingDb = dbConfigRepository.getDbList(outwardReportInput.getCompanyCodeId(),outwardReportInput.getPlantId(),outwardReportInput.getWarehouseId());
+            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(routingDb);
+            List<OutwardReportResponse> responses = reportsService.outwardReportV9(outwardReportInput);
+            return new ResponseEntity<>(responses, HttpStatus.OK);
+        } finally {
+            DataBaseContextHolder.clear();
+        }
+    }
+
+    @ApiOperation(response = OutwardReportResponse.class, value = "Stock Movement Ledger Report")// label for swagger
+    @PostMapping("/stockmovement/ledger")
+    public ResponseEntity<?> stockMovementLedgerReportV9(@RequestBody LedgerReportInput input) throws java.text.ParseException {
+        try {
+            DataBaseContextHolder.setCurrentDb("MT");
+            String routingDb = dbConfigRepository.getDbName(input.getCompanyId(),input.getPlantId(),input.getWarehouseId());
+            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(routingDb);
+            List<StockMovementLedgerReport> responses = reportsService.stockMovementLedgerReportV9(input);
+            return new ResponseEntity<>(responses, HttpStatus.OK);
+        } finally {
+            DataBaseContextHolder.clear();
+        }
+    }
+
+    @ApiOperation(response = TransactionHistoryReport.class, value = "Find Transaction History Report V9")// label for swagger
+    @PostMapping("/transactionHistoryReport/v9")
+    public ResponseEntity<?> getTransactionHistoryReportV9(@RequestBody FindImBasicData1 searchImBasicData1) throws java.text.ParseException {
+        try {
+            DataBaseContextHolder.setCurrentDb("MT");
+            String routingDb = dbConfigRepository.getDbName(searchImBasicData1.getCompanyCodeId(), searchImBasicData1.getPlantId(), searchImBasicData1.getWarehouseId());
+            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(routingDb);
+            List<HistoryReport> transactionHistoryReportList = reportsService.getTransactionHistoryReportV9(searchImBasicData1);
+            return new ResponseEntity<>(transactionHistoryReportList, HttpStatus.OK);
+        } finally {
+            DataBaseContextHolder.clear();
+        }
+    }
 }

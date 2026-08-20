@@ -157,4 +157,8 @@ public class OrderManagementLineV2 extends OrderManagementLine {
     @Column(name = "EXP_DATE")
     private Date expiryDate;
 
+    // BF
+    @Column(name = "PALLET_ID", columnDefinition = "nvarchar(100)")
+    private String palletId;
+
 }

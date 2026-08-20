@@ -12,9 +12,11 @@ public interface IKeyValuePair {
     Double getInventoryQty();
 
     String getItemCode();
+    Long getItemType();
+    String getItemTypeDescription();
 
     String getManufacturerName();
-
+    String getManufacturerCode();
     String getReferenceCycleCountNo();
 
     String getRefDocNumber();
@@ -28,4 +30,15 @@ public interface IKeyValuePair {
     Long getLineNumber();
     Double getAlterUomQty();
     Double getUomQty();
+    String getReelNo();
+    String getPreOutboundNo();
+    Double getOrderQty();
+    Double getDeliveryQty();
+
+    String getStorageSectionId();
+    String getUnitType();
+
+    String getItemDescription();
+
+    String getUom();
 }

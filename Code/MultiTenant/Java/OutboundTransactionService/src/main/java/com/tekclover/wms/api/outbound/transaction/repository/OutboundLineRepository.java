@@ -410,4 +410,30 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine, Long
     @Query(value = "Select top 1 PA_CNF_ON from tblputawayline where ref_doc_no = :refDocNo and itm_code = :itemCode order by PA_CNF_ON DESC",
             nativeQuery = true)
     public Date findDateFromPutawayLine(@Param("refDocNo") String refDocNo, @Param("itemCode") String itemCode);
+
+    // BF
+    @Modifying
+    @Transactional
+    @Query(value = "DELETE FROM tbloutboundline " +
+            "WHERE C_ID = :companyCodeId AND PLANT_ID = :plantId " +
+            "AND WH_ID = :warehouseId AND REF_DOC_NO = :refDocNumber " +
+            "AND ITM_CODE = :itemCode AND REF_FIELD_1 = :palletId and is_deleted = 0", nativeQuery = true)
+    int deleteOutboundLineByPallet(@Param("companyCodeId") String companyCodeId,
+                                   @Param("plantId") String plantId,
+                                   @Param("warehouseId") String warehouseId,
+                                   @Param("refDocNumber") String refDocNumber,
+                                   @Param("itemCode") String itemCode,
+                                   @Param("palletId") String palletId);
+    // BF
+    @Modifying
+    @Transactional
+    @Query(value = "delete tbloutboundline where C_ID = :companyCodeId and PLANT_ID = :plantId \n" +
+            "AND WH_ID = :warehouseId and REF_DOC_NO = :refDocNumber and ITM_CODE = :itemCode and is_deleted = 0", nativeQuery = true)
+    int deleteOutboundLineV9(@Param("companyCodeId") String companyCodeId,
+                           @Param("plantId") String plantId,
+                           @Param("warehouseId") String warehouseId,
+                           @Param("refDocNumber") String refDocNumber,
+                           @Param("itemCode") String itemCode);
+
+
 }

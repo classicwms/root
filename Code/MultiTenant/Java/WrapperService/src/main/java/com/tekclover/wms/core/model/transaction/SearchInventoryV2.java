@@ -26,4 +26,5 @@ public class SearchInventoryV2 extends SearchInventory {
 	private List<String> alternateUom;
 	private List<String> customerId;
 
+	private List<String> palletCode;
 }

@@ -57,7 +57,9 @@ import javax.validation.Valid;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -3654,6 +3656,132 @@ public class SalesOrderService extends BaseService{
         perpetualHeaderEntity.setPerpetualLine(perpetualLines);
 
         return perpetualHeaderEntity;
+    }
+
+    //===============SPAREX====================================================
+    /**
+     * @param salesOrder
+     * @return
+     */
+    public SalesOrderV2 postSalesOrderV10(SalesOrderV2 salesOrder) throws ParseException {
+        log.info("SalesOrderHeader V10 received from External: " + salesOrder);
+        OutboundOrderV2 savedSoHeader = saveSalesOrderV10(salesOrder);                                // Without Nongo
+        log.info("salesOrderHeader: " + savedSoHeader);
+        return salesOrder;
+    }
+    //===============SPAREX=======================================================
+    private OutboundOrderV2 saveSalesOrderV10(@Valid SalesOrderV2 salesOrder) throws ParseException {
+        try {
+            SalesOrderHeaderV2 salesOrderHeader = salesOrder.getSalesOrderHeader();
+
+            OutboundOrderV2 apiHeader = new OutboundOrderV2();
+
+            BeanUtils.copyProperties(salesOrderHeader, apiHeader, CommonUtils.getNullPropertyNames(salesOrderHeader));
+            if (salesOrderHeader.getWarehouseId() != null && !salesOrderHeader.getWarehouseId().isBlank()) {
+                apiHeader.setWarehouseID(salesOrderHeader.getWarehouseId());
+            } else {
+                Optional<Warehouse> warehouse =
+                        warehouseRepository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndDeletionIndicator(
+                                salesOrderHeader.getCompanyCode(), salesOrderHeader.getBranchCode(),
+                                salesOrderHeader.getLanguageId() != null ? salesOrderHeader.getLanguageId() : LANG_ID,
+                                0L);
+                apiHeader.setWarehouseID(warehouse.get().getWarehouseId());
+            }
+            apiHeader.setBranchCode(salesOrderHeader.getBranchCode());
+            apiHeader.setCompanyCode(salesOrderHeader.getCompanyCode());
+            apiHeader.setLanguageId(salesOrderHeader.getLanguageId() != null ? salesOrderHeader.getLanguageId() : LANG_ID);
+
+            apiHeader.setOrderId(salesOrderHeader.getSalesOrderNumber());
+            apiHeader.setPartnerCode(salesOrderHeader.getBranchCode());
+            apiHeader.setPickListStatus(salesOrderHeader.getStatus());
+            apiHeader.setRefDocumentNo(salesOrderHeader.getSalesOrderNumber());
+            apiHeader.setOutboundOrderTypeID(3L);                                   // Hardcoded Value "3"
+            apiHeader.setRefDocumentType("PICK LIST");                              // Hardcoded value "SaleOrder"
+            apiHeader.setCustomerType("INVOICE");                                //HardCoded
+            apiHeader.setOrderReceivedOn(new Date());
+            apiHeader.setSalesOrderNumber(salesOrderHeader.getSalesOrderNumber());
+            apiHeader.setTokenNumber(salesOrderHeader.getTokenNumber());
+
+            apiHeader.setMiddlewareId(salesOrderHeader.getMiddlewareId());
+            apiHeader.setMiddlewareTable(salesOrderHeader.getMiddlewareTable());
+
+            try {
+                if(salesOrderHeader.getRequiredDeliveryDate().equalsIgnoreCase("dd-MM-yyyy, hh:mm a")) {
+                    Date reqDate = DateUtils.convertStringToDateV10(salesOrderHeader.getRequiredDeliveryDate());
+                    apiHeader.setRequiredDeliveryDate(reqDate);
+                } else if(salesOrderHeader.getRequiredDeliveryDate().equalsIgnoreCase("dd-MM-yyyy HH:mm:ss")){
+                    Date reqDate1 = DateUtils.convertStringToDate2(salesOrderHeader.getRequiredDeliveryDate());
+                    apiHeader.setRequiredDeliveryDate(reqDate1);
+                }
+            } catch (Exception e) {
+                throw new BadRequestException("Date format should be dd-MM-yyyy");
+            }
+
+            IKeyValuePair iKeyValuePair = outboundOrderV2Repository.getV2Description(
+                    salesOrderHeader.getCompanyCode(), salesOrderHeader.getBranchCode(), apiHeader.getWarehouseID());
+            if (iKeyValuePair != null) {
+                apiHeader.setCompanyName(iKeyValuePair.getCompanyDesc());
+                apiHeader.setBranchName(iKeyValuePair.getPlantDesc());
+                apiHeader.setWarehouseName(iKeyValuePair.getWarehouseDesc());
+            }
+
+            List<SalesOrderLineV2> salesOrderLines = salesOrder.getSalesOrderLine();
+            Set<OutboundOrderLineV2> orderLines = new HashSet<>();
+            String barcodeId = null;
+            for (SalesOrderLineV2 soLine : salesOrderLines) {
+                OutboundOrderLineV2 apiLine = new OutboundOrderLineV2();
+                BeanUtils.copyProperties(soLine, apiLine, CommonUtils.getNullPropertyNames(soLine));
+
+                apiLine.setSourceBranchCode(apiHeader.getBranchCode());
+                apiLine.setFromCompanyCode(apiHeader.getCompanyCode());
+                apiLine.setManufacturerName(MFR_NAME_V10);        // BRAND_NM
+                apiLine.setManufacturerCode(MFR_NAME_V10);
+                apiLine.setManufacturerFullName(MFR_NAME_V10);
+                apiLine.setStoreID(salesOrderHeader.getStoreID());
+                apiLine.setRefField1ForOrderType(soLine.getOrderType());
+                apiLine.setCustomerType("INVOICE");                                //HardCoded
+                apiLine.setOutboundOrderTypeID(3L);
+
+                apiLine.setLineReference(soLine.getLineReference());            // IB_LINE_NO
+                if(soLine.getSku()== null) {
+                    throw new BadRequestException("Item Code is Mandatory");
+                }
+                else{
+                    apiLine.setItemCode(soLine.getSku());                       // ITM_CODE
+                }
+                apiLine.setItemText(soLine.getSkuDescription());                // ITEM_TEXT
+                apiLine.setOrderedQty(soLine.getOrderedQty());                    // ORD_QTY
+                apiLine.setRefField1ForOrderType(soLine.getOrderType());        // ORDER_TYPE
+                apiLine.setOrderId(apiHeader.getOrderId());
+                apiLine.setSupplierName(soLine.getSupplierName());
+
+                apiLine.setMiddlewareId(soLine.getMiddlewareId());
+                apiLine.setMiddlewareHeaderId(soLine.getMiddlewareHeaderId());
+                apiLine.setMiddlewareTable(soLine.getMiddlewareTable());
+
+                orderLines.add(apiLine);
+            }
+            apiHeader.setLine(orderLines);
+            apiHeader.setOrderProcessedOn(new Date());
+
+            if (salesOrder.getSalesOrderLine() != null && !salesOrder.getSalesOrderLine().isEmpty()) {
+                apiHeader.setProcessedStatusId(0L);
+                log.info("apiHeader : " + apiHeader);
+                OutboundOrderV2 createdOrder = orderService.createOutboundOrdersV2(apiHeader);
+                log.info("SalesOrder Order Success: " + createdOrder);
+                return apiHeader;
+            } else if (salesOrder.getSalesOrderLine() == null || salesOrder.getSalesOrderLine().isEmpty()) {
+                // throw the error as Lines are Empty and set the Indicator as '100'
+                apiHeader.setProcessedStatusId(100L);
+                log.info("apiHeader : " + apiHeader);
+                OutboundOrderV2 createdOrder = orderService.createOutboundOrdersV2(apiHeader);
+                log.info("SalesOrder Order Failed: " + createdOrder);
+                throw new BadRequestException("SalesOrder Order doesn't contain any Lines.");
+            }
+        } catch (Exception e) {
+            throw e;
+        }
+        return null;
     }
 
 }

@@ -11,7 +11,7 @@ import javax.persistence.Column;
 public class OutboundLine {
 
 	private String languageId;
-	private Long companyCodeId;
+	private String companyCodeId;
 	private String plantId;
 	private String warehouseId;
 	private String preOutboundNo;

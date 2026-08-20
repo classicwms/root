@@ -1,5 +1,6 @@
 package com.tekclover.wms.api.inbound.orders.repository;
 
+import com.tekclover.wms.api.inbound.orders.model.IKeyValuePair;
 import com.tekclover.wms.api.inbound.orders.model.dto.ImBasicData1V2;
 import com.tekclover.wms.api.inbound.orders.repository.fragments.StreamableJpaSpecificationRepository;
 import com.tekclover.wms.api.inbound.orders.model.dto.IImbasicData1;
@@ -68,4 +69,36 @@ public interface ImBasicData1V2Repository extends PagingAndSortingRepository<ImB
 											   @Param(value = "languageId") String languageId,
 											   @Param(value = "warehouseId") String warehouseId,
 											   @Param(value = "manufactureName") String manufactureName);
+
+	@Query(value = "select text as description, REF_FIELD_2 as customerId, REF_FIELD_3 as customerName from tblimbasicdata1 where c_id = :companyCodeId and plant_id = :plantId and LANG_ID = :languageId " +
+			" and wh_id = :warehouseId and itm_code = :itemCode AND MFR_PART = :manufactureName and is_deleted = 0 ",nativeQuery = true)
+	public IImbasicData1 getItemCodeV9(@Param(value = "companyCodeId") String companyCodeId,
+									   @Param(value = "languageId") String languageId,
+									   @Param(value = "plantId") String plantId,
+									   @Param(value = "warehouseId") String warehouseId,
+									   @Param(value = "itemCode") String itemCode,
+									   @Param("manufactureName") String manufactureName);
+
+	@Query(value = "select REF_FIELD_2 from tblimbasicdata1 where c_id = :companyCodeId and plant_id = :plantId and LANG_ID = :languageId " +
+			" and wh_id = :warehouseId and itm_code = :itemCode AND MFR_PART = :manufactureName and is_deleted = 0 ",nativeQuery = true)
+	public String getCustomerIdV9(@Param(value = "companyCodeId") String companyCodeId,
+								  @Param(value = "languageId") String languageId,
+								  @Param(value = "plantId") String plantId,
+								  @Param(value = "warehouseId") String warehouseId,
+								  @Param(value = "itemCode") String itemCode,
+								  @Param("manufactureName") String manufactureName);
+
+	@Query(value = "select text as description, REF_FIELD_2 as customerId, REF_FIELD_3 as customerName, " +
+			" manufacturer_code as manufacturerCode, manufacturer_name as manufacturerName , " +
+			"manufacturer_full_name as manufacturerFullName " +
+			" from tblimbasicdata1 where c_id = :companyCodeId " +
+			" and plant_id = :plantId and LANG_ID = :languageId " +
+			" and wh_id = :warehouseId and itm_code = :itemCode and" +
+			" REF_FIELD_2 = :inventoryOwner and is_deleted = 0 ",nativeQuery = true)
+	public IKeyValuePair getItemCodeUsingInventoryOwnerV9(@Param(value = "companyCodeId") String companyCodeId,
+														  @Param(value = "languageId") String languageId,
+														  @Param(value = "plantId") String plantId,
+														  @Param(value = "warehouseId") String warehouseId,
+														  @Param(value = "itemCode") String itemCode,
+														  @Param(value = "inventoryOwner") String inventoryOwner);
 }

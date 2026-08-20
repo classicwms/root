@@ -69,4 +69,7 @@ public class StagingLineEntityV2 extends StagingLineEntity {
     private String vehicleNo;
     private Date vehicleReportingDate;
     private Date vehicleUnloadingDate;
+    private Date expiryDate;
+    private Date manufacturerDate;
+
 }

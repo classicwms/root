@@ -30,5 +30,7 @@ public interface IKeyValuePair {
     Long getPickerCount();
     Long getLineNumber();
     String getUserRole();
+    Double getAlterUomQty();
+    Double getUomQty();
 
 }

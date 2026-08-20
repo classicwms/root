@@ -68,4 +68,6 @@ public class InterWarehouseTransferInLineV2 {
     private Long middlewareId;
     private Long middlewareHeaderId;
     private String middlewareTable;
+    private String barcodeId;
+
 }

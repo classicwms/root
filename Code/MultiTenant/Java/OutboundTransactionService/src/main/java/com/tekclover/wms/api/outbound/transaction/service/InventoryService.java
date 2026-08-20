@@ -3110,4 +3110,123 @@ public class InventoryService extends BaseService {
         return result;
     }
 
+    // BF
+    @Retryable(value = {SQLException.class, SQLServerException.class, CannotAcquireLockException.class, LockAcquisitionException.class, UnexpectedRollbackException.class}, maxAttempts = 2, backoff = @Backoff(delay = 2000))
+    public InventoryV2 getInventoryWithoutBarcodeV9(String companyCode, String plantId, String languageId,
+                                                    String warehouseId, String itemCode, Long binClassId) {
+        try {
+            log.info("getInventory----------> : " + warehouseId + "," + itemCode + "," + binClassId);
+            List<InventoryV2> inventory =
+                    inventoryV2Repository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndBinClassIdAndDeletionIndicatorOrderByInventoryIdDesc(
+                            languageId,
+                            companyCode,
+                            plantId,
+                            warehouseId,
+                            itemCode,
+                            binClassId,
+                            0L
+                    );
+            if (inventory.isEmpty()) {
+                log.error("---------Inventory is null-----------");
+                return null;
+            }
+            log.info("getInventory record----------> : " + inventory.get(0));
+            return inventory.get(0);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BadRequestException("Exception while Inventory Get : " + e);
+        }
+    }
+
+    @Retryable(value = {SQLException.class, SQLServerException.class, CannotAcquireLockException.class, LockAcquisitionException.class, UnexpectedRollbackException.class}, maxAttempts = 2, backoff = @Backoff(delay = 2000))
+    public InventoryV2 getInventoryV9(String companyCode, String plantId, String languageId,
+                                      String warehouseId, String barcodeId, String itemCode, Long binClassId, String storageBin) {
+        try {
+            log.info("getInventory----------> : " + warehouseId + "," + barcodeId + "," + itemCode + "," + binClassId);
+            List<InventoryV2> inventory =
+                    inventoryV2Repository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndBarcodeIdAndItemCodeAndBinClassIdAndStorageBinAndDeletionIndicatorOrderByInventoryIdDesc(
+                            languageId,
+                            companyCode,
+                            plantId,
+                            warehouseId,
+                            barcodeId,
+                            itemCode,
+                            binClassId,
+                            storageBin,
+                            0L
+                    );
+            if (inventory.isEmpty()) {
+                log.error("---------Inventory is null-----------");
+                return null;
+            }
+            log.info("getInventory record----------> : " + inventory.get(0));
+            return inventory.get(0);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BadRequestException("Exception while Inventory Get : " + e);
+        }
+    }
+
+    /**
+     * @param companyCode
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param storageBin
+     * @return
+     */
+    @Retryable(value = {SQLException.class, SQLServerException.class, CannotAcquireLockException.class, LockAcquisitionException.class, UnexpectedRollbackException.class}, maxAttempts = 2, backoff = @Backoff(delay = 2000))
+    public InventoryV2 getInventoryByStorageBinV9(String companyCode, String plantId, String languageId, String warehouseId, String storageBin) {
+        try {
+            List<InventoryV2> inventory =
+                    inventoryV2Repository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndStorageBinAndDeletionIndicatorOrderByInventoryIdDesc(
+                            languageId,
+                            companyCode,
+                            plantId,
+                            warehouseId,
+                            storageBin,
+                            0L
+                    );
+            if (inventory.isEmpty()) {
+                log.error("---------Inventory is null-----------");
+                return null;
+            }
+            return inventory.get(0);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BadRequestException("Exception while Inventory Get : " + e);
+        }
+    }
+
+    /**
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param itemCode
+     * @param manufacturerName
+     * @param barcodeId
+     * @param storageBin
+     * @param alternateUom
+     * @return
+     */
+    public InventoryV2 getOutboundInventoryV9(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                              String itemCode, String manufacturerName, String barcodeId, String storageBin, String alternateUom) {
+        log.info(companyCodeId + "|" + plantId + "|" + languageId + "|" + warehouseId + "|" + itemCode + "|" + manufacturerName +
+                "|" + alternateUom + "|" + barcodeId + "|" + storageBin);
+        log.info("BF inventory query");
+        IInventoryImpl dbInventory = inventoryV2Repository.getOutboundInventoryV9(companyCodeId, plantId, languageId, warehouseId, barcodeId, null,
+                itemCode, manufacturerName, null, storageBin, alternateUom);
+        if (dbInventory == null) {
+            dbInventory = inventoryV2Repository.getOutboundInventoryV9(companyCodeId, plantId, languageId, warehouseId, barcodeId, null,
+                    itemCode, manufacturerName, null, storageBin, null);
+        }
+        if (dbInventory != null) {
+            InventoryV2 inventory = new InventoryV2();
+            BeanUtils.copyProperties(dbInventory, inventory, CommonUtils.getNullPropertyNames(dbInventory));
+            return inventory;
+        }
+        return null;
+    }
 }

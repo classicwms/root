@@ -73,4 +73,8 @@ public class OutboundLineV2 extends OutboundLine {
     private String itemGroup;
     private String brand;
     private String reasons;
+
+    /*-------------------------------Namratha-------------------------------*/
+    private Date manufacturerDate;
+    private Date expiryDate;
 }

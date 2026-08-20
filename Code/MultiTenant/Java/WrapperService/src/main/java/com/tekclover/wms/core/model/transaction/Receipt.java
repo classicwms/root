@@ -2,6 +2,8 @@ package com.tekclover.wms.core.model.transaction;
 
 import lombok.Data;
 
+import java.util.Date;
+
 @Data
 public class Receipt {
 
@@ -14,4 +16,13 @@ public class Receipt {
 	private Double missingORExcess;	// SUM(Accepted + Damaged) - Expected
 	private String status;
 	private Double noOfBags; //Numbers Of Bags
+
+	//BP
+	private String reelNo;  //Barcode
+	private String orderQty;
+
+	//BF
+	private String barcodeId;
+	private Date manufacturerDate;
+	private Date expiryDate;
 }

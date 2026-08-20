@@ -7,6 +7,7 @@ import lombok.ToString;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import java.util.Date;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -132,4 +133,6 @@ public class InventoryV2 extends Inventory {
     @Column(name = "QTY_IN_CREATE")
     private Double qtyInCreate;
 
+    @Column(name = "TPL_PARTNER_ID", columnDefinition = "nvarchar(50)")
+    private String threePLPartnerId;
 }

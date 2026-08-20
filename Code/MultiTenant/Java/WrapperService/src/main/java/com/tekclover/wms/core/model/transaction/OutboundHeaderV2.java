@@ -54,4 +54,6 @@ public class OutboundHeaderV2 extends OutboundHeader {
     private String vehicleNO;
     private String driverName;
 
+    private String orgin;
+
 }

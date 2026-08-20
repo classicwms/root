@@ -56,4 +56,8 @@ public class PreInboundHeaderV2 {
 
     private String sourceBranchCode;
     private String sourceCompanyCode;
+
+
+    /*--------------------------------------BP-----------------------------------*/
+    private Timestamp transferOrderDate;
 }

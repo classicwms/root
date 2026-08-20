@@ -151,8 +151,11 @@ public class PickupHeaderV2 extends PickupHeader {
 	@Column(name = "IS_PI_HEADER_CTD")
 	private Long isPickupHeaderCreated;
 
+    @Column(name = "MFR_DATE")
+    private Date manufacturerDate;
 
-
+    @Column(name = "EXP_DATE")
+    private Date expiryDate;
 
 
 }

@@ -3,6 +3,7 @@ package com.tekclover.wms.api.outbound.transaction.repository;
 import java.util.List;
 import java.util.Optional;
 
+import com.tekclover.wms.api.outbound.transaction.model.IKeyValuePair;
 import com.tekclover.wms.api.outbound.transaction.model.outbound.ordermangement.OrderManagementLine;
 import com.tekclover.wms.api.outbound.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -54,4 +55,8 @@ public interface OrderManagementLineRepository extends JpaRepository<OrderManage
     public long getByWarehouseIdAndAndRefDocNumberAndPreOutboundNoAndStatusIdInAndDeletionIndicator(
             @Param("warehouseId") String warehouseId, @Param("refDocNumber") String refDocNumber, @Param("preOutboundNo") String preOutboundNo,
             @Param("statusId") List<Long> statusId, @Param("deletionIndicator") long deletionIndicator);
+
+    //BF
+    @Query(value = "select top 1 ORIGIN origin,MFR_DATE mfrDate,EXP_DATE expiryDate, MATERIAL_NO materialNo from tblinventory where pal_code = :palCode and is_deleted = 0 order by inv_id desc ", nativeQuery = true)
+    IKeyValuePair getOrigin(@Param("palCode") String palCode);
 }

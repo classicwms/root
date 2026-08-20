@@ -1,5 +1,6 @@
 package com.tekclover.wms.api.inbound.transaction.repository;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -8,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -72,4 +74,49 @@ public interface PreInboundHeaderRepository extends JpaRepository<PreInboundHead
                                             @Param("refDocNumber") String refDocNumber,
                                             @Param("statusId") Long statusId,
                                             @Param("statusDescription") String statusDescription);
+
+    @Modifying(clearAutomatically = true)
+    @Query(value = "UPDATE tblpreinboundheader\r\n"
+            + "	SET STATUS_ID = :statusId, STATUS_TEXT = :statusDescription, \r\n"
+            + "	UTD_BY = :updatedBy, UTD_ON = :updatedOn\r\n"
+            + "	WHERE IS_DELETED = 0 AND \r\n"
+            + "			C_ID = :companyCodeId AND PLANT_ID = :plantId AND LANG_ID = :languageId AND WH_ID = :warehouseId AND \r\n"
+            + "			REF_DOC_NO = :refDocNumber AND PRE_IB_NO = :preInboundNo", nativeQuery = true)
+    void updatePreInboundHeaderStatusOnPartialConfirmationV10(
+            @Param("companyCodeId") String companyCode,
+            @Param("plantId") String plantId,
+            @Param("languageId") String languageId,
+            @Param("warehouseId") String warehouseId,
+            @Param("refDocNumber") String refDocNumber,
+            @Param("preInboundNo") String preInboundNo,
+            @Param("statusId") Long statusId,
+            @Param("statusDescription") String statusDescription,
+            @Param("updatedBy") String updatedBy,
+            @Param("updatedOn") Date updatedOn);
+
+    void deleteByCompanyCodeAndPlantIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
+            String companyCode, String plantId, String warehouseId, String refDocNumber, String preInboundNo, Long deletionIndicator);
+
+    @Transactional
+    @Procedure(procedureName = "pibheader_status_update_ib_cnf_proc")
+    public void updatePreIbheaderStatusUpdateInboundConfirmProc(
+            @Param("companyCodeId") String companyCode,
+            @Param("plantId") String plantId,
+            @Param("languageId") String languageId,
+            @Param("warehouseId") String warehouseId,
+            @Param("refDocNumber") String refDocNumber,
+            @Param("preInboundNo") String preInboundNo,
+            @Param("statusId") Long statusId,
+            @Param("statusDescription") String statusDescription,
+            @Param("updatedBy") String updatedBy,
+            @Param("updatedOn") Date updatedOn
+    );
+
+    PreInboundHeaderEntity findByRefDocNumberAndPreInboundNo(String refDocNumber,String preInboundNo);
+
+
+    @Modifying(clearAutomatically = true)
+    @Query(value = "update tblpreinboundheader set is_deleted = 1 where REF_DOC_NO = :refDocNumber AND PRE_IB_NO = :preInboundNo ",nativeQuery = true)
+    void softDeleteByRefDocNo(@Param("refDocNumber") String refDocNumber,
+                              @Param("preInboundNo") String preInboundNo);
 }

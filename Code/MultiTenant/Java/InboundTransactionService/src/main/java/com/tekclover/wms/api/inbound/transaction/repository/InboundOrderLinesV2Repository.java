@@ -1,5 +1,6 @@
 package com.tekclover.wms.api.inbound.transaction.repository;
 
+import com.tekclover.wms.api.inbound.transaction.model.IKeyValuePair;
 import com.tekclover.wms.api.inbound.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 import com.tekclover.wms.api.inbound.transaction.model.warehouse.inbound.v2.InboundOrderLinesV2;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -35,4 +36,33 @@ public interface InboundOrderLinesV2Repository extends JpaRepository<InboundOrde
     List<String> findAllByBarcodeIdIn(@Param("barcodeIds") List<String> barcodeIds);
 
     List<InboundOrderLinesV2> findByOrderIdAndInboundOrderHeaderId(String orderId,Long inboundOrderHeaderId);
+
+    @Query(value = "SELECT * FROM tbliborderlines "+
+            "where item_code = :itemCode and order_id = :refDocNumber and line_reference in (:lineNo) " , nativeQuery = true)
+    InboundOrderLinesV2 findByItemCodeAndOrderIdAndLineReference(@Param(value = "itemCode") String itemCode,
+                                                                 @Param(value = "refDocNumber") String refDocNumber,
+                                                                 @Param(value = "lineNo") List<Long> lineNo);
+
+    @Query(value = "SELECT * FROM tbliborderlines "+
+            "WHERE item_code = :itemCode and order_id = :refDocNumber and " +
+            "line_reference in (:lineNo) and inbound_order_type_id = :inboundOrderTypeId " , nativeQuery = true)
+    InboundOrderLinesV2 getItemCodeAndOrderIdAndLineReferenceAndInboundOrderTypeId( @Param(value = "itemCode") String itemCode,
+                                                                                    @Param(value = "refDocNumber") String refDocNumber,
+                                                                                    @Param(value = "lineNo") List<Long> lineNo,
+                                                                                    @Param(value = "inboundOrderTypeId") Long inboundOrderTypeId);
+
+    @Query(value = "select \n"
+            + "tc.c_text AS companyDesc,\n"
+            + "tp.plant_text AS plantDesc,\n"
+            + "tw.wh_text AS warehouseDesc \n"
+            + "from tblcompanyid tc \n"
+            + "join tblplantid tp on tp.c_id = tc.c_id and tp.lang_id = tc.lang_id \n"
+            + "join tblwarehouseid tw on tw.c_id = tc.c_id and tw.lang_id = tc.lang_id and tw.plant_id = tp.plant_id \n"
+            + "where \n"
+            + "tc.c_id IN (:companyCodeId) and \n"
+            + "tp.plant_id IN (:plantId) and \n"
+            + "tw.wh_id IN (:warehouseId) \n", nativeQuery = true)
+    IKeyValuePair getV2Description(@Param(value = "companyCodeId") String companyCodeId,
+                                   @Param(value = "plantId") String plantId,
+                                   @Param(value = "warehouseId") String warehouseId);
 }

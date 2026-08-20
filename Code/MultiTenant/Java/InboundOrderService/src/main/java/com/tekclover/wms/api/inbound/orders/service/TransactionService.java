@@ -124,6 +124,12 @@ public class TransactionService {
                             case "KNOWELL":
                                 inboundHeader = orderService.processInboundReceivedV7(inbound.getRefDocumentNo(), inbound);
                                 break;
+                            case "BF":
+                                inboundHeader = orderService.processInboundReceivedV9(inbound.getRefDocumentNo(), inbound);
+                                break;
+                            case "SPAREX":
+                                inboundHeader = orderService.processInboundReceivedV10(inbound.getRefDocumentNo(), inbound);
+                                break;
                         }
                     }
 

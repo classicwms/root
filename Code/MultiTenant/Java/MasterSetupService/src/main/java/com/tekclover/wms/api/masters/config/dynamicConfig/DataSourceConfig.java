@@ -29,31 +29,22 @@ public class DataSourceConfig {
 
         // Example data source configurations (replace with actual configuration)
         DataSource db = createDataSource("MT");
-        DataSource db1 = createDataSource("IMPEX");
-        DataSource db2 = createDataSource("WK");
-        DataSource db3 = createDataSource("ALM");
-        DataSource db4 = createDataSource("NAMRATHA");
-        DataSource db5 = createDataSource("REEFERON");
-        DataSource db6 = createDataSource("KNOWELL");
-        DataSource db7 = createDataSource("FAHAHEEL");
-        DataSource db8 = createDataSource("AUTO_LAP");
-        DataSource db12 = createDataSource("BF");
-        DataSource db13 = createDataSource("KKF");
-        DataSource db14 = createDataSource("KSP");
+        DataSource db1 = createDataSource("NAMRATHA");
+        DataSource db2 = createDataSource("KNOWELL");
+        DataSource db3 = createDataSource("SPAREX");
+        DataSource db4 = createDataSource("BF");
+        DataSource db5 = createDataSource("KKF");
+        DataSource db6 = createDataSource("KSP");
 
 
         targetDataSources.put("MT",db);
-        targetDataSources.put("IMPEX", db1);
-        targetDataSources.put("WK", db2);
-        targetDataSources.put("ALM",db3);
-        targetDataSources.put("NAMRATHA",db4);
-        targetDataSources.put("REEFERON",db5);
-        targetDataSources.put("KNOWELL", db6);
-        targetDataSources.put("FAHAHEEL", db7);
-        targetDataSources.put("AUTO_LAP", db8);
-        targetDataSources.put("BF", db12);
-        targetDataSources.put("KKF", db13);
-        targetDataSources.put("KSP", db14);
+        targetDataSources.put("NAMRATHA",db1);
+        targetDataSources.put("KNOWELL", db2);
+        targetDataSources.put("SPAREX", db3);
+        targetDataSources.put("BF", db4);
+        targetDataSources.put("KKF", db5);
+        targetDataSources.put("KSP", db6);
+
 
 
         DynamicDataSource dataSource = new DynamicDataSource();
@@ -72,51 +63,15 @@ public class DataSourceConfig {
                 dataSource.setUsername("sa");
                 dataSource.setPassword("TvHcGBR84nxvyJx6EPpoOsL5V");
                 break;
-            case "ALM":
-                dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-                dataSource.setUrl("jdbc:sqlserver://10.20.0.19;databaseName=WMS_MT");
-                dataSource.setUsername("sa");
-                dataSource.setPassword("TvHcGBR84nxvyJx6EPpoOsL5V");
-                break;
             case "NAMRATHA":
                 dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
                 dataSource.setUrl("jdbc:sqlserver://10.20.0.19;databaseName=WMS_NAMRATHA");
                 dataSource.setUsername("sa");
                 dataSource.setPassword("TvHcGBR84nxvyJx6EPpoOsL5V");
                 break;
-            case "IMPEX":
-                dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-                dataSource.setUrl("jdbc:sqlserver://10.20.0.19;databaseName=WMS_MT");
-                dataSource.setUsername("sa");
-                dataSource.setPassword("TvHcGBR84nxvyJx6EPpoOsL5V");
-                break;
-            case "WK":
-                dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-                dataSource.setUrl("jdbc:sqlserver://10.20.0.19;databaseName=WMS_MT");
-                dataSource.setUsername("sa");
-                dataSource.setPassword("TvHcGBR84nxvyJx6EPpoOsL5V");
-                break;
-            case "REEFERON":
-                dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-                dataSource.setUrl("jdbc:sqlserver://10.20.0.19;databaseName=WMS_MT");
-                dataSource.setUsername("sa");
-                dataSource.setPassword("TvHcGBR84nxvyJx6EPpoOsL5V");
-                break;
             case "KNOWELL":
                 dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
                 dataSource.setUrl("jdbc:sqlserver://10.20.0.19;databaseName=WMS_KNOWELL");
-                dataSource.setUsername("sa");
-                dataSource.setPassword("TvHcGBR84nxvyJx6EPpoOsL5V");
-                break;
-            case "FAHAHEEL":
-                dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-                dataSource.setUrl("jdbc:sqlserver://10.20.0.19;databaseName=WMS_MT");
-                dataSource.setUsername("sa");
-                dataSource.setPassword("TvHcGBR84nxvyJx6EPpoOsL5V");
-                break;
-            case "AUTO_LAP":
-                dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-                dataSource.setUrl("jdbc:sqlserver://10.20.0.19;databaseName=WMS_MT");
                 dataSource.setUsername("sa");
                 dataSource.setPassword("TvHcGBR84nxvyJx6EPpoOsL5V");
                 break;
@@ -135,6 +90,12 @@ public class DataSourceConfig {
             case "KSP":
                 dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
                 dataSource.setUrl("jdbc:sqlserver://10.20.0.19;databaseName=BFS_KSP");
+                dataSource.setUsername("sa");
+                dataSource.setPassword("TvHcGBR84nxvyJx6EPpoOsL5V");
+                break;
+            case "SPAREX":
+                dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+                dataSource.setUrl("jdbc:sqlserver://10.20.0.19;databaseName=WMS_SPAREX");
                 dataSource.setUsername("sa");
                 dataSource.setPassword("TvHcGBR84nxvyJx6EPpoOsL5V");
                 break;

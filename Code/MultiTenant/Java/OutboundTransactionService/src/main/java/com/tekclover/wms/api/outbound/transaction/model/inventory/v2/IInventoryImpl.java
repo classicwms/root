@@ -84,4 +84,10 @@ public interface IInventoryImpl {
 	Double getCaseQty();
 	Boolean getLoosePack();
 	Double getTotalBags();
+
+	//--------------------REEFERON-------------------------//
+	String getSelfLife();
+	String getRemainingDays();
+	Long getRemainingSelfLifePercentage();
+
 }

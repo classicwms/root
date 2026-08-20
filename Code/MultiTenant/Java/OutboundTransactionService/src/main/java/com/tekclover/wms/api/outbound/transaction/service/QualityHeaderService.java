@@ -850,4 +850,48 @@ public class QualityHeaderService extends BaseService {
             throw e;
         }
     }
+
+    // BF
+    /**
+     *
+     * @param dbPickupLine
+     * @param loginUserID
+     * @throws Exception
+     */
+    public void createQualityHeaderV9(PickupLineV2 dbPickupLine, String loginUserID) throws Exception {
+        try {
+            QualityHeaderV2 newQualityHeader = new QualityHeaderV2();
+            BeanUtils.copyProperties(dbPickupLine, newQualityHeader, CommonUtils.getNullPropertyNames(dbPickupLine));
+
+            String idMasterAuthToken = getIdMasterAuthToken();
+            // QC_NO
+            NUMBER_RANGE_CODE = 11L;
+            String QC_NO = getNextRangeNumber(NUMBER_RANGE_CODE, dbPickupLine.getCompanyCodeId(), dbPickupLine.getPlantId(), dbPickupLine.getLanguageId(), dbPickupLine.getWarehouseId(), idMasterAuthToken);
+            newQualityHeader.setQualityInspectionNo(QC_NO);
+
+            if (dbPickupLine.getPickConfirmQty() != null) {
+                newQualityHeader.setQcToQty(String.valueOf(dbPickupLine.getPickConfirmQty()));
+            }
+
+            newQualityHeader.setReferenceField1(dbPickupLine.getPickedStorageBin());
+            newQualityHeader.setReferenceField2(dbPickupLine.getPickedPackCode());
+            newQualityHeader.setReferenceField3(dbPickupLine.getDescription());
+            newQualityHeader.setReferenceField4(dbPickupLine.getItemCode());
+            newQualityHeader.setReferenceField5(String.valueOf(dbPickupLine.getLineNumber()));
+            newQualityHeader.setReferenceField6(dbPickupLine.getBarcodeId());
+            newQualityHeader.setManufacturerPartNo(dbPickupLine.getManufacturerName());
+            newQualityHeader.setDeletionIndicator(0L);
+            newQualityHeader.setQualityCreatedBy(loginUserID);
+            newQualityHeader.setQualityUpdatedBy(loginUserID);
+            newQualityHeader.setQualityCreatedOn(new Date());
+            newQualityHeader.setQualityUpdatedOn(new Date());
+            newQualityHeader.setStatusId(54L);
+            QualityHeaderV2 createdQualityHeader = qualityHeaderV2Repository.save(newQualityHeader);
+            log.info("createdQualityHeader : " + createdQualityHeader);
+//            qualityLineService.createQualityLineV8(companyCodeId, plantId, languageId, warehouseId, dbPickupLine, createdQualityHeader, idMasterAuthToken, loginUserID);
+        } catch (Exception e) {
+            log.error("createdQualityHeader Error :" + e.toString());
+            throw e;
+        }
+    }
 }

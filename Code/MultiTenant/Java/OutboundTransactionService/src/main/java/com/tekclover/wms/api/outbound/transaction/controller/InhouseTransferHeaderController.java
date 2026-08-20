@@ -126,6 +126,18 @@ public class InhouseTransferHeaderController {
                     case "REEFERON":
                         transferHeaderEntity = inHouseTransferHeaderService.createInHouseTransferHeaderV5(newInHouseTransferHeader, loginUserID);
                         break;
+                    case "SPAREX":
+                        transferHeaderEntity= inHouseTransferHeaderService.createInHouseTransferHeaderV10(newInHouseTransferHeader, loginUserID);
+                        break;
+                    case "BF":
+                        transferHeaderEntity = inHouseTransferHeaderService.createInHouseTransferHeaderV9(newInHouseTransferHeader, loginUserID);
+                        break;
+                    case "KKF":
+                        transferHeaderEntity = inHouseTransferHeaderService.createInHouseTransferHeaderV9(newInHouseTransferHeader, loginUserID);
+                        break;
+                    case "KSP":
+                        transferHeaderEntity = inHouseTransferHeaderService.createInHouseTransferHeaderV9(newInHouseTransferHeader, loginUserID);
+                        break;
                     default:
                         transferHeaderEntity= inHouseTransferHeaderService.createInHouseTransferHeaderV2(newInHouseTransferHeader, loginUserID);
                 }
@@ -134,21 +146,6 @@ public class InhouseTransferHeaderController {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-//        try {
-//            InhouseTransferHeaderEntity createdInHouseTransferHeader = new InhouseTransferHeaderEntity();
-//
-//            BeanUtils.copyProperties(newInHouseTransferHeader, createdInHouseTransferHeader, CommonUtils.getNullPropertyNames(newInHouseTransferHeader));
-//
-//            // Return early response
-//            ResponseEntity<?> response = new ResponseEntity<>(createdInHouseTransferHeader, HttpStatus.ACCEPTED);
-//
-//            asyncService.processInhouseTransferHeaderAsync(newInHouseTransferHeader, loginUserID);
-//
-//            return response;
-//        } catch (Exception e) {
-//            log.error("Error processing InhouseTransferHeader async", e);
-//            return new ResponseEntity<>("Failed to start InhouseTransferHeader process", HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
     }
 
     @ApiOperation(response = InhouseTransferHeader.class, value = "Create InHouseTransferHeader Upload")

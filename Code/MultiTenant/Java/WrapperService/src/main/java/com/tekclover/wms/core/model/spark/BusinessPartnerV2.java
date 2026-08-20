@@ -15,6 +15,7 @@ public class BusinessPartnerV2 {
     private Long businessPartnerType;
     private String partnerCode;
     private String partnerName;
+    private String referenceField5;
     private Long statusId;
     private String createdBy;
     private Timestamp createdOn;

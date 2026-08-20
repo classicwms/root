@@ -26,41 +26,34 @@ public class MultiTenantService {
 
     Properties connProp = DatabaseConnectionUtil.getImpexDevDatabaseConnectionProperties();
 
-    Properties connProp1 = DatabaseConnectionUtil.getNamrathaDatabaseConnectionProperties();
-
-    Properties connRef = DatabaseConnectionUtil.getReeferonDatabaseConnectionProperties();
+    Properties connNam = DatabaseConnectionUtil.getNamrathaDatabaseConnectionProperties();
 
     Properties connKnow = DatabaseConnectionUtil.getKnowellDatabaseConnectionProperties();
 
-    Properties connFahae = DatabaseConnectionUtil.getFahaeelDatabaseConnectionProperties();
-
-    Properties connAutoLap = DatabaseConnectionUtil.getAutoLapDatabaseConnectionProperties();
-
+    Properties connSPAREX = DatabaseConnectionUtil.getSPAREXDatabaseConnectionProperties();
+    
     Properties connBF = DatabaseConnectionUtil.getBFDatabaseConnectionProperties();
+
     Properties connKKF = DatabaseConnectionUtil.getKKFDatabaseConnectionProperties();
+
     Properties connKSP = DatabaseConnectionUtil.getKSPDatabaseConnectionProperties();
+
 
     String jdbcUrl = DatabaseConnectionUtil.getImpexDevJdbcUrl();
 
-    String jdbcUrl1 = DatabaseConnectionUtil.getWalkarooCoreJdbcUrl();
+    String jdbcUrl1 = DatabaseConnectionUtil.getNamrathaJdbcUrl();
 
-    String jdbcUrl2 = DatabaseConnectionUtil.getIMFCoreJdbcUrl();
+    String jdbcUrl2 = DatabaseConnectionUtil.getKnowellJdbcUrl();
 
-    String jdbcUrl3 = DatabaseConnectionUtil.getJdbcUrl();
+    String jdbcUrl3 = DatabaseConnectionUtil.getSPAREXJdbcUrl();
+    
+    String jdbcUrl4 = DatabaseConnectionUtil.getBFJdbcUrl();
+    
+    String jdbcUrl5 = DatabaseConnectionUtil.getKKFJdbcUrl();
 
-    String jdbcUrl4 = DatabaseConnectionUtil.getNamrathaJdbcUrl();
+    String jdbcUrl6 = DatabaseConnectionUtil.getKSPJdbcUrl();
 
-    String jdbcUrl5 = DatabaseConnectionUtil.getReeferonJdbcUrl();
 
-    String jdbcUrl6 = DatabaseConnectionUtil.getKnowellJdbcUrl();
-
-    String jdbcUrl7 = DatabaseConnectionUtil.getFahaeelJdbcUrl();
-
-    String jdbcUrl8 = DatabaseConnectionUtil.getAutoLapJdbcUrl();
-
-    String jdbcUrl9 = DatabaseConnectionUtil.getBFJdbcUrl();
-    String jdbcUrl10 = DatabaseConnectionUtil.getKKFJdbcUrl();
-    String jdbcUrl11 = DatabaseConnectionUtil.getKSPJdbcUrl();
 
     @Autowired
     private DbConfigRepository dbConfigRepository;
@@ -116,78 +109,42 @@ public class MultiTenantService {
             }
 
             Dataset<Row> data = null;
-            if (routingDb.equals("IMPEX")) {
+            if (routingDb.equals("NAMRATHA")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL -->{}", jdbcUrl);
-            } else if (routingDb.equals("WK")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connNam);
                 log.info("JDBC URL check -->{}", jdbcUrl1);
-            } else if (routingDb.equals("MT")) {
+            }  else if (routingDb.equals("KNOWELL")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connKnow);
                 log.info("JDBC URL check -->{}", jdbcUrl2);
-            } else if (routingDb.equals("ALM")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL check -->{}", jdbcUrl3);
-            } else if (routingDb.equals("NAMRATHA")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connProp1);
-                log.info("JDBC URL check -->{}", jdbcUrl4);
-            } else if (routingDb.equals("REEFERON")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connRef);
-                log.info("JDBC URL check -->{}", jdbcUrl5);
-            } else if (routingDb.equals("KNOWELL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKnow);
-                log.info("JDBC URL check -->{}", jdbcUrl6);
-            } else if (routingDb.equals("FAHAHEEL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl7, "(" + sqlQuery + ") as tmp", connFahae);
-                log.info("JDBC URL check -->{}", jdbcUrl7);
-            } else if (routingDb.equals("AUTO_LAP")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
-                log.info("JDBC URL check -->{}", jdbcUrl8);
             } else if (routingDb.equals("BF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
-                log.info("JDBC URL check -->{}", jdbcUrl9);
+                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl4);
             } else if (routingDb.equals("KKF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
-                log.info("JDBC URL check -->{}", jdbcUrl10);
+                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connKKF);
+                log.info("JDBC URL check -->{}", jdbcUrl5);
             } else if (routingDb.equals("KSP")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
-                log.info("JDBC URL check -->{}", jdbcUrl11);
+                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl6);
+            }else if (routingDb.equals("SPAREX")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connSPAREX);
+                log.info("JDBC URL check -->{}", jdbcUrl3);
             }
 
 //            data.show();
@@ -315,78 +272,42 @@ public class MultiTenantService {
             }
 
             Dataset<Row> data = null;
-            if (routingDb.equals("IMPEX")) {
+            if (routingDb.equals("NAMRATHA")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL -->{}", jdbcUrl);
-            } else if (routingDb.equals("WK")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connNam);
                 log.info("JDBC URL check -->{}", jdbcUrl1);
-            } else if (routingDb.equals("MT")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL check -->{}", jdbcUrl2);
-            } else if (routingDb.equals("ALM")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL check -->{}", jdbcUrl3);
-            } else if (routingDb.equals("NAMRATHA")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connProp1);
-                log.info("JDBC URL check -->{}", jdbcUrl4);
-            } else if (routingDb.equals("REEFERON")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connRef);
-                log.info("JDBC URL check -->{}", jdbcUrl5);
             } else if (routingDb.equals("KNOWELL")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKnow);
-                log.info("JDBC URL check -->{}", jdbcUrl6);
-            } else if (routingDb.equals("FAHAHEEL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl7, "(" + sqlQuery + ") as tmp", connFahae);
-                log.info("JDBC URL check -->{}", jdbcUrl7);
-            } else if (routingDb.equals("AUTO_LAP")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
-                log.info("JDBC URL check -->{}", jdbcUrl8);
+                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connKnow);
+                log.info("JDBC URL check -->{}", jdbcUrl2);
             } else if (routingDb.equals("BF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
-                log.info("JDBC URL check -->{}", jdbcUrl9);
+                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl4);
             } else if (routingDb.equals("KKF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
-                log.info("JDBC URL check -->{}", jdbcUrl10);
+                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connKKF);
+                log.info("JDBC URL check -->{}", jdbcUrl5);
             } else if (routingDb.equals("KSP")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
-                log.info("JDBC URL check -->{}", jdbcUrl11);
+                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl6);
+            }else if (routingDb.equals("SPAREX")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connSPAREX);
+                log.info("JDBC URL check -->{}", jdbcUrl3);
             }
 //            data.show();
             Encoder<ContainerReceiptV2> containerReceiptEncoder = Encoders.bean(ContainerReceiptV2.class);
@@ -508,78 +429,42 @@ public class MultiTenantService {
             }
 
             Dataset<Row> data = null;
-            if (routingDb.equals("IMPEX")) {
+            if (routingDb.equals("NAMRATHA")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL -->{}", jdbcUrl);
-            } else if (routingDb.equals("WK")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connNam);
                 log.info("JDBC URL check -->{}", jdbcUrl1);
-            } else if (routingDb.equals("MT")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL check -->{}", jdbcUrl2);
-            } else if (routingDb.equals("ALM")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL check -->{}", jdbcUrl3);
-            } else if (routingDb.equals("NAMRATHA")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connProp1);
-                log.info("JDBC URL check -->{}", jdbcUrl4);
-            } else if (routingDb.equals("REEFERON")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connRef);
-                log.info("JDBC URL check -->{}", jdbcUrl5);
             } else if (routingDb.equals("KNOWELL")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKnow);
-                log.info("JDBC URL check -->{}", jdbcUrl6);
-            } else if (routingDb.equals("FAHAHEEL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl7, "(" + sqlQuery + ") as tmp", connFahae);
-                log.info("JDBC URL check -->{}", jdbcUrl7);
-            } else if (routingDb.equals("AUTO_LAP")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
-                log.info("JDBC URL check -->{}", jdbcUrl8);
+                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connKnow);
+                log.info("JDBC URL check -->{}", jdbcUrl2);
             } else if (routingDb.equals("BF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
-                log.info("JDBC URL check -->{}", jdbcUrl9);
+                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl4);
             } else if (routingDb.equals("KKF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
-                log.info("JDBC URL check -->{}", jdbcUrl10);
+                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connKKF);
+                log.info("JDBC URL check -->{}", jdbcUrl5);
             } else if (routingDb.equals("KSP")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
-                log.info("JDBC URL check -->{}", jdbcUrl11);
+                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl6);
+            }else if (routingDb.equals("SPAREX")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connSPAREX);
+                log.info("JDBC URL check -->{}", jdbcUrl3);
             }
 
 //            data.show();
@@ -693,78 +578,42 @@ public class MultiTenantService {
             }
 
             Dataset<Row> data = null;
-            if (routingDb.equals("IMPEX")) {
+            if (routingDb.equals("NAMRATHA")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL -->{}", jdbcUrl);
-            } else if (routingDb.equals("WK")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connNam);
                 log.info("JDBC URL check -->{}", jdbcUrl1);
-            } else if (routingDb.equals("MT")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL check -->{}", jdbcUrl2);
-            } else if (routingDb.equals("ALM")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL check -->{}", jdbcUrl3);
-            } else if (routingDb.equals("NAMRATHA")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connProp1);
-                log.info("JDBC URL check -->{}", jdbcUrl4);
-            } else if (routingDb.equals("REEFERON")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connRef);
-                log.info("JDBC URL check -->{}", jdbcUrl5);
             } else if (routingDb.equals("KNOWELL")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKnow);
-                log.info("JDBC URL check -->{}", jdbcUrl6);
-            } else if (routingDb.equals("FAHAHEEL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl7, "(" + sqlQuery + ") as tmp", connFahae);
-                log.info("JDBC URL check -->{}", jdbcUrl7);
-            } else if (routingDb.equals("AUTO_LAP")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
-                log.info("JDBC URL check -->{}", jdbcUrl8);
+                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connKnow);
+                log.info("JDBC URL check -->{}", jdbcUrl2);
             } else if (routingDb.equals("BF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
-                log.info("JDBC URL check -->{}", jdbcUrl9);
+                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl4);
             } else if (routingDb.equals("KKF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
-                log.info("JDBC URL check -->{}", jdbcUrl10);
+                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connKKF);
+                log.info("JDBC URL check -->{}", jdbcUrl5);
             } else if (routingDb.equals("KSP")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
-                log.info("JDBC URL check -->{}", jdbcUrl11);
+                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl6);
+            }else if (routingDb.equals("SPAREX")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connSPAREX);
+                log.info("JDBC URL check -->{}", jdbcUrl3);
             }
 
             //            data.show();
@@ -850,78 +699,42 @@ public class MultiTenantService {
             }
 
             Dataset<Row> data = null;
-            if (routingDb.equals("IMPEX")) {
+            if (routingDb.equals("NAMRATHA")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL -->{}", jdbcUrl);
-            } else if (routingDb.equals("WK")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connNam);
                 log.info("JDBC URL check -->{}", jdbcUrl1);
-            } else if (routingDb.equals("MT")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL check -->{}", jdbcUrl2);
-            } else if (routingDb.equals("ALM")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL check -->{}", jdbcUrl3);
-            } else if (routingDb.equals("NAMRATHA")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connProp1);
-                log.info("JDBC URL check -->{}", jdbcUrl4);
-            } else if (routingDb.equals("REEFERON")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connRef);
-                log.info("JDBC URL check -->{}", jdbcUrl5);
             } else if (routingDb.equals("KNOWELL")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKnow);
-                log.info("JDBC URL check -->{}", jdbcUrl6);
-            } else if (routingDb.equals("FAHAHEEL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl7, "(" + sqlQuery + ") as tmp", connFahae);
-                log.info("JDBC URL check -->{}", jdbcUrl7);
-            } else if (routingDb.equals("AUTO_LAP")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
-                log.info("JDBC URL check -->{}", jdbcUrl8);
+                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connKnow);
+                log.info("JDBC URL check -->{}", jdbcUrl2);
             } else if (routingDb.equals("BF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
-                log.info("JDBC URL check -->{}", jdbcUrl9);
+                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl4);
             } else if (routingDb.equals("KKF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
-                log.info("JDBC URL check -->{}", jdbcUrl10);
+                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connKKF);
+                log.info("JDBC URL check -->{}", jdbcUrl5);
             } else if (routingDb.equals("KSP")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
-                log.info("JDBC URL check -->{}", jdbcUrl11);
+                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl6);
+            }else if (routingDb.equals("SPAREX")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connSPAREX);
+                log.info("JDBC URL check -->{}", jdbcUrl3);
             }
 
 //            data.show();
@@ -1041,78 +854,42 @@ public class MultiTenantService {
 
 
             Dataset<Row> data = null;
-            if (routingDb.equals("IMPEX")) {
+            if (routingDb.equals("NAMRATHA")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL -->{}", jdbcUrl);
-            } else if (routingDb.equals("WK")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connNam);
                 log.info("JDBC URL check -->{}", jdbcUrl1);
-            } else if (routingDb.equals("MT")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL check -->{}", jdbcUrl2);
-            } else if (routingDb.equals("ALM")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL check -->{}", jdbcUrl3);
-            } else if (routingDb.equals("NAMRATHA")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connProp1);
-                log.info("JDBC URL check -->{}", jdbcUrl4);
-            } else if (routingDb.equals("REEFERON")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connRef);
-                log.info("JDBC URL check -->{}", jdbcUrl5);
             } else if (routingDb.equals("KNOWELL")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKnow);
-                log.info("JDBC URL check -->{}", jdbcUrl6);
-            } else if (routingDb.equals("FAHAHEEL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl7, "(" + sqlQuery + ") as tmp", connFahae);
-                log.info("JDBC URL check -->{}", jdbcUrl7);
-            } else if (routingDb.equals("AUTO_LAP")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
-                log.info("JDBC URL check -->{}", jdbcUrl8);
+                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connKnow);
+                log.info("JDBC URL check -->{}", jdbcUrl2);
             } else if (routingDb.equals("BF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
-                log.info("JDBC URL check -->{}", jdbcUrl9);
+                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl4);
             } else if (routingDb.equals("KKF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
-                log.info("JDBC URL check -->{}", jdbcUrl10);
+                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connKKF);
+                log.info("JDBC URL check -->{}", jdbcUrl5);
             } else if (routingDb.equals("KSP")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
-                log.info("JDBC URL check -->{}", jdbcUrl11);
+                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl6);
+            }else if (routingDb.equals("SPAREX")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connSPAREX);
+                log.info("JDBC URL check -->{}", jdbcUrl3);
             }
 
             Encoder<GrHeaderV2> grHeaderV2Encoder = Encoders.bean(GrHeaderV2.class);
@@ -1223,78 +1000,42 @@ public class MultiTenantService {
             }
 
             Dataset<Row> data = null;
-            if (routingDb.equals("IMPEX")) {
+            if (routingDb.equals("NAMRATHA")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL -->{}", jdbcUrl);
-            } else if (routingDb.equals("WK")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connNam);
                 log.info("JDBC URL check -->{}", jdbcUrl1);
-            } else if (routingDb.equals("MT")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL check -->{}", jdbcUrl2);
-            } else if (routingDb.equals("ALM")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL check -->{}", jdbcUrl3);
-            } else if (routingDb.equals("NAMRATHA")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connProp1);
-                log.info("JDBC URL check -->{}", jdbcUrl4);
-            } else if (routingDb.equals("REEFERON")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connRef);
-                log.info("JDBC URL check -->{}", jdbcUrl5);
             } else if (routingDb.equals("KNOWELL")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKnow);
-                log.info("JDBC URL check -->{}", jdbcUrl6);
-            } else if (routingDb.equals("FAHAHEEL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl7, "(" + sqlQuery + ") as tmp", connFahae);
-                log.info("JDBC URL check -->{}", jdbcUrl7);
-            } else if (routingDb.equals("AUTO_LAP")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
-                log.info("JDBC URL check -->{}", jdbcUrl8);
+                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connKnow);
+                log.info("JDBC URL check -->{}", jdbcUrl2);
             } else if (routingDb.equals("BF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
-                log.info("JDBC URL check -->{}", jdbcUrl9);
+                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl4);
             } else if (routingDb.equals("KKF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
-                log.info("JDBC URL check -->{}", jdbcUrl10);
+                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connKKF);
+                log.info("JDBC URL check -->{}", jdbcUrl5);
             } else if (routingDb.equals("KSP")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
-                log.info("JDBC URL check -->{}", jdbcUrl11);
+                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl6);
+            }else if (routingDb.equals("SPAREX")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connSPAREX);
+                log.info("JDBC URL check -->{}", jdbcUrl3);
             }
 
             //            data.show();
@@ -1448,78 +1189,42 @@ public class MultiTenantService {
             }
 
             Dataset<Row> data = null;
-            if (routingDb.equals("IMPEX")) {
+            if (routingDb.equals("NAMRATHA")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL -->{}", jdbcUrl);
-            } else if (routingDb.equals("WK")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connNam);
                 log.info("JDBC URL check -->{}", jdbcUrl1);
-            } else if (routingDb.equals("MT")) {
+            }  else if (routingDb.equals("KNOWELL")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connKnow);
                 log.info("JDBC URL check -->{}", jdbcUrl2);
-            } else if (routingDb.equals("ALM")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL check -->{}", jdbcUrl3);
-            } else if (routingDb.equals("NAMRATHA")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connProp1);
-                log.info("JDBC URL check -->{}", jdbcUrl4);
-            } else if (routingDb.equals("REEFERON")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connRef);
-                log.info("JDBC URL check -->{}", jdbcUrl5);
-            } else if (routingDb.equals("KNOWELL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKnow);
-                log.info("JDBC URL check -->{}", jdbcUrl6);
-            } else if (routingDb.equals("FAHAHEEL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl7, "(" + sqlQuery + ") as tmp", connFahae);
-                log.info("JDBC URL check -->{}", jdbcUrl7);
-            } else if (routingDb.equals("AUTO_LAP")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
-                log.info("JDBC URL check -->{}", jdbcUrl8);
             } else if (routingDb.equals("BF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
-                log.info("JDBC URL check -->{}", jdbcUrl9);
+                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl4);
             } else if (routingDb.equals("KKF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
-                log.info("JDBC URL check -->{}", jdbcUrl10);
+                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connKKF);
+                log.info("JDBC URL check -->{}", jdbcUrl5);
             } else if (routingDb.equals("KSP")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
-                log.info("JDBC URL check -->{}", jdbcUrl11);
+                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl6);
+            }else if (routingDb.equals("SPAREX")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connSPAREX);
+                log.info("JDBC URL check -->{}", jdbcUrl3);
             }
 
             Encoder<PreInBoundLineV2> preInboundLineEncoder = Encoders.bean(PreInBoundLineV2.class);
@@ -1679,78 +1384,41 @@ public class MultiTenantService {
             }
 
             Dataset<Row> data = null;
-            if (routingDb.equals("IMPEX")) {
+            if (routingDb.equals("NAMRATHA")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL -->{}", jdbcUrl);
-            } else if (routingDb.equals("WK")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connNam);
                 log.info("JDBC URL check -->{}", jdbcUrl1);
-            } else if (routingDb.equals("MT")) {
+            }  else if (routingDb.equals("KNOWELL")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connKnow);
                 log.info("JDBC URL check -->{}", jdbcUrl2);
-            } else if (routingDb.equals("ALM")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL check -->{}", jdbcUrl3);
-            } else if (routingDb.equals("NAMRATHA")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connProp1);
-                log.info("JDBC URL check -->{}", jdbcUrl4);
-            } else if (routingDb.equals("REEFERON")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connRef);
-                log.info("JDBC URL check -->{}", jdbcUrl5);
-            } else if (routingDb.equals("KNOWELL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKnow);
-                log.info("JDBC URL check -->{}", jdbcUrl6);
-            } else if (routingDb.equals("FAHAHEEL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl7, "(" + sqlQuery + ") as tmp", connFahae);
-                log.info("JDBC URL check -->{}", jdbcUrl7);
-            } else if (routingDb.equals("AUTO_LAP")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
-                log.info("JDBC URL check -->{}", jdbcUrl8);
             } else if (routingDb.equals("BF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
-                log.info("JDBC URL check -->{}", jdbcUrl9);
+                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl4);
             } else if (routingDb.equals("KKF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
-                log.info("JDBC URL check -->{}", jdbcUrl10);
+                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connKKF);
             } else if (routingDb.equals("KSP")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
-                log.info("JDBC URL check -->{}", jdbcUrl11);
+                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl6);
+            }else if (routingDb.equals("SPAREX")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connSPAREX);
+                log.info("JDBC URL check -->{}", jdbcUrl3);
             }
             //            data.show();
             Encoder<PutAwayHeaderV4> putAwayHeaderEncoder = Encoders.bean(PutAwayHeaderV4.class);
@@ -1862,78 +1530,41 @@ public class MultiTenantService {
             }
 
             Dataset<Row> data = null;
-            if (routingDb.equals("IMPEX")) {
+            if (routingDb.equals("NAMRATHA")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL -->{}", jdbcUrl);
-            } else if (routingDb.equals("WK")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connNam);
                 log.info("JDBC URL check -->{}", jdbcUrl1);
-            } else if (routingDb.equals("MT")) {
+            }  else if (routingDb.equals("KNOWELL")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connKnow);
                 log.info("JDBC URL check -->{}", jdbcUrl2);
-            } else if (routingDb.equals("ALM")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL check -->{}", jdbcUrl3);
-            } else if (routingDb.equals("NAMRATHA")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connProp1);
-                log.info("JDBC URL check -->{}", jdbcUrl4);
-            } else if (routingDb.equals("REEFERON")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connRef);
-                log.info("JDBC URL check -->{}", jdbcUrl5);
-            } else if (routingDb.equals("KNOWELL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKnow);
-                log.info("JDBC URL check -->{}", jdbcUrl6);
-            } else if (routingDb.equals("FAHAHEEL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl7, "(" + sqlQuery + ") as tmp", connFahae);
-                log.info("JDBC URL check -->{}", jdbcUrl7);
-            } else if (routingDb.equals("AUTO_LAP")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
-                log.info("JDBC URL check -->{}", jdbcUrl8);
             } else if (routingDb.equals("BF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
-                log.info("JDBC URL check -->{}", jdbcUrl9);
+                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl4);
             } else if (routingDb.equals("KKF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
-                log.info("JDBC URL check -->{}", jdbcUrl10);
+                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connKKF);
             } else if (routingDb.equals("KSP")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
-                log.info("JDBC URL check -->{}", jdbcUrl11);
+                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl6);
+            }else if (routingDb.equals("SPAREX")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connSPAREX);
+                log.info("JDBC URL check -->{}", jdbcUrl3);
             }
             //            data.show();
             Encoder<StagingHeaderV2> stagingHeaderEncoder = Encoders.bean(StagingHeaderV2.class);
@@ -2040,78 +1671,42 @@ public class MultiTenantService {
             }
 
             Dataset<Row> data = null;
-            if (routingDb.equals("IMPEX")) {
+            if (routingDb.equals("NAMRATHA")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL -->{}", jdbcUrl);
-            } else if (routingDb.equals("WK")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connNam);
                 log.info("JDBC URL check -->{}", jdbcUrl1);
-            } else if (routingDb.equals("MT")) {
+            }  else if (routingDb.equals("KNOWELL")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connKnow);
                 log.info("JDBC URL check -->{}", jdbcUrl2);
-            } else if (routingDb.equals("ALM")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL check -->{}", jdbcUrl3);
-            } else if (routingDb.equals("NAMRATHA")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connProp1);
-                log.info("JDBC URL check -->{}", jdbcUrl4);
-            } else if (routingDb.equals("REEFERON")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connRef);
-                log.info("JDBC URL check -->{}", jdbcUrl5);
-            } else if (routingDb.equals("KNOWELL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKnow);
-                log.info("JDBC URL check -->{}", jdbcUrl6);
-            } else if (routingDb.equals("FAHAHEEL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl7, "(" + sqlQuery + ") as tmp", connFahae);
-                log.info("JDBC URL check -->{}", jdbcUrl7);
-            } else if (routingDb.equals("AUTO_LAP")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
-                log.info("JDBC URL check -->{}", jdbcUrl8);
             } else if (routingDb.equals("BF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
-                log.info("JDBC URL check -->{}", jdbcUrl9);
+                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl4);
             } else if (routingDb.equals("KKF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
-                log.info("JDBC URL check -->{}", jdbcUrl10);
+                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connKKF);
+   log.info("JDBC URL check -->{}", jdbcUrl5);
             } else if (routingDb.equals("KSP")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
-                log.info("JDBC URL check -->{}", jdbcUrl11);
+                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl6);
+            }else if (routingDb.equals("SPAREX")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connSPAREX);
+                log.info("JDBC URL check -->{}", jdbcUrl3);
             }
 
             //            data.show();
@@ -2279,78 +1874,42 @@ public class MultiTenantService {
             }
 
             Dataset<Row> data = null;
-            if (routingDb.equals("IMPEX")) {
+            if (routingDb.equals("NAMRATHA")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL -->{}", jdbcUrl);
-            } else if (routingDb.equals("WK")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connNam);
                 log.info("JDBC URL check -->{}", jdbcUrl1);
-            } else if (routingDb.equals("MT")) {
+            }  else if (routingDb.equals("KNOWELL")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connKnow);
                 log.info("JDBC URL check -->{}", jdbcUrl2);
-            } else if (routingDb.equals("ALM")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL check -->{}", jdbcUrl3);
-            } else if (routingDb.equals("NAMRATHA")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connProp1);
-                log.info("JDBC URL check -->{}", jdbcUrl4);
-            } else if (routingDb.equals("REEFERON")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connRef);
-                log.info("JDBC URL check -->{}", jdbcUrl5);
-            } else if (routingDb.equals("KNOWELL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKnow);
-                log.info("JDBC URL check -->{}", jdbcUrl6);
-            } else if (routingDb.equals("FAHAHEEL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl7, "(" + sqlQuery + ") as tmp", connFahae);
-                log.info("JDBC URL check -->{}", jdbcUrl7);
-            } else if (routingDb.equals("AUTO_LAP")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
-                log.info("JDBC URL check -->{}", jdbcUrl8);
             } else if (routingDb.equals("BF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
-                log.info("JDBC URL check -->{}", jdbcUrl9);
+                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl4);
             } else if (routingDb.equals("KKF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
-                log.info("JDBC URL check -->{}", jdbcUrl10);
+                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connKKF);
+   log.info("JDBC URL check -->{}", jdbcUrl5);
             } else if (routingDb.equals("KSP")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
-                log.info("JDBC URL check -->{}", jdbcUrl11);
+                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl6);
+            }else if (routingDb.equals("SPAREX")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connSPAREX);
+                log.info("JDBC URL check -->{}", jdbcUrl3);
             }
 
             Encoder<StagingLineV5> stagingLineEncoder = Encoders.bean(StagingLineV5.class);
@@ -2532,78 +2091,42 @@ public class MultiTenantService {
             }
 
             Dataset<Row> data = null;
-            if (routingDb.equals("IMPEX")) {
+            if (routingDb.equals("NAMRATHA")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL -->{}", jdbcUrl);
-            } else if (routingDb.equals("WK")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connNam);
                 log.info("JDBC URL check -->{}", jdbcUrl1);
-            } else if (routingDb.equals("MT")) {
+            }  else if (routingDb.equals("KNOWELL")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connKnow);
                 log.info("JDBC URL check -->{}", jdbcUrl2);
-            } else if (routingDb.equals("ALM")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL check -->{}", jdbcUrl3);
-            } else if (routingDb.equals("NAMRATHA")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connProp1);
-                log.info("JDBC URL check -->{}", jdbcUrl4);
-            } else if (routingDb.equals("REEFERON")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connRef);
-                log.info("JDBC URL check -->{}", jdbcUrl5);
-            } else if (routingDb.equals("KNOWELL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKnow);
-                log.info("JDBC URL check -->{}", jdbcUrl6);
-            } else if (routingDb.equals("FAHAHEEL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl7, "(" + sqlQuery + ") as tmp", connFahae);
-                log.info("JDBC URL check -->{}", jdbcUrl7);
-            } else if (routingDb.equals("AUTO_LAP")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
-                log.info("JDBC URL check -->{}", jdbcUrl8);
             } else if (routingDb.equals("BF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
-                log.info("JDBC URL check -->{}", jdbcUrl9);
+                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl4);
             } else if (routingDb.equals("KKF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
-                log.info("JDBC URL check -->{}", jdbcUrl10);
+                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connKKF);
+   log.info("JDBC URL check -->{}", jdbcUrl5);
             } else if (routingDb.equals("KSP")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
-                log.info("JDBC URL check -->{}", jdbcUrl11);
+                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl6);
+            }else if (routingDb.equals("SPAREX")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connSPAREX);
+                log.info("JDBC URL check -->{}", jdbcUrl3);
             }
             //            data.show();
             Encoder<GrLineV4> grLineEncoder = Encoders.bean(GrLineV4.class);
@@ -2681,78 +2204,42 @@ public class MultiTenantService {
             }
 
             Dataset<Row> data = null;
-            if (routingDb.equals("IMPEX")) {
+            if (routingDb.equals("NAMRATHA")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL -->{}", jdbcUrl);
-            } else if (routingDb.equals("WK")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connNam);
                 log.info("JDBC URL check -->{}", jdbcUrl1);
-            } else if (routingDb.equals("MT")) {
+            }  else if (routingDb.equals("KNOWELL")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connKnow);
                 log.info("JDBC URL check -->{}", jdbcUrl2);
-            } else if (routingDb.equals("ALM")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL check -->{}", jdbcUrl3);
-            } else if (routingDb.equals("NAMRATHA")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connProp1);
-                log.info("JDBC URL check -->{}", jdbcUrl4);
-            } else if (routingDb.equals("REEFERON")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connRef);
-                log.info("JDBC URL check -->{}", jdbcUrl5);
-            } else if (routingDb.equals("KNOWELL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKnow);
-                log.info("JDBC URL check -->{}", jdbcUrl6);
-            } else if (routingDb.equals("FAHAHEEL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl7, "(" + sqlQuery + ") as tmp", connFahae);
-                log.info("JDBC URL check -->{}", jdbcUrl7);
-            } else if (routingDb.equals("AUTO_LAP")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
-                log.info("JDBC URL check -->{}", jdbcUrl8);
             } else if (routingDb.equals("BF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
-                log.info("JDBC URL check -->{}", jdbcUrl9);
+                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl4);
             } else if (routingDb.equals("KKF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
-                log.info("JDBC URL check -->{}", jdbcUrl10);
+                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connKKF);
+   log.info("JDBC URL check -->{}", jdbcUrl5);
             } else if (routingDb.equals("KSP")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
-                log.info("JDBC URL check -->{}", jdbcUrl11);
+                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl6);
+            }else if (routingDb.equals("SPAREX")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connSPAREX);
+                log.info("JDBC URL check -->{}", jdbcUrl3);
             }
 //            data.show();
             Encoder<PutAwayLineCoreV4> putAwayLineEncoder = Encoders.bean(PutAwayLineCoreV4.class);
@@ -2893,78 +2380,42 @@ public class MultiTenantService {
             }
 
             Dataset<Row> data = null;
-            if (routingDb.equals("IMPEX")) {
+            if (routingDb.equals("NAMRATHA")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL -->{}", jdbcUrl);
-            } else if (routingDb.equals("WK")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connNam);
                 log.info("JDBC URL check -->{}", jdbcUrl1);
-            } else if (routingDb.equals("MT")) {
+            }  else if (routingDb.equals("KNOWELL")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connKnow);
                 log.info("JDBC URL check -->{}", jdbcUrl2);
-            } else if (routingDb.equals("ALM")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL check -->{}", jdbcUrl3);
-            } else if (routingDb.equals("NAMRATHA")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connProp1);
-                log.info("JDBC URL check -->{}", jdbcUrl4);
-            } else if (routingDb.equals("REEFERON")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connRef);
-                log.info("JDBC URL check -->{}", jdbcUrl5);
-            } else if (routingDb.equals("KNOWELL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKnow);
-                log.info("JDBC URL check -->{}", jdbcUrl6);
-            } else if (routingDb.equals("FAHAHEEL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl7, "(" + sqlQuery + ") as tmp", connFahae);
-                log.info("JDBC URL check -->{}", jdbcUrl7);
-            } else if (routingDb.equals("AUTO_LAP")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
-                log.info("JDBC URL check -->{}", jdbcUrl8);
             } else if (routingDb.equals("BF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
-                log.info("JDBC URL check -->{}", jdbcUrl9);
+                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl4);
             } else if (routingDb.equals("KKF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
-                log.info("JDBC URL check -->{}", jdbcUrl10);
+                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connKKF);
+   log.info("JDBC URL check -->{}", jdbcUrl5);
             } else if (routingDb.equals("KSP")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
-                log.info("JDBC URL check -->{}", jdbcUrl11);
+                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl6);
+            }else if (routingDb.equals("SPAREX")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connSPAREX);
+                log.info("JDBC URL check -->{}", jdbcUrl3);
             }
             //            data.show();
             Encoder<InboundLineNewV4> inboundLineEncoder = Encoders.bean(InboundLineNewV4.class);
@@ -3134,78 +2585,42 @@ public class MultiTenantService {
             }
 
             Dataset<Row> data = null;
-            if (routingDb.equals("IMPEX")) {
+            if (routingDb.equals("NAMRATHA")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL -->{}", jdbcUrl);
-            } else if (routingDb.equals("WK")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connNam);
                 log.info("JDBC URL check -->{}", jdbcUrl1);
-            } else if (routingDb.equals("MT")) {
+            }  else if (routingDb.equals("KNOWELL")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connKnow);
                 log.info("JDBC URL check -->{}", jdbcUrl2);
-            } else if (routingDb.equals("ALM")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL check -->{}", jdbcUrl3);
-            } else if (routingDb.equals("NAMRATHA")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connProp1);
-                log.info("JDBC URL check -->{}", jdbcUrl4);
-            } else if (routingDb.equals("REEFERON")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connRef);
-                log.info("JDBC URL check -->{}", jdbcUrl5);
-            } else if (routingDb.equals("KNOWELL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKnow);
-                log.info("JDBC URL check -->{}", jdbcUrl6);
-            } else if (routingDb.equals("FAHAHEEL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl7, "(" + sqlQuery + ") as tmp", connFahae);
-                log.info("JDBC URL check -->{}", jdbcUrl7);
-            } else if (routingDb.equals("AUTO_LAP")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
-                log.info("JDBC URL check -->{}", jdbcUrl8);
             } else if (routingDb.equals("BF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
-                log.info("JDBC URL check -->{}", jdbcUrl9);
+                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl4);
             } else if (routingDb.equals("KKF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
-                log.info("JDBC URL check -->{}", jdbcUrl10);
+                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connKKF);
+   log.info("JDBC URL check -->{}", jdbcUrl5);
             } else if (routingDb.equals("KSP")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
-                log.info("JDBC URL check -->{}", jdbcUrl11);
+                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl6);
+            }else if (routingDb.equals("SPAREX")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connSPAREX);
+                log.info("JDBC URL check -->{}", jdbcUrl3);
             }
 //            data.show();
             Encoder<PutAwayLineV4> putAwayLineV2Encoder = Encoders.bean(PutAwayLineV4.class);
@@ -3321,78 +2736,42 @@ public class MultiTenantService {
 
 
             Dataset<Row> data = null;
-            if (routingDb.equals("IMPEX")) {
+            if (routingDb.equals("NAMRATHA")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL -->{}", jdbcUrl);
-            } else if (routingDb.equals("WK")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connNam);
                 log.info("JDBC URL check -->{}", jdbcUrl1);
-            } else if (routingDb.equals("MT")) {
+            }  else if (routingDb.equals("KNOWELL")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connKnow);
                 log.info("JDBC URL check -->{}", jdbcUrl2);
-            } else if (routingDb.equals("ALM")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL check -->{}", jdbcUrl3);
-            } else if (routingDb.equals("NAMRATHA")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connProp1);
-                log.info("JDBC URL check -->{}", jdbcUrl4);
-            } else if (routingDb.equals("REEFERON")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connRef);
-                log.info("JDBC URL check -->{}", jdbcUrl5);
-            } else if (routingDb.equals("KNOWELL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKnow);
-                log.info("JDBC URL check -->{}", jdbcUrl6);
-            } else if (routingDb.equals("FAHAHEEL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl7, "(" + sqlQuery + ") as tmp", connFahae);
-                log.info("JDBC URL check -->{}", jdbcUrl7);
-            } else if (routingDb.equals("AUTO_LAP")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
-                log.info("JDBC URL check -->{}", jdbcUrl8);
             } else if (routingDb.equals("BF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
-                log.info("JDBC URL check -->{}", jdbcUrl9);
+                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl4);
             } else if (routingDb.equals("KKF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
-                log.info("JDBC URL check -->{}", jdbcUrl10);
+                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connKKF);
+   log.info("JDBC URL check -->{}", jdbcUrl5);
             } else if (routingDb.equals("KSP")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
-                log.info("JDBC URL check -->{}", jdbcUrl11);
+                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl6);
+            }else if (routingDb.equals("SPAREX")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connSPAREX);
+                log.info("JDBC URL check -->{}", jdbcUrl3);
             }
             //            data.show();
             Encoder<PreOutboundHeaderV2> preOutboundHeaderEncoder = Encoders.bean(PreOutboundHeaderV2.class);
@@ -3561,78 +2940,42 @@ public class MultiTenantService {
             }
 
             Dataset<Row> data = null;
-            if (routingDb.equals("IMPEX")) {
+            if (routingDb.equals("NAMRATHA")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL -->{}", jdbcUrl);
-            } else if (routingDb.equals("WK")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connNam);
                 log.info("JDBC URL check -->{}", jdbcUrl1);
-            } else if (routingDb.equals("MT")) {
+            }  else if (routingDb.equals("KNOWELL")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connKnow);
                 log.info("JDBC URL check -->{}", jdbcUrl2);
-            } else if (routingDb.equals("ALM")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL check -->{}", jdbcUrl3);
-            } else if (routingDb.equals("NAMRATHA")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connProp1);
-                log.info("JDBC URL check -->{}", jdbcUrl4);
-            } else if (routingDb.equals("REEFERON")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connRef);
-                log.info("JDBC URL check -->{}", jdbcUrl5);
-            } else if (routingDb.equals("KNOWELL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKnow);
-                log.info("JDBC URL check -->{}", jdbcUrl6);
-            } else if (routingDb.equals("FAHAHEEL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl7, "(" + sqlQuery + ") as tmp", connFahae);
-                log.info("JDBC URL check -->{}", jdbcUrl7);
-            } else if (routingDb.equals("AUTO_LAP")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
-                log.info("JDBC URL check -->{}", jdbcUrl8);
             } else if (routingDb.equals("BF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
-                log.info("JDBC URL check -->{}", jdbcUrl9);
+                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl4);
             } else if (routingDb.equals("KKF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
-                log.info("JDBC URL check -->{}", jdbcUrl10);
+                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connKKF);
+   log.info("JDBC URL check -->{}", jdbcUrl5);
             } else if (routingDb.equals("KSP")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
-                log.info("JDBC URL check -->{}", jdbcUrl11);
+                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl6);
+            }else if (routingDb.equals("SPAREX")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connSPAREX);
+                log.info("JDBC URL check -->{}", jdbcUrl3);
             }
 
 //            data.show();
@@ -3789,78 +3132,42 @@ public class MultiTenantService {
             }
 
             Dataset<Row> data = null;
-            if (routingDb.equals("IMPEX")) {
+            if (routingDb.equals("NAMRATHA")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL -->{}", jdbcUrl);
-            } else if (routingDb.equals("WK")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connNam);
                 log.info("JDBC URL check -->{}", jdbcUrl1);
-            } else if (routingDb.equals("MT")) {
+            }  else if (routingDb.equals("KNOWELL")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connKnow);
                 log.info("JDBC URL check -->{}", jdbcUrl2);
-            } else if (routingDb.equals("ALM")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL check -->{}", jdbcUrl3);
-            } else if (routingDb.equals("NAMRATHA")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connProp1);
-                log.info("JDBC URL check -->{}", jdbcUrl4);
-            } else if (routingDb.equals("REEFERON")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connRef);
-                log.info("JDBC URL check -->{}", jdbcUrl5);
-            } else if (routingDb.equals("KNOWELL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKnow);
-                log.info("JDBC URL check -->{}", jdbcUrl6);
-            } else if (routingDb.equals("FAHAHEEL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl7, "(" + sqlQuery + ") as tmp", connFahae);
-                log.info("JDBC URL check -->{}", jdbcUrl7);
-            } else if (routingDb.equals("AUTO_LAP")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
-                log.info("JDBC URL check -->{}", jdbcUrl8);
             } else if (routingDb.equals("BF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
-                log.info("JDBC URL check -->{}", jdbcUrl9);
+                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl4);
             } else if (routingDb.equals("KKF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
-                log.info("JDBC URL check -->{}", jdbcUrl10);
+                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connKKF);
+   log.info("JDBC URL check -->{}", jdbcUrl5);
             } else if (routingDb.equals("KSP")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
-                log.info("JDBC URL check -->{}", jdbcUrl11);
+                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl6);
+            }else if (routingDb.equals("SPAREX")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connSPAREX);
+                log.info("JDBC URL check -->{}", jdbcUrl3);
             }
             //            data.show();
             Encoder<PickupHeaderV4> pickupHeaderEncoder = Encoders.bean(PickupHeaderV4.class);
@@ -4021,78 +3328,42 @@ public class MultiTenantService {
             }
 
             Dataset<Row> data = null;
-            if (routingDb.equals("IMPEX")) {
+            if (routingDb.equals("NAMRATHA")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL -->{}", jdbcUrl);
-            } else if (routingDb.equals("WK")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connNam);
                 log.info("JDBC URL check -->{}", jdbcUrl1);
-            } else if (routingDb.equals("MT")) {
+            }  else if (routingDb.equals("KNOWELL")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connKnow);
                 log.info("JDBC URL check -->{}", jdbcUrl2);
-            } else if (routingDb.equals("ALM")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL check -->{}", jdbcUrl3);
-            } else if (routingDb.equals("NAMRATHA")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connProp1);
-                log.info("JDBC URL check -->{}", jdbcUrl4);
-            } else if (routingDb.equals("REEFERON")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connRef);
-                log.info("JDBC URL check -->{}", jdbcUrl5);
-            } else if (routingDb.equals("KNOWELL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKnow);
-                log.info("JDBC URL check -->{}", jdbcUrl6);
-            } else if (routingDb.equals("FAHAHEEL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl7, "(" + sqlQuery + ") as tmp", connFahae);
-                log.info("JDBC URL check -->{}", jdbcUrl7);
-            } else if (routingDb.equals("AUTO_LAP")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
-                log.info("JDBC URL check -->{}", jdbcUrl8);
             } else if (routingDb.equals("BF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
-                log.info("JDBC URL check -->{}", jdbcUrl9);
+                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl4);
             } else if (routingDb.equals("KKF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
-                log.info("JDBC URL check -->{}", jdbcUrl10);
+                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connKKF);
+   log.info("JDBC URL check -->{}", jdbcUrl5);
             } else if (routingDb.equals("KSP")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
-                log.info("JDBC URL check -->{}", jdbcUrl11);
+                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl6);
+            }else if (routingDb.equals("SPAREX")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connSPAREX);
+                log.info("JDBC URL check -->{}", jdbcUrl3);
             }
 
             //            data.show();
@@ -4223,78 +3494,42 @@ public class MultiTenantService {
             }
 
             Dataset<Row> data = null;
-            if (routingDb.equals("IMPEX")) {
+            if (routingDb.equals("NAMRATHA")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL -->{}", jdbcUrl);
-            } else if (routingDb.equals("WK")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connNam);
                 log.info("JDBC URL check -->{}", jdbcUrl1);
-            } else if (routingDb.equals("MT")) {
+            }  else if (routingDb.equals("KNOWELL")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connKnow);
                 log.info("JDBC URL check -->{}", jdbcUrl2);
-            } else if (routingDb.equals("ALM")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL check -->{}", jdbcUrl3);
-            } else if (routingDb.equals("NAMRATHA")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connProp1);
-                log.info("JDBC URL check -->{}", jdbcUrl4);
-            } else if (routingDb.equals("REEFERON")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connRef);
-                log.info("JDBC URL check -->{}", jdbcUrl5);
-            } else if (routingDb.equals("KNOWELL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKnow);
-                log.info("JDBC URL check -->{}", jdbcUrl6);
-            } else if (routingDb.equals("FAHAHEEL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl7, "(" + sqlQuery + ") as tmp", connFahae);
-                log.info("JDBC URL check -->{}", jdbcUrl7);
-            } else if (routingDb.equals("AUTO_LAP")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
-                log.info("JDBC URL check -->{}", jdbcUrl8);
             } else if (routingDb.equals("BF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
-                log.info("JDBC URL check -->{}", jdbcUrl9);
+                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl4);
             } else if (routingDb.equals("KKF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
-                log.info("JDBC URL check -->{}", jdbcUrl10);
+                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connKKF);
+   log.info("JDBC URL check -->{}", jdbcUrl5);
             } else if (routingDb.equals("KSP")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
-                log.info("JDBC URL check -->{}", jdbcUrl11);
+                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl6);
+            }else if (routingDb.equals("SPAREX")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connSPAREX);
+                log.info("JDBC URL check -->{}", jdbcUrl3);
             }
 
             //            data.show();
@@ -4420,78 +3655,42 @@ public class MultiTenantService {
             }
 
             Dataset<Row> data = null;
-            if (routingDb.equals("IMPEX")) {
+            if (routingDb.equals("NAMRATHA")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL -->{}", jdbcUrl);
-            } else if (routingDb.equals("WK")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connNam);
                 log.info("JDBC URL check -->{}", jdbcUrl1);
-            } else if (routingDb.equals("MT")) {
+            }  else if (routingDb.equals("KNOWELL")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connKnow);
                 log.info("JDBC URL check -->{}", jdbcUrl2);
-            } else if (routingDb.equals("ALM")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL check -->{}", jdbcUrl3);
-            } else if (routingDb.equals("NAMRATHA")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connProp1);
-                log.info("JDBC URL check -->{}", jdbcUrl4);
-            } else if (routingDb.equals("REEFERON")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connRef);
-                log.info("JDBC URL check -->{}", jdbcUrl5);
-            } else if (routingDb.equals("KNOWELL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKnow);
-                log.info("JDBC URL check -->{}", jdbcUrl6);
-            } else if (routingDb.equals("FAHAHEEL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl7, "(" + sqlQuery + ") as tmp", connFahae);
-                log.info("JDBC URL check -->{}", jdbcUrl7);
-            } else if (routingDb.equals("AUTO_LAP")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
-                log.info("JDBC URL check -->{}", jdbcUrl8);
             } else if (routingDb.equals("BF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
-                log.info("JDBC URL check -->{}", jdbcUrl9);
+                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl4);
             } else if (routingDb.equals("KKF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
-                log.info("JDBC URL check -->{}", jdbcUrl10);
+                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connKKF);
+   log.info("JDBC URL check -->{}", jdbcUrl5);
             } else if (routingDb.equals("KSP")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
-                log.info("JDBC URL check -->{}", jdbcUrl11);
+                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl6);
+            }else if (routingDb.equals("SPAREX")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connSPAREX);
+                log.info("JDBC URL check -->{}", jdbcUrl3);
             }
 
             //            data.show();
@@ -4621,78 +3820,42 @@ public class MultiTenantService {
             }
 
             Dataset<Row> data = null;
-            if (routingDb.equals("IMPEX")) {
+            if (routingDb.equals("NAMRATHA")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL -->{}", jdbcUrl);
-            } else if (routingDb.equals("WK")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connNam);
                 log.info("JDBC URL check -->{}", jdbcUrl1);
-            } else if (routingDb.equals("MT")) {
+            }  else if (routingDb.equals("KNOWELL")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connKnow);
                 log.info("JDBC URL check -->{}", jdbcUrl2);
-            } else if (routingDb.equals("ALM")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL check -->{}", jdbcUrl3);
-            } else if (routingDb.equals("NAMRATHA")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connProp1);
-                log.info("JDBC URL check -->{}", jdbcUrl4);
-            } else if (routingDb.equals("REEFERON")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connRef);
-                log.info("JDBC URL check -->{}", jdbcUrl5);
-            } else if (routingDb.equals("KNOWELL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKnow);
-                log.info("JDBC URL check -->{}", jdbcUrl6);
-            } else if (routingDb.equals("FAHAHEEL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl7, "(" + sqlQuery + ") as tmp", connFahae);
-                log.info("JDBC URL check -->{}", jdbcUrl7);
-            } else if (routingDb.equals("AUTO_LAP")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
-                log.info("JDBC URL check -->{}", jdbcUrl8);
             } else if (routingDb.equals("BF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
-                log.info("JDBC URL check -->{}", jdbcUrl9);
+                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl4);
             } else if (routingDb.equals("KKF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
-                log.info("JDBC URL check -->{}", jdbcUrl10);
+                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connKKF);
+   log.info("JDBC URL check -->{}", jdbcUrl5);
             } else if (routingDb.equals("KSP")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
-                log.info("JDBC URL check -->{}", jdbcUrl11);
+                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl6);
+            }else if (routingDb.equals("SPAREX")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connSPAREX);
+                log.info("JDBC URL check -->{}", jdbcUrl3);
             }
 
             //            data.show();
@@ -4826,78 +3989,42 @@ public class MultiTenantService {
             }
 
             Dataset<Row> data = null;
-            if (routingDb.equals("IMPEX")) {
+            if (routingDb.equals("NAMRATHA")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL -->{}", jdbcUrl);
-            } else if (routingDb.equals("WK")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connNam);
                 log.info("JDBC URL check -->{}", jdbcUrl1);
-            } else if (routingDb.equals("MT")) {
+            }  else if (routingDb.equals("KNOWELL")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connKnow);
                 log.info("JDBC URL check -->{}", jdbcUrl2);
-            } else if (routingDb.equals("ALM")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL check -->{}", jdbcUrl3);
-            } else if (routingDb.equals("NAMRATHA")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connProp1);
-                log.info("JDBC URL check -->{}", jdbcUrl4);
-            } else if (routingDb.equals("REEFERON")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connRef);
-                log.info("JDBC URL check -->{}", jdbcUrl5);
-            } else if (routingDb.equals("KNOWELL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKnow);
-                log.info("JDBC URL check -->{}", jdbcUrl6);
-            } else if (routingDb.equals("FAHAHEEL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl7, "(" + sqlQuery + ") as tmp", connFahae);
-                log.info("JDBC URL check -->{}", jdbcUrl7);
-            } else if (routingDb.equals("AUTO_LAP")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
-                log.info("JDBC URL check -->{}", jdbcUrl8);
             } else if (routingDb.equals("BF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
-                log.info("JDBC URL check -->{}", jdbcUrl9);
+                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl4);
             } else if (routingDb.equals("KKF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
-                log.info("JDBC URL check -->{}", jdbcUrl10);
+                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connKKF);
+   log.info("JDBC URL check -->{}", jdbcUrl5);
             } else if (routingDb.equals("KSP")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
-                log.info("JDBC URL check -->{}", jdbcUrl11);
+                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl6);
+            }else if (routingDb.equals("SPAREX")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connSPAREX);
+                log.info("JDBC URL check -->{}", jdbcUrl3);
             }
 
             //            data.show();
@@ -5089,78 +4216,42 @@ public class MultiTenantService {
             }
 
             Dataset<Row> data = null;
-            if (routingDb.equals("IMPEX")) {
+            if (routingDb.equals("NAMRATHA")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL -->{}", jdbcUrl);
-            } else if (routingDb.equals("WK")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connNam);
                 log.info("JDBC URL check -->{}", jdbcUrl1);
-            } else if (routingDb.equals("MT")) {
+            }  else if (routingDb.equals("KNOWELL")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connKnow);
                 log.info("JDBC URL check -->{}", jdbcUrl2);
-            } else if (routingDb.equals("ALM")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL check -->{}", jdbcUrl3);
-            } else if (routingDb.equals("NAMRATHA")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connProp1);
-                log.info("JDBC URL check -->{}", jdbcUrl4);
-            } else if (routingDb.equals("REEFERON")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connRef);
-                log.info("JDBC URL check -->{}", jdbcUrl5);
-            } else if (routingDb.equals("KNOWELL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKnow);
-                log.info("JDBC URL check -->{}", jdbcUrl6);
-            } else if (routingDb.equals("FAHAHEEL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl7, "(" + sqlQuery + ") as tmp", connFahae);
-                log.info("JDBC URL check -->{}", jdbcUrl7);
-            } else if (routingDb.equals("AUTO_LAP")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
-                log.info("JDBC URL check -->{}", jdbcUrl8);
             } else if (routingDb.equals("BF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
-                log.info("JDBC URL check -->{}", jdbcUrl9);
+                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl4);
             } else if (routingDb.equals("KKF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
-                log.info("JDBC URL check -->{}", jdbcUrl10);
+                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connKKF);
+   log.info("JDBC URL check -->{}", jdbcUrl5);
             } else if (routingDb.equals("KSP")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
-                log.info("JDBC URL check -->{}", jdbcUrl11);
+                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl6);
+            }else if (routingDb.equals("SPAREX")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connSPAREX);
+                log.info("JDBC URL check -->{}", jdbcUrl3);
             }
 
             //            data.show();
@@ -5283,78 +4374,42 @@ public class MultiTenantService {
             }
 
             Dataset<Row> data = null;
-            if (routingDb.equals("IMPEX")) {
+            if (routingDb.equals("NAMRATHA")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL -->{}", jdbcUrl);
-            } else if (routingDb.equals("WK")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connNam);
                 log.info("JDBC URL check -->{}", jdbcUrl1);
-            } else if (routingDb.equals("MT")) {
+            }  else if (routingDb.equals("KNOWELL")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connKnow);
                 log.info("JDBC URL check -->{}", jdbcUrl2);
-            } else if (routingDb.equals("ALM")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL check -->{}", jdbcUrl3);
-            } else if (routingDb.equals("NAMRATHA")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connProp1);
-                log.info("JDBC URL check -->{}", jdbcUrl4);
-            } else if (routingDb.equals("REEFERON")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connRef);
-                log.info("JDBC URL check -->{}", jdbcUrl5);
-            } else if (routingDb.equals("KNOWELL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKnow);
-                log.info("JDBC URL check -->{}", jdbcUrl6);
-            } else if (routingDb.equals("FAHAHEEL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl7, "(" + sqlQuery + ") as tmp", connFahae);
-                log.info("JDBC URL check -->{}", jdbcUrl7);
-            } else if (routingDb.equals("AUTO_LAP")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
-                log.info("JDBC URL check -->{}", jdbcUrl8);
             } else if (routingDb.equals("BF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
-                log.info("JDBC URL check -->{}", jdbcUrl9);
+                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl4);
             } else if (routingDb.equals("KKF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
-                log.info("JDBC URL check -->{}", jdbcUrl10);
+                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connKKF);
+   log.info("JDBC URL check -->{}", jdbcUrl5);
             } else if (routingDb.equals("KSP")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
-                log.info("JDBC URL check -->{}", jdbcUrl11);
+                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl6);
+            }else if (routingDb.equals("SPAREX")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connSPAREX);
+                log.info("JDBC URL check -->{}", jdbcUrl3);
             }
 
             //            data.show();
@@ -5463,78 +4518,42 @@ public class MultiTenantService {
             }
 
             Dataset<Row> data = null;
-            if (routingDb.equals("IMPEX")) {
+            if (routingDb.equals("NAMRATHA")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL -->{}", jdbcUrl);
-            } else if (routingDb.equals("WK")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connNam);
                 log.info("JDBC URL check -->{}", jdbcUrl1);
-            } else if (routingDb.equals("MT")) {
+            }  else if (routingDb.equals("KNOWELL")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connKnow);
                 log.info("JDBC URL check -->{}", jdbcUrl2);
-            } else if (routingDb.equals("ALM")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL check -->{}", jdbcUrl3);
-            } else if (routingDb.equals("NAMRATHA")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connProp1);
-                log.info("JDBC URL check -->{}", jdbcUrl4);
-            } else if (routingDb.equals("REEFERON")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connRef);
-                log.info("JDBC URL check -->{}", jdbcUrl5);
-            } else if (routingDb.equals("KNOWELL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKnow);
-                log.info("JDBC URL check -->{}", jdbcUrl6);
-            } else if (routingDb.equals("FAHAHEEL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl7, "(" + sqlQuery + ") as tmp", connFahae);
-                log.info("JDBC URL check -->{}", jdbcUrl7);
-            } else if (routingDb.equals("AUTO_LAP")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
-                log.info("JDBC URL check -->{}", jdbcUrl8);
             } else if (routingDb.equals("BF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
-                log.info("JDBC URL check -->{}", jdbcUrl9);
+                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl4);
             } else if (routingDb.equals("KKF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
-                log.info("JDBC URL check -->{}", jdbcUrl10);
+                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connKKF);
+   log.info("JDBC URL check -->{}", jdbcUrl5);
             } else if (routingDb.equals("KSP")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
-                log.info("JDBC URL check -->{}", jdbcUrl11);
+                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl6);
+            }else if (routingDb.equals("SPAREX")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connSPAREX);
+                log.info("JDBC URL check -->{}", jdbcUrl3);
             }
 
 //            data.show();
@@ -5562,80 +4581,80 @@ public class MultiTenantService {
     }
 
 
-    public List<InventoryV4> findInventoryV3(FindInventoryV2 findInventory) throws ExecutionException, InterruptedException {
-        try {
-            String sqlQuery = "SELECT INV_ID, LANG_ID, C_ID, PLANT_ID, WH_ID, " +
-                    "PAL_CODE, CASE_CODE, PACK_BARCODE, ITM_CODE, VAR_ID, VAR_SUB_ID, " +
-                    "STR_NO, ST_BIN, STCK_TYP_ID, SP_ST_IND_ID, REF_ORD_NO, STR_MTD, " +
-                    "BIN_CL_ID, TEXT, INV_QTY, ALLOC_QTY, INV_UOM, MFR_DATE, EXP_DATE, IS_DELETED, REF_FIELD_1, REF_FIELD_2, " +
-                    "REF_FIELD_3, REF_FIELD_4, REF_FIELD_5, REF_FIELD_6, REF_FIELD_7, REF_FIELD_8, REF_FIELD_9, REF_FIELD_10, " +
-                    "IU_CTD_BY, IU_CTD_ON, UTD_BY, UTD_ON, MFR_CODE, BARCODE_ID, CBM, level_id, CBM_UNIT, CBM_PER_QTY, MFR_NAME, " +
-                    "ORIGIN, BRAND, REF_DOC_NO, C_TEXT, PLANT_TEXT, WH_TEXT, STCK_TYP_TEXT, STATUS_TEXT, PARTNER_CODE, " +
-                    "ITM_TYP_ID, ITM_TYP_TXT, BATCH_DATE, ALT_UOM, NO_BAGS, BAG_SIZE FROM tblinventory";
-
-            List<String> conditions = new ArrayList<>();
-            ConditionUtils.addCondition(conditions, "LANG_ID", findInventory.getLanguageId());
-            ConditionUtils.addCondition(conditions, "C_ID", findInventory.getCompanyCodeId());
-            ConditionUtils.addCondition(conditions, "PLANT_ID", findInventory.getPlantId());
-            ConditionUtils.addCondition(conditions, "WH_ID", findInventory.getWarehouseId());
-            ConditionUtils.addCondition(conditions, "REF_DOC_NO", findInventory.getReferenceDocumentNo());
-            ConditionUtils.addCondition(conditions, "BARCODE_ID", findInventory.getBarcodeId());
-            ConditionUtils.addCondition(conditions, "MFR_CODE", findInventory.getManufacturerCode());
-            ConditionUtils.addCondition(conditions, "MFR_NAME", findInventory.getManufacturerName());
-            ConditionUtils.addCondition(conditions, "PACK_BARCODE", findInventory.getPackBarcodes());
-            ConditionUtils.addCondition(conditions, "ITM_CODE", findInventory.getItemCode());
-            ConditionUtils.addCondition(conditions, "ST_BIN", findInventory.getStorageBin());
-            ConditionUtils.addCondition(conditions, "TEXT", findInventory.getDescription());
-            ConditionUtils.addCondition(conditions, "PARTNER_CODE", findInventory.getPartnerCode());
-            ConditionUtils.addCondition(conditions, "REF_FIELD_10", findInventory.getStorageSectionId());
-            ConditionUtils.addCondition(conditions, "level_id", findInventory.getLevelId());
-            ConditionUtils.addCondition(conditions, "alt_uom", findInventory.getAltUom());
-            if (findInventory.getStockTypeId() != null) {
-                ConditionUtils.numericConditions(conditions, "STCK_TYP_ID", findInventory.getStockTypeId());
-            }
-            if (findInventory.getSpecialStockIndicatorId() != null) {
-                ConditionUtils.numericConditions(conditions, "SP_ST_IND_ID", findInventory.getSpecialStockIndicatorId());
-            }
-            if (findInventory.getBinClassId() != null) {
-                ConditionUtils.numericConditions(conditions, "BIN_CL_ID", findInventory.getBinClassId());
-            }
-            if (findInventory.getItemTypeId() != null) {
-                ConditionUtils.numericConditions(conditions, "ITM_TYP_ID", findInventory.getItemTypeId());
-            }
-            if (!conditions.isEmpty()) {
-                sqlQuery += " WHERE IS_DELETED = 0 AND REF_FIELD_4 > 0 AND inv_id in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,barcode_id,mfr_name,pack_barcode,alt_uom,bag_size,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
-            } else {
-                sqlQuery += " WHERE IS_DELETED = 0 AND REF_FIELD_4 > 0 AND inv_id in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,barcode_id,mfr_name,pack_barcode,alt_uom,bag_size,st_bin,plant_id,wh_id,c_id,lang_id)";
-            }
-
-            Dataset<Row> data = spark.read()
-                    .option("fetchSize", "10000")
-                    .option("pushDownloadPredicate", true)
-                    .jdbc(jdbcUrl, "(" + sqlQuery + ") as tmp", connProp);
-
-            Encoder<InventoryV4> inventoryV2CoreEncoder = Encoders.bean(InventoryV4.class);
-            Dataset<InventoryV4> inventoryV2CoreDataset = data.as(inventoryV2CoreEncoder);
-//            List<InventoryV4> result = inventoryV2CoreDataset.collectAsList();
-
-            // Run collect asynchronously
-            ExecutorService executor = Executors.newSingleThreadExecutor();
-            Future<List<InventoryV4>> future = executor.submit(inventoryV2CoreDataset::collectAsList);
-
-            try {
-                return future.get(120, TimeUnit.SECONDS);  // Optional timeout
-            } catch (TimeoutException ex) {
-                log.error("Spark job timeout!");
-                future.cancel(true);
-                throw new RuntimeException("Spark job took too long to complete");
-            } finally {
-                executor.shutdownNow();
-            }
-//            return result;
-        } catch (Exception e) {
-            log.error("Find Inventory Spark Exception : " + e.toString());
-            throw e;
-        }
-    }
+//    public List<InventoryV4> findInventoryV3(FindInventoryV2 findInventory) throws ExecutionException, InterruptedException {
+//        try {
+//            String sqlQuery = "SELECT INV_ID, LANG_ID, C_ID, PLANT_ID, WH_ID, " +
+//                    "PAL_CODE, CASE_CODE, PACK_BARCODE, ITM_CODE, VAR_ID, VAR_SUB_ID, " +
+//                    "STR_NO, ST_BIN, STCK_TYP_ID, SP_ST_IND_ID, REF_ORD_NO, STR_MTD, " +
+//                    "BIN_CL_ID, TEXT, INV_QTY, ALLOC_QTY, INV_UOM, MFR_DATE, EXP_DATE, IS_DELETED, REF_FIELD_1, REF_FIELD_2, " +
+//                    "REF_FIELD_3, REF_FIELD_4, REF_FIELD_5, REF_FIELD_6, REF_FIELD_7, REF_FIELD_8, REF_FIELD_9, REF_FIELD_10, " +
+//                    "IU_CTD_BY, IU_CTD_ON, UTD_BY, UTD_ON, MFR_CODE, BARCODE_ID, CBM, level_id, CBM_UNIT, CBM_PER_QTY, MFR_NAME, " +
+//                    "ORIGIN, BRAND, REF_DOC_NO, C_TEXT, PLANT_TEXT, WH_TEXT, STCK_TYP_TEXT, STATUS_TEXT, PARTNER_CODE, " +
+//                    "ITM_TYP_ID, ITM_TYP_TXT, BATCH_DATE, ALT_UOM, NO_BAGS, BAG_SIZE FROM tblinventory";
+//
+//            List<String> conditions = new ArrayList<>();
+//            ConditionUtils.addCondition(conditions, "LANG_ID", findInventory.getLanguageId());
+//            ConditionUtils.addCondition(conditions, "C_ID", findInventory.getCompanyCodeId());
+//            ConditionUtils.addCondition(conditions, "PLANT_ID", findInventory.getPlantId());
+//            ConditionUtils.addCondition(conditions, "WH_ID", findInventory.getWarehouseId());
+//            ConditionUtils.addCondition(conditions, "REF_DOC_NO", findInventory.getReferenceDocumentNo());
+//            ConditionUtils.addCondition(conditions, "BARCODE_ID", findInventory.getBarcodeId());
+//            ConditionUtils.addCondition(conditions, "MFR_CODE", findInventory.getManufacturerCode());
+//            ConditionUtils.addCondition(conditions, "MFR_NAME", findInventory.getManufacturerName());
+//            ConditionUtils.addCondition(conditions, "PACK_BARCODE", findInventory.getPackBarcodes());
+//            ConditionUtils.addCondition(conditions, "ITM_CODE", findInventory.getItemCode());
+//            ConditionUtils.addCondition(conditions, "ST_BIN", findInventory.getStorageBin());
+//            ConditionUtils.addCondition(conditions, "TEXT", findInventory.getDescription());
+//            ConditionUtils.addCondition(conditions, "PARTNER_CODE", findInventory.getPartnerCode());
+//            ConditionUtils.addCondition(conditions, "REF_FIELD_10", findInventory.getStorageSectionId());
+//            ConditionUtils.addCondition(conditions, "level_id", findInventory.getLevelId());
+//            ConditionUtils.addCondition(conditions, "alt_uom", findInventory.getAltUom());
+//            if (findInventory.getStockTypeId() != null) {
+//                ConditionUtils.numericConditions(conditions, "STCK_TYP_ID", findInventory.getStockTypeId());
+//            }
+//            if (findInventory.getSpecialStockIndicatorId() != null) {
+//                ConditionUtils.numericConditions(conditions, "SP_ST_IND_ID", findInventory.getSpecialStockIndicatorId());
+//            }
+//            if (findInventory.getBinClassId() != null) {
+//                ConditionUtils.numericConditions(conditions, "BIN_CL_ID", findInventory.getBinClassId());
+//            }
+//            if (findInventory.getItemTypeId() != null) {
+//                ConditionUtils.numericConditions(conditions, "ITM_TYP_ID", findInventory.getItemTypeId());
+//            }
+//            if (!conditions.isEmpty()) {
+//                sqlQuery += " WHERE IS_DELETED = 0 AND REF_FIELD_4 > 0 AND inv_id in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,barcode_id,mfr_name,pack_barcode,alt_uom,bag_size,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
+//            } else {
+//                sqlQuery += " WHERE IS_DELETED = 0 AND REF_FIELD_4 > 0 AND inv_id in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,barcode_id,mfr_name,pack_barcode,alt_uom,bag_size,st_bin,plant_id,wh_id,c_id,lang_id)";
+//            }
+//
+//            Dataset<Row> data = spark.read()
+//                    .option("fetchSize", "10000")
+//                    .option("pushDownloadPredicate", true)
+//                    .jdbc(jdbcUrl, "(" + sqlQuery + ") as tmp", connProp);
+//
+//            Encoder<InventoryV4> inventoryV2CoreEncoder = Encoders.bean(InventoryV4.class);
+//            Dataset<InventoryV4> inventoryV2CoreDataset = data.as(inventoryV2CoreEncoder);
+////            List<InventoryV4> result = inventoryV2CoreDataset.collectAsList();
+//
+//            // Run collect asynchronously
+//            ExecutorService executor = Executors.newSingleThreadExecutor();
+//            Future<List<InventoryV4>> future = executor.submit(inventoryV2CoreDataset::collectAsList);
+//
+//            try {
+//                return future.get(120, TimeUnit.SECONDS);  // Optional timeout
+//            } catch (TimeoutException ex) {
+//                log.error("Spark job timeout!");
+//                future.cancel(true);
+//                throw new RuntimeException("Spark job took too long to complete");
+//            } finally {
+//                executor.shutdownNow();
+//            }
+////            return result;
+//        } catch (Exception e) {
+//            log.error("Find Inventory Spark Exception : " + e.toString());
+//            throw e;
+//        }
+//    }
 
     /**
      * @param findInventory
@@ -5702,102 +4721,55 @@ public class MultiTenantService {
 //            }
 
             Dataset<Row> data = null;
-            if (routingDb.equals("IMPEX")) {
+            if (routingDb.equals("NAMRATHA")) {
                 if (!conditions.isEmpty()) {
-                    sqlQuery += " WHERE IS_DELETED = 0 AND inv_id in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,barcode_id,mfr_name,pack_barcode,alt_uom,bag_size,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
+                    sqlQuery += " WHERE IS_DELETED = 0 AND REF_FIELD_4 > 0 AND inv_id in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,barcode_id,mfr_name,pack_barcode,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
                 }
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL -->{}", jdbcUrl);
-            } else if (routingDb.equals("WK")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connNam);
                 log.info("JDBC URL check -->{}", jdbcUrl1);
-            } else if (routingDb.equals("MT")) {
+            }  else if (routingDb.equals("KNOWELL")) {
+                if (!conditions.isEmpty()) {
+                    sqlQuery += " WHERE IS_DELETED = 0 AND REF_FIELD_4 > 0 AND inv_id in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,barcode_id,mfr_name,pack_barcode,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
+                }
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connKnow);
                 log.info("JDBC URL check -->{}", jdbcUrl2);
-            } else if (routingDb.equals("ALM")) {
-                if (!conditions.isEmpty()) {
-                    sqlQuery += " WHERE IS_DELETED = 0 AND inv_id in (select max(inv_id) from tblinventory WITH (NOLOCK) where is_deleted = 0 group by itm_code,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
-                }
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL check -->{}", jdbcUrl3);
-            } else if (routingDb.equals("NAMRATHA")) {
-                if (!conditions.isEmpty()) {
-                    sqlQuery += " WHERE IS_DELETED = 0 AND REF_FIELD_4 > 0 AND inv_id in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,barcode_id,mfr_name,pack_barcode,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
-                }
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connProp1);
-                log.info("JDBC URL check -->{}", jdbcUrl4);
-            } else if (routingDb.equals("REEFERON")) {
-                if (!conditions.isEmpty()) {
-                    sqlQuery += " WHERE IS_DELETED = 0 AND REF_FIELD_4 > 0 AND inv_id in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,barcode_id,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
-                }
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connRef);
-                log.info("JDBC URL check -->{}", jdbcUrl5);
-            } else if (routingDb.equals("KNOWELL")) {
-                if (!conditions.isEmpty()) {
-                    sqlQuery += " WHERE IS_DELETED = 0 AND REF_FIELD_4 > 0 AND inv_id in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,barcode_id,mfr_name,pack_barcode,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
-                }
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKnow);
-                log.info("JDBC URL check -->{}", jdbcUrl6);
-            } else if (routingDb.equals("FAHAHEEL")) {
-                if (!conditions.isEmpty()) {
-                    sqlQuery += " WHERE IS_DELETED = 0 AND REF_FIELD_4 > 0 AND inv_id in (select max(inv_id) from tblinventory WITH (NOLOCK) where is_deleted = 0 group by itm_code,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
-                }
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl7, "(" + sqlQuery + ") as tmp", connFahae);
-                log.info("JDBC URL check -->{}", jdbcUrl7);
-            } else if (routingDb.equals("AUTO_LAP")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
-                log.info("JDBC URL check -->{}", jdbcUrl8);
             } else if (routingDb.equals("BF")) {
                 if (!conditions.isEmpty()) {
                     sqlQuery += " WHERE IS_DELETED = 0 AND REF_FIELD_4 > 0 AND inv_id in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,pal_code,barcode_id,stck_typ_id,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
                 } data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
-                log.info("JDBC URL check -->{}", jdbcUrl9);
+                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl4);
             } else if (routingDb.equals("KKF")) {
                 if (!conditions.isEmpty()) {
                     sqlQuery += " WHERE IS_DELETED = 0 AND REF_FIELD_4 > 0 AND inv_id in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,pal_code,barcode_id,stck_typ_id,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
                 } data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
-                log.info("JDBC URL check -->{}", jdbcUrl10);
-            } else if (routingDb.equals("KSP")) {
-                if (!conditions.isEmpty()) {
-                    sqlQuery += " WHERE IS_DELETED = 0 AND REF_FIELD_4 > 0 AND inv_id in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,pal_code,barcode_id,stck_typ_id,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
-                } data = spark.read()
+                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connKKF);
+              log.info("JDBC URL check -->{}", jdbcUrl5);
+             } else if (routingDb.equals("KSP")) {
+                data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
-                log.info("JDBC URL check -->{}", jdbcUrl11);
+                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl6);
+            }else if (routingDb.equals("SPAREX")) {
+                if (!conditions.isEmpty()) {
+                    sqlQuery += " WHERE IS_DELETED = 0 AND INV_QTY > 0 AND REF_FIELD_4 > 0 and inv_id in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,barcode_id,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
+                }
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connSPAREX);
+                log.info("JDBC URL check -->{}", jdbcUrl3);
             }
 
             Encoder<InventoryV4> inventoryV2CoreEncoder = Encoders.bean(InventoryV4.class);
@@ -5896,78 +4868,42 @@ public class MultiTenantService {
             }
 
             Dataset<Row> data = null;
-            if (routingDb.equals("IMPEX")) {
+            if (routingDb.equals("NAMRATHA")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL -->{}", jdbcUrl);
-            } else if (routingDb.equals("WK")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connNam);
                 log.info("JDBC URL check -->{}", jdbcUrl1);
-            } else if (routingDb.equals("MT")) {
+            }  else if (routingDb.equals("KNOWELL")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connKnow);
                 log.info("JDBC URL check -->{}", jdbcUrl2);
-            } else if (routingDb.equals("ALM")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL check -->{}", jdbcUrl3);
-            } else if (routingDb.equals("NAMRATHA")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connProp1);
-                log.info("JDBC URL check -->{}", jdbcUrl4);
-            } else if (routingDb.equals("REEFERON")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connRef);
-                log.info("JDBC URL check -->{}", jdbcUrl5);
-            } else if (routingDb.equals("KNOWELL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKnow);
-                log.info("JDBC URL check -->{}", jdbcUrl6);
-            } else if (routingDb.equals("FAHAHEEL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl7, "(" + sqlQuery + ") as tmp", connFahae);
-                log.info("JDBC URL check -->{}", jdbcUrl7);
-            } else if (routingDb.equals("AUTO_LAP")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
-                log.info("JDBC URL check -->{}", jdbcUrl8);
             } else if (routingDb.equals("BF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
-                log.info("JDBC URL check -->{}", jdbcUrl9);
+                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl4);
             } else if (routingDb.equals("KKF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
-                log.info("JDBC URL check -->{}", jdbcUrl10);
+                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connKKF);
+   log.info("JDBC URL check -->{}", jdbcUrl5);
             } else if (routingDb.equals("KSP")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
-                log.info("JDBC URL check -->{}", jdbcUrl11);
+                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl6);
+            }else if (routingDb.equals("SPAREX")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connSPAREX);
+                log.info("JDBC URL check -->{}", jdbcUrl3);
             }
 
             //            data.show();
@@ -6114,78 +5050,42 @@ public class MultiTenantService {
 
 
             Dataset<Row> data = null;
-            if (routingDb.equals("IMPEX")) {
+            if (routingDb.equals("NAMRATHA")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL -->{}", jdbcUrl);
-            } else if (routingDb.equals("WK")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connNam);
                 log.info("JDBC URL check -->{}", jdbcUrl1);
-            } else if (routingDb.equals("MT")) {
+            }  else if (routingDb.equals("KNOWELL")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connKnow);
                 log.info("JDBC URL check -->{}", jdbcUrl2);
-            } else if (routingDb.equals("ALM")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL check -->{}", jdbcUrl3);
-            } else if (routingDb.equals("NAMRATHA")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connProp1);
-                log.info("JDBC URL check -->{}", jdbcUrl4);
-            } else if (routingDb.equals("REEFERON")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connRef);
-                log.info("JDBC URL check -->{}", jdbcUrl5);
-            } else if (routingDb.equals("KNOWELL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKnow);
-                log.info("JDBC URL check -->{}", jdbcUrl6);
-            } else if (routingDb.equals("FAHAHEEL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl7, "(" + sqlQuery + ") as tmp", connFahae);
-                log.info("JDBC URL check -->{}", jdbcUrl7);
-            } else if (routingDb.equals("AUTO_LAP")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
-                log.info("JDBC URL check -->{}", jdbcUrl8);
             } else if (routingDb.equals("BF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
-                log.info("JDBC URL check -->{}", jdbcUrl9);
+                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl4);
             } else if (routingDb.equals("KKF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
-                log.info("JDBC URL check -->{}", jdbcUrl10);
+                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connKKF);
+   log.info("JDBC URL check -->{}", jdbcUrl5);
             } else if (routingDb.equals("KSP")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
-                log.info("JDBC URL check -->{}", jdbcUrl11);
+                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl6);
+            }else if (routingDb.equals("SPAREX")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connSPAREX);
+                log.info("JDBC URL check -->{}", jdbcUrl3);
             }
 
             //            data.show();
@@ -6284,78 +5184,42 @@ public class MultiTenantService {
             }
 
             Dataset<Row> data = null;
-            if (routingDb.equals("IMPEX")) {
+            if (routingDb.equals("NAMRATHA")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL -->{}", jdbcUrl);
-            } else if (routingDb.equals("WK")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connNam);
                 log.info("JDBC URL check -->{}", jdbcUrl1);
-            } else if (routingDb.equals("MT")) {
+            }  else if (routingDb.equals("KNOWELL")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connKnow);
                 log.info("JDBC URL check -->{}", jdbcUrl2);
-            } else if (routingDb.equals("ALM")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL check -->{}", jdbcUrl3);
-            } else if (routingDb.equals("NAMRATHA")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connProp1);
-                log.info("JDBC URL check -->{}", jdbcUrl4);
-            } else if (routingDb.equals("REEFERON")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connRef);
-                log.info("JDBC URL check -->{}", jdbcUrl5);
-            } else if (routingDb.equals("KNOWELL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKnow);
-                log.info("JDBC URL check -->{}", jdbcUrl6);
-            } else if (routingDb.equals("FAHAHEEL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl7, "(" + sqlQuery + ") as tmp", connFahae);
-                log.info("JDBC URL check -->{}", jdbcUrl7);
-            } else if (routingDb.equals("AUTO_LAP")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
-                log.info("JDBC URL check -->{}", jdbcUrl8);
             } else if (routingDb.equals("BF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
-                log.info("JDBC URL check -->{}", jdbcUrl9);
+                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl4);
             } else if (routingDb.equals("KKF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
-                log.info("JDBC URL check -->{}", jdbcUrl10);
+                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connKKF);
+                log.info("JDBC URL check -->{}", jdbcUrl5);
             } else if (routingDb.equals("KSP")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
-                log.info("JDBC URL check -->{}", jdbcUrl11);
+                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl6);
+            }else if (routingDb.equals("SPAREX")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connSPAREX);
+                log.info("JDBC URL check -->{}", jdbcUrl3);
             }
 
             //            data.show();
@@ -6484,78 +5348,42 @@ public class MultiTenantService {
             }
 
             Dataset<Row> data = null;
-            if (routingDb.equals("IMPEX")) {
+            if (routingDb.equals("NAMRATHA")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL -->{}", jdbcUrl);
-            } else if (routingDb.equals("WK")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connNam);
                 log.info("JDBC URL check -->{}", jdbcUrl1);
-            } else if (routingDb.equals("MT")) {
+            }  else if (routingDb.equals("KNOWELL")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connKnow);
                 log.info("JDBC URL check -->{}", jdbcUrl2);
-            } else if (routingDb.equals("ALM")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL check -->{}", jdbcUrl3);
-            } else if (routingDb.equals("NAMRATHA")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connProp1);
-                log.info("JDBC URL check -->{}", jdbcUrl4);
-            } else if (routingDb.equals("REEFERON")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connRef);
-                log.info("JDBC URL check -->{}", jdbcUrl5);
-            } else if (routingDb.equals("KNOWELL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKnow);
-                log.info("JDBC URL check -->{}", jdbcUrl6);
-            } else if (routingDb.equals("FAHAHEEL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl7, "(" + sqlQuery + ") as tmp", connFahae);
-                log.info("JDBC URL check -->{}", jdbcUrl7);
-            } else if (routingDb.equals("AUTO_LAP")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
-                log.info("JDBC URL check -->{}", jdbcUrl8);
             } else if (routingDb.equals("BF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
-                log.info("JDBC URL check -->{}", jdbcUrl9);
+                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl4);
             } else if (routingDb.equals("KKF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
-                log.info("JDBC URL check -->{}", jdbcUrl10);
+                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connKKF);
+                log.info("JDBC URL check -->{}", jdbcUrl5);
             } else if (routingDb.equals("KSP")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
-                log.info("JDBC URL check -->{}", jdbcUrl11);
+                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl6);
+            }else if (routingDb.equals("SPAREX")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connSPAREX);
+                log.info("JDBC URL check -->{}", jdbcUrl3);
             }
 
             //            data.show();
@@ -7110,78 +5938,42 @@ public class MultiTenantService {
             }
 
             Dataset<Row> data = null;
-            if (routingDb.equals("IMPEX")) {
+            if (routingDb.equals("NAMRATHA")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL -->{}", jdbcUrl);
-            } else if (routingDb.equals("WK")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connNam);
                 log.info("JDBC URL check -->{}", jdbcUrl1);
-            } else if (routingDb.equals("MT")) {
+            }  else if (routingDb.equals("KNOWELL")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connProp);
+                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connKnow);
                 log.info("JDBC URL check -->{}", jdbcUrl2);
-            } else if (routingDb.equals("ALM")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL check -->{}", jdbcUrl3);
-            } else if (routingDb.equals("NAMRATHA")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connProp1);
-                log.info("JDBC URL check -->{}", jdbcUrl4);
-            } else if (routingDb.equals("REEFERON")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connRef);
-                log.info("JDBC URL check -->{}", jdbcUrl5);
-            } else if (routingDb.equals("KNOWELL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKnow);
-                log.info("JDBC URL check -->{}", jdbcUrl6);
-            } else if (routingDb.equals("FAHAHEEL")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl7, "(" + sqlQuery + ") as tmp", connFahae);
-                log.info("JDBC URL check -->{}", jdbcUrl7);
-            } else if (routingDb.equals("AUTO_LAP")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
-                log.info("JDBC URL check -->{}", jdbcUrl8);
             } else if (routingDb.equals("BF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
-                log.info("JDBC URL check -->{}", jdbcUrl9);
+                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl4);
             } else if (routingDb.equals("KKF")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
-                log.info("JDBC URL check -->{}", jdbcUrl10);
+                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connKKF);
+                log.info("JDBC URL check -->{}", jdbcUrl5);
             } else if (routingDb.equals("KSP")) {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
-                log.info("JDBC URL check -->{}", jdbcUrl11);
+                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl6);
+            }else if (routingDb.equals("SPAREX")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connSPAREX);
+                log.info("JDBC URL check -->{}", jdbcUrl3);
             }
 
             //            data.show();
@@ -7215,13 +6007,13 @@ public class MultiTenantService {
     public List<InventoryV5> findInventoryV5(FindInventoryV2 findInventory) throws ExecutionException, InterruptedException {
         try {
 
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(findInventory.getCompanyCodeId(), findInventory.getPlantId(), findInventory.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
             DataBaseContextHolder.setCurrentDb(routingDb);
 
-            String sqlQuery = "select barcode_id as barcodeId, inv_qty as inventoryQuantity, itm_code as itemCode, alloc_qty allocatedQuantity, ref_field_4 as referenceField4 from tblinventory";
+            String sqlQuery = "select barcode_id as barcodeId, inv_qty as inventoryQuantity, itm_code as itemCode, alloc_qty allocatedQuantity, ref_field_4 as referenceField4, ST_BIN as storageBin from tblinventory";
 
 
             List<String> conditions = new ArrayList<>();
@@ -7256,39 +6048,15 @@ public class MultiTenantService {
             }
 
             Dataset<Row> data = null;
-            if (routingDb.equals("IMF")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL check -->{}", jdbcUrl2);
-            } else if (routingDb.equals("ALM")) {
-                if (!conditions.isEmpty()) {
-                    sqlQuery += " WHERE IS_DELETED = 0 AND inv_id in (select max(inv_id) from tblinventory WITH (NOLOCK) where is_deleted = 0 group by itm_code,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
-                }
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL check -->{}", jdbcUrl3);
-            } else if (routingDb.equals("NAMRATHA")) {
+             if (routingDb.equals("NAMRATHA")) {
                 if (!conditions.isEmpty()) {
                     sqlQuery += " WHERE IS_DELETED = 0 AND REF_FIELD_4 > 0 AND inv_id in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,barcode_id,mfr_name,pack_barcode,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
                 }
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connProp1);
-                log.info("JDBC URL check -->{}", jdbcUrl4);
-            } else if (routingDb.equals("REEFERON")) {
-                if (!conditions.isEmpty()) {
-                    sqlQuery += " WHERE IS_DELETED = 0 AND REF_FIELD_4 > 0 AND inv_id in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,barcode_id,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
-                }
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connRef);
-                log.info("JDBC URL check -->{}", jdbcUrl5);
+                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connNam);
+                log.info("JDBC URL check -->{}", jdbcUrl1);
             } else if (routingDb.equals("KNOWELL")) {
                 if (!conditions.isEmpty()) {
                     sqlQuery += " WHERE IS_DELETED = 0 AND REF_FIELD_4 > 0 AND inv_id in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,barcode_id,mfr_name,pack_barcode,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
@@ -7296,47 +6064,34 @@ public class MultiTenantService {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKnow);
-                log.info("JDBC URL check -->{}", jdbcUrl6);
-            } else if (routingDb.equals("FAHAHEEL")) {
-                if (!conditions.isEmpty()) {
-                    sqlQuery += " WHERE IS_DELETED = 0 AND REF_FIELD_4 > 0 AND inv_id in (select max(inv_id) from tblinventory WITH (NOLOCK) where is_deleted = 0 group by itm_code,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
-                }
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl7, "(" + sqlQuery + ") as tmp", connFahae);
-                log.info("JDBC URL check -->{}", jdbcUrl7);
-            } else if (routingDb.equals("AUTO_LAP")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
-                log.info("JDBC URL check -->{}", jdbcUrl8);
+                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connKnow);
+                log.info("JDBC URL check -->{}", jdbcUrl2);
             } else if (routingDb.equals("BF")) {
                 if (!conditions.isEmpty()) {
                     sqlQuery += " WHERE IS_DELETED = 0 AND REF_FIELD_4 > 0 AND inv_id in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,pal_code,barcode_id,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
                 } data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
-                log.info("JDBC URL check -->{}", jdbcUrl9);
+                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl4);
             } else if (routingDb.equals("KKF")) {
-                if (!conditions.isEmpty()) {
-                    sqlQuery += " WHERE IS_DELETED = 0 AND REF_FIELD_4 > 0 AND inv_id in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,pal_code,barcode_id,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
-                } data = spark.read()
+                data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
-                log.info("JDBC URL check -->{}", jdbcUrl10);
-            } else if (routingDb.equals("KSP")) {
-                if (!conditions.isEmpty()) {
-                    sqlQuery += " WHERE IS_DELETED = 0 AND REF_FIELD_4 > 0 AND inv_id in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,pal_code,barcode_id,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
-                } data = spark.read()
+                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connKKF);
+                 log.info("JDBC URL check -->{}", jdbcUrl5);
+             } else if (routingDb.equals("KSP")) {
+                 data = spark.read()
+                         .option("fetchSize", "10000")
+                         .option("pushDownloadPredicate", true)
+                         .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKSP);
+                 log.info("JDBC URL check -->{}", jdbcUrl6);
+            }else if (routingDb.equals("SPAREX")) {
+                data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
-                log.info("JDBC URL check -->{}", jdbcUrl11);
+                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connSPAREX);
+                log.info("JDBC URL check -->{}", jdbcUrl3);
             }
 
             Encoder<InventoryV5> inventoryV2CoreEncoder = Encoders.bean(InventoryV5.class);
@@ -7424,54 +6179,15 @@ public class MultiTenantService {
 //            }
 
             Dataset<Row> data = null;
-            if (routingDb.equals("IMPEX")) {
-                if (!conditions.isEmpty()) {
-                    sqlQuery += " WHERE IS_DELETED = 0 AND inv_id in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,barcode_id,mfr_name,pack_barcode,alt_uom,bag_size,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
-                }
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL -->{}", jdbcUrl);
-            } else if (routingDb.equals("WK")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL check -->{}", jdbcUrl1);
-            } else if (routingDb.equals("MT")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL check -->{}", jdbcUrl2);
-            } else if (routingDb.equals("ALM")) {
-                if (!conditions.isEmpty()) {
-                    sqlQuery += " WHERE IS_DELETED = 0 AND inv_id in (select max(inv_id) from tblinventory WITH (NOLOCK) where is_deleted = 0 group by itm_code,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
-                }
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connProp);
-                log.info("JDBC URL check -->{}", jdbcUrl3);
-            } else if (routingDb.equals("NAMRATHA")) {
+            if (routingDb.equals("NAMRATHA")) {
                 if (!conditions.isEmpty()) {
                     sqlQuery += " WHERE IS_DELETED = 0 AND REF_FIELD_4 > 0 AND inv_id in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,barcode_id,mfr_name,pack_barcode,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
                 }
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connProp1);
-                log.info("JDBC URL check -->{}", jdbcUrl4);
-            } else if (routingDb.equals("REEFERON")) {
-                if (!conditions.isEmpty()) {
-                    sqlQuery += " WHERE IS_DELETED = 0 AND REF_FIELD_4 > 0 AND inv_id in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,barcode_id,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
-                }
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connRef);
-                log.info("JDBC URL check -->{}", jdbcUrl5);
+                        .jdbc(jdbcUrl1, "(" + sqlQuery + ") as tmp", connNam);
+                log.info("JDBC URL check -->{}", jdbcUrl1);
             } else if (routingDb.equals("KNOWELL")) {
                 if (!conditions.isEmpty()) {
                     sqlQuery += " WHERE IS_DELETED = 0 AND REF_FIELD_4 > 0 AND inv_id in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,barcode_id,mfr_name,pack_barcode,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
@@ -7479,47 +6195,34 @@ public class MultiTenantService {
                 data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKnow);
-                log.info("JDBC URL check -->{}", jdbcUrl6);
-            } else if (routingDb.equals("FAHAHEEL")) {
-                if (!conditions.isEmpty()) {
-                    sqlQuery += " WHERE IS_DELETED = 0 AND REF_FIELD_4 > 0 AND inv_id in (select max(inv_id) from tblinventory WITH (NOLOCK) where is_deleted = 0 group by itm_code,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
-                }
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl7, "(" + sqlQuery + ") as tmp", connFahae);
-                log.info("JDBC URL check -->{}", jdbcUrl7);
-            } else if (routingDb.equals("AUTO_LAP")) {
-                data = spark.read()
-                        .option("fetchSize", "10000")
-                        .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
-                log.info("JDBC URL check -->{}", jdbcUrl8);
-            } else if (routingDb.equals("BF")) {
+                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connKnow);
+                log.info("JDBC URL check -->{}", jdbcUrl2);
+            }else if (routingDb.equals("BF")) {
                 if (!conditions.isEmpty()) {
                     sqlQuery += " WHERE IS_DELETED = 0 AND REF_FIELD_4 > 0 AND inv_id in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,pal_code,barcode_id,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
                 } data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
-                log.info("JDBC URL check -->{}", jdbcUrl9);
+                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl4);
             } else if (routingDb.equals("KKF")) {
-                if (!conditions.isEmpty()) {
-                    sqlQuery += " WHERE IS_DELETED = 0 AND REF_FIELD_4 > 0 AND inv_id in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,pal_code,barcode_id,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
-                } data = spark.read()
+                data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
-                log.info("JDBC URL check -->{}", jdbcUrl10);
+                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connKKF);
+                log.info("JDBC URL check -->{}", jdbcUrl5);
             } else if (routingDb.equals("KSP")) {
-                if (!conditions.isEmpty()) {
-                    sqlQuery += " WHERE IS_DELETED = 0 AND REF_FIELD_4 > 0 AND inv_id in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,pal_code,barcode_id,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
-                } data = spark.read()
+                data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
-                log.info("JDBC URL check -->{}", jdbcUrl11);
+                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl6);
+            }else if (routingDb.equals("SPAREX")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connSPAREX);
+                log.info("JDBC URL check -->{}", jdbcUrl3);
             }
 
 
@@ -7555,7 +6258,7 @@ public class MultiTenantService {
     public List<InventoryNewV9> searchInventoryV9(FindInventoryV2 findInventory) throws ExecutionException, InterruptedException {
         try {
 
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(findInventory.getCompanyCodeId(), findInventory.getPlantId(), findInventory.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -7620,24 +6323,22 @@ public class MultiTenantService {
                 } data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl9, "(" + sqlQuery + ") as tmp", connBF);
-                log.info("JDBC URL check -->{}", jdbcUrl9);
+                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connBF);
+                log.info("JDBC URL check -->{}", jdbcUrl4);
             } else if (routingDb.equals("KKF")) {
                 if (!conditions.isEmpty()) {
                     sqlQuery += " WHERE inv.IS_DELETED = 0 AND inv.REF_FIELD_4 > 0 AND inv.INV_ID in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,pal_code,barcode_id,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
                 } data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl10, "(" + sqlQuery + ") as tmp", connKKF);
-                log.info("JDBC URL check -->{}", jdbcUrl10);
+                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connKKF);
+                log.info("JDBC URL check -->{}", jdbcUrl5);
             } else if (routingDb.equals("KSP")) {
-                if (!conditions.isEmpty()) {
-                    sqlQuery += " WHERE inv.IS_DELETED = 0 AND inv.REF_FIELD_4 > 0 AND inv.INV_ID in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,pal_code,barcode_id,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
-                } data = spark.read()
+                data = spark.read()
                         .option("fetchSize", "10000")
                         .option("pushDownloadPredicate", true)
-                        .jdbc(jdbcUrl11, "(" + sqlQuery + ") as tmp", connKSP);
-                log.info("JDBC URL check -->{}", jdbcUrl11);
+                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKSP);
+                log.info("JDBC URL check -->{}", jdbcUrl6);
             }
             Encoder<InventoryNewV9> inventoryV2CoreEncoder = Encoders.bean(InventoryNewV9.class);
             Dataset<InventoryNewV9> inventoryV2CoreDataset = data.as(inventoryV2CoreEncoder);

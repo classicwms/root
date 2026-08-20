@@ -4,10 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.tekclover.wms.api.outbound.transaction.repository.fragments.StreamableJpaSpecificationRepository;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.jpa.repository.QueryHints;
+import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -85,5 +82,14 @@ public interface QualityHeaderRepository extends JpaRepository<QualityHeader, Lo
             @Param("warehouseId") List<String> warehouseId,
             @Param("statusId") Long statusId);
 
-
+    // BF
+    @Modifying
+    @Transactional
+    @Query(value = "delete tblqualityheader where ref_doc_no = :refDocNo and c_id = :companyId and " +
+            "plant_id = :plantId and lang_id = :languageId and wh_id = :warehouseId and is_deleted = 0", nativeQuery = true)
+    int qualityHeader(@Param("refDocNo") String refDocNo,
+                      @Param("companyId") String companyId,
+                      @Param("plantId") String plantId,
+                      @Param("languageId") String languageId,
+                      @Param("warehouseId") String warehouseId);
 }
