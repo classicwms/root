@@ -2,6 +2,7 @@ package com.tekclover.wms.core.model.spark;
 
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 @Data
@@ -17,7 +18,7 @@ public class PutAwayDashBoardUserListRes {
     private Timestamp startTime;
     private Timestamp endTime;
     private Long leadTimeMinutes;
-    private Long productivityPerHour;
+    private BigDecimal productivityPerHour;
     private Long totalPallet;
     private Long personProductivity;
     private Long palletProductivity;
