@@ -75,5 +75,5 @@ test {
 }
 
 bootJar {
-   archiveName = 'TransactionService.jar'
+   archiveName = 'OutboundTransactionService.jar'
 }
