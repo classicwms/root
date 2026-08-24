@@ -1006,44 +1006,44 @@ public class OutboundLineService extends BaseService {
 	 * @param lineNumbers
 	 * @param loginUserID
 	 */
-	@Retryable(
-			value = {CannotAcquireLockException.class, LockAcquisitionException.class}, 
-			maxAttempts = 3, 
-			backoff = @Backoff(delay = 3000, multiplier = 2, maxDelay = 10000)
-			)
-	private void deliveryConfirmStatusUpdate (String warehouseId, String preOutboundNo, String refDocNumber, Long STATUS_ID_59, List<Long> lineNumbers, String loginUserID) {
-        try {
-            AuthToken authTokenForIDService = authTokenService.getIDMasterServiceAuthToken();
-            outboundLineRepository.updateOutboundLineStatus (warehouseId, refDocNumber, STATUS_ID_59, lineNumbers, new Date());
-            log.info("OutboundLine updated ");
-
-            //----------------Outbound Header update----------------------------------------------------------------------------------------
-//            outboundHeaderRepository.updateOutboundHeaderStatus (warehouseId, refDocNumber, STATUS_ID_59, new Date());
-            OutboundHeader isOrderConfirmedOutboundHeader = outboundHeaderService.getOutboundHeader(warehouseId, preOutboundNo, refDocNumber);
-            log.info("OutboundHeader updated----1---> : " + isOrderConfirmedOutboundHeader.getRefDocNumber() + "---" + isOrderConfirmedOutboundHeader.getStatusId());
-            if (isOrderConfirmedOutboundHeader.getStatusId() != 59L) {
-                log.info("OutboundHeader is still updated not updated.");
-                log.info("Updating again OutboundHeader.");
-                isOrderConfirmedOutboundHeader.setStatusId(STATUS_ID_59);
-                isOrderConfirmedOutboundHeader.setUpdatedBy(loginUserID);
-                isOrderConfirmedOutboundHeader.setUpdatedOn(new Date());
-                isOrderConfirmedOutboundHeader.setDeliveryConfirmedOn(new Date());
-                outboundHeaderRepository.saveAndFlush(isOrderConfirmedOutboundHeader);
-                log.info("OutboundHeader updated---2---> : " + isOrderConfirmedOutboundHeader.getRefDocNumber() + "---" + isOrderConfirmedOutboundHeader.getStatusId());
-            }
-            //----------------Preoutbound Line----------------------------------------------------------------------------------------------
-            preOutboundLineRepository.updatePreOutboundLineStatus(warehouseId, refDocNumber, STATUS_ID_59);
-            log.info("PreOutbound Line updated");
-
-            //----------------Preoutbound Header--------------------------------------------------------------------------------------------
-            StatusId idStatus = idmasterService.getStatus(STATUS_ID_59, warehouseId, authTokenForIDService.getAccess_token());
-            preOutboundHeaderRepository.updatePreOutboundHeaderStatus(warehouseId, refDocNumber, STATUS_ID_59, idStatus.getStatus());
-            log.info("PreOutbound Header updated");
-        } catch (Exception e) {
-            log.error("Exception while delivery confirmation status update---> " + preOutboundNo + " | " + refDocNumber + " | " + warehouseId);
-			e.printStackTrace();
-        }
-    }
+//	@Retryable(
+//			value = {CannotAcquireLockException.class, LockAcquisitionException.class},
+//			maxAttempts = 3,
+//			backoff = @Backoff(delay = 3000, multiplier = 2, maxDelay = 10000)
+//			)
+//	private void deliveryConfirmStatusUpdate (String warehouseId, String preOutboundNo, String refDocNumber, Long STATUS_ID_59, List<Long> lineNumbers, String loginUserID) {
+//        try {
+//            AuthToken authTokenForIDService = authTokenService.getIDMasterServiceAuthToken();
+//            outboundLineRepository.updateOutboundLineStatus (warehouseId, refDocNumber, STATUS_ID_59, lineNumbers, new Date());
+//            log.info("OutboundLine updated ");
+//
+//            //----------------Outbound Header update----------------------------------------------------------------------------------------
+////            outboundHeaderRepository.updateOutboundHeaderStatus (warehouseId, refDocNumber, STATUS_ID_59, new Date());
+//            OutboundHeader isOrderConfirmedOutboundHeader = outboundHeaderService.getOutboundHeader(warehouseId, preOutboundNo, refDocNumber);
+//            log.info("OutboundHeader updated----1---> : " + isOrderConfirmedOutboundHeader.getRefDocNumber() + "---" + isOrderConfirmedOutboundHeader.getStatusId());
+//            if (isOrderConfirmedOutboundHeader.getStatusId() != 59L) {
+//                log.info("OutboundHeader is still updated not updated.");
+//                log.info("Updating again OutboundHeader.");
+//                isOrderConfirmedOutboundHeader.setStatusId(STATUS_ID_59);
+//                isOrderConfirmedOutboundHeader.setUpdatedBy(loginUserID);
+//                isOrderConfirmedOutboundHeader.setUpdatedOn(new Date());
+//                isOrderConfirmedOutboundHeader.setDeliveryConfirmedOn(new Date());
+//                outboundHeaderRepository.saveAndFlush(isOrderConfirmedOutboundHeader);
+//                log.info("OutboundHeader updated---2---> : " + isOrderConfirmedOutboundHeader.getRefDocNumber() + "---" + isOrderConfirmedOutboundHeader.getStatusId());
+//            }
+//            //----------------Preoutbound Line----------------------------------------------------------------------------------------------
+//            preOutboundLineRepository.updatePreOutboundLineStatus(warehouseId, refDocNumber, STATUS_ID_59);
+//            log.info("PreOutbound Line updated");
+//
+//            //----------------Preoutbound Header--------------------------------------------------------------------------------------------
+//            StatusId idStatus = idmasterService.getStatus(STATUS_ID_59, warehouseId, authTokenForIDService.getAccess_token());
+//            preOutboundHeaderRepository.updatePreOutboundHeaderStatus(warehouseId, refDocNumber, STATUS_ID_59, idStatus.getStatus());
+//            log.info("PreOutbound Header updated");
+//        } catch (Exception e) {
+//            log.error("Exception while delivery confirmation status update---> " + preOutboundNo + " | " + refDocNumber + " | " + warehouseId);
+//			e.printStackTrace();
+//        }
+//    }
 	
 	/**
 	 * 
@@ -2503,12 +2503,12 @@ public class OutboundLineService extends BaseService {
 			producerService.outboundLineStatusUpdate(new OutboundLineStatusUpdate(warehouseId, refDocNumber, STATUS_ID_59));
 
 			// OutboundHeader Status Update
-			OutboundHeader isOrderConfirmedOutboundHeader = outboundHeaderService.getOutboundHeader(warehouseId, preOutboundNo, refDocNumber);
-			log.info("OutboundHeader updated----1---> : " + isOrderConfirmedOutboundHeader.getRefDocNumber() + "---" + isOrderConfirmedOutboundHeader.getStatusId());
-			if (isOrderConfirmedOutboundHeader.getStatusId() != 59L) {
-				producerService.outboundHeaderStatusUpdate(new OutboundHeaderUpdateEvent(warehouseId, refDocNumber, 59L, new Date()));
-				log.info("OutboundHeader Update Kafka published RefDocNo is {} ", refDocNumber);
-			}
+//			OutboundHeader isOrderConfirmedOutboundHeader = outboundHeaderService.getOutboundHeader(warehouseId, preOutboundNo, refDocNumber);
+//			log.info("OutboundHeader updated----1---> : " + isOrderConfirmedOutboundHeader.getRefDocNumber() + "---" + isOrderConfirmedOutboundHeader.getStatusId());
+//			if (isOrderConfirmedOutboundHeader.getStatusId() != 59L) {
+//				producerService.outboundHeaderStatusUpdate(new OutboundHeaderUpdateEvent(warehouseId, refDocNumber, 59L, new Date()));
+//				log.info("OutboundHeader Update Kafka published RefDocNo is {} ", refDocNumber);
+//			}
 			//----------------Preoutbound Line----------------------------------------------------------------------------------------------
 			log.info("PreOutboundLine Status Update In Kafka published");
 			producerService.preOutboundLineStatusUpdate(new PreOutboundLineStatusUpdateEvent(warehouseId, refDocNumber, STATUS_ID_59));
