@@ -582,7 +582,7 @@ public class PickupDenialReportService {
      */
     private Calendar getPreviousDate() throws Exception {
         Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.DATE, 0);
+        calendar.add(Calendar.DATE, -1);
         return calendar;
     }
 
