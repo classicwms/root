@@ -64,5 +64,5 @@ test {
 }
 
 bootJar {
-   archiveName = 'TransactionService.jar'
+   archiveName = 'EnterPriseSetupService.jar'
 }

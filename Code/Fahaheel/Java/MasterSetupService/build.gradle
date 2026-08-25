@@ -62,5 +62,5 @@ test {
 }
 
 bootJar {
-   archiveName = 'TransactionService.jar'
+   archiveName = 'MasterService.jar'
 }

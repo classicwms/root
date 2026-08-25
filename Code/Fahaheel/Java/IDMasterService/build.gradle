@@ -57,5 +57,5 @@ test {
 }
 
 bootJar {
-   archiveName = 'EnterpriseSetupService.jar'
+   archiveName = 'IDMasterService.jar'
 }
