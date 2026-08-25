@@ -4783,8 +4783,8 @@ public class PutAwayHeaderService extends BaseService {
 
                     // Save the entity and add it to the list
 //                PutAwayHeaderV2 savedPutAwayHeader = putAwayHeaderV2Repository.save(putAwayHeader);
-                    PutAwayHeaderV2 putAway = putAwayHeaderV2Repository.findTopByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndReferenceField5AndBarcodeIdAndDeletionIndicator(
-                            companyCode, plantId, languageId, warehouseId, createdGRLine.getItemCode(), createdGRLine.getBarcodeId(), 0L);
+                    PutAwayHeaderV2 putAway = putAwayHeaderV2Repository.findTopByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndReferenceField5AndBarcodeIdAndRefDocNumberAndDeletionIndicator(
+                            companyCode, plantId, languageId, warehouseId, createdGRLine.getItemCode(), createdGRLine.getBarcodeId(), createdGRLine.getRefDocNumber(), 0L);
                     if (putAway == null) {
                         savedPutAwayHeaders.add(putAwayHeader);
                     } else {
@@ -4880,7 +4880,7 @@ public class PutAwayHeaderService extends BaseService {
 
                 inventory.setCreatedOn(new Date());
             // Checking already present inventory for binClsId 3
-            Long inventoryCheckBin3 = inventoryV2Repository.getInventoryBin3Count(inventory.getBarcodeId(), inventory.getCompanyCodeId(), inventory.getPlantId(), inventory.getWarehouseId());
+            Long inventoryCheckBin3 = inventoryV2Repository.getInventoryBin3Count(inventory.getBarcodeId(), inventory.getCompanyCodeId(), inventory.getPlantId(), inventory.getWarehouseId(), createdGRLine.getRefDocNumber());
             log.info("inventoryCheck for Bincls 3 ----> {}", inventoryCheckBin3);
             try {
 
