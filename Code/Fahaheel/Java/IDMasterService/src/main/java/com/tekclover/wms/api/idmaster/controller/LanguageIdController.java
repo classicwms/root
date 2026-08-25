@@ -4,7 +4,6 @@ import com.tekclover.wms.api.idmaster.model.languageid.AddLanguageId;
 import com.tekclover.wms.api.idmaster.model.languageid.FindLanguageId;
 import com.tekclover.wms.api.idmaster.model.languageid.LanguageId;
 import com.tekclover.wms.api.idmaster.model.languageid.UpdateLanguageId;
-import com.tekclover.wms.api.idmaster.repository.DbConfigRepository;
 import com.tekclover.wms.api.idmaster.service.LanguageIdService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -32,7 +31,6 @@ public class LanguageIdController {
 	
 	@Autowired
 	LanguageIdService languageidService;
-
 	
     @ApiOperation(response = LanguageId.class, value = "Get all LanguageId details") // label for swagger
 	@GetMapping("")
@@ -54,7 +52,6 @@ public class LanguageIdController {
 	@PostMapping("")
 	public ResponseEntity<?> postLanguageId(@Valid @RequestBody AddLanguageId newLanguageId, 
 			@RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException, ParseException {
-
 		LanguageId createdLanguageId = languageidService.createLanguageId(newLanguageId, loginUserID);
 		return new ResponseEntity<>(createdLanguageId , HttpStatus.OK);
 	}

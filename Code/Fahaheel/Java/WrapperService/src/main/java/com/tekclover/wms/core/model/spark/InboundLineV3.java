@@ -29,7 +29,7 @@ public class InboundLineV3 {
 //    private Long specialStockIndicatorId;
 //    private String referenceOrderNo;
 //    private Long statusId;
-//    private String businessPartnerCode;
+//    private String vendorCode;
 //    private Timestamp expectedArrivalDate;
 //    private String containerNo;
 //    private String invoiceNo;
@@ -74,11 +74,4 @@ public class InboundLineV3 {
 //    private String transferOrderNo;
 //    private String isCompleted;
     private String sourceBranch;
-    private String alternateUom;
-    private Double noBags;
-    private Double bagSize;
-    private Double mrp;
-    private String itemType;
-    private String itemGroup;
-    private String brand;
 }

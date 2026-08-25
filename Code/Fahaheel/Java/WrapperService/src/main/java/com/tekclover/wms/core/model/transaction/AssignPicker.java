@@ -15,5 +15,4 @@ public class AssignPicker {
 	private String itemCode; 
 	private String proposedStorageBin; 
 	private String proposedPackCode;
-	private String barcodeId;
 }

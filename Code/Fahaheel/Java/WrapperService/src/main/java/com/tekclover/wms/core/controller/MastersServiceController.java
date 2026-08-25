@@ -8,7 +8,6 @@ import com.tekclover.wms.core.model.warehouse.inbound.WarehouseApiResponse;
 import com.tekclover.wms.core.model.warehouse.mastersorder.Customer;
 import com.tekclover.wms.core.model.warehouse.mastersorder.ImBasicData1V2;
 import com.tekclover.wms.core.model.warehouse.mastersorder.Item;
-import com.tekclover.wms.core.service.FileStorageService;
 import com.tekclover.wms.core.service.MastersService;
 import com.tekclover.wms.core.service.RegisterService;
 import io.swagger.annotations.Api;
@@ -20,12 +19,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
@@ -38,10 +35,6 @@ public class MastersServiceController {
 
     @Autowired
     MastersService mastersService;
-
-    @Autowired
-    FileStorageService fileStorageService;
-
 
     @Autowired
     RegisterService registerService;
@@ -290,7 +283,7 @@ public class MastersServiceController {
     }
 
     @ApiOperation(response = HandlingEquipment.class, value = "Get HandlingEquipment by Barcode V2") // label for swagger
-    @GetMapping("/handlingequipment/{heBarcode}/barCode")
+    @GetMapping("/handlingequipment/{heBarcode}/v2/barCode")
     public ResponseEntity<?> getHandlingEquipmentV2(@PathVariable String heBarcode, @RequestParam String companyCodeId,
                                                     @RequestParam String languageId, @RequestParam String plantId, @RequestParam String warehouseId,
                                                     @RequestParam String authToken) {
@@ -300,26 +293,15 @@ public class MastersServiceController {
         return new ResponseEntity<>(handlingequipment, HttpStatus.OK);
     }
 
-    @ApiOperation(response = HandlingEquipment.class, value = "Get HandlingEquipment by Barcode V2") // label for swagger
-    @GetMapping("/handlingequipment/{heBarcode}/v2/barCode")
-    public ResponseEntity<?> getHandlingEquipmentV8(@PathVariable String heBarcode, @RequestParam String companyCodeId,
-                                                    @RequestParam String languageId, @RequestParam String plantId, @RequestParam String warehouseId,
+    @ApiOperation(response = HandlingEquipment.class, value = "Get HandlingEquipment by Barcode") // label for swagger
+    @GetMapping("/handlingequipment/{heBarcode}/barCode")
+    public ResponseEntity<?> getHandlingEquipment(@PathVariable String heBarcode, @RequestParam String warehouseId,
                                                     @RequestParam String authToken) {
 
-        HandlingEquipment handlingequipment = mastersService.getHandlingEquipmentV2(warehouseId, heBarcode, companyCodeId, languageId, plantId, authToken);
+        HandlingEquipment handlingequipment = mastersService.getHandlingEquipment(warehouseId, heBarcode, authToken);
         log.info("HandlingEquipment : " + handlingequipment);
         return new ResponseEntity<>(handlingequipment, HttpStatus.OK);
     }
-
-//    @ApiOperation(response = HandlingEquipment.class, value = "Get HandlingEquipment by Barcode") // label for swagger
-//    @GetMapping("/handlingequipment/{heBarcode}/barCode")
-//    public ResponseEntity<?> getHandlingEquipment(@PathVariable String heBarcode, @RequestParam String warehouseId,
-//                                                    @RequestParam String authToken) {
-//
-//        HandlingEquipment handlingequipment = mastersService.getHandlingEquipment(warehouseId, heBarcode, authToken);
-//        log.info("HandlingEquipment : " + handlingequipment);
-//        return new ResponseEntity<>(handlingequipment, HttpStatus.OK);
-//    }
 
     @ApiOperation(response = HandlingEquipment.class, value = "Search HandlingEquipment") // label for swagger
     @PostMapping("/handlingequipment/findHandlingEquipment")
@@ -573,7 +555,7 @@ public class MastersServiceController {
         return mastersService.findImBasicData1(searchImBasicData1, authToken);
     }
 
-    //Streaming Changed to List for Fahaheel MT
+    //Streaming
     @ApiOperation(response = ImBasicData1.class, value = "Search ImBasicData1 Stream") // label for swagger
     @PostMapping("/imbasicdata1/findImBasicData1New")
     public ImBasicData1[] findImBasicData1New(@RequestBody SearchImBasicData1 searchImBasicData1,
@@ -2402,6 +2384,7 @@ public class MastersServiceController {
     @PostMapping("/warehouse/master/item")
     public ResponseEntity<?> postItem(@Valid @RequestBody Item item, @RequestParam String authToken)
             throws IllegalAccessException, InvocationTargetException {
+        log.info("Item Master Create ---->");
         WarehouseApiResponse createdItem = mastersService.postItem(item, authToken);
         return new ResponseEntity<>(createdItem, HttpStatus.OK);
     }
@@ -2465,38 +2448,4 @@ public class MastersServiceController {
         return mastersService.findEMailDetails(findEmailDetails, authToken);
     }
 
-    //-----------------------------------------------------------------------------------------------------------------
-
-    @ApiOperation(response = EMailDetails.class, value = "Upload Storage Bin") // label for swagger
-    @PostMapping("/upload/storagebin")
-    public ResponseEntity<?> postStorageBin(@RequestParam String companyCodeId, @RequestParam String plantId,
-                                            @RequestParam String languageID, @RequestParam String warehouseId,
-                                            @RequestParam String loginUserID,@RequestParam("file") MultipartFile file) throws Exception {
-
-        Map<String, String> response=null;
-        response = fileStorageService.processStorageBin(companyCodeId,plantId,languageID,warehouseId,loginUserID,file);
-        return new ResponseEntity<>(response,HttpStatus.OK);
-    }
-
-    //----------------------------------------- File Upload ----------------------------------------------------
-    @ApiOperation(response = ImBasicData1V2.class, value = "ImBasicData Upload")
-    @PostMapping("/imbasicdata1/Upload")
-    public ResponseEntity<?> postImBasicData1(@RequestParam String companyCodeId, @RequestParam String plantId,
-                                              @RequestParam String languageId, @RequestParam String warehouseId,
-                                              @RequestParam String loginUserID, @RequestParam("file") MultipartFile file) throws Exception {
-        Map<String, String> response = fileStorageService.processImBasicData1(companyCodeId, plantId, languageId, warehouseId, loginUserID, file);
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-    //========================================ImPartner Upload====================================
-    @ApiOperation(response = EMailDetails.class, value = "ImPartner Upload") // label for swagger
-    @PostMapping("/upload/ImPartner")
-    public ResponseEntity<?> postInventory(@RequestParam String companyCodeId, @RequestParam String plantId,
-                                           @RequestParam String languageID, @RequestParam String warehouseId,
-                                           @RequestParam String loginUserID,@RequestParam("file") MultipartFile file) throws Exception {
-
-        Map<String, String> response=null;
-        response = fileStorageService.processImPartner(companyCodeId,plantId,languageID,warehouseId,loginUserID,file);
-        return new ResponseEntity<>(response,HttpStatus.OK);
-    }
 }

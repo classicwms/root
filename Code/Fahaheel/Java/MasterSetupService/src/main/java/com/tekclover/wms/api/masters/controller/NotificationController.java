@@ -24,7 +24,6 @@ public class NotificationController {
     @SendTo("/topic/messages")
     public OutputMessage send(final WebSocketNotification message) throws Exception {
 
-
         final String time = new SimpleDateFormat("HH:mm").format(new Date());
         return new OutputMessage(message.getFrom(), message.getText(), time,null,null);
     }

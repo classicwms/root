@@ -2445,7 +2445,7 @@ public class MastersService {
             headers.add("User-Agent", "Classic WMS's RestTemplate");
             headers.add("Authorization", "Bearer " + authToken);
 
-            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "storagebin/v2")
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "storagebin")
                     .queryParam("loginUserID", loginUserID);
 
             HttpEntity<?> entity = new HttpEntity<>(storagebin, headers);
@@ -5486,73 +5486,6 @@ public class MastersService {
             e.printStackTrace();
             throw e;
         }
-    }
-
-    //-----------------------------------------------------------------------------------------------------------------------
-
-    public WarehouseApiResponse[] postStorageBin(List<StorageBinV2> storageBin,String authToken){
-        try {
-            HttpHeaders headers = new HttpHeaders();
-            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-            headers.add("User-Agent","RestTemplate");
-            headers.add("Authorization","Bearer "+ authToken);
-
-            UriComponentsBuilder builder =
-                    UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "storagebin/upload/storagebin");
-//                            .queryParam("loginUserId", loginUserID);
-            HttpEntity<?> entity = new HttpEntity<>(storageBin, headers);
-            ResponseEntity<WarehouseApiResponse[]> result =
-                    getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, WarehouseApiResponse[].class);
-            log.info("result : "+ result.getStatusCode());
-            return result.getBody();
-
-        }catch (Exception e){
-            e.printStackTrace();
-            throw e;
-        }
-
-    }
-
-    public WarehouseApiResponse[] postImBasicDataUpload(List<ImBasicData1V2> imBasicData,
-                                                        String authToken) {
-        try {
-            HttpHeaders headers = new HttpHeaders();
-            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-            headers.add("User-Agent", "RestTemplate");
-            headers.add("Authorization", "Bearer " + authToken);
-            UriComponentsBuilder builder =
-                    UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "imbasicdata1/upload/imbasicdata/");
-            HttpEntity<?> entity = new HttpEntity<>(imBasicData, headers);
-            ResponseEntity<WarehouseApiResponse[]> result =
-                    getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, WarehouseApiResponse[].class);
-            return result.getBody();
-        }catch (Exception e){
-            e.printStackTrace();
-            throw e;
-        }
-    }
-
-    //===========================================ImPartner============================================
-    public WarehouseApiResponse[] postImPartner(List<ImPartner> imPartner,String authToken){
-        try {
-            HttpHeaders headers = new HttpHeaders();
-            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-            headers.add("User-Agent","RestTemplate");
-            headers.add("Authorization","Bearer "+ authToken);
-
-            UriComponentsBuilder builder =
-                    UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "impartner/upload/ImPartner");
-            HttpEntity<?> entity = new HttpEntity<>(imPartner, headers);
-            ResponseEntity<WarehouseApiResponse[]> result =
-                    getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, WarehouseApiResponse[].class);
-            log.info("result : "+ result.getStatusCode());
-            return result.getBody();
-
-        }catch (Exception e){
-            e.printStackTrace();
-            throw e;
-        }
-
     }
 }
 		

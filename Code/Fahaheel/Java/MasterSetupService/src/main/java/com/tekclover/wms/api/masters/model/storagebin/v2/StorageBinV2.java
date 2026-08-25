@@ -19,7 +19,7 @@ import javax.persistence.Table;
 public class StorageBinV2 extends StorageBin {
 
 	@Column(name = "CAP_CHECK")
-	private Boolean capacityCheck;
+	private boolean capacityCheck;
 
 	@Column(name="ALLOC_VOL")
 	private Double allocatedVolume;

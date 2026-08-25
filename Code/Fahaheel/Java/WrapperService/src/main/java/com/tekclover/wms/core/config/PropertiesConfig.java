@@ -27,52 +27,36 @@ public class PropertiesConfig {
 	private String password;
 	
 	//-----------------------------------------------------------------------------------
-
+	@Value("${transaction.oauth.access_token_url}")
+	private String transactionAccessTokenUrl;
+	
+	@Value("${enterprise.oauth.access_token_url}")
+	private String enterpriseAccessTokenUrl;
+	
+	@Value("${masters.oauth.access_token_url}")
+	private String mastersAccessTokenUrl;
+	
 	@Value("${idmaster.oauth.access_token_url}")
 	private String idmasterAccessTokenUrl;
 
-	@Value("${masters.oauth.access_token_url}")
-	private String mastersAccessTokenUrl;
-
-	@Value("${enterprise.oauth.access_token_url}")
-	private String enterpriseAccessTokenUrl;
-
-	@Value("${inboundorder.oauth.access_token_url}")
-	private String inboundOrderAccessTokenUrl;
-
-	@Value("${outboundorder.oauth.access_token_url}")
-	private String outboundOrderAccessTokenUrl;
-
-	@Value("${inboundtransaction.oauth.access_token_url}")
-	private String inboundTransactionAccessTokenUrl;
-
-	@Value("${outboundtransaction.oauth.access_token_url}")
-	private String outboundTransactionAccessTokenUrl;
+//	@Value("${spark.oauth.access_token_url}")
+//	private String sparkAccessTokenUrl;
 
 	@Value("${connector.oauth.access_token_url}")
 	private String connectorAccessTokenUrl;
 	
 	//-----------------------------------------------------------------------------------
-	@Value("${api.idmaster.service.url}")
-	private String idmasterServiceUrl;
-
-	@Value("${api.masters.service.url}")
-	private String mastersServiceUrl;
-
+	@Value("${api.transaction.service.url}")
+	private String transactionServiceUrl;
+	
 	@Value("${api.enterprise.service.url}")
 	private String enterpriseServiceUrl;
-
-	@Value("${api.inboundorder.service.url}")
-	private String inboundOrderServiceUrl;
-
-	@Value("${api.outboundorder.service.url}")
-	private String outboundOrderServiceUrl;
-
-	@Value("${api.inboundtransaction.service.url}")
-	private String inboundTransactionServiceUrl;
-
-	@Value("${api.outboundtransaction.service.url}")
-	private String outboundTransactionServiceUrl;
+	
+	@Value("${api.masters.service.url}")
+	private String mastersServiceUrl;
+	
+	@Value("${api.idmaster.service.url}")
+	private String idmasterServiceUrl;
 
 	@Value("${api.spark.service.url}")
 	private String sparkServiceUrl;
@@ -161,5 +145,8 @@ public class PropertiesConfig {
 
 	@Value("${email.from.address}")
 	private String emailFromAddress;
-	
+
+	//-----------------Kafka------------------------
+	@Value("${spring.kafka.bootstrap-servers}")
+	private String bootstrapServers;
 }

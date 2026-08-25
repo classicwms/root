@@ -2,7 +2,6 @@ package com.tekclover.wms.core.model.spark;
 
 import lombok.Data;
 
-import javax.persistence.Column;
 import java.sql.Timestamp;
 
 @Data
@@ -77,25 +76,4 @@ public class PutAwayHeaderV2 {
     private String sourceBranchCode;
     private String sourceCompanyCode;
     private String levelId;
-    private String businessPartnerCode;
-    private String batchSerialNumber;
-    private String alternateUom;
-    private Double noBags;
-    private Double bagSize;
-    private Double mrp;
-    private String itemType;
-    private String itemGroup;
-    private Double pieceQty;
-    private Double caseQty;
-    /*-------------------------------------------Reeferon-----------------------------------*/
-
-    private Double qtyInCase;
-    private Double qtyInPiece;
-    private Double qtyInCreate;
-    private String vehicleNo;
-    private Timestamp vehicleReportingDate;
-    private Timestamp vehicleUnloadingDate;
-    private String receivingVariance;
-    private String customerId;
-    private String customerName;
 }

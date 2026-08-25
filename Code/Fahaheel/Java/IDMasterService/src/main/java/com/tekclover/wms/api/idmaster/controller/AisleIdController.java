@@ -1,8 +1,6 @@
 package com.tekclover.wms.api.idmaster.controller;
 
-import com.tekclover.wms.api.idmaster.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.idmaster.model.aisleid.*;
-import com.tekclover.wms.api.idmaster.repository.DbConfigRepository;
 import com.tekclover.wms.api.idmaster.repository.LanguageIdRepository;
 import com.tekclover.wms.api.idmaster.service.AisleIdService;
 import io.swagger.annotations.Api;
@@ -33,9 +31,6 @@ public class AisleIdController {
 
 	@Autowired
 	AisleIdService aisleidService;
-
-	@Autowired
-	DbConfigRepository dbConfigRepository;
 	
     @ApiOperation(response = AisleId.class, value = "Get all AisleId details") // label for swagger
 	@GetMapping("")
@@ -47,39 +42,19 @@ public class AisleIdController {
 	@GetMapping("/{aisleId}")
 	public ResponseEntity<?> getAisleId(@RequestParam String warehouseId,@PathVariable String aisleId,@RequestParam Long floorId,@RequestParam String storageSectionId,
 										@RequestParam String companyCodeId,@RequestParam String languageId,@RequestParam String plantId) {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-		AisleId aisleid =
+    	AisleId aisleid = 
     			aisleidService.getAisleId(warehouseId,aisleId,floorId,storageSectionId,companyCodeId,languageId,plantId);
     	log.info("AisleId : " + aisleid);
 		return new ResponseEntity<>(aisleid, HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
     
     @ApiOperation(response = AisleId.class, value = "Create AisleId") // label for swagger
 	@PostMapping("")
 	public ResponseEntity<?> postAisleId(@Valid @RequestBody AddAisleId newAisleId, 
 			@RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(newAisleId.getCompanyCodeId(), newAisleId.getPlantId(), newAisleId.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
 		AisleId createdAisleId = aisleidService.createAisleId(newAisleId, loginUserID);
 		return new ResponseEntity<>(createdAisleId , HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
 
     @ApiOperation(response = AisleId.class, value = "Update AisleId") // label for swagger
     @PatchMapping("/{aisleId}")
@@ -87,53 +62,23 @@ public class AisleIdController {
 										  @RequestParam String companyCodeId,@RequestParam String languageId,@RequestParam String plantId,@RequestParam String loginUserID,
 										  @Valid @RequestBody UpdateAisleId updateAisleId)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
 		AisleId createdAisleId = 
 				aisleidService.updateAisleId(warehouseId,aisleId,floorId,storageSectionId,companyCodeId,languageId,plantId,loginUserID,updateAisleId);
 		return new ResponseEntity<>(createdAisleId , HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
 
     @ApiOperation(response = AisleId.class, value = "Delete AisleId") // label for swagger
 	@DeleteMapping("/{aisleId}")
 	public ResponseEntity<?> deleteAisleId(@RequestParam String warehouseId,@PathVariable String aisleId,@RequestParam Long floorId, @RequestParam String storageSectionId,
 			                               @RequestParam String companyCodeId,@RequestParam String languageId,@RequestParam String plantId,@RequestParam String loginUserID) {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-		aisleidService.deleteAisleId(warehouseId, aisleId, floorId, storageSectionId,companyCodeId,languageId,plantId,loginUserID);
+    	aisleidService.deleteAisleId(warehouseId, aisleId, floorId, storageSectionId,companyCodeId,languageId,plantId,loginUserID);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
 	//Search
 	@ApiOperation(response = AisleId.class, value = "Find AisleId") // label for swagger
 	@PostMapping("/find")
 	public ResponseEntity<?> findAisleId(@Valid @RequestBody FindAisleId findAisleId) throws Exception {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(findAisleId.getCompanyCodeId(), findAisleId.getPlantId(), findAisleId.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
 		List<AisleId> createdAisleId = aisleidService.findAisleId(findAisleId);
 		return new ResponseEntity<>(createdAisleId, HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
 }

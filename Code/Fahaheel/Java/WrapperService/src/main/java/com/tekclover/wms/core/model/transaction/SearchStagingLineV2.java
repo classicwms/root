@@ -17,8 +17,4 @@ public class SearchStagingLineV2 extends SearchStagingLine {
 	private List<String> manufacturerName;
 	private List<String> origin;
 	private List<String> brand;
-
-	private List<String> partner_item_barcode;
-	private List<String> customerId;
-
 }

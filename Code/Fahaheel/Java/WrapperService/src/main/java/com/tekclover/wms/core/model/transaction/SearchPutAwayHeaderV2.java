@@ -22,6 +22,4 @@ public class SearchPutAwayHeaderV2 extends SearchPutAwayHeader {
 	private List<String> approvalStatus;
 	private List<String> itemCode;				//Ref_field_5
 	private List<Long> inboundOrderTypeId;
-	private List<String> customerId;
-
 }

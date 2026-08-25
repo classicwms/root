@@ -1,11 +1,9 @@
 package com.tekclover.wms.api.masters.controller;
 
 
-import com.tekclover.wms.api.masters.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.masters.model.businesspartner.v2.BusinessPartnerV2;
 import com.tekclover.wms.api.masters.model.imbasicdata1.v2.ImBasicData1V2;
 import com.tekclover.wms.api.masters.model.masters.*;
-import com.tekclover.wms.api.masters.repository.DbConfigRepository;
 import com.tekclover.wms.api.masters.service.MasterOrderService;
 import com.tekclover.wms.api.masters.service.MasterService;
 import io.swagger.annotations.Api;
@@ -38,24 +36,14 @@ public class MasterOrderController {
     MasterOrderService masterOrderService;
 
     @Autowired
-    DbConfigRepository dbConfigRepository;
-
-    @Autowired
     MasterService masterService;
 
     //Master/Item
     @ApiOperation(response = Item.class, value = "Create an Item") //label for Swagger
     @PostMapping("/master/item")
     public ResponseEntity<?> createItem(@Valid @RequestBody Item item) throws IllegalAccessException, InvocationTargetException {
-
         try {
 //            ImBasicData1V2 createdItem = masterOrderService.postItem(item);
-            log.info("Item -----> {}", item);
-            DataBaseContextHolder.setCurrentDb("MT");
-            String routingDb = dbConfigRepository.getDbNameWithoutWhId(item.getCompanyCode(), item.getBranchCode());
-            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-            DataBaseContextHolder.clear();
-            DataBaseContextHolder.setCurrentDb(routingDb);
             Item createdItem = masterService.processItemMaster(item);
             if (createdItem != null) {
                 WarehouseApiResponse whApiResponse = new WarehouseApiResponse();
@@ -81,12 +69,6 @@ public class MasterOrderController {
             throws IllegalAccessException, InvocationTargetException {
         try {
 //            BusinessPartnerV2 createdCustomer = masterOrderService.postCustomer(customer);
-            log.info("Customer -----> {}", customer);
-            DataBaseContextHolder.setCurrentDb("MT");
-            String routingDb = dbConfigRepository.getDbNameWithoutWhId(customer.getCompanyCode(), customer.getBranchCode());
-            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-            DataBaseContextHolder.clear();
-            DataBaseContextHolder.setCurrentDb(routingDb);
             Customer createdCustomer = masterService.processCustomerMaster(customer);
             if (createdCustomer != null) {
                 WarehouseApiResponse response = new WarehouseApiResponse();

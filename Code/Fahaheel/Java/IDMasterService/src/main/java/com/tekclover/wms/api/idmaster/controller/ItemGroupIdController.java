@@ -5,10 +5,7 @@ import java.text.ParseException;
 import java.util.List;
 
 import javax.validation.Valid;
-
-import com.tekclover.wms.api.idmaster.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.idmaster.model.itemgroupid.FindItemGroupId;
-import com.tekclover.wms.api.idmaster.repository.DbConfigRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,9 +41,6 @@ public class ItemGroupIdController {
 
 	@Autowired
 	ItemGroupIdService itemgroupidService;
-
-	@Autowired
-	DbConfigRepository dbConfigRepository;
 	
     @ApiOperation(response = ItemGroupId.class, value = "Get all ItemGroupId details") // label for swagger
 	@GetMapping("")
@@ -59,21 +53,11 @@ public class ItemGroupIdController {
 	@GetMapping("/{itemGroupId}")
 	public ResponseEntity<?> getItemGroupId(@PathVariable Long itemGroupId, 
 			@RequestParam String warehouseId, @RequestParam Long itemTypeId,@RequestParam String companyCodeId,@RequestParam String plantId,@RequestParam String languageId) {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-		ItemGroupId itemgroupid =
+    	ItemGroupId itemgroupid = 
     			itemgroupidService.getItemGroupId(warehouseId, itemTypeId, itemGroupId,companyCodeId,plantId,languageId);
     	log.info("ItemGroupId : " + itemgroupid);
 		return new ResponseEntity<>(itemgroupid, HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
     
 //	@ApiOperation(response = ItemGroupId.class, value = "Search ItemGroupId") // label for swagger
 //	@PostMapping("/findItemGroupId")
@@ -86,19 +70,9 @@ public class ItemGroupIdController {
 	@PostMapping("")
 	public ResponseEntity<?> postItemGroupId(@Valid @RequestBody AddItemGroupId newItemGroupId, 
 			@RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(newItemGroupId.getCompanyCodeId(), newItemGroupId.getPlantId(), newItemGroupId.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
 		ItemGroupId createdItemGroupId = itemgroupidService.createItemGroupId(newItemGroupId, loginUserID);
 		return new ResponseEntity<>(createdItemGroupId , HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
     
     @ApiOperation(response = ItemGroupId.class, value = "Update ItemGroupId") // label for swagger
     @PatchMapping("/{itemGroupId}")
@@ -106,54 +80,23 @@ public class ItemGroupIdController {
 			@RequestParam String warehouseId, @RequestParam Long itemTypeId,@RequestParam String companyCodeId,@RequestParam String plantId,@RequestParam String languageId,
 			@Valid @RequestBody UpdateItemGroupId updateItemGroupId, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
-
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-		ItemGroupId createdItemGroupId =
+		ItemGroupId createdItemGroupId = 
 				itemgroupidService.updateItemGroupId(warehouseId, itemTypeId, itemGroupId,companyCodeId,plantId,languageId,loginUserID, updateItemGroupId);
 		return new ResponseEntity<>(createdItemGroupId , HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
     
     @ApiOperation(response = ItemGroupId.class, value = "Delete ItemGroupId") // label for swagger
 	@DeleteMapping("/{itemGroupId}")
 	public ResponseEntity<?> deleteItemGroupId(@PathVariable Long itemGroupId, 
 			@RequestParam String warehouseId, @RequestParam Long itemTypeId,@RequestParam String companyCodeId,@RequestParam String plantId,@RequestParam String languageId,@RequestParam String loginUserID) {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-		itemgroupidService.deleteItemGroupId(warehouseId, itemTypeId, itemGroupId, companyCodeId,plantId,languageId,loginUserID);
+    	itemgroupidService.deleteItemGroupId(warehouseId, itemTypeId, itemGroupId, companyCodeId,plantId,languageId,loginUserID);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
 	//Search
 	@ApiOperation(response = ItemGroupId.class, value = "Find ItemGroupId") // label for swagger
 	@PostMapping("/find")
 	public ResponseEntity<?> findItemGroupId(@Valid @RequestBody FindItemGroupId findItemGroupId) throws Exception {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(findItemGroupId.getCompanyCodeId(), findItemGroupId.getPlantId(), findItemGroupId.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
 		List<ItemGroupId> createdItemGroupId = itemgroupidService.findItemGroupId(findItemGroupId);
 		return new ResponseEntity<>(createdItemGroupId, HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
 }

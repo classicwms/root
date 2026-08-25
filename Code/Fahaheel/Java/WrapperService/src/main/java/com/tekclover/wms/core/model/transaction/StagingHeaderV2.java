@@ -24,12 +24,4 @@ public class StagingHeaderV2 extends StagingHeader {
     private Date mUpdatedOn;
     private String sourceBranchCode;
     private String sourceCompanyCode;
-    private String parentProductionOrderNo;
-    /*-------------------------------------------Reeferon-----------------------------------*/
-    private Double qtyInCase;
-    private Double qtyInPiece;
-    private Double qtyInCreate;
-    private String customerId;
-    private String customerName;
-
 }

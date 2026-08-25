@@ -24,10 +24,10 @@ public class ReturnPOLineV2 {
 
     private String orderType;                                // REF_FIELD_1
 
-//    @NotBlank(message = "Manufacturer Code is mandatory")
+    @NotBlank(message = "Manufacturer Code is mandatory")
     private String manufacturerCode;
 
-//    @NotBlank(message = "Manufacturer Name is mandatory")
+    @NotBlank(message = "Manufacturer Name is mandatory")
     private String manufacturerName;
 
     private String brand;
@@ -43,12 +43,10 @@ public class ReturnPOLineV2 {
     private String isCompleted;
     private String isCancelled;
     private String returnOrderNo;
-    private String barcodeId;
 
     //MiddleWare Fields
     private Long middlewareId;
     private Long middlewareHeaderId;
     private String middlewareTable;
     private String supplierInvoiceNo;
-    private String pickListNo;
 }

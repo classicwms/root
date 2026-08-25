@@ -1,14 +1,22 @@
 package com.tekclover.wms.core.model.transaction;
 
-import lombok.Data;
-
 import java.util.Date;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 @Data
+
 	public class GrHeader { 
 
 	private String languageId;
-    private String companyCode;
+	private String companyCodeId;
 	private String plantId;
 	private String warehouseId;
 	private String preInboundNo;
@@ -43,5 +51,4 @@ import java.util.Date;
 	private Date updatedOn = new Date();
 	private String confirmedBy;
 	private Date confirmedOn = new Date();
-
 }

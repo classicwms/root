@@ -6,8 +6,6 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-import com.tekclover.wms.api.masters.config.dynamicConfig.DataBaseContextHolder;
-import com.tekclover.wms.api.masters.repository.DbConfigRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,9 +42,6 @@ public class HandlingUnitController {
 	
 	@Autowired
 	HandlingUnitService handlingUnitService;
-
-	@Autowired
-	DbConfigRepository dbConfigRepository;
 	
     @ApiOperation(response = HandlingUnit.class, value = "Get all HandlingUnit details") // label for swagger
 	@GetMapping("")
@@ -58,89 +53,39 @@ public class HandlingUnitController {
     @ApiOperation(response = HandlingUnit.class, value = "Get a HandlingUnit") // label for swagger 
 	@GetMapping("/{handlingUnit}")
 	public ResponseEntity<?> getHandlingUnit(@PathVariable String handlingUnit,@RequestParam String companyCodeId,@RequestParam String languageId,@RequestParam String plantId,@RequestParam String warehouseId) {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-		HandlingUnit dbHandlingUnit = handlingUnitService.getHandlingUnit(warehouseId,handlingUnit,companyCodeId,languageId,plantId);
+    	HandlingUnit dbHandlingUnit = handlingUnitService.getHandlingUnit(warehouseId,handlingUnit,companyCodeId,languageId,plantId);
 //    	log.info("HandlingUnit : " + dbHandlingUnit);
 		return new ResponseEntity<>(dbHandlingUnit, HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
     
 	@ApiOperation(response = HandlingUnit.class, value = "Search HandlingUnit") // label for swagger
 	@PostMapping("/findHandlingUnit")
 	public List<HandlingUnit> findHandlingUnit(@RequestBody SearchHandlingUnit searchHandlingUnit)
 			throws Exception {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbNameList(searchHandlingUnit.getCompanyCodeId(), searchHandlingUnit.getPlantId(), searchHandlingUnit.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
 		return handlingUnitService.findHandlingUnit(searchHandlingUnit);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
 	
     @ApiOperation(response = HandlingUnit.class, value = "Create HandlingUnit") // label for swagger
 	@PostMapping("")
 	public ResponseEntity<?> postHandlingUnit(@Valid @RequestBody AddHandlingUnit newHandlingUnit, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(newHandlingUnit.getCompanyCodeId(), newHandlingUnit.getPlantId(), newHandlingUnit.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
 		HandlingUnit createdHandlingUnit = handlingUnitService.createHandlingUnit(newHandlingUnit, loginUserID);
 		return new ResponseEntity<>(createdHandlingUnit , HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
     
     @ApiOperation(response = HandlingUnit.class, value = "Update HandlingUnit") // label for swagger
     @PatchMapping("/{handlingUnit}")
 	public ResponseEntity<?> patchHandlingUnit(@PathVariable String handlingUnit, @RequestParam String companyCodeId,@RequestParam String languageId,@RequestParam String plantId,@RequestParam String warehouseId,
 			@Valid @RequestBody UpdateHandlingUnit updateHandlingUnit, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
 		HandlingUnit createdHandlingUnit = handlingUnitService.updateHandlingUnit(handlingUnit,companyCodeId,plantId,warehouseId,languageId, updateHandlingUnit, loginUserID);
 		return new ResponseEntity<>(createdHandlingUnit , HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
     
     @ApiOperation(response = HandlingUnit.class, value = "Delete HandlingUnit") // label for swagger
 	@DeleteMapping("/{handlingUnit}")
 	public ResponseEntity<?> deleteHandlingUnit(@PathVariable String handlingUnit,@RequestParam String companyCodeId,@RequestParam String languageId,@RequestParam String plantId,@RequestParam String warehouseId,@RequestParam String loginUserID) throws ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-		handlingUnitService.deleteHandlingUnit(handlingUnit,companyCodeId,plantId,languageId,warehouseId,loginUserID);
+    	handlingUnitService.deleteHandlingUnit(handlingUnit,companyCodeId,plantId,languageId,warehouseId,loginUserID);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
 }

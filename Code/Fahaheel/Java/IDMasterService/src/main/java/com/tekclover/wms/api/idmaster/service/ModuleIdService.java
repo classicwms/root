@@ -1,10 +1,9 @@
 package com.tekclover.wms.api.idmaster.service;
 
 import com.tekclover.wms.api.idmaster.controller.exception.BadRequestException;
-import com.tekclover.wms.api.idmaster.model.moduleid.AddModuleId;
-import com.tekclover.wms.api.idmaster.model.moduleid.FindModuleId;
-import com.tekclover.wms.api.idmaster.model.moduleid.ModuleId;
-import com.tekclover.wms.api.idmaster.model.moduleid.UpdateModuleId;
+import com.tekclover.wms.api.idmaster.model.IKeyValuePair;
+import com.tekclover.wms.api.idmaster.model.menuid.MenuId;
+import com.tekclover.wms.api.idmaster.model.moduleid.*;
 import com.tekclover.wms.api.idmaster.model.warehouseid.Warehouse;
 import com.tekclover.wms.api.idmaster.repository.CompanyIdRepository;
 import com.tekclover.wms.api.idmaster.repository.ModuleIdRepository;
@@ -12,6 +11,7 @@ import com.tekclover.wms.api.idmaster.repository.PlantIdRepository;
 import com.tekclover.wms.api.idmaster.repository.Specification.ModuleIdSpecification;
 import com.tekclover.wms.api.idmaster.repository.WarehouseRepository;
 import com.tekclover.wms.api.idmaster.util.CommonUtils;
+import com.tekclover.wms.api.idmaster.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,26 +30,25 @@ import java.util.stream.Collectors;
 @Service
 public class ModuleIdService {
 
-    @Autowired
-    private ModuleIdRepository moduleIdRepository;
-    @Autowired
-    private WarehouseRepository warehouseRepository;
-    @Autowired
-    private PlantIdRepository plantIdRepository;
-    @Autowired
-    private CompanyIdRepository companyIdRepository;
-    @Autowired
-    private WarehouseService warehouseService;
+	@Autowired
+	private ModuleIdRepository moduleIdRepository;
+	@Autowired
+	private WarehouseRepository warehouseRepository;
+	@Autowired
+	private PlantIdRepository plantIdRepository;
+	@Autowired
+	private CompanyIdRepository companyIdRepository;
+	@Autowired
+	private WarehouseService warehouseService;
 
-    /**
-     * getModuleIds
-     *
-     * @return
-     */
-    public List<ModuleId> getModuleIds() {
-        List<ModuleId> moduleIdList = moduleIdRepository.findAll();
-        moduleIdList = moduleIdList.stream().filter(n -> n.getDeletionIndicator() == 0).collect(Collectors.toList());
-        return moduleIdList;
+	/**
+	 * getModuleIds
+	 * @return
+	 */
+	public List<ModuleId> getModuleIds () {
+		List<ModuleId> moduleIdList =  moduleIdRepository.findAll();
+		moduleIdList = moduleIdList.stream().filter(n -> n.getDeletionIndicator() == 0).collect(Collectors.toList());
+		return moduleIdList;
 //		List<ModuleId> newModuleId=new ArrayList<>();
 //		for(ModuleId dbModuleId:moduleIdList) {
 //			if (dbModuleId.getCompanyIdAndDescription() != null&&dbModuleId.getPlantIdAndDescription()!=null&&dbModuleId.getWarehouseIdAndDescription()!=null) {
@@ -69,14 +68,13 @@ public class ModuleIdService {
 //			newModuleId.add(dbModuleId);
 //		}
 //		return newModuleId;
-    }
+	}
 
-    /**
-     * getModuleId
-     *
-     * @param moduleId
-     * @return
-     */
+	/**
+	 * getModuleId
+	 * @param moduleId
+	 * @return
+	 */
 	/*public ModuleId getModuleId (String warehouseId, String moduleId,String companyCodeId,String languageId,String plantId) {
 		Optional<ModuleId> dbModuleId =
 				moduleIdRepository.findByCompanyCodeIdAndPlantIdAndWarehouseIdAndModuleIdAndLanguageIdAndDeletionIndicator(
@@ -110,24 +108,25 @@ public class ModuleIdService {
 		}
 		return newModuleId;
 	}*/
-    public List<ModuleId> getModuleIdList(String warehouseId, String moduleId, String companyCodeId, String languageId, String plantId) {
-        List<ModuleId> moduleIdList =
-                moduleIdRepository.findByCompanyCodeIdAndPlantIdAndWarehouseIdAndModuleIdAndLanguageIdAndDeletionIndicator(
-                        companyCodeId,
-                        plantId,
-                        warehouseId,
-                        moduleId,
-                        languageId,
-                        0L
-                );
-        if (moduleIdList.isEmpty()) {
-            throw new BadRequestException("The given values : " +
-                    "warehouseId - " + warehouseId +
-                    "moduleId - " + moduleId +
-                    " doesn't exist.");
 
-        }
-        return moduleIdList;
+	public List<ModuleId> getModuleIdList (String warehouseId, String moduleId,String companyCodeId,String languageId,String plantId) {
+		List<ModuleId> moduleIdList =
+				moduleIdRepository.findByCompanyCodeIdAndPlantIdAndWarehouseIdAndModuleIdAndLanguageIdAndDeletionIndicator(
+						companyCodeId,
+						plantId,
+						warehouseId,
+						moduleId,
+						languageId,
+						0L
+				);
+		if (moduleIdList.isEmpty()) {
+			throw new BadRequestException("The given values : " +
+					"warehouseId - " + warehouseId +
+					"moduleId - " + moduleId +
+					" doesn't exist.");
+
+		}
+		return moduleIdList;
 //		List<ModuleId> moduleIds = new ArrayList<>();
 //		for(ModuleId dbModuleId : moduleIdList) {
 //			ModuleId newModuleId = new ModuleId();
@@ -147,17 +146,16 @@ public class ModuleIdService {
 //			moduleIds.add(newModuleId);
 //		}
 //		return moduleIds;
-    }
+	}
 
-    /**
-     * createModuleId
-     *
-     * @param newModuleId
-     * @param loginUserID
-     * @return
-     * @throws IllegalAccessException
-     * @throws InvocationTargetException
-     */
+	/**
+	 * createModuleId
+	 * @param newModuleId
+	 * @param loginUserID
+	 * @return
+	 * @throws IllegalAccessException
+	 * @throws InvocationTargetException
+	 */
 //	public ModuleId createModuleId (AddModuleId newModuleId, String loginUserID)
 //			throws IllegalAccessException, InvocationTargetException {
 //		ModuleId dbModuleId = new ModuleId();
@@ -179,14 +177,15 @@ public class ModuleIdService {
 //			return moduleIdRepository.save(dbModuleId);
 //		}
 //	}
-    public List<ModuleId> createModuleId(List<AddModuleId> newModuleId, String loginUserID)
-            throws IllegalAccessException, InvocationTargetException, ParseException {
 
-        List<ModuleId> moduleIdList = new ArrayList<>();
+	public List<ModuleId> createModuleId (List<AddModuleId> newModuleId, String loginUserID)
+			throws IllegalAccessException, InvocationTargetException, ParseException {
+
+		List<ModuleId> moduleIdList = new ArrayList<>();
 //		String moduleId = moduleIdRepository.getModuleId();
-        for (AddModuleId newAddModuleId : newModuleId) {
+		for(AddModuleId newAddModuleId : newModuleId) {
 
-            ModuleId dbModuleId = new ModuleId();
+			ModuleId dbModuleId = new ModuleId();
 
 //			Optional<ModuleId> duplicateModuleId = moduleIdRepository.findByCompanyCodeIdAndPlantIdAndWarehouseIdAndModuleIdAndLanguageIdAndDeletionIndicator(
 //													newAddModuleId.getCompanyCodeId(),
@@ -195,21 +194,21 @@ public class ModuleIdService {
 //													newAddModuleId.getModuleId(),
 //													newAddModuleId.getLanguageId(), 0L);
 
-            ModuleId duplicateMenuSubMenu = moduleIdRepository.
-                    findByCompanyCodeIdAndPlantIdAndWarehouseIdAndModuleIdAndLanguageIdAndMenuIdAndSubMenuIdAndDeletionIndicator(
-                            newAddModuleId.getCompanyCodeId(),
-                            newAddModuleId.getPlantId(),
-                            newAddModuleId.getWarehouseId(),
-                            newAddModuleId.getModuleId(),
-                            newAddModuleId.getLanguageId(),
-                            newAddModuleId.getMenuId(),
-                            newAddModuleId.getSubMenuId(), 0L);
+			ModuleId duplicateMenuSubMenu = moduleIdRepository.
+					findByCompanyCodeIdAndPlantIdAndWarehouseIdAndModuleIdAndLanguageIdAndMenuIdAndSubMenuIdAndDeletionIndicator(
+							newAddModuleId.getCompanyCodeId(),
+							newAddModuleId.getPlantId(),
+							newAddModuleId.getWarehouseId(),
+							newAddModuleId.getModuleId(),
+							newAddModuleId.getLanguageId(),
+							newAddModuleId.getMenuId(),
+							newAddModuleId.getSubMenuId(),0L);
 
-            if (duplicateMenuSubMenu != null) {
+			if (duplicateMenuSubMenu != null) {
 
-                throw new EntityNotFoundException("Record is Getting Duplicated");
+				throw new EntityNotFoundException("Record is Getting Duplicated");
 
-            } else {
+			} else {
 
 //				if (duplicateMenuSubMenu != null) {
 
@@ -218,31 +217,31 @@ public class ModuleIdService {
 									newAddModuleId.getModuleId(),
 									newAddModuleId.getMenuId(),
 									newAddModuleId.getSubMenuId(),0L);*/
-                Optional<ModuleId> duplicateMenuSubMenuId = moduleIdRepository.
-                        findByMenuIdAndSubMenuIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndLanguageIdAndModuleIdAndDeletionIndicator(
-                                newAddModuleId.getMenuId(),
-                                newAddModuleId.getSubMenuId(),
-                                newAddModuleId.getCompanyCodeId(),
-                                newAddModuleId.getPlantId(),
-                                newAddModuleId.getWarehouseId(),
-                                newAddModuleId.getLanguageId(), newAddModuleId.getModuleId(), 0L);
-                log.info("Duplicate---->" + duplicateMenuSubMenuId);
-                if (!duplicateMenuSubMenuId.isEmpty()) {
+					Optional<ModuleId> duplicateMenuSubMenuId = moduleIdRepository.
+							findByMenuIdAndSubMenuIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndLanguageIdAndDeletionIndicator(
+									newAddModuleId.getMenuId(),
+									newAddModuleId.getSubMenuId(),
+									newAddModuleId.getCompanyCodeId(),
+									newAddModuleId.getPlantId(),
+									newAddModuleId.getWarehouseId(),
+									newAddModuleId.getLanguageId(),0L);
 
-                    throw new IllegalAccessException("MenuId: " + newAddModuleId.getMenuId() + "ModuleId: " + newAddModuleId.getModuleId() +
-                            " and SubMenuId: " + newAddModuleId.getSubMenuId() + " is Getting Duplicated");
-                }
+					if (!duplicateMenuSubMenuId.isEmpty()) {
+
+						throw new IllegalAccessException("MenuId: " + newAddModuleId.getMenuId() +
+														" and SubMenuId: " + newAddModuleId.getSubMenuId() + " is Getting Duplicated");
+					}
 
 //				}
-                else {
+			else {
 
-                    Warehouse dbWarehouse = warehouseService.getWarehouse(newAddModuleId.getWarehouseId(),
-                            newAddModuleId.getCompanyCodeId(),
-                            newAddModuleId.getPlantId(),
-                            newAddModuleId.getLanguageId());
-                    log.info("newModuleId : " + newAddModuleId);
+					Warehouse dbWarehouse = warehouseService.getWarehouse(newAddModuleId.getWarehouseId(),
+							newAddModuleId.getCompanyCodeId(),
+							newAddModuleId.getPlantId(),
+							newAddModuleId.getLanguageId());
+					log.info("newModuleId : " + newAddModuleId);
 
-                    BeanUtils.copyProperties(newAddModuleId, dbModuleId, CommonUtils.getNullPropertyNames(newAddModuleId));
+					BeanUtils.copyProperties(newAddModuleId, dbModuleId, CommonUtils.getNullPropertyNames(newAddModuleId));
 
 //						if (moduleId != null) {
 //
@@ -254,33 +253,32 @@ public class ModuleIdService {
 //
 //						}
 
-                    dbModuleId.setCompanyIdAndDescription(dbWarehouse.getCompanyIdAndDescription());
-                    dbModuleId.setPlantIdAndDescription(dbWarehouse.getPlantIdAndDescription());
-                    dbModuleId.setWarehouseIdAndDescription(dbWarehouse.getWarehouseId() + "-" + dbWarehouse.getWarehouseDesc());
+					dbModuleId.setCompanyIdAndDescription(dbWarehouse.getCompanyIdAndDescription());
+					dbModuleId.setPlantIdAndDescription(dbWarehouse.getPlantIdAndDescription());
+					dbModuleId.setWarehouseIdAndDescription(dbWarehouse.getWarehouseId() + "-" + dbWarehouse.getWarehouseDesc());
 
-                    dbModuleId.setDeletionIndicator(0L);
-                    dbModuleId.setCreatedBy(loginUserID);
-                    dbModuleId.setUpdatedBy(loginUserID);
-                    dbModuleId.setCreatedOn(new Date());
-                    dbModuleId.setUpdatedOn(new Date());
-                    moduleIdList.add(moduleIdRepository.save(dbModuleId));
-                }
-            }
-        }
+					dbModuleId.setDeletionIndicator(0L);
+					dbModuleId.setCreatedBy(loginUserID);
+					dbModuleId.setUpdatedBy(loginUserID);
+					dbModuleId.setCreatedOn(new Date());
+					dbModuleId.setUpdatedOn(new Date());
+					moduleIdList.add(moduleIdRepository.save(dbModuleId));
+				}
+			}
+		}
 
-        return moduleIdList;
-    }
+		return moduleIdList;
+	}
 
-    /**
-     * updateModuleId
-     *
-     * @param loginUserID
-     * @param moduleId
-     * @param updateModuleId
-     * @return
-     * @throws IllegalAccessException
-     * @throws InvocationTargetException
-     */
+	/**
+	 * updateModuleId
+	 * @param loginUserID
+	 * @param moduleId
+	 * @param updateModuleId
+	 * @return
+	 * @throws IllegalAccessException
+	 * @throws InvocationTargetException
+	 */
 	/*public ModuleId updateModuleId (String warehouseId,String moduleId,String companyCodeId,String languageId,String plantId, String loginUserID,
 									UpdateModuleId updateModuleId)
 			throws IllegalAccessException, InvocationTargetException {
@@ -290,106 +288,106 @@ public class ModuleIdService {
 		dbModuleId.setUpdatedOn(DateUtils.getCurrentKWTDateTime());
 		return moduleIdRepository.save(dbModuleId);
 	}*/
-    public List<ModuleId> updateModuleId(String warehouseId, String moduleId, String companyCodeId,
-                                         String languageId, String plantId, String loginUserID,
-                                         List<UpdateModuleId> updateModuleId)
-            throws IllegalAccessException, InvocationTargetException, ParseException {
 
-        List<ModuleId> moduleIdList = new ArrayList<>();
+	public List<ModuleId> updateModuleId (String warehouseId,String moduleId,String companyCodeId,
+										  String languageId,String plantId, String loginUserID,
+										  List<UpdateModuleId> updateModuleId)
+			throws IllegalAccessException, InvocationTargetException, ParseException {
 
-        for (UpdateModuleId newUpdateModuleId : updateModuleId) {
+		List<ModuleId> moduleIdList = new ArrayList<>();
 
-            ModuleId dbModuleId = moduleIdRepository.
-                    findByCompanyCodeIdAndPlantIdAndWarehouseIdAndModuleIdAndLanguageIdAndMenuIdAndSubMenuIdAndDeletionIndicator(
-                            companyCodeId,
-                            plantId,
-                            warehouseId,
-                            moduleId,
-                            languageId,
-                            newUpdateModuleId.getMenuId(),
-                            newUpdateModuleId.getSubMenuId(), 0L);
+		for(UpdateModuleId newUpdateModuleId : updateModuleId) {
 
-            if (dbModuleId != null) {
-                if (newUpdateModuleId.getDeletionIndicator() == 1) {
-                    moduleIdRepository.delete(dbModuleId);
-                } else {
-                    BeanUtils.copyProperties(newUpdateModuleId, dbModuleId, CommonUtils.getNullPropertyNames(newUpdateModuleId));
-                    dbModuleId.setUpdatedBy(loginUserID);
-                    dbModuleId.setUpdatedOn(new Date());
-                    moduleIdList.add(moduleIdRepository.save(dbModuleId));
-                }
-            } else {
+			ModuleId dbModuleId = moduleIdRepository.
+					findByCompanyCodeIdAndPlantIdAndWarehouseIdAndModuleIdAndLanguageIdAndMenuIdAndSubMenuIdAndDeletionIndicator(
+							companyCodeId,
+							plantId,
+							warehouseId,
+							moduleId,
+							languageId,
+							newUpdateModuleId.getMenuId(),
+							newUpdateModuleId.getSubMenuId(), 0L);
 
-                if (newUpdateModuleId.getDeletionIndicator() != 1) {
+			if (dbModuleId != null) {
+				if(newUpdateModuleId.getDeletionIndicator() == 1){
+					moduleIdRepository.delete(dbModuleId);
+				} else {
+					BeanUtils.copyProperties(newUpdateModuleId, dbModuleId, CommonUtils.getNullPropertyNames(newUpdateModuleId));
+					dbModuleId.setUpdatedBy(loginUserID);
+					dbModuleId.setUpdatedOn(new Date());
+					moduleIdList.add(moduleIdRepository.save(dbModuleId));
+				}
+			} else {
 
-                    ModuleId newModuleId = new ModuleId();
+				if(newUpdateModuleId.getDeletionIndicator() != 1) {
 
-                    Warehouse dbWarehouse = warehouseService.getWarehouse(warehouseId,
-                            companyCodeId,
-                            plantId,
-                            languageId);
-                    log.info("newModuleId : " + newUpdateModuleId);
+					ModuleId newModuleId = new ModuleId();
 
-                    BeanUtils.copyProperties(newUpdateModuleId, newModuleId, CommonUtils.getNullPropertyNames(newUpdateModuleId));
+					Warehouse dbWarehouse = warehouseService.getWarehouse(warehouseId,
+							companyCodeId,
+							plantId,
+							languageId);
+					log.info("newModuleId : " + newUpdateModuleId);
 
-                    newModuleId.setModuleId(moduleId);
-                    newModuleId.setCompanyIdAndDescription(dbWarehouse.getCompanyIdAndDescription());
-                    newModuleId.setPlantIdAndDescription(dbWarehouse.getPlantIdAndDescription());
-                    newModuleId.setWarehouseIdAndDescription(dbWarehouse.getWarehouseId() + "-" + dbWarehouse.getWarehouseDesc());
+					BeanUtils.copyProperties(newUpdateModuleId, newModuleId, CommonUtils.getNullPropertyNames(newUpdateModuleId));
 
-                    newModuleId.setCompanyCodeId(companyCodeId);
-                    newModuleId.setPlantId(plantId);
-                    newModuleId.setWarehouseId(warehouseId);
-                    newModuleId.setModuleId(moduleId);
-                    newModuleId.setLanguageId(languageId);
+					newModuleId.setModuleId(moduleId);
+					newModuleId.setCompanyIdAndDescription(dbWarehouse.getCompanyIdAndDescription());
+					newModuleId.setPlantIdAndDescription(dbWarehouse.getPlantIdAndDescription());
+					newModuleId.setWarehouseIdAndDescription(dbWarehouse.getWarehouseId() + "-" + dbWarehouse.getWarehouseDesc());
 
-                    newModuleId.setDeletionIndicator(0L);
-                    newModuleId.setCreatedBy(loginUserID);
-                    newModuleId.setUpdatedBy(loginUserID);
-                    newModuleId.setCreatedOn(new Date());
-                    newModuleId.setUpdatedOn(new Date());
-                    moduleIdList.add(moduleIdRepository.save(newModuleId));
-                }
-            }
-        }
-        return moduleIdList;
-    }
+					newModuleId.setCompanyCodeId(companyCodeId);
+					newModuleId.setPlantId(plantId);
+					newModuleId.setWarehouseId(warehouseId);
+					newModuleId.setModuleId(moduleId);
+					newModuleId.setLanguageId(languageId);
 
-    /**
-     * deleteModuleId
-     *
-     * @param loginUserID
-     * @param moduleId
-     */
-    public void deleteModuleId(String warehouseId, String moduleId, String companyCodeId, String languageId, String plantId, String loginUserID) {
-        List<ModuleId> dbModuleId = moduleIdRepository.findByCompanyCodeIdAndPlantIdAndWarehouseIdAndModuleIdAndLanguageIdAndDeletionIndicator(
-                companyCodeId,
-                plantId,
-                warehouseId,
-                moduleId,
-                languageId,
-                0L);
-        if (dbModuleId != null) {
-            for (ModuleId newModuleId : dbModuleId) {
-                if (newModuleId != null) {
-                    newModuleId.setDeletionIndicator(1L);
-                    newModuleId.setUpdatedBy(loginUserID);
-                    moduleIdRepository.save(newModuleId);
-                } else {
-                    throw new EntityNotFoundException("Error in deleting Id: " + newModuleId.getModuleId());
-                }
-            }
-        }
-    }
+					newModuleId.setDeletionIndicator(0L);
+					newModuleId.setCreatedBy(loginUserID);
+					newModuleId.setUpdatedBy(loginUserID);
+					newModuleId.setCreatedOn(new Date());
+					newModuleId.setUpdatedOn(new Date());
+					moduleIdList.add(moduleIdRepository.save(newModuleId));
+					}
+				}
+			}
+		return moduleIdList;
+	}
 
-    //Find ModuleId
-    public List<ModuleId> findModuleId(FindModuleId findModuleId) throws ParseException {
+	/**
+	 * deleteModuleId
+	 * @param loginUserID
+	 * @param moduleId
+	 */
+	public void deleteModuleId (String warehouseId, String moduleId,String companyCodeId,String languageId,String plantId,String loginUserID) {
+		List<ModuleId> dbModuleId = moduleIdRepository.findByCompanyCodeIdAndPlantIdAndWarehouseIdAndModuleIdAndLanguageIdAndDeletionIndicator(
+				companyCodeId,
+				plantId,
+				warehouseId,
+				moduleId,
+				languageId,
+				0L);
+		if (dbModuleId != null) {
+			for (ModuleId newModuleId : dbModuleId) {
+				if (newModuleId != null) {
+					newModuleId.setDeletionIndicator(1L);
+					newModuleId.setUpdatedBy(loginUserID);
+					moduleIdRepository.save(newModuleId);
+				} else {
+					throw new EntityNotFoundException("Error in deleting Id: " + newModuleId.getModuleId());
+				}
+			}
+		}
+	}
 
-        ModuleIdSpecification spec = new ModuleIdSpecification(findModuleId);
-        List<ModuleId> results = moduleIdRepository.findAll(spec);
-        results = results.stream().filter(n -> n.getDeletionIndicator() == 0).collect(Collectors.toList());
-        log.info("results: " + results);
-        return results;
+	//Find ModuleId
+	public List<ModuleId> findModuleId(FindModuleId findModuleId) throws ParseException {
+
+		ModuleIdSpecification spec = new ModuleIdSpecification(findModuleId);
+		List<ModuleId> results = moduleIdRepository.findAll(spec);
+		results = results.stream().filter(n -> n.getDeletionIndicator() == 0).collect(Collectors.toList());
+		log.info("results: " + results);
+		return results;
 //		List<ModuleId> newModuleId=new ArrayList<>();
 //		for(ModuleId dbModuleId:results) {
 //			if (dbModuleId.getCompanyIdAndDescription() != null&&dbModuleId.getPlantIdAndDescription()!=null&&dbModuleId.getWarehouseIdAndDescription()!=null) {
@@ -409,5 +407,5 @@ public class ModuleIdService {
 //			newModuleId.add(dbModuleId);
 //		}
 //		return newModuleId;
-    }
+	}
 }

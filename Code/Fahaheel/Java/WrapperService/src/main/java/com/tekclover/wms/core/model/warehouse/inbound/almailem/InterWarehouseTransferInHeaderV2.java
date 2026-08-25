@@ -19,19 +19,12 @@ public class InterWarehouseTransferInHeaderV2 {
 
     private String sourceCompanyCode;
     private String sourceBranchCode;
-    private String sourceWarehouseCode;
 
     private Date transferOrderDate;
     private String isCompleted;
     private Date updatedOn;
-    private String warehouseId;
-    private String languageId;
-    private String loginUserId;
-    private Long inboundOrderTypeId;
-    private Long outboundOrderTypeId;
 
     //MiddleWare Fields
     private Long middlewareId;
     private String middlewareTable;
-
 }

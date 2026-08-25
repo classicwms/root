@@ -64,14 +64,5 @@ public class AddPickupLine {
 	private String origin;
 	private String brand;
 	private String barcodeId;
-	private String pickConfirmBarcodeId;
 	private String levelId;
-
-	private String customerId;
-	private String customerName;
-
-	private Double bagSize;
-	private Double NoBags;
-	private String orderUom;
-
 }

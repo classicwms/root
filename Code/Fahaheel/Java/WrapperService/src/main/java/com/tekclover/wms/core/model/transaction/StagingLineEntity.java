@@ -72,5 +72,4 @@ public class StagingLineEntity {
 
 	private String middlewareId;
 	private String middlewareTable;
-
 }

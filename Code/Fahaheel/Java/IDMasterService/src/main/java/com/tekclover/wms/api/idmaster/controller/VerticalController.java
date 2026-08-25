@@ -7,7 +7,6 @@ import java.util.List;
 import javax.validation.Valid;
 
 import com.tekclover.wms.api.idmaster.model.vertical.FindVertical;
-import com.tekclover.wms.api.idmaster.repository.DbConfigRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,8 +36,6 @@ public class VerticalController {
 	@Autowired
 	VerticalService verticalService;
 
-
-
 	@ApiOperation(response = Vertical.class, value = "Get all Vertical details") // label for swagger
 	@GetMapping("")
 	public ResponseEntity<?> getAll() {
@@ -58,7 +55,6 @@ public class VerticalController {
 	@PostMapping("")
 	public ResponseEntity<?> addVertical(@Valid @RequestBody AddVertical newVertical,@RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
-
 		Vertical createdVertical = verticalService.createVertical(newVertical,loginUserID);
 		return new ResponseEntity<>(createdVertical , HttpStatus.OK);
 	}

@@ -15,8 +15,7 @@ public class SearchOutboundLine {
 	 * OB_LINE_NO
 	 * ITM_CODE
 	 */
-	private List<String> companyCodeId;
-	private List<String> plantId;
+	 
 	private List<String> warehouseId;
 	private List<String> preOutboundNo;
 	private List<String> refDocNumber;

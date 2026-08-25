@@ -28,6 +28,8 @@ public interface ItemMasterRepository extends JpaRepository<Item,String> {
 
     Item findTopByCompanyCodeAndBranchCodeAndSkuAndManufacturerNameAndProcessedStatusIdOrderByOrderReceivedOn(
             String companyCodeId, String plantId, String itemCode, String manufacturerName, long l);
+
+    Item findTopByCompanyCodeAndBranchCodeAndSkuAndManufacturerName(String companyCode, String branchCode, String sku, String manufactureName);
 }
 
 

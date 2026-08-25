@@ -1,8 +1,6 @@
 package com.tekclover.wms.api.idmaster.controller;
 
-import com.tekclover.wms.api.idmaster.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.idmaster.model.employeeid.*;
-import com.tekclover.wms.api.idmaster.repository.DbConfigRepository;
 import com.tekclover.wms.api.idmaster.service.EmployeeIdService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -30,9 +28,6 @@ public class EmployeeIdController {
 	
 	@Autowired
 	EmployeeIdService employeeidService;
-
-	@Autowired
-	DbConfigRepository dbConfigRepository;
 	
     @ApiOperation(response = EmployeeId.class, value = "Get all EmployeeId details") // label for swagger
 	@GetMapping("")
@@ -45,39 +40,19 @@ public class EmployeeIdController {
 	@GetMapping("/{employeeId}")
 	public ResponseEntity<?> getEmployeeId(@RequestParam String warehouseId,@PathVariable String employeeId,
 										   @RequestParam String companyCodeId,@RequestParam String languageId,@RequestParam String plantId) {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-		EmployeeId employeeid =
+    	EmployeeId employeeid = 
     			employeeidService.getEmployeeId(warehouseId,employeeId,companyCodeId,languageId,plantId);
     	log.info("EmployeeId : " + employeeid);
 		return new ResponseEntity<>(employeeid, HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
     
     @ApiOperation(response = EmployeeId.class, value = "Create EmployeeId") // label for swagger
 	@PostMapping("")
 	public ResponseEntity<?> postEmployeeId(@Valid @RequestBody AddEmployeeId newEmployeeId, 
 			@RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(newEmployeeId.getCompanyCodeId(), newEmployeeId.getPlantId(), newEmployeeId.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
 		EmployeeId createdEmployeeId = employeeidService.createEmployeeId(newEmployeeId, loginUserID);
 		return new ResponseEntity<>(createdEmployeeId , HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
     
     @ApiOperation(response = EmployeeId.class, value = "Update EmployeeId") // label for swagger
     @PatchMapping("/{employeeId}")
@@ -85,53 +60,23 @@ public class EmployeeIdController {
 			@RequestParam String companyCodeId,@RequestParam String languageId,@RequestParam String plantId,
 			@Valid @RequestBody UpdateEmployeeId updateEmployeeId, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-		EmployeeId createdEmployeeId =
+		EmployeeId createdEmployeeId = 
 				employeeidService.updateEmployeeId(warehouseId, employeeId,companyCodeId,languageId,plantId,loginUserID,updateEmployeeId);
 		return new ResponseEntity<>(createdEmployeeId , HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
     
     @ApiOperation(response = EmployeeId.class, value = "Delete EmployeeId") // label for swagger
 	@DeleteMapping("/{employeeId}")
 	public ResponseEntity<?> deleteEmployeeId(@RequestParam String warehouseId,@PathVariable String employeeId,
 			@RequestParam String companyCodeId,@RequestParam String languageId,@RequestParam String plantId,@RequestParam String loginUserID) {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-		employeeidService.deleteEmployeeId(warehouseId, employeeId,companyCodeId,languageId,plantId,loginUserID);
+    	employeeidService.deleteEmployeeId(warehouseId, employeeId,companyCodeId,languageId,plantId,loginUserID);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
 	//Search
 	@ApiOperation(response = EmployeeId.class, value = "Find EmployeeId") // label for swagger
 	@PostMapping("/find")
 	public ResponseEntity<?> findEmployeeId(@Valid @RequestBody FindEmployeeId findEmployeeId) throws Exception {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(findEmployeeId.getCompanyCodeId(), findEmployeeId.getPlantId(), findEmployeeId.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
 		List<EmployeeId> createdEmployeeId = employeeidService.findEmployeeId(findEmployeeId);
 		return new ResponseEntity<>(createdEmployeeId, HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
 }

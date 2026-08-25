@@ -71,14 +71,4 @@ public class PeriodicLineV2 {
     private Double firstCountedQty;
     private Double secondCountedQty;
     private String levelId;
-    private Long lineNo;
-    /*----------------------Impex--------------------------------------------------*/
-    private String alternateUom;
-    private Double noBags;
-    private Double bagSize;
-    private Double mrp;
-    private String itemType;
-    private String itemGroup;
-    private String brand;
-    private String size;
 }

@@ -6,9 +6,7 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-import com.tekclover.wms.api.idmaster.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.idmaster.model.currency.FindCurrency;
-import com.tekclover.wms.api.idmaster.repository.DbConfigRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -6,9 +6,7 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-import com.tekclover.wms.api.idmaster.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.idmaster.model.usertypeid.FindUserTypeId;
-import com.tekclover.wms.api.idmaster.repository.DbConfigRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,9 +42,6 @@ public class UserTypeIdController {
 	
 	@Autowired
 	UserTypeIdService usertypeidService;
-
-	@Autowired
-	DbConfigRepository dbConfigRepository;
 	
     @ApiOperation(response = UserTypeId.class, value = "Get all UserTypeId details") // label for swagger
 	@GetMapping("")
@@ -59,22 +54,12 @@ public class UserTypeIdController {
 	@GetMapping("/{userTypeId}")
 	public ResponseEntity<?> getUserTypeId(@RequestParam String warehouseId,@PathVariable Long userTypeId,@RequestParam String companyCodeId,
 										   @RequestParam String languageId,@RequestParam String plantId) {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-    	UserTypeId usertypeid =
+    	UserTypeId usertypeid = 
     			usertypeidService.getUserTypeId(warehouseId,userTypeId,companyCodeId,languageId,plantId);
     	log.info("UserTypeId : " + usertypeid);
 		return new ResponseEntity<>(usertypeid, HttpStatus.OK);
 	}
-    finally {
-
-			DataBaseContextHolder.clear();
-		}
-		}
+    
 //	@ApiOperation(response = UserTypeId.class, value = "Search UserTypeId") // label for swagger
 //	@PostMapping("/findUserTypeId")
 //	public List<UserTypeId> findUserTypeId(@RequestBody SearchUserTypeId searchUserTypeId)
@@ -86,19 +71,9 @@ public class UserTypeIdController {
 	@PostMapping("")
 	public ResponseEntity<?> postUserTypeId(@Valid @RequestBody AddUserTypeId newUserTypeId, 
 			@RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(newUserTypeId.getCompanyCodeId(), newUserTypeId.getPlantId(), newUserTypeId.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
 		UserTypeId createdUserTypeId = usertypeidService.createUserTypeId(newUserTypeId, loginUserID);
 		return new ResponseEntity<>(createdUserTypeId , HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
     
     @ApiOperation(response = UserTypeId.class, value = "Update UserTypeId") // label for swagger
     @PatchMapping("/{userTypeId}")
@@ -106,53 +81,23 @@ public class UserTypeIdController {
 											 @RequestParam String companyCodeId,@RequestParam String languageId,@RequestParam String plantId,
 			@Valid @RequestBody UpdateUserTypeId updateUserTypeId, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-		UserTypeId createdUserTypeId =
+		UserTypeId createdUserTypeId = 
 				usertypeidService.updateUserTypeId(warehouseId, userTypeId,companyCodeId,languageId,plantId,loginUserID, updateUserTypeId);
 		return new ResponseEntity<>(createdUserTypeId , HttpStatus.OK);
 	}
-    finally {
-			DataBaseContextHolder.clear();
-		}
-		}
-
+    
     @ApiOperation(response = UserTypeId.class, value = "Delete UserTypeId") // label for swagger
 	@DeleteMapping("/{userTypeId}")
 	public ResponseEntity<?> deleteUserTypeId(@RequestParam String warehouseId,@PathVariable Long userTypeId, @RequestParam String companyCodeId,
 											  @RequestParam String languageId,@RequestParam String plantId, @RequestParam String loginUserID) {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-		usertypeidService.deleteUserTypeId(warehouseId, userTypeId,companyCodeId,languageId,plantId,loginUserID);
+    	usertypeidService.deleteUserTypeId(warehouseId, userTypeId,companyCodeId,languageId,plantId,loginUserID);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
 	//Search
 	@ApiOperation(response = UserTypeId.class, value = "Find UserTypeId") // label for swagger
 	@PostMapping("/find")
 	public ResponseEntity<?> findUserTypeId(@Valid @RequestBody FindUserTypeId findUserTypeId) throws Exception {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(findUserTypeId.getCompanyCodeId(), findUserTypeId.getPlantId(), findUserTypeId.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
 		List<UserTypeId> createdUserTypeId = usertypeidService.findUserTypeId(findUserTypeId);
 		return new ResponseEntity<>(createdUserTypeId, HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
 }

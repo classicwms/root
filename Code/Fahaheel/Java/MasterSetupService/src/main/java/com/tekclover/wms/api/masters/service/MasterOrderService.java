@@ -1,7 +1,6 @@
 package com.tekclover.wms.api.masters.service;
 
 
-import com.tekclover.wms.api.masters.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.masters.exception.BadRequestException;
 import com.tekclover.wms.api.masters.model.IKeyValuePair;
 import com.tekclover.wms.api.masters.model.auth.AuthToken;
@@ -138,14 +137,14 @@ public class MasterOrderService {
             businessPartnerV2.setAddress1(customer.getAddress1());
             businessPartnerV2.setAddress2(customer.getAddress2());
             businessPartnerV2.setPhoneNumber(customer.getPhoneNumber());
-//            businessPartnerV2.setCivilId(customer.getCivilId());
+            businessPartnerV2.setCivilId(customer.getCivilId());
             businessPartnerV2.setCountry(customer.getCountry());
-//            businessPartnerV2.setAlternatePhoneNumber(customer.getAlternatePhoneNumber());
+            businessPartnerV2.setAlternatePhoneNumber(customer.getAlternatePhoneNumber());
             businessPartnerV2.setCreatedBy(customer.getCreatedBy());
             businessPartnerV2.setCreatedOn(new Date());
-//            businessPartnerV2.setIsNew(customer.getIsNew());
-//            businessPartnerV2.setIsUpdate(customer.getIsUpdate());
-//            businessPartnerV2.setIsCompleted(customer.getIsCompleted());
+            businessPartnerV2.setIsNew(customer.getIsNew());
+            businessPartnerV2.setIsUpdate(customer.getIsUpdate());
+            businessPartnerV2.setIsCompleted(customer.getIsCompleted());
 
             IKeyValuePair iKeyValuePair = imBasicData1V2Repo.getImBasicDataV2Description(
                     customer.getCompanyCode(), customer.getBranchCode());
@@ -178,7 +177,6 @@ public class MasterOrderService {
             BeanUtils.copyProperties(item, imBasicData1, CommonUtils.getNullPropertyNames(item));
 
             // Get Warehouse
-            DataBaseContextHolder.setCurrentDb("FAHAHEEL");
             Optional<Warehouse> dbWarehouse =
                     warehouseRepository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndDeletionIndicator(
                             item.getCompanyCodeId(),
@@ -188,11 +186,9 @@ public class MasterOrderService {
                     );
             log.info("dbWarehouse : " + dbWarehouse);
 
-            DataBaseContextHolder.setCurrentDb("FAHAHEEL");
             Optional<ImBasicData1V2> existingImBasicData = imBasicData1V2Repo.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndItemCodeAndManufacturerPartNoAndDeletionIndicator(
                     item.getCompanyCodeId(), item.getPlantId(), "EN", dbWarehouse.get().getWarehouseId(), item.getItemCode(), item.getManufacturerName(), 0L);
 
-            DataBaseContextHolder.setCurrentDb("FAHAHEEL");
             Item dbitem = itemMasterRepository.findTopByCompanyCodeAndBranchCodeAndSkuAndManufacturerNameAndProcessedStatusIdOrderByOrderReceivedOn(
                     item.getCompanyCodeId(), item.getPlantId(), item.getItemCode(), item.getManufacturerName(), 0L);
 
@@ -222,7 +218,6 @@ public class MasterOrderService {
                                 imBasicData1.setUpdatedBy(item.getCreatedBy());
                                 imBasicData1.setUpdatedOn(new Date());
 
-                                DataBaseContextHolder.setCurrentDb("FAHAHEEL");
                                 IKeyValuePair description = imBasicData1V2Repo.getDescription(imBasicData1.getCompanyCodeId(),
                                         imBasicData1.getLanguageId(),
                                         imBasicData1.getPlantId(),
@@ -234,7 +229,6 @@ public class MasterOrderService {
                                     imBasicData1.setWarehouseDescription(description.getWarehouseDesc());
                                 }
 
-                                DataBaseContextHolder.setCurrentDb("FAHAHEEL");
                                 imBasicData1V2Repo.save(imBasicData1);
                                 log.info("Item Master updated Successfully");
 
@@ -256,7 +250,6 @@ public class MasterOrderService {
                         imBasicData1.setCreatedOn(new Date());
                         imBasicData1.setUpdatedOn(null);
 
-                        DataBaseContextHolder.setCurrentDb("FAHAHEEL");
                         IKeyValuePair description = imBasicData1V2Repo.getDescription(imBasicData1.getCompanyCodeId(),
                                 imBasicData1.getLanguageId(),
                                 imBasicData1.getPlantId(),
@@ -268,7 +261,6 @@ public class MasterOrderService {
                             imBasicData1.setWarehouseDescription(description.getWarehouseDesc());
                         }
 
-                        DataBaseContextHolder.setCurrentDb("FAHAHEEL");
                         imBasicData1V2Repo.save(imBasicData1);
 
                         dbitem.setRemarks("item Master Created Successfully");
@@ -296,7 +288,6 @@ public class MasterOrderService {
                             imBasicData1.setUpdatedBy(item.getCreatedBy());
                             imBasicData1.setUpdatedOn(new Date());
 
-                            DataBaseContextHolder.setCurrentDb("FAHAHEEL");
                             IKeyValuePair description = imBasicData1V2Repo.getDescription(imBasicData1.getCompanyCodeId(),
                                     imBasicData1.getLanguageId(),
                                     imBasicData1.getPlantId(),
@@ -308,7 +299,6 @@ public class MasterOrderService {
                                 imBasicData1.setWarehouseDescription(description.getWarehouseDesc());
                             }
 
-                            DataBaseContextHolder.setCurrentDb("FAHAHEEL");
                             imBasicData1V2Repo.save(imBasicData1);
                             log.info("Item Master updated Successfully: " + imBasicData1);
 
@@ -340,7 +330,6 @@ public class MasterOrderService {
                     imBasicData1.setCreatedOn(new Date());
                     imBasicData1.setUpdatedOn(null);
 
-                    DataBaseContextHolder.setCurrentDb("FAHAHEEL");
                     IKeyValuePair description = imBasicData1V2Repo.getDescription(imBasicData1.getCompanyCodeId(),
                             imBasicData1.getLanguageId(),
                             imBasicData1.getPlantId(),
@@ -352,7 +341,6 @@ public class MasterOrderService {
                         imBasicData1.setWarehouseDescription(description.getWarehouseDesc());
                     }
 
-                    DataBaseContextHolder.setCurrentDb("FAHAHEEL");
                     imBasicData1V2Repo.save(imBasicData1);
                     log.info("item Master Created Successfully: " + imBasicData1);
 
@@ -377,7 +365,6 @@ public class MasterOrderService {
             }
 
             dbitem.setProcessedStatusId(10L);
-            DataBaseContextHolder.setCurrentDb("FAHAHEEL");
             itemMasterRepository.save(dbitem);
 
         } catch (Exception e) {
@@ -451,13 +438,11 @@ public class MasterOrderService {
             if (customer != null) {
                 if (customer.getPlantId() == null) {
                     AuthToken authTokenForIDMasterService = authTokenService.getIDMasterServiceAuthToken();
-                    DataBaseContextHolder.setCurrentDb("FAHAHEEL");
                     PlantId[] branchCodeList = idMasterService.getPlantId(customer.getCompanyCodeId(), "EN", authTokenForIDMasterService.getAccess_token());
                     if (branchCodeList != null) {
                         for (PlantId dbPlant : branchCodeList) {
                             CustomerImpl newCustomerImpl = new CustomerImpl();
                             // Get Warehouse
-                            DataBaseContextHolder.setCurrentDb("FAHAHEEL");
                             Optional<Warehouse> dbWarehouse =
                                     warehouseRepository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndDeletionIndicator(
                                             customer.getCompanyCodeId(),
@@ -479,7 +464,6 @@ public class MasterOrderService {
                 }
                 if (customer.getPlantId() != null) {
                     // Get Warehouse
-                    DataBaseContextHolder.setCurrentDb("FAHAHEEL");
                     Optional<Warehouse> dbWarehouse =
                             warehouseRepository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndDeletionIndicator(
                                     customer.getCompanyCodeId(),
@@ -505,19 +489,16 @@ public class MasterOrderService {
                 BusinessPartnerV2 businessPartnerV2 = new BusinessPartnerV2();
                 BeanUtils.copyProperties(customer, businessPartnerV2, CommonUtils.getNullPropertyNames(customer));
 
-                DataBaseContextHolder.setCurrentDb("FAHAHEEL");
                 Optional<BusinessPartnerV2> existingCustomerMaster = businessPartnerRepo.findByCompanyCodeIdAndPlantIdAndWarehouseIdAndPartnerCodeAndBusinessPartnerTypeAndLanguageIdAndDeletionIndicator(
                         dbCustomerImpl.getCompanyCodeId(), dbCustomerImpl.getPlantId(), dbCustomerImpl.getWarehouseId(), customer.getPartnerCode(), 2L, "EN", 0L);
 
 
                 if (customer.getPlantId() != null) {
-                    DataBaseContextHolder.setCurrentDb("FAHAHEEL");
                     dbCustomer = customerMasterRepository.findTopByCompanyCodeAndBranchCodeAndPartnerCodeAndProcessedStatusIdOrderByOrderReceivedOn(
                             dbCustomerImpl.getCompanyCodeId(), dbCustomerImpl.getPlantId(), customer.getPartnerCode(), 0L);
                 }
 
                 if (customer.getPlantId() == null) {
-                    DataBaseContextHolder.setCurrentDb("FAHAHEEL");
                     dbCustomer = customerMasterRepository.findTopByCompanyCodeAndPartnerCodeOrderByOrderReceivedOn(
                             dbCustomerImpl.getCompanyCodeId(), customer.getPartnerCode());
                 }
@@ -545,7 +526,6 @@ public class MasterOrderService {
                                     businessPartnerV2.setCreatedOn(existingCustomerMaster.get().getCreatedOn());
                                     businessPartnerV2.setUpdatedBy(customer.getCreatedBy());
                                     businessPartnerV2.setUpdatedOn(new Date());
-                                    DataBaseContextHolder.setCurrentDb("FAHAHEEL");
                                     businessPartnerRepo.save(businessPartnerV2);
                                     log.info("Business Master updated Successfully");
 
@@ -569,7 +549,6 @@ public class MasterOrderService {
                             businessPartnerV2.setCreatedBy(customer.getCreatedBy());
                             businessPartnerV2.setCreatedOn(new Date());
                             businessPartnerV2.setUpdatedOn(null);
-                            DataBaseContextHolder.setCurrentDb("FAHAHEEL");
                             businessPartnerRepo.save(businessPartnerV2);
 
                             businessPartnerV2List.add(businessPartnerV2);
@@ -599,7 +578,6 @@ public class MasterOrderService {
                                 businessPartnerV2.setCreatedOn(existingCustomerMaster.get().getCreatedOn());
                                 businessPartnerV2.setUpdatedBy(customer.getCreatedBy());
                                 businessPartnerV2.setUpdatedOn(new Date());
-                                DataBaseContextHolder.setCurrentDb("FAHAHEEL");
                                 businessPartnerRepo.save(businessPartnerV2);
                                 log.info("Business Master updated Successfully : " + businessPartnerV2);
 
@@ -627,7 +605,6 @@ public class MasterOrderService {
                         businessPartnerV2.setCreatedBy(customer.getCreatedBy());
                         businessPartnerV2.setCreatedOn(new Date());
                         businessPartnerV2.setUpdatedOn(null);
-                        DataBaseContextHolder.setCurrentDb("FAHAHEEL");
                         businessPartnerRepo.save(businessPartnerV2);
 
                         dbCustomer.setRemarks("Customer Master Created Successfully");
@@ -649,7 +626,6 @@ public class MasterOrderService {
             }
 
             dbCustomer.setProcessedStatusId(10L);
-            DataBaseContextHolder.setCurrentDb("FAHAHEEL");
             customerMasterRepository.save(dbCustomer);
             return businessPartnerV2List;
 

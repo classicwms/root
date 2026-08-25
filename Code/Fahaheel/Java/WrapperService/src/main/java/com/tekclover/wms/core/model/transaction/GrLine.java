@@ -80,5 +80,4 @@ public class GrLine {
 	private Date updatedOn = new Date();
 	private String confirmedBy;
 	private Date confirmedOn = new Date();
-	private Double goodReceiptQty;
 }

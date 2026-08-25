@@ -12,6 +12,4 @@ public class SearchStagingHeaderV2 extends SearchStagingHeader {
 	private List<String> languageId;
 	private List<String> companyCodeId;
 	private List<String> plantId;
-	private List<String> customerId;
-
 }

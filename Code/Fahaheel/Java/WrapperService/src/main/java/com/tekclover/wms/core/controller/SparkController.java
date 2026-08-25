@@ -1,7 +1,6 @@
 package com.tekclover.wms.core.controller;
 
 import com.tekclover.wms.core.model.spark.*;
-import com.tekclover.wms.core.model.transaction.PreInboundLineV2;
 import com.tekclover.wms.core.model.transaction.QualityLineV2;
 import com.tekclover.wms.core.model.transaction.SearchInboundHeaderV2;
 import com.tekclover.wms.core.service.SparkService;
@@ -61,14 +60,6 @@ public class SparkController {
     public ResponseEntity<?> findPreinboundHeaderV2(@RequestBody FindPreInboundHeaderV2 findPreInboundHeaderV2) throws Exception {
         PreInboundHeaderV2[] preInboundHeader = sparkService.findPreinboundHeaderV2(findPreInboundHeaderV2);
         return new ResponseEntity<>(preInboundHeader, HttpStatus.OK);
-    }
-
-
-    @ApiOperation(response = PreInBoundLineV2.class, value = "Spark PreInboundLine details")
-    @PostMapping("/preinboundline")
-    public ResponseEntity<?> findPreinboundLineV2(@RequestBody FindPreInboundLineV2 findPreInboundLineV2) throws Exception {
-        PreInBoundLineV2[] preInboundLine = sparkService.findPreinboundLineV2(findPreInboundLineV2);
-        return new ResponseEntity<>(preInboundLine, HttpStatus.OK);
     }
 
     //StagingHeader
@@ -252,7 +243,7 @@ public class SparkController {
     // Find PerpetualLine
     @ApiOperation(response = PerpetualLineV2.class, value = "Spark PerpetualLine")
     @PostMapping("/perpetualline")
-    public  ResponseEntity<?> searchPerpetualLine(@RequestBody SearchPerpetualLineV3 searchOrderStatusReport) throws Exception{
+    public  ResponseEntity<?> searchPerpetualLine(@RequestBody SearchPerpetualLineV2 searchOrderStatusReport) throws Exception{
         PerpetualLineV2[] perpetualLineV2s = sparkService.findPerpetualLine(searchOrderStatusReport);
         return new ResponseEntity<>(perpetualLineV2s, HttpStatus.OK);
     }
@@ -324,7 +315,7 @@ public class SparkController {
 
     // Find Inventory
     @ApiOperation(response = InventoryV3.class, value = "Spark Inventory")
-    @PostMapping("/inventory/new")
+    @PostMapping("/inventory/v2/new")
     public ResponseEntity<?> findInventoryV2(@RequestBody FindInventoryV3 findInventoryV3) throws Exception {
         InventoryV3[] inventoryV3s = sparkService.findInventoryV3(findInventoryV3);
         return new ResponseEntity<>(inventoryV3s, HttpStatus.OK);

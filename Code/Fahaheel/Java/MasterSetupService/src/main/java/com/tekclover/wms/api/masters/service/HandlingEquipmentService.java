@@ -97,7 +97,7 @@ public class HandlingEquipmentService {
         Optional<HandlingEquipment> handlingequipment =
                 handlingequipmentRepository.findByHeBarcodeAndCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndDeletionIndicator(
                         heBarcode, companyCodeId, plantId, languageId, warehouseId, 0L);
-        if (handlingequipment.isPresent()) {
+        if (!handlingequipment.isEmpty()) {
             return handlingequipment.get();
         } else {
             throw new BadRequestException("The given values: warehouseId-" + warehouseId + ", heBarcode - " + heBarcode + " doesn't exist.");

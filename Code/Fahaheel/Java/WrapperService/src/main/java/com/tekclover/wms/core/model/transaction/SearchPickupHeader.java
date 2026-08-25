@@ -19,8 +19,7 @@ public class SearchPickupHeader {
 	 * REF_FIELD_1
 	 * ASS_PICKER_ID
 	 */
-	private List<String> companyCodeId;
-	private List<String> plantId;
+	 
 	private List<String> warehouseId;
 	private List<String> refDocNumber;
 	private List<String> partnerCode;

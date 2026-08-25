@@ -6,9 +6,7 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-import com.tekclover.wms.api.idmaster.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.idmaster.model.strategyid.FindStrategyId;
-import com.tekclover.wms.api.idmaster.repository.DbConfigRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,9 +42,6 @@ public class StrategyIdController {
 	
 	@Autowired
 	StrategyIdService strategyidService;
-
-	@Autowired
-	DbConfigRepository dbConfigRepository;
 	
     @ApiOperation(response = StrategyId.class, value = "Get all StrategyId details") // label for swagger
 	@GetMapping("")
@@ -60,21 +55,11 @@ public class StrategyIdController {
 	public ResponseEntity<?> getStrategyId(@RequestParam String warehouseId,@RequestParam Long strategyTypeId,
 										   @PathVariable String strategyNo,
 										   @RequestParam String companyCodeId,@RequestParam String languageId,@RequestParam String plantId) {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-		StrategyId strategyid =
+    	StrategyId strategyid = 
     			strategyidService.getStrategyId(warehouseId, strategyTypeId,strategyNo,companyCodeId,languageId,plantId);
     	log.info("StrategyId : " + strategyid);
 		return new ResponseEntity<>(strategyid, HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
     
 //	@ApiOperation(response = StrategyId.class, value = "Search StrategyId") // label for swagger
 //	@PostMapping("/findStrategyId")
@@ -87,19 +72,9 @@ public class StrategyIdController {
 	@PostMapping("")
 	public ResponseEntity<?> postStrategyId(@Valid @RequestBody AddStrategyId newStrategyId, 
 			@RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(newStrategyId.getCompanyCodeId(), newStrategyId.getPlantId(), newStrategyId.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
 		StrategyId createdStrategyId = strategyidService.createStrategyId(newStrategyId, loginUserID);
 		return new ResponseEntity<>(createdStrategyId , HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
     
     @ApiOperation(response = StrategyId.class, value = "Update StrategyId") // label for swagger
     @PatchMapping("/{strategyNo}")
@@ -107,53 +82,23 @@ public class StrategyIdController {
 											 @RequestParam String companyCodeId,@RequestParam String languageId,@RequestParam String plantId, @RequestParam String loginUserID,
 											 @Valid @RequestBody UpdateStrategyId updateStrategyId)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-		StrategyId createdStrategyId =
+		StrategyId createdStrategyId = 
 				strategyidService.updateStrategyId(warehouseId, strategyTypeId,strategyNo,companyCodeId,languageId,plantId,loginUserID, updateStrategyId);
 		return new ResponseEntity<>(createdStrategyId , HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
     
     @ApiOperation(response = StrategyId.class, value = "Delete StrategyId") // label for swagger
 	@DeleteMapping("/{strategyNo}")
 	public ResponseEntity<?> deleteStrategyId(@RequestParam String warehouseId, @RequestParam Long strategyTypeId,@PathVariable String strategyNo,@RequestParam String companyCodeId,
 											  @RequestParam String languageId,@RequestParam String plantId, @RequestParam String loginUserID) {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-		strategyidService.deleteStrategyId(warehouseId, strategyTypeId, strategyNo,companyCodeId,languageId,plantId,loginUserID);
+    	strategyidService.deleteStrategyId(warehouseId, strategyTypeId, strategyNo,companyCodeId,languageId,plantId,loginUserID);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
 	//Search
 	@ApiOperation(response = StrategyId.class, value = "Find StrategyId") // label for swagger
 	@PostMapping("/find")
 	public ResponseEntity<?> findStrategyId(@Valid @RequestBody FindStrategyId findStrategyId) throws Exception {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(findStrategyId.getCompanyCodeId(), findStrategyId.getPlantId(), findStrategyId.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
 		List<StrategyId> createdStrategyId = strategyidService.findStrategyId(findStrategyId);
 		return new ResponseEntity<>(createdStrategyId, HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
 }

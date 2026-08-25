@@ -38,14 +38,4 @@ public class SearchImBasicData1 {
 	
 	private Date startUpdatedOn;
 	private Date endUpdatedOn;
-
-	/*----------------Walkaroo changes------------------------------------------------------*/
-	private List<String> barcodeId;
-	private List<String> materialNo;
-	private List<String> priceSegment;
-	private List<String> articleNo;
-	private List<String> gender;
-	private List<String> color;
-	private List<String> size;
-	private List<String> noPairs;
 }

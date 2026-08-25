@@ -32,5 +32,4 @@ public class AddImBatchSerial {
     private String referenceField9;
     private String referenceField10;
     private Long deletionIndicator;
-    private Long sequenceIndicator;
 }

@@ -13,5 +13,4 @@ public class Receipt {
 	private Double damagedQty;	// DAMAGE_QTY
 	private Double missingORExcess;	// SUM(Accepted + Damaged) - Expected
 	private String status;
-	private Double noOfBags; //Numbers Of Bags
 }

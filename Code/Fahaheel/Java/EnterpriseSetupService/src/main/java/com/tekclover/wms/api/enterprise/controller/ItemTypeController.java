@@ -6,8 +6,6 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-import com.tekclover.wms.api.enterprise.config.dynamicConfig.DataBaseContextHolder;
-import com.tekclover.wms.api.enterprise.repository.DbConfigRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,10 +42,7 @@ public class ItemTypeController {
 	
 	@Autowired
 	ItemTypeService itemtypeService;
-
-	@Autowired
-	DbConfigRepository dbConfigRepository;
-
+	
     @ApiOperation(response = ItemType.class, value = "Get all ItemType details") // label for swagger
 	@GetMapping("")
 	public ResponseEntity<?> getAll() {
@@ -58,90 +53,40 @@ public class ItemTypeController {
 	@ApiOperation(response = ItemType.class, value = "Get a ItemType") 
 	@GetMapping("/{itemTypeId}")
 	public ResponseEntity<?> getItemType(@PathVariable Long itemTypeId, @RequestParam String warehouseId,@RequestParam String companyId,@RequestParam String plantId,@RequestParam String languageId) {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyId,plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-		ItemType itemtype = itemtypeService.getItemType(warehouseId, itemTypeId,companyId,languageId,plantId);
+	   	ItemType itemtype = itemtypeService.getItemType(warehouseId, itemTypeId,companyId,languageId,plantId);
 	   	log.info("ItemType : " + itemtype);
 		return new ResponseEntity<>(itemtype, HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
     
     @ApiOperation(response = ItemType.class, value = "Search ItemType") // label for swagger
 	@PostMapping("/findItemType")
 	public List<ItemType> findItemType(@RequestBody SearchItemType searchItemType)
 			throws Exception {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(searchItemType.getCompanyId(), searchItemType.getPlantId(), searchItemType.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
 		return itemtypeService.findItemType(searchItemType);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
     
     @ApiOperation(response = ItemType.class, value = "Create ItemType") // label for swagger
 	@PostMapping("")
 	public ResponseEntity<?> postItemType(@Valid @RequestBody AddItemType newItemType, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(newItemType.getCompanyId(), newItemType.getPlantId(), newItemType.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
 		ItemType createdItemType = itemtypeService.createItemType(newItemType, loginUserID);
 		return new ResponseEntity<>(createdItemType , HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
     
     @ApiOperation(response = ItemType.class, value = "Update ItemType") // label for swagger
     @PatchMapping("/{itemTypeId}")
 	public ResponseEntity<?> patchItemType(@PathVariable Long itemTypeId, @RequestParam String warehouseId,@RequestParam String companyId,@RequestParam String plantId,@RequestParam String languageId,
 			@Valid @RequestBody UpdateItemType updateItemType, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyId,plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
 		ItemType createdItemType = itemtypeService.updateItemType(warehouseId, itemTypeId,companyId,languageId,plantId,updateItemType, loginUserID);
 		return new ResponseEntity<>(createdItemType , HttpStatus.OK);
 	}
-	finally {
-			DataBaseContextHolder.clear();
-		}
-		}
     
     @ApiOperation(response = ItemType.class, value = "Delete ItemType") // label for swagger
 	@DeleteMapping("/{itemTypeId}")
 	public ResponseEntity<?> deleteItemType(@PathVariable Long itemTypeId, @RequestParam String warehouseId, @RequestParam String companyId,@RequestParam String plantId,@RequestParam String languageId,
 			@RequestParam String loginUserID) throws ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyId,plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
     	itemtypeService.deleteItemType(warehouseId, itemTypeId,companyId,languageId,plantId,loginUserID);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
 }

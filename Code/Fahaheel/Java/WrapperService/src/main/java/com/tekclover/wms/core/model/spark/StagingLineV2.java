@@ -2,7 +2,6 @@ package com.tekclover.wms.core.model.spark;
 
 import lombok.Data;
 import java.sql.Timestamp;
-import java.util.Date;
 
 @Data
 public class StagingLineV2 {
@@ -81,24 +80,4 @@ public class StagingLineV2 {
     private String branchCode;
     private String transferOrderNo;
     private String isCompleted;
-    private String alternateUom;
-    private Double noBags;
-    private Double bagSize;
-    private Double mrp;
-    private String itemType;
-    private String itemGroup;
-    private String size;
-    private Timestamp manufacturerDate;
-    private Timestamp expiryDate;
-    private Double pieceQty;
-    private Double caseQty;
-    private String printLabel;
-    /*-------------------------------------------Reeferon-----------------------------------*/
-
-    private Double qtyInCase;
-    private Double qtyInPiece;
-    private Double qtyInCreate;
-    private String vehicleNo;
-    private Date vehicleReportingDate;
-    private Date vehicleUnloadingDate;
 }

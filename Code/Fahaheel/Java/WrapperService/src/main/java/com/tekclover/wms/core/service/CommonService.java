@@ -74,22 +74,14 @@ public class CommonService {
 		if (apiUrl.equalsIgnoreCase("wms-idmaster-service")) {
 			accessTokenUrl = propertiesConfig.getIdmasterAccessTokenUrl();
 			log.info("accessTokenUrl : " + accessTokenUrl);
-		} else if (apiUrl.equalsIgnoreCase("wms-masters-service")) {
-			accessTokenUrl = propertiesConfig.getMastersAccessTokenUrl();
 		} else if (apiUrl.equalsIgnoreCase("wms-enterprise-service")) {
 			accessTokenUrl = propertiesConfig.getEnterpriseAccessTokenUrl();
-		} else if (apiUrl.equalsIgnoreCase("wms-inboundorder-service")) {
-			accessTokenUrl = propertiesConfig.getInboundOrderAccessTokenUrl();
-		} else if (apiUrl.equalsIgnoreCase("wms-outboundorder-service")) {
-			accessTokenUrl = propertiesConfig.getOutboundOrderAccessTokenUrl();
-		} else if (apiUrl.equalsIgnoreCase("wms-inboundtransaction-service")) {
-			accessTokenUrl = propertiesConfig.getInboundTransactionAccessTokenUrl();
-		}  else if (apiUrl.equalsIgnoreCase("wms-outboundtransaction-service")) {
-			accessTokenUrl = propertiesConfig.getOutboundTransactionAccessTokenUrl();
-		}  else if(apiUrl.equalsIgnoreCase("wms-connector-service")){
+		} else if (apiUrl.equalsIgnoreCase("wms-transaction-service")) {
+			accessTokenUrl = propertiesConfig.getTransactionAccessTokenUrl();
+		} else if (apiUrl.equalsIgnoreCase("wms-masters-service")) {
+			accessTokenUrl = propertiesConfig.getMastersAccessTokenUrl();
+		}else if(apiUrl.equalsIgnoreCase("wms-connector-service")){
 			accessTokenUrl = propertiesConfig.getConnectorAccessTokenUrl();
-		}  else if(apiUrl.equalsIgnoreCase("wms-transaction-service")){
-			accessTokenUrl = propertiesConfig.getInboundTransactionAccessTokenUrl();
 		} else {
 			log.info("The given URL is not available. Quiting.");
 			throw new BadRequestException("The given URL is not available. Quiting");
@@ -132,22 +124,5 @@ public class CommonService {
 				restTemplate.exchange(accessTokenUrl, HttpMethod.POST, entity, AXAuthToken.class);
 		log.info("AX Response ---------" + response.getBody());
 		return response.getBody();
-	}
-
-
-	//=======================================Helper-Method-ErrorException================================//
-	/**
-	 *  For Namratha
-	 * @param data
-	 * @return
-	 */
-	public String[] removeUnwantedString (String data) {
-		if(data != null && data.contains("400")) {
-			String response = data.replaceAll("400\\s*:\\s*|\\\\", "").trim();
-			String error = response.replaceAll(".*\"error\":\"([^\"]+)\".*", "$1");
-			String errorDescription = response.replaceAll(".*\"error_description\":\"([^\"]+)\".*", "$1");
-			return new String[]{error, errorDescription};
-		}
-		return new String[]{data};
 	}
 }

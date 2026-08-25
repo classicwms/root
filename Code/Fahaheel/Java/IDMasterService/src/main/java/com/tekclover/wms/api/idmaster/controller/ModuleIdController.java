@@ -1,8 +1,6 @@
 package com.tekclover.wms.api.idmaster.controller;
 
-import com.tekclover.wms.api.idmaster.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.idmaster.model.moduleid.*;
-import com.tekclover.wms.api.idmaster.repository.DbConfigRepository;
 import com.tekclover.wms.api.idmaster.service.ModuleIdService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -27,12 +25,9 @@ import java.util.List;
 @RequestMapping("/moduleid")
 @RestController
 public class ModuleIdController {
-
+	
 	@Autowired
 	ModuleIdService moduleidService;
-
-	@Autowired
-	DbConfigRepository dbConfigRepository;
 	
     @ApiOperation(response = ModuleId.class, value = "Get all ModuleId details") // label for swagger
 	@GetMapping("")
@@ -45,20 +40,10 @@ public class ModuleIdController {
 	@GetMapping("/{moduleId}")
 	public ResponseEntity<?> getModuleIds(@PathVariable String moduleId,
 			@RequestParam String warehouseId,@RequestParam String companyCodeId,@RequestParam String languageId,@RequestParam String plantId) {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-			List<ModuleId> moduleid =
-					moduleidService.getModuleIdList(warehouseId, moduleId, companyCodeId, languageId, plantId);
-			log.info("ModuleId : " + moduleid);
-			return new ResponseEntity<>(moduleid, HttpStatus.OK);
-		}
-		finally {
-			DataBaseContextHolder.clear();
-		}
+    	List<ModuleId> moduleid =
+    			moduleidService.getModuleIdList(warehouseId,moduleId,companyCodeId,languageId,plantId);
+    	log.info("ModuleId : " + moduleid);
+		return new ResponseEntity<>(moduleid, HttpStatus.OK);
 	}
     
     /*@ApiOperation(response = ModuleId.class, value = "Create ModuleId") // label for swagger
@@ -73,20 +58,8 @@ public class ModuleIdController {
 	@PostMapping("")
 	public ResponseEntity<?> postModuleId(@Valid @RequestBody List<AddModuleId> newModuleId,
 			@RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			for(AddModuleId moduleIds : newModuleId) {
-				DataBaseContextHolder.setCurrentDb("MT");
-				String routingDb = dbConfigRepository.getDbName(moduleIds.getCompanyCodeId(), moduleIds.getPlantId(), moduleIds.getWarehouseId());
-				log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-				DataBaseContextHolder.clear();
-				DataBaseContextHolder.setCurrentDb(routingDb);
-			}
-			List<ModuleId> createdModuleId = moduleidService.createModuleId(newModuleId, loginUserID);
-			return new ResponseEntity<>(createdModuleId, HttpStatus.OK);
-		}
-		finally {
-			DataBaseContextHolder.clear();
-		}
+		List<ModuleId> createdModuleId = moduleidService.createModuleId(newModuleId, loginUserID);
+		return new ResponseEntity<>(createdModuleId , HttpStatus.OK);
 	}
     
   /*  @ApiOperation(response = ModuleId.class, value = "Update ModuleId") // label for swagger
@@ -106,19 +79,9 @@ public class ModuleIdController {
 			@RequestParam String warehouseId, @RequestParam String companyCodeId,@RequestParam String languageId,@RequestParam String plantId,
 			@Valid @RequestBody List<UpdateModuleId> updateModuleId, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-			List<ModuleId> createdModuleId =
-					moduleidService.updateModuleId(warehouseId, moduleId, companyCodeId, languageId, plantId, loginUserID, updateModuleId);
-			return new ResponseEntity<>(createdModuleId, HttpStatus.OK);
-		}
-		finally {
-			DataBaseContextHolder.clear();
-		}
+		List<ModuleId> createdModuleId =
+				moduleidService.updateModuleId(warehouseId, moduleId,companyCodeId,languageId,plantId,loginUserID, updateModuleId);
+		return new ResponseEntity<>(createdModuleId , HttpStatus.OK);
 	}
     
     @ApiOperation(response = ModuleId.class, value = "Delete ModuleId") // label for swagger
@@ -126,36 +89,16 @@ public class ModuleIdController {
 	public ResponseEntity<?> deleteModuleId(@PathVariable String moduleId,
 			@RequestParam String warehouseId,@RequestParam String companyCodeId,@RequestParam String languageId,
 											@RequestParam String plantId,@RequestParam String loginUserID) {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-			moduleidService.deleteModuleId(warehouseId, moduleId, companyCodeId, languageId, plantId, loginUserID);
-			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-		}
-		finally {
-			DataBaseContextHolder.clear();
-		}
+    	moduleidService.deleteModuleId(warehouseId, moduleId,companyCodeId,languageId,plantId,loginUserID);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 
 	//Search
 	@ApiOperation(response = ModuleId.class, value = "Find ModuleId") // label for swagger
 	@PostMapping("/find")
 	public ResponseEntity<?> findModuleId(@Valid @RequestBody FindModuleId findModuleId) throws Exception {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(findModuleId.getCompanyCodeId(), findModuleId.getPlantId(), findModuleId.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-			List<ModuleId> createdUomId = moduleidService.findModuleId(findModuleId);
-			return new ResponseEntity<>(createdUomId, HttpStatus.OK);
-		}
-		finally {
-			DataBaseContextHolder.clear();
-		}
+		List<ModuleId> createdUomId = moduleidService.findModuleId(findModuleId);
+		return new ResponseEntity<>(createdUomId, HttpStatus.OK);
 	}
 
 }

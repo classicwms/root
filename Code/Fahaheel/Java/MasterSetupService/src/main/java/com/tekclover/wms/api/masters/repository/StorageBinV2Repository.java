@@ -1,18 +1,14 @@
 package com.tekclover.wms.api.masters.repository;
 
-import com.tekclover.wms.api.masters.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.masters.model.storagebin.v2.StorageBinV2;
 import com.tekclover.wms.api.masters.repository.fragments.StreamableJpaSpecificationRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -52,9 +48,6 @@ public interface StorageBinV2Repository extends JpaRepository<StorageBinV2, Long
             String binClassId, String companyCodeId, String plantId, String warehouseId, String languageId, long l);
 
     Optional<StorageBinV2> findTopByBinClassIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndLanguageIdAndDeletionIndicator(
-            Long binClassId, String companyCodeId, String plantId, String warehouseId, String languageId, long l);
-
-    Optional<StorageBinV2> findByBinClassIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndLanguageIdAndDeletionIndicator(
             Long binClassId, String companyCodeId, String plantId, String warehouseId, String languageId, long l);
 
     List<StorageBinV2> findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndStatusIdAndDeletionIndicator(
@@ -186,41 +179,10 @@ public interface StorageBinV2Repository extends JpaRepository<StorageBinV2, Long
                                                       @Param("languageId") String languageId,
                                                       @Param("warehouseId") String warehouseId);
 
-
-    @Query(value = "SELECT * FROM tblstoragebin WHERE bin_cl_id = :binclassId and c_id = :companyCode and plant_id = :plantId and \n" +
-            "wh_id = :warehouseId and lang_id = :languageId and \n" +
-//            "CAP_CHECK = 'FALSE' and pick_block = 0 and putaway_block = 0 and \n" +
-            " is_deleted = 0 and st_bin = 'EmptyCrateBin' order by st_bin", nativeQuery = true)                     //storage-bin excluding direct stock receipt bin
-    public StorageBinV2 getStorageBinNonCBMBinClassId1(@Param("binclassId") Long binclassId,
-                                                      @Param("companyCode") String companyCode,
-                                                      @Param("plantId") String plantId,
-                                                      @Param("languageId") String languageId,
-                                                      @Param("warehouseId") String warehouseId);
-
     StorageBinV2 findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndStorageBinAndDeletionIndicator(
             String companyCodeId, String plantId, String languageId, String warehouseId, String storageBin, Long deletionIndicator);
     StorageBinV2 findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndStorageBinAndBinClassIdAndDeletionIndicator(
             String companyCodeId, String plantId, String languageId, String warehouseId, String storageBin, Long binClassId, Long deletionIndicator);
-
-    @Modifying
-    @Query(value = "Update tblstoragebin SET UTD_BY = :updatedBy,UTD_ON =:updatedOn where st_bin = :storageBin and c_id = :companyCode and plant_id = :plantId and \n" +
-           "wh_id = :warehouseId and lang_id = :languageId and is_deleted = 0 ", nativeQuery = true)
-    void updateStorageBin(@Param("updatedBy") String updatedBy,
-                          @Param("updatedOn") Date updatedOn,
-                          @Param("storageBin") String storageBin,
-                          @Param("companyCode") String companyCode,
-                          @Param("plantId") String plantId,
-                          @Param("languageId") String languageId,
-                          @Param("warehouseId") String warehouseId);
-
-    @Modifying
-    @Query(value = "UPDATE tblstoragebin set is_deleted = 1 WHERE st_bin = :storageBin and c_id = :companyCode and plant_id = :plantId and \n" +
-            "wh_id = :warehouseId and lang_id = :languageId and is_deleted = 0 ", nativeQuery = true)
-    void softDeleteStorageBin(@Param("companyCode") String companyCode,
-                              @Param("plantId") String plantId,
-                              @Param("languageId") String languageId,
-                              @Param("warehouseId") String warehouseId,
-                              @Param("storageBin") String storageBin);
 }
 
 

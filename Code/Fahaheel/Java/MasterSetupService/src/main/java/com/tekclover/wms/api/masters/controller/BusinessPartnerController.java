@@ -6,9 +6,7 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-import com.tekclover.wms.api.masters.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.masters.model.businesspartner.v2.BusinessPartnerV2;
-import com.tekclover.wms.api.masters.repository.DbConfigRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -45,9 +43,6 @@ public class BusinessPartnerController {
 	
 	@Autowired
 	BusinessPartnerService businesspartnerService;
-
-	@Autowired
-	DbConfigRepository dbConfigRepository;
 	
     @ApiOperation(response = BusinessPartner.class, value = "Get all BusinessPartner details") // label for swagger
 	@GetMapping("")
@@ -59,144 +54,64 @@ public class BusinessPartnerController {
     @ApiOperation(response = BusinessPartner.class, value = "Get a BusinessPartner") // label for swagger 
 	@GetMapping("/{partnerCode}")
 	public ResponseEntity<?> getBusinessPartner(@PathVariable String partnerCode,@RequestParam String companyCodeId,@RequestParam String plantId,@RequestParam String warehouseId,@RequestParam String languageId,@RequestParam Long businessPartnerType) {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-		BusinessPartner businesspartner = businesspartnerService.getBusinessPartner(partnerCode,companyCodeId,plantId,warehouseId,languageId,businessPartnerType);
+    	BusinessPartner businesspartner = businesspartnerService.getBusinessPartner(partnerCode,companyCodeId,plantId,warehouseId,languageId,businessPartnerType);
     	log.info("BusinessPartner : " + businesspartner);
 		return new ResponseEntity<>(businesspartner, HttpStatus.OK);
 	}
-    finally {
-			DataBaseContextHolder.clear();
-		}
-		}
+    
 	@ApiOperation(response = BusinessPartner.class, value = "Search BusinessPartner") // label for swagger
 	@PostMapping("/findBusinessPartner")
 	public List<BusinessPartner> findBusinessPartner(@RequestBody SearchBusinessPartner searchBusinessPartner)
 			throws Exception {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbNameList(searchBusinessPartner.getCompanyCodeId(), searchBusinessPartner.getPlantId(), searchBusinessPartner.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
 		return businesspartnerService.findBusinessPartner(searchBusinessPartner);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
 	
     @ApiOperation(response = BusinessPartner.class, value = "Create BusinessPartner") // label for swagger
 	@PostMapping("")
 	public ResponseEntity<?> postBusinessPartner(@Valid @RequestBody AddBusinessPartner newBusinessPartner, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(newBusinessPartner.getCompanyCodeId(), newBusinessPartner.getPlantId(), newBusinessPartner.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
 		BusinessPartner createdBusinessPartner = businesspartnerService.createBusinessPartner(newBusinessPartner, loginUserID);
 		return new ResponseEntity<>(createdBusinessPartner , HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
     
     @ApiOperation(response = BusinessPartner.class, value = "Update BusinessPartner") // label for swagger
     @PatchMapping("/{partnerCode}")
 	public ResponseEntity<?> patchBusinessPartner(@PathVariable String partnerCode,@RequestParam String companyCodeId,@RequestParam String plantId,@RequestParam String warehouseId,@RequestParam String languageId,@RequestParam Long businessPartnerType,
 			@Valid @RequestBody UpdateBusinessPartner updateBusinessPartner, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
 		BusinessPartner createdBusinessPartner = businesspartnerService.updateBusinessPartner(partnerCode,companyCodeId,plantId,warehouseId,languageId,businessPartnerType,updateBusinessPartner, loginUserID);
 		return new ResponseEntity<>(createdBusinessPartner , HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
 
 	@ApiOperation(response = BusinessPartnerV2.class, value = "Get a BusinessPartner") // label for swagger
 	@GetMapping("/v2/{partnerCode}")
 	public ResponseEntity<?> getBusinessPartnerV2(@PathVariable String partnerCode,@RequestParam String companyCodeId,@RequestParam String plantId,@RequestParam String warehouseId,@RequestParam String languageId,@RequestParam Long businessPartnerType) {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
 		BusinessPartnerV2 businesspartner = businesspartnerService.getBusinessPartnerV2(partnerCode,companyCodeId,plantId,warehouseId,languageId,businessPartnerType);
 		log.info("BusinessPartner : " + businesspartner);
 		return new ResponseEntity<>(businesspartner, HttpStatus.OK);
 	}
 
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
-
 	@ApiOperation(response = BusinessPartner.class, value = "Create BusinessPartner") // label for swagger
 	@PostMapping("/v2")
 	public ResponseEntity<?> postBusinessPartnerV2(@Valid @RequestBody BusinessPartnerV2 newBusinessPartner, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(newBusinessPartner.getCompanyCodeId(), newBusinessPartner.getPlantId(), newBusinessPartner.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
 		BusinessPartnerV2 createdBusinessPartner = businesspartnerService.createBusinessPartnerV2(newBusinessPartner, loginUserID);
 		return new ResponseEntity<>(createdBusinessPartner , HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
 
 	@ApiOperation(response = BusinessPartnerV2.class, value = "Update BusinessPartner V2") // label for swagger
     @PatchMapping("/v2/{partnerCode}")
 	public ResponseEntity<?> patchBusinessPartnerV2(@PathVariable String partnerCode,@RequestParam String companyCodeId,@RequestParam String plantId,@RequestParam String warehouseId,@RequestParam String languageId,@RequestParam Long businessPartnerType,
 			@Valid @RequestBody BusinessPartnerV2 updateBusinessPartner, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
 		BusinessPartnerV2 createdBusinessPartner = businesspartnerService.updateBusinessPartnerV2(partnerCode,companyCodeId,plantId,warehouseId,languageId,businessPartnerType,updateBusinessPartner, loginUserID);
 		return new ResponseEntity<>(createdBusinessPartner , HttpStatus.OK);
 	}
-    finally {
-			DataBaseContextHolder.clear();
-		}
-		}
-
+    
     @ApiOperation(response = BusinessPartner.class, value = "Delete BusinessPartner") // label for swagger
 	@DeleteMapping("/{partnerCode}")
 	public ResponseEntity<?> deleteBusinessPartner(@PathVariable String partnerCode,@RequestParam String companyCodeId,@RequestParam String plantId,@RequestParam String warehouseId,@RequestParam String languageId,@RequestParam Long businessPartnerType, @RequestParam String loginUserID) throws ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-		businesspartnerService.deleteBusinessPartner(partnerCode,companyCodeId,plantId,warehouseId,languageId,businessPartnerType,loginUserID);
+    	businesspartnerService.deleteBusinessPartner(partnerCode,companyCodeId,plantId,warehouseId,languageId,businessPartnerType,loginUserID);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
 }

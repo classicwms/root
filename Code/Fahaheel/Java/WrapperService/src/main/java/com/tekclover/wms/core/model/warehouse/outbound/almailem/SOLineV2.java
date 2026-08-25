@@ -25,10 +25,10 @@ public class SOLineV2 {
     @NotBlank(message = "Order type is mandatory")
     private String orderType;                                 // REF_FIELD_1
 
-//    @NotBlank(message = "Manufacturer Code is mandatory")
+    @NotBlank(message = "Manufacturer Code is mandatory")
     private String manufacturerCode;
 
-//    @NotBlank(message = "Manufacturer Name is mandatory")
+    @NotBlank(message = "Manufacturer Name is mandatory")
     private String manufacturerName;
 
     private String brand;
@@ -47,14 +47,4 @@ public class SOLineV2 {
     private Long middlewareId;
     private Long middlewareHeaderId;
     private String middlewareTable;
-
-    /*----------------Walkaroo changes------------------------------------------------------*/
-    private String materialNo;
-    private String priceSegment;
-    private String articleNo;
-    private String gender;
-    private String color;
-    private String size;
-    private String noPairs;
-	private String barcodeId;
 }

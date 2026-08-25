@@ -58,6 +58,5 @@ public class AddBomLine {
     private String updatedBy;
 
 	private Date updatedOn = new Date();
-	private String uom;
     
 }

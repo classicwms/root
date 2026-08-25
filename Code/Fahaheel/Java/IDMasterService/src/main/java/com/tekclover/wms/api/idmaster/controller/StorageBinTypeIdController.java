@@ -6,9 +6,7 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-import com.tekclover.wms.api.idmaster.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.idmaster.model.storagebintypeid.FindStorageBinTypeId;
-import com.tekclover.wms.api.idmaster.repository.DbConfigRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,9 +42,6 @@ public class StorageBinTypeIdController {
 	
 	@Autowired
 	StorageBinTypeIdService storagebintypeidService;
-
-	@Autowired
-	DbConfigRepository dbConfigRepository;
 	
     @ApiOperation(response = StorageBinTypeId.class, value = "Get all StorageBinTypeId details") // label for swagger
 	@GetMapping("")
@@ -59,20 +54,10 @@ public class StorageBinTypeIdController {
 	@GetMapping("/{storageBinTypeId}")
 	public ResponseEntity<?> getStorageBinTypeId(@RequestParam String warehouseId,@PathVariable Long storageBinTypeId,
 			 @RequestParam Long storageClassId,@RequestParam Long storageTypeId,@RequestParam String companyCodeId,@RequestParam String languageId,@RequestParam String plantId) {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-			StorageBinTypeId storagebintypeid =
-					storagebintypeidService.getStorageBinTypeId(warehouseId, storageBinTypeId, storageClassId, storageTypeId, companyCodeId, languageId, plantId);
-			log.info("StorageBinTypeId : " + storagebintypeid);
-			return new ResponseEntity<>(storagebintypeid, HttpStatus.OK);
-		}
-		finally {
-			DataBaseContextHolder.clear();
-		}
+    	StorageBinTypeId storagebintypeid = 
+    			storagebintypeidService.getStorageBinTypeId(warehouseId,storageBinTypeId,storageClassId,storageTypeId,companyCodeId,languageId,plantId);
+    	log.info("StorageBinTypeId : " + storagebintypeid);
+		return new ResponseEntity<>(storagebintypeid, HttpStatus.OK);
 	}
     
 //	@ApiOperation(response = StorageBinTypeId.class, value = "Search StorageBinTypeId") // label for swagger
@@ -86,18 +71,8 @@ public class StorageBinTypeIdController {
 	@PostMapping("")
 	public ResponseEntity<?> postStorageBinTypeId(@Valid @RequestBody AddStorageBinTypeId newStorageBinTypeId, 
 			@RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(newStorageBinTypeId.getCompanyCodeId(), newStorageBinTypeId.getPlantId(), newStorageBinTypeId.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-			StorageBinTypeId createdStorageBinTypeId = storagebintypeidService.createStorageBinTypeId(newStorageBinTypeId, loginUserID);
-			return new ResponseEntity<>(createdStorageBinTypeId, HttpStatus.OK);
-		}
-		finally {
-			DataBaseContextHolder.clear();
-		}
+		StorageBinTypeId createdStorageBinTypeId = storagebintypeidService.createStorageBinTypeId(newStorageBinTypeId, loginUserID);
+		return new ResponseEntity<>(createdStorageBinTypeId , HttpStatus.OK);
 	}
     
     @ApiOperation(response = StorageBinTypeId.class, value = "Update StorageBinTypeId") // label for swagger
@@ -106,20 +81,10 @@ public class StorageBinTypeIdController {
 												   @RequestParam Long storageTypeId, @RequestParam String companyCodeId,@RequestParam String languageId,@RequestParam String plantId, @RequestParam String loginUserID,
 													@Valid @RequestBody UpdateStorageBinTypeId updateStorageBinTypeId)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-			StorageBinTypeId createdStorageBinTypeId =
-					storagebintypeidService.updateStorageBinTypeId(warehouseId, storageBinTypeId, storageClassId, storageTypeId, companyCodeId, languageId, plantId,
-							loginUserID, updateStorageBinTypeId);
-			return new ResponseEntity<>(createdStorageBinTypeId, HttpStatus.OK);
-		}
-		finally {
-			DataBaseContextHolder.clear();
-		}
+		StorageBinTypeId createdStorageBinTypeId = 
+				storagebintypeidService.updateStorageBinTypeId(warehouseId,storageBinTypeId,storageClassId,storageTypeId,companyCodeId,languageId,plantId,
+						loginUserID, updateStorageBinTypeId);
+		return new ResponseEntity<>(createdStorageBinTypeId , HttpStatus.OK);
 	}
     
     @ApiOperation(response = StorageBinTypeId.class, value = "Delete StorageBinTypeId") // label for swagger
@@ -127,34 +92,14 @@ public class StorageBinTypeIdController {
 	public ResponseEntity<?> deleteStorageBinTypeId(@RequestParam String warehouseId,@PathVariable Long storageBinTypeId, @RequestParam Long storageClassId,
 													@RequestParam Long storageTypeId, @RequestParam String companyCodeId,@RequestParam String languageId,@RequestParam String plantId,
 			@RequestParam String loginUserID) {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-			storagebintypeidService.deleteStorageBinTypeId(warehouseId, storageBinTypeId, storageClassId, storageTypeId, companyCodeId, languageId, plantId, loginUserID);
-			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-		}
-		finally {
-			DataBaseContextHolder.clear();
-		}
+    	storagebintypeidService.deleteStorageBinTypeId(warehouseId, storageBinTypeId,storageClassId, storageTypeId,companyCodeId,languageId,plantId,loginUserID);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 	//Search
 	@ApiOperation(response = StorageBinTypeId.class, value = "Find StorageBinTypeId") // label for swagger
 	@PostMapping("/find")
 	public ResponseEntity<?> findStorageBinTypeId(@Valid @RequestBody FindStorageBinTypeId findStorageBinTypeId) throws Exception {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(findStorageBinTypeId.getCompanyCodeId(), findStorageBinTypeId.getPlantId(), findStorageBinTypeId.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-			List<StorageBinTypeId> createdStorageBinTypeId = storagebintypeidService.findStorageBinTypeId(findStorageBinTypeId);
-			return new ResponseEntity<>(createdStorageBinTypeId, HttpStatus.OK);
-		}
-		finally {
-			DataBaseContextHolder.clear();
-		}
+		List<StorageBinTypeId> createdStorageBinTypeId = storagebintypeidService.findStorageBinTypeId(findStorageBinTypeId);
+		return new ResponseEntity<>(createdStorageBinTypeId, HttpStatus.OK);
 	}
 }

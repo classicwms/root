@@ -8,7 +8,7 @@ public class UpdateBarcode {
 	private Long barcodeTypeId;
     private String companyId;
 	private String plantId;
-    private String warehouseId;
+    private String warehouseID;
 	private String method;
 	private Long barcodeSubTypeId;
 	private Long levelId;

@@ -1,11 +1,9 @@
 package com.tekclover.wms.api.idmaster.service;
 
-import com.tekclover.wms.api.idmaster.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.idmaster.controller.exception.BadRequestException;
 import com.tekclover.wms.api.idmaster.model.IKeyValuePair;
 import com.tekclover.wms.api.idmaster.model.hhtuser.*;
 import com.tekclover.wms.api.idmaster.model.outboundordertypeid.OutboundOrderTypeId;
-import com.tekclover.wms.api.idmaster.model.user.UserManagement;
 import com.tekclover.wms.api.idmaster.repository.*;
 import com.tekclover.wms.api.idmaster.repository.Specification.HhtUserSpecification;
 import com.tekclover.wms.api.idmaster.util.CommonUtils;
@@ -46,12 +44,6 @@ public class HhtUserService {
 
     @Autowired
     private HhtUserRepository hhtUserRepository;
-
-    @Autowired
-    private UserManagementRepository userManagementRepository;
-
-    @Autowired
-    private DbConfigRepository dbConfigRepository;
 
     /**
      * @return
@@ -280,17 +272,6 @@ public class HhtUserService {
         dbHhtUser.setUpdatedOn(new Date());
         HhtUser savedHhtUser = hhtUserRepository.save(dbHhtUser);
 
-        // Saving to Common DB
-        try {
-            DataBaseContextHolder.clear();
-            DataBaseContextHolder.setCurrentDb("MT");
-            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", DataBaseContextHolder.getCurrentDb());
-            HhtUser savedHhtUserImf = hhtUserRepository.save(dbHhtUser);
-            log.info("Hhtuser saved in common DB : savedHhtUserImf ------> {}", savedHhtUserImf);
-        } catch (Exception e) {
-            log.info("HhtUser save in common DB failed....");
-        }
-
         savedHhtUser.setOrderTypeIds(new HashSet<>());
         if (newHhtUser.getOrderType() != null) {
             for (String newOrderTypeId : newHhtUser.getOrderType()) {
@@ -418,117 +399,12 @@ public class HhtUserService {
     }
 
     /**
-     * @return
-     * @throws ParseException
-     */
-    //Find HhtUser
-    public List<HhtUserOutput> findHhtUser(FindHhtUser user) throws ParseException {
-
-//        HhtUserSpecification spec = new HhtUserSpecification(findHhtUser);
-//		List<HhtUser> results = hhtUserRepository.findAll(spec);
-
-
-        if (user.getCompanyCodeId() == null || user.getCompanyCodeId().isEmpty()) {
-            user.setCompanyCodeId(null);
-        }
-        if (user.getPlantId() == null || user.getPlantId().isEmpty()) {
-            user.setPlantId(null);
-        }
-        if (user.getLanguageId() == null || user.getLanguageId().isEmpty()) {
-            user.setLanguageId(null);
-        }
-        if (user.getWarehouseId() == null || user.getWarehouseId().isEmpty()) {
-            user.setWarehouseId(null);
-        }
-        if (user.getUserPresent() == null || user.getUserPresent().isEmpty()) {
-            user.setUserPresent(null);
-        }
-        if (user.getUserId() == null || user.getUserId().isEmpty()) {
-            user.setUserId(null);
-        }
-        if (user.getLevelId() == null || user.getLevelId().isEmpty()) {
-            user.setLevelId(null);
-        }
-        if (user.getNoOfDaysLeave() == null || user.getNoOfDaysLeave().isEmpty()) {
-            user.setNoOfDaysLeave(null);
-        }
-
-        List<HhtUser> results = hhtUserRepository.getHhtUser(
-                user.getCompanyCodeId(),
-                user.getLanguageId(),
-                user.getPlantId(),
-                user.getWarehouseId(),
-                user.getUserId(),
-                user.getLevelId(),
-                user.getUserPresent(),
-                user.getNoOfDaysLeave());
-
-        List<HhtUserOutput> newHhtUser = new ArrayList<>();
-
-        for (HhtUser dbHhtUser : results) {
-
-            HhtUserOutput dbHhtUserOutput = new HhtUserOutput();
-
-            //V2 Code
-            IKeyValuePair description = companyIdRepository.getDescription(dbHhtUser.getCompanyCodeId(),
-                    dbHhtUser.getLanguageId(), dbHhtUser.getPlantId(), dbHhtUser.getWarehouseId());
-
-            IKeyValuePair iKeyValuePair3 =
-                    levelIdRepository.getLevelIdAndDescription(dbHhtUser.getLevelId(),
-                            dbHhtUser.getLanguageId(), dbHhtUser.getCompanyCodeId(), dbHhtUser.getPlantId(),
-                            dbHhtUser.getWarehouseId());
-
-            if (iKeyValuePair3 != null) {
-                dbHhtUser.setLevelIdAndDescription(iKeyValuePair3.getLevelId() + "-" + iKeyValuePair3.getDescription());
-            }
-
-            if (description != null) {
-                dbHhtUser.setCompanyIdAndDescription(description.getCompanyDesc());
-                dbHhtUser.setPlantIdAndDescription(description.getPlantDesc());
-                dbHhtUser.setWarehouseIdAndDescription(description.getWarehouseDesc());
-            }
-
-            BeanUtils.copyProperties(dbHhtUser, dbHhtUserOutput, CommonUtils.getNullPropertyNames(dbHhtUser));
-            if (dbHhtUser.getOrderTypeIds() != null) {
-                List<String> orderTypeId = new ArrayList<>();
-                for (OrderTypeId dbOrderTypeId : dbHhtUser.getOrderTypeIds()) {
-                    orderTypeId.add(dbOrderTypeId.getOrderTypeId());
-                }
-                dbHhtUserOutput.setOrderType(orderTypeId);
-            }
-            if(dbHhtUser != null) {
-                if (dbHhtUser.getStartDate() != null && dbHhtUser.getEndDate() != null) {
-                    List<HhtUser> userPresent = hhtUserRepository.getHhtUserAttendance(
-                            dbHhtUser.getCompanyCodeId(),
-                            dbHhtUser.getLanguageId(),
-                            dbHhtUser.getPlantId(),
-                            dbHhtUser.getWarehouseId(),
-                            dbHhtUser.getUserId(),
-                            dbHhtUser.getStartDate(),
-                            dbHhtUser.getEndDate());
-                    log.info("HHt User Absent: " + userPresent);
-                    if (userPresent != null && !userPresent.isEmpty()) {
-                        dbHhtUserOutput.setUserPresent("0");
-                    } else {
-                        dbHhtUserOutput.setUserPresent("1");
-                    }
-                } else {
-                    dbHhtUserOutput.setUserPresent("1");
-                }
-            }
-
-            newHhtUser.add(dbHhtUserOutput);
-        }
-        return newHhtUser;
-    }
-
-    /**
      * @param findHhtUser
      * @return
      * @throws ParseException
      */
     //Find HhtUser
-    public List<HhtUserOutput> findHhtUserV5(FindHhtUser findHhtUser) throws ParseException {
+    public List<HhtUserOutput> findHhtUser(FindHhtUser findHhtUser) throws ParseException {
 
 //        HhtUserSpecification spec = new HhtUserSpecification(findHhtUser);
 //		List<HhtUser> results = hhtUserRepository.findAll(spec);
@@ -576,7 +452,7 @@ public class HhtUserService {
 
             //V2 Code
             IKeyValuePair description = companyIdRepository.getDescription(dbHhtUser.getCompanyCodeId(),
-                    dbHhtUser.getPlantId(), dbHhtUser.getLanguageId(), dbHhtUser.getWarehouseId());
+                    dbHhtUser.getLanguageId(), dbHhtUser.getPlantId(), dbHhtUser.getWarehouseId());
 
             IKeyValuePair iKeyValuePair3 =
                     levelIdRepository.getLevelIdAndDescription(dbHhtUser.getLevelId(),

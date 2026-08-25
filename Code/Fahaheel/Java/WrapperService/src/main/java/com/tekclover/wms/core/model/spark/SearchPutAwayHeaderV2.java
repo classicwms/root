@@ -29,7 +29,4 @@ public class SearchPutAwayHeaderV2 {
     private List<String> origin;
     private List<String> brand;
     private List<String> approvalStatus;
-    private List<String> customerId;
-    private List<String> customerName;
-
 }

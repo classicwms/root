@@ -35,7 +35,6 @@ import lombok.NoArgsConstructor;
 	private String storageMethod;
 	private String batchSerialNumber;
 	private Long outboundOrderTypeId;
-	private Long inboundOrderTypeId;
 	private Long stockTypeId;
 	private Long specialStockIndicatorId;
 	private String referenceOrderNo;

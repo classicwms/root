@@ -6,9 +6,7 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-import com.tekclover.wms.api.idmaster.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.idmaster.model.processsequenceid.FindProcessSequenceId;
-import com.tekclover.wms.api.idmaster.repository.DbConfigRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,9 +42,6 @@ public class ProcessSequenceIdController {
 	
 	@Autowired
 	ProcessSequenceIdService processsequenceidService;
-
-	@Autowired
-	DbConfigRepository dbConfigRepository;
 	
     @ApiOperation(response = ProcessSequenceId.class, value = "Get all ProcessSequenceId details") // label for swagger
 	@GetMapping("")
@@ -60,91 +55,43 @@ public class ProcessSequenceIdController {
 	public ResponseEntity<?> getProcessSequenceId(@RequestParam String processId,
 			@RequestParam String warehouseId, @PathVariable Long processSequenceId,
 												  @RequestParam String companyCodeId,@RequestParam String languageId,@RequestParam String plantId) {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-		ProcessSequenceId processsequenceid =
+    	ProcessSequenceId processsequenceid = 
     			processsequenceidService.getProcessSequenceId(warehouseId, processId,processSequenceId,companyCodeId,languageId,plantId);
     	log.info("ProcessSequenceId : " + processsequenceid);
 		return new ResponseEntity<>(processsequenceid, HttpStatus.OK);
 	}
-finally {
-			DataBaseContextHolder.clear();
-		}
-		}
+
     
     @ApiOperation(response = ProcessSequenceId.class, value = "Create ProcessSequenceId") // label for swagger
 	@PostMapping("")
 	public ResponseEntity<?> postProcessSequenceId(@Valid @RequestBody AddProcessSequenceId newProcessSequenceId, 
 			@RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(newProcessSequenceId.getCompanyCodeId(), newProcessSequenceId.getPlantId(), newProcessSequenceId.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
 		ProcessSequenceId createdProcessSequenceId = processsequenceidService.createProcessSequenceId(newProcessSequenceId, loginUserID);
 		return new ResponseEntity<>(createdProcessSequenceId , HttpStatus.OK);
 	}
-    finally {
-			DataBaseContextHolder.clear();
-		}
-		}
+    
     @ApiOperation(response = ProcessSequenceId.class, value = "Update ProcessSequenceId") // label for swagger
     @PatchMapping("/{processSequenceId}")
 	public ResponseEntity<?> patchProcessSequenceId(@RequestParam String processId,
 			@RequestParam String warehouseId, @PathVariable Long processSequenceId,@RequestParam String companyCodeId,@RequestParam String languageId,@RequestParam String plantId,
 			@Valid @RequestBody UpdateProcessSequenceId updateProcessSequenceId, @RequestParam String loginUserID) 
 			throws IllegalAccessException, InvocationTargetException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-		ProcessSequenceId createdProcessSequenceId =
+		ProcessSequenceId createdProcessSequenceId = 
 				processsequenceidService.updateProcessSequenceId(warehouseId, processId, processSequenceId,companyCodeId,languageId,plantId,loginUserID, updateProcessSequenceId);
 		return new ResponseEntity<>(createdProcessSequenceId , HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
     @ApiOperation(response = ProcessSequenceId.class, value = "Delete ProcessSequenceId") // label for swagger
 	@DeleteMapping("/{processSequenceId}")
 	public ResponseEntity<?> deleteProcessSequenceId(@RequestParam String processId,
 			@RequestParam String warehouseId, @PathVariable Long processSequenceId,@RequestParam String companyCodeId,@RequestParam String languageId,@RequestParam String plantId,@RequestParam String loginUserID) {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-		processsequenceidService.deleteProcessSequenceId(warehouseId, processId, processSequenceId,companyCodeId,languageId,plantId,loginUserID);
+    	processsequenceidService.deleteProcessSequenceId(warehouseId, processId, processSequenceId,companyCodeId,languageId,plantId,loginUserID);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
 	//Search
 	@ApiOperation(response = ProcessSequenceId.class, value = "Find ProcessSequenceId") // label for swagger
 	@PostMapping("/find")
 	public ResponseEntity<?> findProcessSequenceId(@Valid @RequestBody FindProcessSequenceId findProcessSequenceId) throws Exception {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(findProcessSequenceId.getCompanyCodeId(), findProcessSequenceId.getPlantId(), findProcessSequenceId.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
 		List<ProcessSequenceId> createdProcessSequenceId= processsequenceidService.findProcessSequenceId(findProcessSequenceId);
 		return new ResponseEntity<>(createdProcessSequenceId, HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
 }

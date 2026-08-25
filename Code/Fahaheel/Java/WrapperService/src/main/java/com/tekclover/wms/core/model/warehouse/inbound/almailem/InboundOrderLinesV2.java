@@ -53,14 +53,4 @@ public class InboundOrderLinesV2 {
     private Double itemCaseQty;								// ITM_CASE_QTY
     private String salesOrderReference;						// REF_FIELD_4
     private String orderId;
-
-    /*----------------Walkaroo changes------------------------------------------------------*/
-    private String materialNo;
-    private String priceSegment;
-    private String articleNo;
-    private String gender;
-    private String color;
-    private String size;
-    private String noPairs;
-	private String barcodeId;
 }

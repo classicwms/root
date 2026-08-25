@@ -31,8 +31,7 @@ public class StatusMessagesIdController {
 	
 	@Autowired
 	StatusMessagesIdService statusmessagesidService;
-
-
+	
     @ApiOperation(response = StatusMessagesId.class, value = "Get all StatusMessagesId details") // label for swagger
 	@GetMapping("")
 	public ResponseEntity<?> getAll() {

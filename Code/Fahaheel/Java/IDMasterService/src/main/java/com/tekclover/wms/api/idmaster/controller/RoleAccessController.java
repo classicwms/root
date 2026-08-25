@@ -6,9 +6,7 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-import com.tekclover.wms.api.idmaster.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.idmaster.model.roleaccess.FindRoleAccess;
-import com.tekclover.wms.api.idmaster.repository.DbConfigRepository;
 import com.tekclover.wms.api.idmaster.repository.RoleAccessRepository;
 import com.tekclover.wms.api.idmaster.repository.RowIdRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,9 +48,6 @@ public class RoleAccessController {
 
 	@Autowired
 	RoleAccessService roleaccessService;
-
-	@Autowired
-	DbConfigRepository dbConfigRepository;
 	
     @ApiOperation(response = RoleAccess.class, value = "Get all RoleAccess details") // label for swagger
 	@GetMapping("")
@@ -75,23 +70,13 @@ public class RoleAccessController {
    	public ResponseEntity<?> getRoleAccess(@PathVariable Long roleId, @RequestParam String warehouseId,
 											  @RequestParam String companyCodeId, @RequestParam String languageId,
 											  @RequestParam String plantId) {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
 
-			List<RoleAccess> roleaccess = roleaccessService.getRoleAccess(warehouseId, roleId, companyCodeId, languageId, plantId);
+       	List<RoleAccess> roleaccess = roleaccessService.getRoleAccess(warehouseId, roleId,companyCodeId,languageId,plantId);
 
-			log.info("RoleAccess : " + roleaccess);
+       	log.info("RoleAccess : " + roleaccess);
 
-			return new ResponseEntity<>(roleaccess, HttpStatus.OK);
-		}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-	}
+   		return new ResponseEntity<>(roleaccess, HttpStatus.OK);
+   	}
     // Long menuId, Long subMenuId,String companyCodeId,String languageId,String plantId
 //	@ApiOperation(response = RoleAccess.class, value = "Search RoleAccess") // label for swagger
 //	@PostMapping("/findRoleAccess")
@@ -104,20 +89,9 @@ public class RoleAccessController {
 	@PostMapping("")
 	public ResponseEntity<?> postRoleAccess(@Valid @RequestBody List<AddRoleAccess> newRoleAccess, 
 			@RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			for(AddRoleAccess roleAccess : newRoleAccess) {
-				DataBaseContextHolder.setCurrentDb("MT");
-				String routingDb = dbConfigRepository.getDbName(roleAccess.getCompanyCodeId(), roleAccess.getPlantId(), roleAccess.getWarehouseId());
-				log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-				DataBaseContextHolder.clear();
-				DataBaseContextHolder.setCurrentDb(routingDb);
-			}
-			List<RoleAccess> createdRoleAccess = roleaccessService.createRoleAccess(newRoleAccess, loginUserID);
-			return new ResponseEntity<>(createdRoleAccess, HttpStatus.OK);
-		}
-		finally {
-			DataBaseContextHolder.clear();
-		}
+
+		List<RoleAccess> createdRoleAccess = roleaccessService.createRoleAccess(newRoleAccess, loginUserID);
+		return new ResponseEntity<>(createdRoleAccess , HttpStatus.OK);
 	}
     
     @ApiOperation(response = RoleAccess.class, value = "Update RoleAccess") // label for swagger
@@ -127,21 +101,11 @@ public class RoleAccessController {
 											 @RequestParam String plantId, @RequestParam String loginUserID,
 											 @Valid @RequestBody List<AddRoleAccess> updateRoleAccess )
 			throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
 
-			List<RoleAccess> updatedRoleAccess =
-					roleaccessService.updateRoleAccess(warehouseId, roleId, companyCodeId, languageId,
-							plantId, loginUserID, updateRoleAccess);
-			return new ResponseEntity<>(updatedRoleAccess, HttpStatus.OK);
-		}
-		finally {
-			DataBaseContextHolder.clear();
-		}
+		List<RoleAccess> updatedRoleAccess =
+				roleaccessService.updateRoleAccess(warehouseId, roleId, companyCodeId, languageId,
+													plantId, loginUserID, updateRoleAccess);
+		return new ResponseEntity<>(updatedRoleAccess , HttpStatus.OK);
 	}
     
     @ApiOperation(response = RoleAccess.class, value = "Delete RoleAccess") // label for swagger
@@ -149,36 +113,17 @@ public class RoleAccessController {
 	public ResponseEntity<?> deleteRoleAccess(@PathVariable Long roleId, @RequestParam String warehouseId,
 											  @RequestParam String companyCodeId, @RequestParam String languageId,
 											  @RequestParam String plantId, @RequestParam String loginUserID) {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
 
-			roleaccessService.deleteRoleAccess(warehouseId, roleId, companyCodeId, languageId, plantId, loginUserID);
-			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-		}
-		finally {
-			DataBaseContextHolder.clear();
-		}
+    	roleaccessService.deleteRoleAccess(warehouseId, roleId,companyCodeId,languageId,plantId,loginUserID);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
+
 	//Search
 	@ApiOperation(response = RoleAccess.class, value = "Find RoleAccess") // label for swagger
 	@PostMapping("/find")
 	public ResponseEntity<?> findRoleAccess(@Valid @RequestBody FindRoleAccess findRoleAccess) throws Exception {
 
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbNameList(findRoleAccess.getCompanyCodeId(), findRoleAccess.getPlantId(), findRoleAccess.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-			List<RoleAccess> createdRoleAccess = roleaccessService.findRoleAccess(findRoleAccess);
-			return new ResponseEntity<>(createdRoleAccess, HttpStatus.OK);
-		}
-		finally {
-			DataBaseContextHolder.clear();
-		}
+		List<RoleAccess> createdRoleAccess = roleaccessService.findRoleAccess(findRoleAccess);
+		return new ResponseEntity<>(createdRoleAccess, HttpStatus.OK);
 	}
 }

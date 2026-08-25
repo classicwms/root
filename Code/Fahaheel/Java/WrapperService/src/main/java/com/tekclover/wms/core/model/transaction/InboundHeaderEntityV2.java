@@ -9,7 +9,7 @@ import java.util.List;
 public class InboundHeaderEntityV2 {
 
     private String languageId;
-    private String companyCode;
+    private String companyCodeId;
     private String plantId;
     private String warehouseId;
     private String refDocNumber;
@@ -54,14 +54,6 @@ public class InboundHeaderEntityV2 {
     private Date mUpdatedOn;
     private String sourceBranchCode;
     private String sourceCompanyCode;
-    private String parentProductionOrderNo;
-    /*-------------------------------------------Reeferon-----------------------------------*/
-    private Double qtyInCase;
-    private Double qtyInPiece;
-    private Double qtyInCreate;
 
     private List<InboundLineV2> inboundLine;
-    private String customerId;
-    private String customerName;
-
 }

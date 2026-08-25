@@ -2,7 +2,6 @@ package com.tekclover.wms.core.model.transaction;
 
 import lombok.Data;
 
-import javax.persistence.Column;
 import java.util.Date;
 import java.util.List;
 
@@ -52,13 +51,6 @@ public class PreInboundHeaderV2 {
     private Date mUpdatedOn;
     private String sourceBranchCode;
     private String sourceCompanyCode;
-    private String parentProductionOrderNo;
-    /*-------------------------------------------Reeferon-----------------------------------*/
-    private Double qtyInCase;
-    private Double qtyInPiece;
-    private Double qtyInCreate;
-    private List<PreInboundLineV2> preInboundLineV2;
-    private String customerId;
-    private String customerName;
 
+    private List<PreInboundLineV2> preInboundLineV2;
 }

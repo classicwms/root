@@ -15,9 +15,7 @@ public class SearchInhouseTransferHeader {
 	 * IT_CTD_BY
 	 * IT_CTD_ON
 	 */
-	private List<String> warehouseId;
-	private List<String> companyCodeId;
-	private List<String> plantId;
+	private List<String> warehouseId;	
 	private List<String> transferNumber;
 	private List<Long> transferTypeId;	
 	private List<Long> statusId;

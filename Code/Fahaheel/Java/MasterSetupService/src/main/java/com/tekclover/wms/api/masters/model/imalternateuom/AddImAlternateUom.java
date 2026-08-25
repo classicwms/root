@@ -1,6 +1,5 @@
 package com.tekclover.wms.api.masters.model.imalternateuom;
 
-import javax.persistence.Column;
 import javax.validation.constraints.NotBlank;
 
 import lombok.Data;
@@ -68,9 +67,5 @@ public class AddImAlternateUom {
 	private Long deletionIndicator;
 
 	private String createdBy;
-
-	private Double uomIdQty;
-
-	private Double alternateUomQty;
     
 }

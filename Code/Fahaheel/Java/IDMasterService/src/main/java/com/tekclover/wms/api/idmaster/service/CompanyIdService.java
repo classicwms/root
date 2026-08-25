@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
 
-import com.tekclover.wms.api.idmaster.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.idmaster.model.companyid.FindCompanyId;
 import com.tekclover.wms.api.idmaster.model.languageid.LanguageId;
 import com.tekclover.wms.api.idmaster.model.moduleid.ModuleId;
@@ -47,9 +46,6 @@ public class CompanyIdService{
 	private RoleAccessRepository roleAccessRepository;
 	@Autowired
 	private ModuleIdRepository moduleIdRepository;
-
-	@Autowired
-	DbConfigRepository dbConfigRepository;
 
 	/**
 	 * getCompanyIds
@@ -117,14 +113,6 @@ public class CompanyIdService{
 			dbCompanyId.setUpdatedBy(loginUserID);
 			dbCompanyId.setCreatedOn(new Date());
 			dbCompanyId.setUpdatedOn(new Date());
-			log.info("Saving in Common DB");
-			companyIdRepository.save(dbCompanyId);
-
-			String routingDb = dbConfigRepository.getDbNameByCompany(newCompanyId.getCompanyCodeId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-			log.info("Saving in FAHAHEEL DB");
 			companyIdRepository.save(dbCompanyId);
 		}
 		return dbCompanyId;

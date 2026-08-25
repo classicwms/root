@@ -26,9 +26,5 @@ public class PreOutboundHeaderV2 extends PreOutboundHeader {
     private String isCancelled;
     private Date mUpdatedOn;
     private Integer imsSaleTypeCode;
- private String customerId;
-    private String customerName;
-    private String consignment;
-    private String transportName;
 
 }

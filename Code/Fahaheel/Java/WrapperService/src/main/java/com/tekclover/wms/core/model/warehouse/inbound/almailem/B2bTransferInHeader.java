@@ -22,8 +22,6 @@ public class B2bTransferInHeader {
     private Date transferOrderDate;
     private String isCompleted;
     private Date updatedOn;
-    private String warehouseId;
-    private String languageId;
 
     //MiddleWare Fields
     private Long middlewareId;

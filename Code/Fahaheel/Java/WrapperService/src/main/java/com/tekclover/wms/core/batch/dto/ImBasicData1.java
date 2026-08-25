@@ -54,7 +54,6 @@ public class ImBasicData1 {
 	private String brand;
 	private String supplierPartNumber;
 	private String remarks;
-	private Long selfLife;
 
 	/**
 	 * @param uomId
@@ -101,7 +100,6 @@ public class ImBasicData1 {
 	 * @param dType
 	 * @param deletionIndicator
 	 * @param createdBy
-     * @param selfLife
 	 */
 	public ImBasicData1(String uomId, String languageId, String companyCodeId, String plantId, String warehouseId, String itemCode,
 						String manufacturerPartNo, String description, String model, String specifications1, String specifications2,
@@ -110,7 +108,7 @@ public class ImBasicData1 {
 						Double replenishmentQty, Double safetyStock, String capacityUnit, String capacityUom, String quantity,
 						Double weight, Boolean shelfLifeIndicator, Long statusId, Double length, Double width, Double height,
 						String dimensionUom, Double volume, String manufacturerName, String manufacturerFullName, String manufacturerCode,
-						String brand, String supplierPartNumber, String remarks, String dType, Long deletionIndicator, String createdBy, Long selfLife) {
+						String brand, String supplierPartNumber, String remarks, String dType, Long deletionIndicator, String createdBy) {
 
 		this.uomId = uomId;
 		this.languageId = languageId;
@@ -156,6 +154,5 @@ public class ImBasicData1 {
 		this.dType = dType;
 		this.deletionIndicator = deletionIndicator;
 		this.createdBy = createdBy;
-        this.selfLife = selfLife;
 	}
 }

@@ -6,9 +6,7 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-import com.tekclover.wms.api.masters.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.masters.model.imstrategies.SearchImStrategies;
-import com.tekclover.wms.api.masters.repository.DbConfigRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,8 +42,6 @@ public class ImStrategiesController {
 	
 	@Autowired
 	ImStrategiesService imstrategiesService;
-	@Autowired
-	DbConfigRepository dbConfigRepository;
 	
     @ApiOperation(response = ImStrategies.class, value = "Get all ImStrategies details") // label for swagger
 	@GetMapping("")
@@ -59,20 +55,11 @@ public class ImStrategiesController {
 	public ResponseEntity<?> getImStrategies(@PathVariable Long strategyTypeId,@RequestParam String companyCodeId,
 											 @RequestParam String plantId,@RequestParam String warehouseId,@RequestParam String itemCode,
 											 @RequestParam Long sequenceIndicator,@RequestParam String languageId) {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
+
 		ImStrategies imstrategies =
 				imstrategiesService.getImStrategies(strategyTypeId,companyCodeId,plantId,warehouseId,itemCode,sequenceIndicator,languageId);
 		return new ResponseEntity<>(imstrategies, HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
     
 	@ApiOperation(response = ImStrategies.class, value = "Search ImStrategies") // label for swagger
 	@PostMapping("/findImStrategies")
@@ -85,20 +72,9 @@ public class ImStrategiesController {
 	@PostMapping("")
 	public ResponseEntity<?> postImStrategies(@Valid @RequestBody AddImStrategies newImStrategies, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
-
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(newImStrategies.getCompanyCodeId(), newImStrategies.getPlantId(), newImStrategies.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
 		ImStrategies createdImStrategies = imstrategiesService.createImStrategies(newImStrategies, loginUserID);
 		return new ResponseEntity<>(createdImStrategies , HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
     
     @ApiOperation(response = ImStrategies.class, value = "Update ImStrategies") // label for swagger
     @PatchMapping("/{strategyTypeId}")
@@ -107,38 +83,20 @@ public class ImStrategiesController {
 											   @RequestParam Long sequenceIndicator,@RequestParam String languageId,
 												@Valid @RequestBody UpdateImStrategies updateImStrategies, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
+
 		ImStrategies createdImStrategies =
 				imstrategiesService.updateImStrategies(strategyTypeId,companyCodeId,plantId,warehouseId,itemCode,
 						sequenceIndicator,languageId,updateImStrategies, loginUserID);
 		return new ResponseEntity<>(createdImStrategies , HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
     
     @ApiOperation(response = ImStrategies.class, value = "Delete ImStrategies") // label for swagger
 	@DeleteMapping("/{strategyTypeId}")
 	public ResponseEntity<?> deleteImStrategies(@PathVariable Long strategyTypeId,@RequestParam String companyCodeId,
 												@RequestParam String plantId,@RequestParam String warehouseId,@RequestParam String itemCode,
 												@RequestParam Long sequenceIndicator,@RequestParam String languageId,@RequestParam String loginUserID) throws ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
+
     	imstrategiesService.deleteImStrategies(strategyTypeId,companyCodeId,plantId,warehouseId,itemCode,sequenceIndicator,languageId,loginUserID);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
 }

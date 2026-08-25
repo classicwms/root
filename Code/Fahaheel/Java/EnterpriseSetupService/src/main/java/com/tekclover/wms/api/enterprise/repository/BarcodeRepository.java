@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+
 import com.tekclover.wms.api.enterprise.model.barcode.Barcode;
 
 @Repository
@@ -14,9 +15,9 @@ import com.tekclover.wms.api.enterprise.model.barcode.Barcode;
 public interface BarcodeRepository extends JpaRepository<Barcode,Long>, JpaSpecificationExecutor<Barcode> {
 
 	public List<Barcode> findAll();
-
+	
 	public Optional<Barcode> findByLanguageIdAndCompanyIdAndPlantIdAndWarehouseIdAndMethodAndBarcodeTypeIdAndBarcodeSubTypeIdAndLevelIdAndLevelReferenceAndProcessIdAndDeletionIndicator (
-	String languageId, String companyId, String plantId, String warehouseId, String method,
-	Long barcodeTypeId, Long barcodeSubTypeId, Long levelId, String levelReference, Long processId,
+	String languageId, String companyId, String plantId, String warehouseId, String method, 
+	Long barcodeTypeId, Long barcodeSubTypeId, Long levelId, String levelReference, Long processId, 
 	Long deletionIndicator);
 }

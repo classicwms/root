@@ -19,14 +19,4 @@ public class StockReportOutput {
 	private String plantDescription;
 	private String warehouseDescription;
 
-	/*----------------Walkaroo changes------------------------------------------------------*/
-	private String barcodeId;
-	private String materialNo;
-	private String priceSegment;
-	private String articleNo;
-	private String gender;
-	private String color;
-	private String size;
-	private String noPairs;
-
 }

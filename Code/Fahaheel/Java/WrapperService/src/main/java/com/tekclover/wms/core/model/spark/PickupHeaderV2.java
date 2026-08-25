@@ -2,9 +2,7 @@ package com.tekclover.wms.core.model.spark;
 
 import lombok.Data;
 
-import javax.persistence.Column;
 import java.sql.Timestamp;
-import java.util.Date;
 
 @Data
 public class PickupHeaderV2 {
@@ -76,23 +74,4 @@ public class PickupHeaderV2 {
     private Timestamp mUpdatedOn;
     private String targetBranchCode;
     private Integer imsSaleTypeCode;
-
-    private Long notificationStatus;
-    private String customerCode;
-    private String TransferRequestType;
-    private String customerName;
-    private String alternateUom;
-    private Double noBags;
-    private Double bagSize;
-    private Double mrp;
-    private String itemType;
-    private String itemGroup;
-    /*-------------------------------------------Reeferon-----------------------------------*/
-
-    private Double qtyInCase;
-    private Double qtyInPiece;
-    private Double qtyInCrate;
-    private Timestamp manufacturerDate;
-    private Timestamp expiryDate;
-    private String remainingDays;
 }

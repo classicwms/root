@@ -49,14 +49,4 @@ public class StockReceiptLine {
 
     private String manufacturerFullName;
 
-    /*----------------Walkaroo changes------------------------------------------------------*/
-    private String materialNo;
-    private String priceSegment;
-    private String articleNo;
-    private String gender;
-    private String color;
-    private String size;
-    private String noPairs;
-	private String barcodeId;
-
 }

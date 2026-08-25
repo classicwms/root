@@ -7,9 +7,7 @@ import java.util.Optional;
 
 import javax.validation.Valid;
 
-import com.tekclover.wms.api.idmaster.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.idmaster.model.companyid.FindCompanyId;
-import com.tekclover.wms.api.idmaster.repository.DbConfigRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -46,9 +44,6 @@ public class CompanyIdController {
 	@Autowired
 	CompanyIdService companyidService;
 
-	@Autowired
-	DbConfigRepository dbConfigRepository;
-
 	@ApiOperation(response = CompanyId.class, value = "Get all CompanyId details") // label for swagger
 	@GetMapping("")
 	public ResponseEntity<?> getAll() {
@@ -59,7 +54,6 @@ public class CompanyIdController {
 	@ApiOperation(response = CompanyId.class, value = "Get a CompanyId") // label for swagger
 	@GetMapping("/{companyCodeId}")
 	public ResponseEntity<?> getCompanyId(@PathVariable String companyCodeId,@RequestParam String languageId) {
-
 		CompanyId companyid = companyidService.getCompanyId(companyCodeId,languageId);
 		log.info("CompanyId : " + companyid);
 		return new ResponseEntity<>(companyid, HttpStatus.OK);

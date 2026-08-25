@@ -75,17 +75,11 @@ public class AuthTokenService {
 			log.info("------------###########------------> " + accessTokenUrl);
 		} else if (apiUrl.equalsIgnoreCase("wms-idmaster-service")) {
 			accessTokenUrl = propertiesConfig.getIdmasterAccessTokenUrl();
-		} else if (apiUrl.equalsIgnoreCase("wms-inboundorder-service")) {
-			accessTokenUrl = propertiesConfig.getInboundOrderAccessTokenUrl();
-		}  else if (apiUrl.equalsIgnoreCase("wms-outboundorder-service")) {
-			accessTokenUrl = propertiesConfig.getOutboundOrderAccessTokenUrl();
-		} else if (apiUrl.equalsIgnoreCase("wms-inboundtransaction-service")) {
-			accessTokenUrl = propertiesConfig.getInboundTransactionAccessTokenUrl();
-		} else if (apiUrl.equalsIgnoreCase("wms-outboundtransaction-service")) {
-			accessTokenUrl = propertiesConfig.getOutboundTransactionAccessTokenUrl();
-		} else if (apiUrl.equalsIgnoreCase("wms-connector-service")) {
+		} else if (apiUrl.equalsIgnoreCase("wms-transaction-service")) {
+			accessTokenUrl = propertiesConfig.getTransactionAccessTokenUrl();
+		}else if (apiUrl.equalsIgnoreCase("wms-connector-service")) {
 			accessTokenUrl = propertiesConfig.getConnectorAccessTokenUrl();
-		}  else {
+		} else {
 			log.info("The givem URL is not available. Quiting.");
 			throw new BadRequestException("The givem URL is not available. Quiting");
 		}
@@ -127,30 +121,6 @@ public class AuthTokenService {
 		return getAuthToken(authTokenRequest);
 	}
 
-	// Generate AuthToken for Outbound order service
-	public AuthToken getOutboundOrderServiceAuthToken() {
-		AuthTokenRequest authTokenRequest = new AuthTokenRequest();
-		authTokenRequest.setApiName("wms-outboundorder-service");
-		authTokenRequest.setClientId(propertiesConfig.getClientId());
-		authTokenRequest.setClientSecretKey(propertiesConfig.getClientSecretKey());
-		authTokenRequest.setGrantType(propertiesConfig.getGrantType());
-		authTokenRequest.setOauthUserName(propertiesConfig.getUsername());
-		authTokenRequest.setOauthPassword(propertiesConfig.getPassword());
-		return getAuthToken(authTokenRequest);
-	}
-
-	// Generate AuthToken for Outbound order service
-	public AuthToken getOutboundTransactionServiceAuthToken() {
-		AuthTokenRequest authTokenRequest = new AuthTokenRequest();
-		authTokenRequest.setApiName("wms-outboundTransaction-service");
-		authTokenRequest.setClientId(propertiesConfig.getClientId());
-		authTokenRequest.setClientSecretKey(propertiesConfig.getClientSecretKey());
-		authTokenRequest.setGrantType(propertiesConfig.getGrantType());
-		authTokenRequest.setOauthUserName(propertiesConfig.getUsername());
-		authTokenRequest.setOauthPassword(propertiesConfig.getPassword());
-		return getAuthToken(authTokenRequest);
-	}
-
 	/**
 	 * getCommonServiceAuthToken
 	 * 
@@ -172,30 +142,6 @@ public class AuthTokenService {
 	public AuthToken getTransactionServiceAuthToken() {
 		AuthTokenRequest authTokenRequest = new AuthTokenRequest();
 		authTokenRequest.setApiName("wms-transaction-service");
-		authTokenRequest.setClientId(propertiesConfig.getClientId());
-		authTokenRequest.setClientSecretKey(propertiesConfig.getClientSecretKey());
-		authTokenRequest.setGrantType(propertiesConfig.getGrantType());
-		authTokenRequest.setOauthUserName(propertiesConfig.getUsername());
-		authTokenRequest.setOauthPassword(propertiesConfig.getPassword());
-		return getAuthToken(authTokenRequest);
-	}
-
-	// Generate AuthToken for MastersService
-	public AuthToken getInboundOrderServiceAuthToken() {
-		AuthTokenRequest authTokenRequest = new AuthTokenRequest();
-		authTokenRequest.setApiName("wms-inboundorder-service");
-		authTokenRequest.setClientId(propertiesConfig.getClientId());
-		authTokenRequest.setClientSecretKey(propertiesConfig.getClientSecretKey());
-		authTokenRequest.setGrantType(propertiesConfig.getGrantType());
-		authTokenRequest.setOauthUserName(propertiesConfig.getUsername());
-		authTokenRequest.setOauthPassword(propertiesConfig.getPassword());
-		return getAuthToken(authTokenRequest);
-	}
-
-	// Generate AuthToken for MastersService
-	public AuthToken getInboundTransactionServiceAuthToken() {
-		AuthTokenRequest authTokenRequest = new AuthTokenRequest();
-		authTokenRequest.setApiName("wms-inboundtransaction-service");
 		authTokenRequest.setClientId(propertiesConfig.getClientId());
 		authTokenRequest.setClientSecretKey(propertiesConfig.getClientSecretKey());
 		authTokenRequest.setGrantType(propertiesConfig.getGrantType());

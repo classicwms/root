@@ -2,7 +2,6 @@ package com.tekclover.wms.core.model.spark;
 
 import lombok.Data;
 
-import java.sql.Time;
 import java.sql.Timestamp;
 
 
@@ -61,27 +60,4 @@ public class InventoryV3 {
     private String stck_typ_text;
     private String st_bin;
     private String status_text;
-    private String partner_code;
-    private Long itm_typ_id;
-    private String itm_typ_txt;
-    private Timestamp batch_date;
-    private String alt_uom;
-    private Double no_bags;
-    private Double bag_size;
-    private String cbm_per_qty;
-    private String mfr_name;
-    private Boolean loose_pack;
-    private Double case_qty;
-    private Double piece_qty;
-    private Double crate_qty;
-    private Double qty_in_case;
-    private Double qty_in_create;
-    private Double qty_in_piece;
-    private String vehicle_no;
-    private Timestamp vehicle_reporting_date;
-    private Timestamp vehicle_unloading_date;
-    private String self_life;
-    private String remaining_days;
-    private Long remaining_self_life_percentage;
-    private String receivingVariance;
 }

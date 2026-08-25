@@ -1,14 +1,12 @@
 package com.tekclover.wms.core.model.transaction;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import javax.persistence.Column;
 import java.util.Date;
 
 @Data
-@EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class OutboundHeaderV2 extends OutboundHeader {
 
@@ -45,13 +43,5 @@ public class OutboundHeaderV2 extends OutboundHeader {
 
     private String customerType;
     private Integer imsSaleTypeCode;
-  private String invoiceNumber;
-    private String consignment;
-    private String transportName;
-
-    //---------------------------------------Namratha--------------------------//
-
-    private String vehicleNO;
-    private String driverName;
 
 }

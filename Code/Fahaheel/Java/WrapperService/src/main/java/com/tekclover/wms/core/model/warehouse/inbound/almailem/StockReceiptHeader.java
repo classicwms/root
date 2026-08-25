@@ -11,7 +11,5 @@ public class StockReceiptHeader {
 	private String branchCode;
 	private String companyCode;
 	private String receiptNo;
-	private String warehouseId;
-	private String languageId;
 private List<StockReceiptLine> stockReceiptLines;
 }

@@ -54,8 +54,7 @@ public class ImBasicData1FieldSetMapper implements FieldSetMapper<ImBasicData1> 
                 fieldSet.readString("remarks"),
                 fieldSet.readString("dType"),
                 parseLong(fieldSet.readString("deletionIndicator")),
-                fieldSet.readString("createdBy"),
-                parseLong(fieldSet.readString("selfLife"))
+                fieldSet.readString("createdBy")
         );
     }
 

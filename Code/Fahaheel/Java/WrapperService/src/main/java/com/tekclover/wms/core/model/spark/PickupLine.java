@@ -81,19 +81,5 @@ public class PickupLine {
     private String targetBranchCode;
     private Double varianceQuantity;
     private Integer imsSaleTypeCode;
-       private Double pickCbm;
-    private String customerId;
-    private String customerName;
-    private String alternateUom;
-    private Double noBags;
-    private Double bagSize;
-    private Double mrp;
-    private String itemType;
-    private String itemGroup;
-    private Timestamp manufacturerDate;
-    private Timestamp expiryDate;
-    private Double qtyInCase;
-    private Double qtyInPiece;
-    private Double qtyInCrate;
 
 }

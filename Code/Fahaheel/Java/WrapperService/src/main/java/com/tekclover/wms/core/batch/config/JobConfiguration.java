@@ -334,7 +334,7 @@ public class JobConfiguration extends DefaultBatchConfigurer {
 				"storageSectionId", "totalStock", "minimumStock", "maximumStock", "reorderLevel", "capacityCheck", "replenishmentQty",
 				"safetyStock", "capacityUnit", "capacityUom", "quantity", "weight", "shelfLifeIndicator", "statusId", "length", "width",
 				"height", "dimensionUom", "volume", "manufacturerName", "manufacturerFullName", "manufacturerCode", "brand",
-				"supplierPartNumber", "remarks", "dType", "deletionIndicator", "createdBy", "selfLife"});
+				"supplierPartNumber", "remarks", "dType", "deletionIndicator", "createdBy"});
 		customerLineMapper.setLineTokenizer(tokenizer);
 		customerLineMapper.setFieldSetMapper(new ImBasicData1FieldSetMapper());
 		customerLineMapper.afterPropertiesSet();
@@ -351,13 +351,13 @@ public class JobConfiguration extends DefaultBatchConfigurer {
 				+ "SPEC_01, SPEC_02, EAN_UPC_NO, HSN_CODE, ITM_TYP_ID, ITM_GRP_ID, SUB_ITM_GRP_ID, ST_SEC_ID, TOT_STK, MIN_STK, MAX_STK, "
 				+ "RE_ORD_LVL, CAP_CHK, REP_QTY, SAFTY_STCK, CAP_UNIT, CAP_UOM, QUANTITY, WEIGHT, SHELF_LIFE_IND, STATUS_ID, LENGTH, "
 				+ "WIDTH, HEIGHT, DIM_UOM, VOLUME, MANUFACTURER_NAME, MANUFACTURER_FULL_NAME, MANUFACTURER_CODE, BRAND, "
-				+ "SUPPLIER_PART_NUMBER, REMARKS, DTYPE, IS_DELETED, CTD_BY, CTD_ON, UTD_BY, UTD_ON, SELF_LIFE) "
+				+ "SUPPLIER_PART_NUMBER, REMARKS, DTYPE, IS_DELETED, CTD_BY, CTD_ON, UTD_BY, UTD_ON) "
 				+ "VALUES (:uomId, :languageId, :companyCodeId, :plantId, :warehouseId, :itemCode, :manufacturerPartNo, :description, "
 				+ " :model, :specifications1, :specifications2, :eanUpcNo, :hsnCode, :itemType, :itemGroup, :subItemGroup,\r\n"
 				+ " :storageSectionId, :totalStock, :minimumStock, :maximumStock, :reorderLevel, :capacityCheck, :replenishmentQty,\r\n"
 				+ " :safetyStock, :capacityUnit, :capacityUom, :quantity, :weight, :shelfLifeIndicator, :statusId, :length,\r\n"
 				+ " :width, :height, :dimensionUom, :volume, :manufacturerName, :manufacturerFullName, :manufacturerCode,\r\n"
-				+ " :brand, :supplierPartNumber, :remarks, :dType, :deletionIndicator, :createdBy, GETDATE(), :createdBy, GETDATE(), :selfLife)");
+				+ " :brand, :supplierPartNumber, :remarks, :dType, :deletionIndicator, :createdBy, GETDATE(), :createdBy, GETDATE())");
 		itemWriter.setItemSqlParameterSourceProvider(
 				new BeanPropertyItemSqlParameterSourceProvider());
 		itemWriter.afterPropertiesSet();
@@ -549,7 +549,7 @@ public class JobConfiguration extends DefaultBatchConfigurer {
 				"storageSectionId", "totalStock", "minimumStock", "maximumStock", "reorderLevel", "capacityCheck", "replenishmentQty",
 				"safetyStock", "capacityUnit", "capacityUom", "quantity", "weight", "shelfLifeIndicator", "statusId", "length", "width",
 				"height", "dimensionUom", "volume", "manufacturerName", "manufacturerFullName", "manufacturerCode", "brand",
-				"supplierPartNumber", "remarks", "dType", "deletionIndicator", "createdBy", "selfLife"});
+				"supplierPartNumber", "remarks", "dType", "deletionIndicator", "createdBy"});
 
 		imBasicData1DefaultLineMapper.setLineTokenizer(tokenizer);
 		imBasicData1DefaultLineMapper.setFieldSetMapper(new ImBasicData1FieldSetMapper());
@@ -569,12 +569,12 @@ public class JobConfiguration extends DefaultBatchConfigurer {
 				+ " :storageSectionId, :totalStock, :minimumStock, :maximumStock, :reorderLevel, :capacityCheck, :replenishmentQty, "
 				+ " :safetyStock, :capacityUnit, :capacityUom, :quantity, :weight, :shelfLifeIndicator, :statusId, :length, "
 				+ " :width, :height, :dimensionUom, :volume, :manufacturerName, :manufacturerFullName, :manufacturerCode, "
-				+ " :brand, :supplierPartNumber, :remarks, :dType, :deletionIndicator, :createdBy, GETDATE(), :createdBy, GETDATE(), :selfLife))"
+				+ " :brand, :supplierPartNumber, :remarks, :dType, :deletionIndicator, :createdBy, GETDATE(), :createdBy, GETDATE()))"
 				+ " AS source (UOM_ID, LANG_ID, C_ID, PLANT_ID, WH_ID, ITM_CODE, MFR_PART, TEXT, MODEL, "
 				+ " SPEC_01, SPEC_02, EAN_UPC_NO, HSN_CODE, ITM_TYP_ID, ITM_GRP_ID, SUB_ITM_GRP_ID, ST_SEC_ID, TOT_STK, MIN_STK, MAX_STK, "
 				+ " RE_ORD_LVL, CAP_CHK, REP_QTY, SAFTY_STCK, CAP_UNIT, CAP_UOM, QUANTITY, WEIGHT, SHELF_LIFE_IND, STATUS_ID, LENGTH, "
 				+ " WIDTH, HEIGHT, DIM_UOM, VOLUME, MANUFACTURER_NAME, MANUFACTURER_FULL_NAME, MANUFACTURER_CODE, BRAND, "
-				+ " SUPPLIER_PART_NUMBER, REMARKS, DTYPE, IS_DELETED, CTD_BY, CTD_ON, UTD_BY, UTD_ON, SELF_LIFE)"
+				+ " SUPPLIER_PART_NUMBER, REMARKS, DTYPE, IS_DELETED, CTD_BY, CTD_ON, UTD_BY, UTD_ON )"
 				+ " ON target.UOM_ID = source.UOM_ID "
 				+ " AND target.LANG_ID = source.LANG_ID "
 				+ " AND target.C_ID = source.C_ID "
@@ -623,9 +623,7 @@ public class JobConfiguration extends DefaultBatchConfigurer {
 				+ " CTD_BY = source.CTD_BY, "
 				+ " CTD_ON = source.CTD_ON, "
 				+ " UTD_BY = source.UTD_BY, "
-				+ " UTD_ON = source.UTD_ON, "
-				+ "SELF_LIFE = source.SELF_LIFE;");
-
+				+ " UTD_ON = source.UTD_ON;");
 
 		itemWriter.setItemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider());
 		itemWriter.afterPropertiesSet();

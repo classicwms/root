@@ -6,9 +6,7 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-import com.tekclover.wms.api.idmaster.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.idmaster.model.levelid.FindLevelId;
-import com.tekclover.wms.api.idmaster.repository.DbConfigRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,9 +42,6 @@ public class LevelIdController {
 	
 	@Autowired
 	LevelIdService levelIdService;
-
-	@Autowired
-	DbConfigRepository dbConfigRepository;
 	
     @ApiOperation(response = LevelId.class, value = "Get all LevelId details") // label for swagger
 	@GetMapping("")
@@ -59,20 +54,11 @@ public class LevelIdController {
 	@GetMapping("/{levelId}")
 	public ResponseEntity<?> getLevelId(@PathVariable Long levelId, @RequestParam String warehouseId, 
 			@RequestParam String companyCodeId,@RequestParam String languageId,@RequestParam String plantId) {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-		LevelId levelid = levelIdService.getLevelId(warehouseId, levelId,companyCodeId,languageId,plantId);
+    	LevelId levelid = levelIdService.getLevelId(warehouseId, levelId,companyCodeId,languageId,plantId);
     	log.info("LevelId : " + levelid);
 		return new ResponseEntity<>(levelid, HttpStatus.OK);
 	}
-    finally {
-			DataBaseContextHolder.clear();
-		}
-		}
+    
 //	@ApiOperation(response = LevelId.class, value = "Search LevelId") // label for swagger
 //	@PostMapping("/findLevelId")
 //	public List<LevelId> findLevelId(@RequestBody SearchLevelId searchLevelId)
@@ -84,19 +70,9 @@ public class LevelIdController {
 	@PostMapping("")
 	public ResponseEntity<?> postLevelId(@Valid @RequestBody AddLevelId newLevelId, 
 			@RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(newLevelId.getCompanyCodeId(), newLevelId.getPlantId(), newLevelId.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
 		LevelId createdLevelId = levelIdService.createLevelId(newLevelId, loginUserID);
 		return new ResponseEntity<>(createdLevelId , HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
     
     @ApiOperation(response = LevelId.class, value = "Update LevelId") // label for swagger
     @PatchMapping("/{levelId}")
@@ -105,54 +81,24 @@ public class LevelIdController {
 										  @RequestParam String languageId,@RequestParam String plantId,
 			@Valid @RequestBody UpdateLevelId updateLevelId, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-		LevelId createdLevelId =
+		LevelId createdLevelId = 
 				levelIdService.updateLevelId(warehouseId, levelId,companyCodeId,languageId,plantId,loginUserID, updateLevelId);
 		return new ResponseEntity<>(createdLevelId , HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
     
     @ApiOperation(response = LevelId.class, value = "Delete LevelId") // label for swagger
 	@DeleteMapping("/{levelId}")
 	public ResponseEntity<?> deleteLevelId(@PathVariable Long levelId, 
 			@RequestParam String warehouseId,@RequestParam String companyCodeId,@RequestParam String languageId,
 										   @RequestParam String plantId, @RequestParam String loginUserID) {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-		levelIdService.deleteLevelId(warehouseId, levelId,companyCodeId,languageId,plantId,loginUserID);
+    	levelIdService.deleteLevelId(warehouseId, levelId,companyCodeId,languageId,plantId,loginUserID);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
 	//Search
 	@ApiOperation(response = LevelId.class, value = "Find LevelId") // label for swagger
 	@PostMapping("/find")
 	public ResponseEntity<?> findLevelId(@Valid @RequestBody FindLevelId findLevelId) throws Exception {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(findLevelId.getCompanyCodeId(), findLevelId.getPlantId(), findLevelId.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
 		List<LevelId> createdLevelId = levelIdService.findLevelId(findLevelId);
 		return new ResponseEntity<>(createdLevelId, HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
 }

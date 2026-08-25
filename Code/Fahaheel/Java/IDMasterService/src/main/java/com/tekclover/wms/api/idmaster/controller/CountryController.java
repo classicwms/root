@@ -6,9 +6,7 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-import com.tekclover.wms.api.idmaster.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.idmaster.model.country.FindCountry;
-import com.tekclover.wms.api.idmaster.repository.DbConfigRepository;
 import com.tekclover.wms.api.idmaster.repository.LanguageIdRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -39,7 +37,7 @@ public class CountryController {
 
 	@Autowired
 	CountryService countryService;
-
+	
     @ApiOperation(response = Country.class, value = "Get all Country details") // label for swagger
 	@GetMapping("")
 	public ResponseEntity<?> getAll() {

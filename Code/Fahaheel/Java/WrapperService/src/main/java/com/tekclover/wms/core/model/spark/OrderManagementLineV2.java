@@ -92,19 +92,4 @@ public class OrderManagementLineV2 {
     private String isCancelled;
     private String targetBranchCode;
     private Integer imsSaleTypeCode;
-  private String customerId;
-    private String customerName;
-    private String alternateUom;
-    private Double noBags;
-    private Double bagSize;
-    private Double mrp;
-    private String itemType;
-    private String itemGroup;
-    /*----------------------REEFERON--------------------------------------------------*/
-    private Double qtyInCase;
-    private Double qtyInPiece;
-    private Double qtyInCrate;
-
-    private Timestamp manufacturerDate;
-    private Timestamp expiryDate;
 }

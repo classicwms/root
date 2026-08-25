@@ -1,11 +1,9 @@
 package com.tekclover.wms.api.idmaster.controller;
 
-import com.tekclover.wms.api.idmaster.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.idmaster.model.sublevelid.AddSubLevelId;
 import com.tekclover.wms.api.idmaster.model.sublevelid.FindSubLevelId;
 import com.tekclover.wms.api.idmaster.model.sublevelid.SubLevelId;
 import com.tekclover.wms.api.idmaster.model.sublevelid.UpdateSubLevelId;
-import com.tekclover.wms.api.idmaster.repository.DbConfigRepository;
 import com.tekclover.wms.api.idmaster.repository.PlantIdRepository;
 import com.tekclover.wms.api.idmaster.service.SubLevelIdService;
 import io.swagger.annotations.Api;
@@ -35,9 +33,6 @@ public class SubLevelIdController {
 	private PlantIdRepository plantIdRepository;
 
 	@Autowired
-	DbConfigRepository dbConfigRepository;
-
-	@Autowired
 	SubLevelIdService sublevelidService;
 	
     @ApiOperation(response = SubLevelId.class, value = "Get all SubLevelId details") // label for swagger
@@ -50,37 +45,19 @@ public class SubLevelIdController {
     @ApiOperation(response = SubLevelId.class, value = "Get a SubLevelId") // label for swagger 
 	@GetMapping("/{subLevelId}")
 	public ResponseEntity<?> getSubLevelId(@PathVariable String subLevelId,
-										   @RequestParam String warehouseId, @RequestParam Long levelId, @RequestParam String companyCodeId, @RequestParam String languageId, @RequestParam String plantId) {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-			SubLevelId sublevelid =
-					sublevelidService.getSubLevelId(warehouseId, subLevelId, levelId, companyCodeId, languageId, plantId);
-			log.info("SubLevelId : " + sublevelid);
-			return new ResponseEntity<>(sublevelid, HttpStatus.OK);
-		} finally {
-			DataBaseContextHolder.clear();
-		}
+			@RequestParam String warehouseId,@RequestParam Long levelId,@RequestParam String companyCodeId,@RequestParam String languageId,@RequestParam String plantId) {
+    	SubLevelId sublevelid = 
+    			sublevelidService.getSubLevelId(warehouseId, subLevelId, levelId,companyCodeId,languageId,plantId);
+    	log.info("SubLevelId : " + sublevelid);
+		return new ResponseEntity<>(sublevelid, HttpStatus.OK);
 	}
     
     @ApiOperation(response = SubLevelId.class, value = "Create SubLevelId") // label for swagger
 	@PostMapping("")
-	public ResponseEntity<?> postSubLevelId(@Valid @RequestBody AddSubLevelId newSubLevelId,
-											@RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(newSubLevelId.getCompanyCodeId(), newSubLevelId.getPlantId(), newSubLevelId.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-			SubLevelId createdSubLevelId = sublevelidService.createSubLevelId(newSubLevelId, loginUserID);
-			return new ResponseEntity<>(createdSubLevelId, HttpStatus.OK);
-		} finally {
-			DataBaseContextHolder.clear();
-		}
+	public ResponseEntity<?> postSubLevelId(@Valid @RequestBody AddSubLevelId newSubLevelId, 
+			@RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException, ParseException {
+		SubLevelId createdSubLevelId = sublevelidService.createSubLevelId(newSubLevelId, loginUserID);
+		return new ResponseEntity<>(createdSubLevelId , HttpStatus.OK);
 	}
     
     @ApiOperation(response = SubLevelId.class, value = "Update SubLevelId") // label for swagger
@@ -89,52 +66,23 @@ public class SubLevelIdController {
 			@RequestParam String warehouseId,@RequestParam Long levelId,@RequestParam String companyCodeId,@RequestParam String languageId,@RequestParam String plantId,
 			@Valid @RequestBody UpdateSubLevelId updateSubLevelId, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-			SubLevelId createdSubLevelId =
-					sublevelidService.updateSubLevelId(warehouseId, subLevelId, levelId, companyCodeId, languageId, plantId, loginUserID, updateSubLevelId);
-			return new ResponseEntity<>(createdSubLevelId, HttpStatus.OK);
-		} finally {
-			DataBaseContextHolder.clear();
-		}
+		SubLevelId createdSubLevelId = 
+				sublevelidService.updateSubLevelId(warehouseId, subLevelId,levelId,companyCodeId,languageId,plantId,loginUserID, updateSubLevelId);
+		return new ResponseEntity<>(createdSubLevelId , HttpStatus.OK);
 	}
     
     @ApiOperation(response = SubLevelId.class, value = "Delete SubLevelId") // label for swagger
 	@DeleteMapping("/{subLevelId}")
 	public ResponseEntity<?> deleteSubLevelId(@PathVariable String subLevelId,
-											  @RequestParam String warehouseId, @RequestParam Long levelId, @RequestParam String companyCodeId, @RequestParam String languageId, @RequestParam String plantId, @RequestParam String loginUserID) {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-			sublevelidService.deleteSubLevelId(warehouseId, subLevelId, levelId, companyCodeId, languageId, plantId, loginUserID);
-			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-		} finally {
-			DataBaseContextHolder.clear();
-		}
+			@RequestParam String warehouseId,@RequestParam Long levelId,@RequestParam String companyCodeId,@RequestParam String languageId,@RequestParam String plantId,@RequestParam String loginUserID) {
+    	sublevelidService.deleteSubLevelId(warehouseId, subLevelId, levelId,companyCodeId,languageId,plantId,loginUserID);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-
 	//Search
 	@ApiOperation(response = SubLevelId.class, value = "Find SubLevelId") // label for swagger
 	@PostMapping("/find")
 	public ResponseEntity<?> findSubLevelId(@Valid @RequestBody FindSubLevelId findSubLevelId) throws Exception {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(findSubLevelId.getCompanyCodeId(), findSubLevelId.getPlantId(), findSubLevelId.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-			List<SubLevelId> createdSubLevelId = sublevelidService.findSubLevelId(findSubLevelId);
-			return new ResponseEntity<>(createdSubLevelId, HttpStatus.OK);
-		}
-		finally {
-			DataBaseContextHolder.clear();
-		}
+		List<SubLevelId> createdSubLevelId= sublevelidService.findSubLevelId(findSubLevelId);
+		return new ResponseEntity<>(createdSubLevelId, HttpStatus.OK);
 	}
 }

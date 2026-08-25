@@ -7,9 +7,7 @@ import java.util.List;
 import javax.validation.Valid;
 
 
-import com.tekclover.wms.api.idmaster.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.idmaster.model.barcodetypeid.FindBarcodeTypeId;
-import com.tekclover.wms.api.idmaster.repository.DbConfigRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -45,10 +43,7 @@ public class BarcodeTypeIdController {
 	
 	@Autowired
 	BarcodeTypeIdService barcodetypeidService;
-
-	@Autowired
-	DbConfigRepository dbConfigRepository;
-
+	
     @ApiOperation(response = BarcodeTypeId.class, value = "Get all BarcodeTypeId details") // label for swagger
 	@GetMapping("")
 	public ResponseEntity<?> getAll() {
@@ -60,20 +55,10 @@ public class BarcodeTypeIdController {
 	@GetMapping("/{barcodeTypeId}")
 	public ResponseEntity<?> getBarcodeTypeId(@RequestParam String warehouseId,@PathVariable Long barcodeTypeId,
 											  @RequestParam String companyCodeId,@RequestParam String languageId, @RequestParam String plantId) {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-			BarcodeTypeId barcodetypeid =
-					barcodetypeidService.getBarcodeTypeId(warehouseId, barcodeTypeId, companyCodeId, languageId, plantId);
-			log.info("BarcodeTypeId : " + barcodetypeid);
-			return new ResponseEntity<>(barcodetypeid, HttpStatus.OK);
-		}
-		finally {
-			DataBaseContextHolder.clear();
-		}
+    	BarcodeTypeId barcodetypeid = 
+    			barcodetypeidService.getBarcodeTypeId(warehouseId, barcodeTypeId,companyCodeId,languageId,plantId);
+    	log.info("BarcodeTypeId : " + barcodetypeid);
+		return new ResponseEntity<>(barcodetypeid, HttpStatus.OK);
 	}
     
 //	@ApiOperation(response = BarcodeTypeId.class, value = "Search BarcodeTypeId") // label for swagger
@@ -87,18 +72,8 @@ public class BarcodeTypeIdController {
 	@PostMapping("")
 	public ResponseEntity<?> postBarcodeTypeId(@Valid @RequestBody AddBarcodeTypeId newBarcodeTypeId, 
 			@RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(newBarcodeTypeId.getCompanyCodeId(), newBarcodeTypeId.getPlantId(), newBarcodeTypeId.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-			BarcodeTypeId createdBarcodeTypeId = barcodetypeidService.createBarcodeTypeId(newBarcodeTypeId, loginUserID);
-			return new ResponseEntity<>(createdBarcodeTypeId, HttpStatus.OK);
-		}
-		finally {
-			DataBaseContextHolder.clear();
-		}
+		BarcodeTypeId createdBarcodeTypeId = barcodetypeidService.createBarcodeTypeId(newBarcodeTypeId, loginUserID);
+		return new ResponseEntity<>(createdBarcodeTypeId , HttpStatus.OK);
 	}
     
     @ApiOperation(response = BarcodeTypeId.class, value = "Update BarcodeTypeId") // label for swagger
@@ -107,20 +82,9 @@ public class BarcodeTypeIdController {
 												@RequestParam String companyCodeId,@RequestParam String languageId,@RequestParam String plantId,
 			@Valid @RequestBody UpdateBarcodeTypeId updateBarcodeTypeId, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-
-			BarcodeTypeId createdBarcodeTypeId =
-					barcodetypeidService.updateBarcodeTypeId(warehouseId, barcodeTypeId, companyCodeId, languageId, plantId, loginUserID, updateBarcodeTypeId);
-			return new ResponseEntity<>(createdBarcodeTypeId, HttpStatus.OK);
-		}
-		finally {
-			DataBaseContextHolder.clear();
-		}
+		BarcodeTypeId createdBarcodeTypeId = 
+				barcodetypeidService.updateBarcodeTypeId(warehouseId, barcodeTypeId,companyCodeId,languageId,plantId,loginUserID, updateBarcodeTypeId);
+		return new ResponseEntity<>(createdBarcodeTypeId , HttpStatus.OK);
 	}
     
     @ApiOperation(response = BarcodeTypeId.class, value = "Delete BarcodeTypeId") // label for swagger
@@ -128,34 +92,14 @@ public class BarcodeTypeIdController {
 	public ResponseEntity<?> deleteBarcodeTypeId(@RequestParam String warehouseId,@PathVariable Long barcodeTypeId,@RequestParam String companyCodeId,
 												 @RequestParam String languageId,@RequestParam String plantId,
 			 @RequestParam String loginUserID) {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-			barcodetypeidService.deleteBarcodeTypeId(warehouseId, barcodeTypeId, companyCodeId, languageId, plantId, loginUserID);
-			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-		}
-		finally {
-			DataBaseContextHolder.clear();
-		}
+    	barcodetypeidService.deleteBarcodeTypeId(warehouseId, barcodeTypeId,companyCodeId,languageId,plantId,loginUserID);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 	//Search
 	@ApiOperation(response = BarcodeTypeId.class, value = "Find BarcodeTypeId") // label for swagger
 	@PostMapping("/find")
 	public ResponseEntity<?> findBarcodeTypeId(@Valid @RequestBody FindBarcodeTypeId findBarcodeTypeId) throws Exception {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(findBarcodeTypeId.getCompanyCodeId(), findBarcodeTypeId.getPlantId(), findBarcodeTypeId.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-			List<BarcodeTypeId> createdBarcodeTypeId = barcodetypeidService.findBarcodeTypeId(findBarcodeTypeId);
-			return new ResponseEntity<>(createdBarcodeTypeId, HttpStatus.OK);
-		}
-		finally {
-			DataBaseContextHolder.clear();
-		}
+		List<BarcodeTypeId> createdBarcodeTypeId = barcodetypeidService.findBarcodeTypeId(findBarcodeTypeId);
+		return new ResponseEntity<>(createdBarcodeTypeId, HttpStatus.OK);
 	}
 }

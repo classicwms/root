@@ -68,16 +68,5 @@ public class PreOutBoundLineV2 {
     private String returnOrderNo;
     private String isCompleted;
     private String isCancelled;
-//    private Integer imsSaleTypeCode;
-private String customerId;
-    private String customerName;
-    private String alternateUom;
-    private Double noBags;
-    private Double bagSize;
-    private Double mrp;
-    private String itemType;
-    private String itemGroup;
-    /*----------------------REEFERON--------------------------------------------------*/
-    private Double qtyInCase;
-    private Double qtyInPiece;
+    private Integer imsSaleTypeCode;
 }

@@ -23,10 +23,10 @@ public class PeriodicLineV1 {
     @NotBlank(message = "UOM is mandatory")
     private String Uom;
 
-//    @NotBlank(message = "Manufacturer Code is mandatory")
+    @NotBlank(message = "Manufacturer Code is mandatory")
     private String manufacturerCode;
 
-//    @NotBlank(message = "Manufacturer Name is mandatory")
+    @NotBlank(message = "Manufacturer Name is mandatory")
     private String manufacturerName;
 
     @NotNull(message = "FrozenQty is mandatory")

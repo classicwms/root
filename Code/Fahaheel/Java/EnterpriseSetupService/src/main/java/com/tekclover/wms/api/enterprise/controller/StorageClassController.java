@@ -6,8 +6,6 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-import com.tekclover.wms.api.enterprise.config.dynamicConfig.DataBaseContextHolder;
-import com.tekclover.wms.api.enterprise.repository.DbConfigRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,9 +42,6 @@ public class StorageClassController {
 	
 	@Autowired
 	StorageClassService storageclassService;
-
-	@Autowired
-	DbConfigRepository dbConfigRepository;
 	
     @ApiOperation(response = StorageClass.class, value = "Get all StorageClass details") // label for swagger
 	@GetMapping("")
@@ -58,90 +53,40 @@ public class StorageClassController {
 	@ApiOperation(response = StorageClass.class, value = "Get a StorageClass") 
 	@GetMapping("/{storageClassId}")
 	public ResponseEntity<?> getStorageClass(@PathVariable Long storageClassId,@RequestParam String companyId,@RequestParam String plantId,@RequestParam String languageId,@RequestParam String warehouseId) {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyId,plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-		StorageClass storageclass = storageclassService.getStorageClass(warehouseId, storageClassId,companyId,languageId,plantId);
+	   	StorageClass storageclass = storageclassService.getStorageClass(warehouseId, storageClassId,companyId,languageId,plantId);
 	   	log.info("StorageClass : " + storageclass);
 		return new ResponseEntity<>(storageclass, HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
     
     @ApiOperation(response = StorageClass.class, value = "Search StorageClass") // label for swagger
 	@PostMapping("/findStorageClass")
 	public List<StorageClass> findStorageClass(@RequestBody SearchStorageClass searchStorageClass)
 			throws Exception {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(searchStorageClass.getCompanyId(), searchStorageClass.getPlantId(), searchStorageClass.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
 		return storageclassService.findStorageClass(searchStorageClass);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
     
     @ApiOperation(response = StorageClass.class, value = "Create StorageClass") // label for swagger
 	@PostMapping("")
 	public ResponseEntity<?> postStorageClass(@Valid @RequestBody AddStorageClass newStorageClass, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(newStorageClass.getCompanyId(), newStorageClass.getPlantId(), newStorageClass.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
 		StorageClass createdStorageClass = storageclassService.createStorageClass(newStorageClass, loginUserID);
 		return new ResponseEntity<>(createdStorageClass , HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
     
     @ApiOperation(response = StorageClass.class, value = "Update StorageClass") // label for swagger
     @PatchMapping("/{storageClassId}")
 	public ResponseEntity<?> patchStorageClass(@PathVariable Long storageClassId, @RequestParam String warehouseId,@RequestParam String companyId,@RequestParam String plantId,@RequestParam String languageId,
 			@Valid @RequestBody UpdateStorageClass updateStorageClass, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyId,plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
 		StorageClass createdStorageClass = storageclassService.updateStorageClass(warehouseId, storageClassId,companyId,languageId,plantId,updateStorageClass, loginUserID);
 		return new ResponseEntity<>(createdStorageClass , HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
     
     @ApiOperation(response = StorageClass.class, value = "Delete StorageClass") // label for swagger
 	@DeleteMapping("/{storageClassId}")
 	public ResponseEntity<?> deleteStorageClass(@PathVariable Long storageClassId, @RequestParam String warehouseId,@RequestParam String companyId,@RequestParam String plantId,@RequestParam String languageId,
 			@RequestParam String loginUserID) throws ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyId,plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
     	storageclassService.deleteStorageClass(warehouseId, storageClassId,companyId,languageId,plantId,loginUserID);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
 }

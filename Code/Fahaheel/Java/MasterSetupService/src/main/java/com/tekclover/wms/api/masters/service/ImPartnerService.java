@@ -154,20 +154,6 @@ public class ImPartnerService {
 		return results;
 	}
 
-	/**
-	 *
-	 * @param searchImPartner
-	 * @return
-	 * @throws ParseException
-	 */
-	public List<ImPartner> findImPartnerV8(SearchImPartner searchImPartner) throws ParseException {
-		log.info("SearchImpartner Input: " + searchImPartner);
-		ImPartnerSpecification spec = new ImPartnerSpecification(searchImPartner);
-		List<ImPartner> results = impartnerRepository.findAll(spec);
-		log.info("results: " + results.size());
-		return results;
-	}
-
 //	public List<ImPartner> createImPartner (List<AddImPartner> newImPartner, String loginUserID) {
 //
 //		List<ImPartner>imPartnerList=new ArrayList<>();
@@ -533,26 +519,6 @@ public List<ImPartner> updateImPartner (String companyCodeId, String plantId, St
 		auditLog.setReferenceField10("MasterService");
 
 		auditLogService.createAuditLog(auditLog, loginUserID);
-	}
-
-	/**
-	 *
-	 * @param inventoryList
-	 * @return
-	 */
-	public List<ImPartner> imPartnerUpload(List<ImPartner> inventoryList) {
-
-		List<ImPartner> saveInventory = new ArrayList<>();
-		for (ImPartner inventory : inventoryList) {
-			ImPartner dbInventory = new ImPartner();
-			BeanUtils.copyProperties(inventory, dbInventory, CommonUtils.getNullPropertyNames(inventory));
-			dbInventory.setDeletionIndicator(0L);
-			dbInventory.setCreatedOn(new Date());
-			dbInventory.setUpdatedOn(new Date());
-			impartnerRepository.save(dbInventory);
-			saveInventory.add(dbInventory);
-		}
-		return saveInventory;
 	}
 
 }

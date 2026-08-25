@@ -20,12 +20,4 @@ public class ShipmentDeliveryReport {
 	private String targetBranch;
 	private Double quantity;
 	private Double total;
-	private Double mrp;
-	private Double noOfBags;
-	private String remarks;
-	private String driverName;
-	private String vehicleNo;
-	private Double orderQty;
-	private Date expiryDate;
-
 }

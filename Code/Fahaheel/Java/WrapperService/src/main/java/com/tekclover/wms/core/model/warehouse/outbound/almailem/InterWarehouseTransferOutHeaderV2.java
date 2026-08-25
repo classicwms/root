@@ -26,10 +26,4 @@ public class InterWarehouseTransferOutHeaderV2 {
 
     @NotBlank(message = "Required Delivery Date is mandatory")
     private String requiredDeliveryDate;
-    private String warehouseId;
-    private String languageId;
-    private String loginUserId;
-    private String orderType;
-    private String address;
-    private String invoice;
 }

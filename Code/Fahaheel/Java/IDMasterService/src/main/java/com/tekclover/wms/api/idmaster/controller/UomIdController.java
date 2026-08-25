@@ -6,11 +6,9 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-import com.tekclover.wms.api.idmaster.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.idmaster.model.uomid.FindUomId;
 import com.tekclover.wms.api.idmaster.repository.CityRepository;
 import com.tekclover.wms.api.idmaster.repository.CompanyIdRepository;
-import com.tekclover.wms.api.idmaster.repository.DbConfigRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -47,8 +45,6 @@ public class UomIdController {
 	private CityRepository cityRepository;
 	@Autowired
 	private CompanyIdRepository companyIdRepository;
-	@Autowired
-	DbConfigRepository dbConfigRepository;
 
 	@Autowired
 	UomIdService uomidService;
@@ -63,19 +59,9 @@ public class UomIdController {
     @ApiOperation(response = UomId.class, value = "Get a UomId") // label for swagger 
 	@GetMapping("/{uomId}")
 	public ResponseEntity<?> getUomId(@PathVariable String uomId,@RequestParam String companyCodeId,@RequestParam String warehouseId,@RequestParam String plantId,@RequestParam String languageId) {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-			UomId uomid = uomidService.getUomId(uomId, companyCodeId, warehouseId, plantId, languageId);
-			log.info("UomId : " + uomid);
-			return new ResponseEntity<>(uomid, HttpStatus.OK);
-		}
-		finally {
-			DataBaseContextHolder.clear();
-		}
+    	UomId uomid = uomidService.getUomId(uomId,companyCodeId,warehouseId,plantId,languageId);
+    	log.info("UomId : " + uomid);
+		return new ResponseEntity<>(uomid, HttpStatus.OK);
 	}
     
 //	@ApiOperation(response = UomId.class, value = "Search UomId") // label for swagger
@@ -89,70 +75,30 @@ public class UomIdController {
 	@PostMapping("")
 	public ResponseEntity<?> postUomId(@Valid @RequestBody AddUomId newUomId, 
 			@RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(newUomId.getCompanyCodeId(), newUomId.getPlantId(), newUomId.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-			UomId createdUomId = uomidService.createUomId(newUomId, loginUserID);
-			return new ResponseEntity<>(createdUomId, HttpStatus.OK);
-		}
-		finally {
-			DataBaseContextHolder.clear();
-		}
+		UomId createdUomId = uomidService.createUomId(newUomId, loginUserID);
+		return new ResponseEntity<>(createdUomId , HttpStatus.OK);
 	}
     
     @ApiOperation(response = UomId.class, value = "Update UomId") // label for swagger
     @PatchMapping("/{uomId}")
 	public ResponseEntity<?> patchUomId(@PathVariable String uomId,@RequestParam String companyCodeId,@RequestParam String warehouseId,@RequestParam String plantId,@RequestParam String languageId,@RequestParam String loginUserID,@Valid @RequestBody UpdateUomId updateUomId
 			) throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-			UomId createdUomId = uomidService.updateUomId(uomId, companyCodeId, warehouseId, plantId, languageId, loginUserID, updateUomId);
-			return new ResponseEntity<>(createdUomId, HttpStatus.OK);
-		}
-		finally {
-			DataBaseContextHolder.clear();
-		}
+		UomId createdUomId = uomidService.updateUomId(uomId,companyCodeId,warehouseId,plantId,languageId,loginUserID, updateUomId);
+		return new ResponseEntity<>(createdUomId , HttpStatus.OK);
 	}
     
     @ApiOperation(response = UomId.class, value = "Delete UomId") // label for swagger
 	@DeleteMapping("/{uomId}")
 	public ResponseEntity<?> deleteUomId(@PathVariable String uomId, @RequestParam String companyCodeId,@RequestParam String languageId,@RequestParam String warehouseId,@RequestParam String plantId,
 			@RequestParam String loginUserID) {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-			uomidService.deleteUomId(uomId, companyCodeId, warehouseId, plantId, languageId, loginUserID);
-			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-		}
-		finally {
-			DataBaseContextHolder.clear();
-		}
+    	uomidService.deleteUomId(uomId,companyCodeId,warehouseId,plantId,languageId,loginUserID);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 	//Search
 	@ApiOperation(response = UomId.class, value = "Find UomId") // label for swagger
 	@PostMapping("/find")
 	public ResponseEntity<?> findUomId(@Valid @RequestBody FindUomId findUomId) throws Exception {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(findUomId.getCompanyCodeId(), findUomId.getPlantId(), findUomId.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-			List<UomId> createdUomId = uomidService.findUomId(findUomId);
-			return new ResponseEntity<>(createdUomId, HttpStatus.OK);
-		}
-		finally {
-			DataBaseContextHolder.clear();
-		}
+		List<UomId> createdUomId = uomidService.findUomId(findUomId);
+		return new ResponseEntity<>(createdUomId, HttpStatus.OK);
 	}
 }

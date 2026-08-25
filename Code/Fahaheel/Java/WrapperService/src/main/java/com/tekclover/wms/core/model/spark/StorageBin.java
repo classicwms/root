@@ -54,7 +54,7 @@ public class StorageBin {
     private Timestamp updatedOn;
 
     //v2 fields
-    private Boolean capacityCheck;
+    private boolean capacityCheck;
     private Double allocatedVolume;
     private String capacityUnit;
     private Double length;

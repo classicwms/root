@@ -38,7 +38,4 @@ public class ImAlternateUom {
 	private Date createdOn = new Date();
 	private String updatedBy;
 	private Date updatedOn = new Date();
-	private Double uomIdQty;
-	private Double alternateUomQty;
-
 }

@@ -16,12 +16,10 @@ public class FindInboundOrderV2 {
     private List<String> orderId;
     private List<String> refDocumentNo;
     private List<String> refDocumentType;
-    private List<String> warehouseId;
+    private List<String> warehouseID;
     private Date fromOrderReceivedOn;
     private Date toOrderReceivedOn;
     private Date fromOrderProcessedOn;
     private Date toOrderProcessedOn;
     private List<Long> processedStatusId;
-    private List<String> plantId;
-
 }

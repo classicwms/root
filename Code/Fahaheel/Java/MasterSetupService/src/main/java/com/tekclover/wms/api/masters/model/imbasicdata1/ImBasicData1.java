@@ -25,14 +25,14 @@ import lombok.NoArgsConstructor;
 		uniqueConstraints = { 
 				@UniqueConstraint (
 						name = "unique_key_imbasicdata1", 
-						columnNames = {"LANG_ID", "C_ID", "PLANT_ID", "WH_ID", "ITM_CODE", "MFR_PART", "UOM_ID"})
+						columnNames = {"LANG_ID", "C_ID", "PLANT_ID", "WH_ID", "ITM_CODE", "UOM_ID","MFR_PART"})
 				}
 		)
 @IdClass(ImBasicData1CompositeKey.class)
 public class ImBasicData1 { 
 	
 	@Id
-	@Column(name = "UOM_ID")
+	@Column(name = "UOM_ID") 
 	private String uomId;
 	
 	@Id
@@ -189,10 +189,4 @@ public class ImBasicData1 {
 
 	@Column(name = "VOLUME")
 	private Double volume;
-
-	@Column(name = "BATCH_QUANTITY")
-	private Double batchQuantity;
-
-	@Column(name = "MOQ")
-	private Double moq;
 }

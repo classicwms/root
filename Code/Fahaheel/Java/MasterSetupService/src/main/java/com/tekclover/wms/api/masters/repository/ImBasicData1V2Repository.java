@@ -6,7 +6,6 @@ import com.tekclover.wms.api.masters.model.imbasicdata1.v2.ImBasicData1V2;
 import com.tekclover.wms.api.masters.repository.fragments.StreamableJpaSpecificationRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -58,65 +57,4 @@ public interface ImBasicData1V2Repository extends JpaRepository<ImBasicData1V2, 
 
     Optional<ImBasicData1V2> findByCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndUomIdAndManufacturerPartNoAndLanguageIdAndDeletionIndicator(
             String companyCodeId, String plantId, String warehouseId, String itemCode, String uomId, String manufacturerPartNo, String languageId, long l);
-
-    @Modifying
-    @Transactional
-    @Query("UPDATE ImBasicData1V2 i SET " +
-            "i.description = :#{#data.description}, " +
-            "i.model = :#{#data.model}, " +
-            "i.specifications1 = :#{#data.specifications1}, " +
-            "i.specifications2 = :#{#data.specifications2}, " +
-            "i.eanUpcNo = :#{#data.eanUpcNo}, " +
-            "i.hsnCode = :#{#data.hsnCode}, " +
-            "i.itemType = :#{#data.itemType}, " +
-            "i.itemGroup = :#{#data.itemGroup}, " +
-            "i.subItemGroup = :#{#data.subItemGroup}, " +
-            "i.storageSectionId = :#{#data.storageSectionId}, " +
-            "i.totalStock = :#{#data.totalStock}, " +
-            "i.minimumStock = :#{#data.minimumStock}, " +
-            "i.maximumStock = :#{#data.maximumStock}, " +
-            "i.reorderLevel = :#{#data.reorderLevel}, " +
-            "i.capacityCheck = :#{#data.capacityCheck}, " +
-            "i.replenishmentQty = :#{#data.replenishmentQty}, " +
-            "i.safetyStock = :#{#data.safetyStock}, " +
-            "i.capacityUnit = :#{#data.capacityUnit}, " +
-            "i.capacityUom = :#{#data.capacityUom}, " +
-            "i.quantity = :#{#data.quantity}, " +
-            "i.weight = :#{#data.weight}, " +
-            "i.statusId = :#{#data.statusId}, " +
-            "i.shelfLifeIndicator = :#{#data.shelfLifeIndicator}, " +
-            "i.length = :#{#data.length}, " +
-            "i.width = :#{#data.width}, " +
-            "i.height = :#{#data.height}, " +
-            "i.dimensionUom = :#{#data.dimensionUom}, " +
-            "i.volume = :#{#data.volume}, " +
-            "i.batchQuantity = :#{#data.batchQuantity}, " +
-            "i.moq = :#{#data.moq}, " +
-            "i.updatedBy = :#{#data.updatedBy}, " +
-            "i.updatedOn = :#{#data.updatedOn} " +
-            "WHERE i.itemCode = :itemCode AND i.companyCodeId = :companyCodeId AND i.plantId = :plantId " +
-            "AND i.languageId = :languageId AND i.uomId = :uomId AND i.warehouseId = :warehouseId " +
-            "AND i.manufacturerPartNo = :manufacturerPartNo")
-    int updateImBasicData1V2(@Param("itemCode") String itemCode,
-                             @Param("companyCodeId") String companyCodeId,
-                             @Param("plantId") String plantId,
-                             @Param("languageId") String languageId,
-                             @Param("uomId") String uomId,
-                             @Param("warehouseId") String warehouseId,
-                             @Param("manufacturerPartNo") String manufacturerPartNo,
-                             @Param("data") ImBasicData1V2 data);
-
-    Optional<ImBasicData1V2> findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndItemCodeAndUomIdAndManufacturerPartNo(
-            String companyCodeId, String plantId, String languageId, String warehouseId,
-            String itemCode, String uomId, String manufacturerPartNo
-    );
-
-
-    @Modifying
-    @Query(value = "Update tblimbasicdata1 set is_deleted = 1, UTD_ON = getDate() where LANG_ID = :languageId AND \n " +
-            "C_ID = :companyId AND PLANT_ID = :plantId AND WH_ID = :warehouseId AND ITM_CODE = :itemCode AND MFR_PART = :mfrPart AND UOM_ID = :uomId ", nativeQuery = true)
-    void deleteImBasicData1(@Param("languageId") String languageId, @Param("companyId") String companyId,
-                            @Param("plantId") String plantId, @Param("warehouseId") String warehouseId,
-                            @Param("itemCode") String itemCode, @Param("mfrPart") String mfrPart,
-                            @Param("uomId") String uomId);
 }

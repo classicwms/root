@@ -9,7 +9,7 @@ import java.util.Set;
 
 @Data
 public class UpdateHhtUser {
-	private String userId;
+
     private String password;
     private String userName;
     private Long statusId;

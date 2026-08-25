@@ -37,6 +37,4 @@ public interface IKeyValuePair {
     Long getRoleId();
 
     String getRoleDescription();
-
-    String getLangDesc();
 }

@@ -10,8 +10,4 @@ public class FindInterimBarcode {
     private List<String> barcode;
     private List<String> referenceField1;
     private List<Long> interimBarcodeId;
-
-    private List<String> companyCodeId;
-    private List<String> plantId;
-    private List<String> warehouseId;
 }

@@ -28,6 +28,4 @@ public class FindOutBoundHeaderV2 {
     private List<String> languageId;
     private List<String> companyCodeId;
     private List<String> plantId;
-    private List<String> targetBranchCode;
-    private List<String> preOutboundNo;
 }

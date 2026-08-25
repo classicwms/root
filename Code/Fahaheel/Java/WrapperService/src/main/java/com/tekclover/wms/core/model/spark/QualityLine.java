@@ -72,13 +72,4 @@ public class QualityLine {
     private String qualityReversedBy;
     private Timestamp qualityReversedOn ;
     private Integer imsSaleTypeCode;
-       private String customerId;
-    private String customerName;
-    private String alternateUom;
-    private Double noBags;
-    private Double bagSize;
-    private Double mrp;
-    private String itemType;
-    private String itemGroup;
-    private String brand;
 }

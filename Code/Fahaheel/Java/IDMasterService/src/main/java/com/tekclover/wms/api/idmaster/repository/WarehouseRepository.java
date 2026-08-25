@@ -45,13 +45,4 @@ public interface WarehouseRepository extends JpaRepository<Warehouse,Long>, JpaS
 
 	public Optional<Warehouse> findByCompanyCodeIdAndPlantIdAndLanguageIdAndDeletionIndicator(String companyCodeId,
 			String plantId, String languageId, long l);
-
-	Warehouse findByWarehouseIdAndDeletionIndicator(
-			String warehouseId, Long deletionIndicator
-	);
-
-	Warehouse findTop1ByWarehouseIdAndDeletionIndicator(
-			String warehouseId, Long deletionIndicator
-	);
-
 }

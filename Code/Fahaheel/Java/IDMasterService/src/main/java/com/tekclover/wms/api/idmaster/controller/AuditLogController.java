@@ -6,9 +6,6 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-import com.tekclover.wms.api.idmaster.config.dynamicConfig.DataBaseContextHolder;
-import com.tekclover.wms.api.idmaster.repository.DbConfigRepository;
-import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,8 +40,6 @@ public class AuditLogController {
 	
 	@Autowired
 	AuditLogService auditLogService;
-	@Autowired
-	DbConfigRepository dbConfigRepository;
 	
     @ApiOperation(response = AuditLog.class, value = "Get all AuditLog details") // label for swagger
 	@GetMapping("")
@@ -65,24 +60,13 @@ public class AuditLogController {
 	@PostMapping("")
 	public ResponseEntity<?> postAuditLog(@Valid @RequestBody AuditLog newAuditLog, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(newAuditLog.getCompanyCode(), newAuditLog.getPlantID(), newAuditLog.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
 		AuditLog createdAuditLog = auditLogService.createAuditLog(newAuditLog, loginUserID);
 		return new ResponseEntity<>(createdAuditLog , HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
     
     @ApiOperation(response = AuditLog.class, value = "Delete AuditLog") // label for swagger
 	@DeleteMapping("/{auditLogNumber}")
 	public ResponseEntity<?> deleteAuditLog(@PathVariable String auditLogNumber) {
-
     	auditLogService.deleteAuditLog(auditLogNumber);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}

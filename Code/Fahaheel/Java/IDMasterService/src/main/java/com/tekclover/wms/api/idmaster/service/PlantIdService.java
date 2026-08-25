@@ -10,13 +10,14 @@ import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
 
-import com.tekclover.wms.api.idmaster.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.idmaster.model.IKeyValuePair;
 import com.tekclover.wms.api.idmaster.model.companyid.CompanyId;
 import com.tekclover.wms.api.idmaster.model.moduleid.ModuleId;
 import com.tekclover.wms.api.idmaster.model.plantid.FindPlantId;
 import com.tekclover.wms.api.idmaster.model.roleaccess.RoleAccess;
-import com.tekclover.wms.api.idmaster.repository.*;
+import com.tekclover.wms.api.idmaster.repository.CompanyIdRepository;
+import com.tekclover.wms.api.idmaster.repository.ModuleIdRepository;
+import com.tekclover.wms.api.idmaster.repository.RoleAccessRepository;
 import com.tekclover.wms.api.idmaster.repository.Specification.PlantIdSpecification;
 import com.tekclover.wms.api.idmaster.util.DateUtils;
 import org.springframework.beans.BeanUtils;
@@ -27,6 +28,7 @@ import com.tekclover.wms.api.idmaster.controller.exception.BadRequestException;
 import com.tekclover.wms.api.idmaster.model.plantid.AddPlantId;
 import com.tekclover.wms.api.idmaster.model.plantid.PlantId;
 import com.tekclover.wms.api.idmaster.model.plantid.UpdatePlantId;
+import com.tekclover.wms.api.idmaster.repository.PlantIdRepository;
 import com.tekclover.wms.api.idmaster.util.CommonUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -45,9 +47,6 @@ public class PlantIdService{
 	private RoleAccessRepository roleAccessRepository;
 	@Autowired
 	private ModuleIdRepository moduleIdRepository;
-
-	@Autowired
-	DbConfigRepository dbConfigRepository;
 
 	/**
 	 * getPlantIds
@@ -150,14 +149,6 @@ public class PlantIdService{
 			dbPlantId.setUpdatedBy(loginUserID);
 			dbPlantId.setCreatedOn(new Date());
 			dbPlantId.setUpdatedOn(new Date());
-			log.info("Saving in Common DB");
-			plantIdRepository.save(dbPlantId);
-
-			String routingDb = dbConfigRepository.getDbNameByCompany(newPlantId.getCompanyCodeId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-			log.info("Saving in FAHAHEEL DB");
 			plantIdRepository.save(dbPlantId);
 		}
 		return dbPlantId;

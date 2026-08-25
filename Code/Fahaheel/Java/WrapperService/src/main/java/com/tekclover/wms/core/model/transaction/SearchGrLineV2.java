@@ -13,7 +13,6 @@ public class SearchGrLineV2 extends SearchGrLine {
 	private List<String> languageId;
 	private List<String> companyCodeId;
 	private List<String> plantId;
-	private List<String> warehouseId;
 
 	private List<String> barcodeId;
 	private List<String> manufacturerCode;
@@ -27,6 +26,4 @@ public class SearchGrLineV2 extends SearchGrLine {
 
 	private Date startCreatedOn;
 	private Date endCreatedOn;
-	private List<String> customerId;
-
 }

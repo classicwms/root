@@ -1,8 +1,6 @@
 package com.tekclover.wms.api.idmaster.controller;
 
-import com.tekclover.wms.api.idmaster.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.idmaster.model.outboundorderstatusid.*;
-import com.tekclover.wms.api.idmaster.repository.DbConfigRepository;
 import com.tekclover.wms.api.idmaster.service.OutboundOrderStatusIdService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -30,9 +28,6 @@ public class OutboundOrderStatusIdController {
 	
 	@Autowired
 	OutboundOrderStatusIdService outboundorderstatusidService;
-
-	@Autowired
-	DbConfigRepository  dbConfigRepository;
 	
     @ApiOperation(response = OutboundOrderStatusId.class, value = "Get all OutboundOrderStatusId details") // label for swagger
 	@GetMapping("")
@@ -45,38 +40,18 @@ public class OutboundOrderStatusIdController {
 	@GetMapping("/{outboundOrderStatusId}")
 	public ResponseEntity<?> getOutboundOrderStatusId(@RequestParam String warehouseId,@PathVariable String outboundOrderStatusId,@RequestParam String companyCodeId,
 													  @RequestParam String languageId,@RequestParam String plantId) {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-			OutboundOrderStatusId outboundorderstatusid =
-					outboundorderstatusidService.getOutboundOrderStatusId(warehouseId, outboundOrderStatusId, companyCodeId, languageId, plantId);
-			log.info("OutboundOrderStatusId : " + outboundorderstatusid);
-			return new ResponseEntity<>(outboundorderstatusid, HttpStatus.OK);
-		}
-		finally {
-			DataBaseContextHolder.clear();
-		}
+    	OutboundOrderStatusId outboundorderstatusid = 
+    			outboundorderstatusidService.getOutboundOrderStatusId(warehouseId,outboundOrderStatusId,companyCodeId,languageId,plantId);
+    	log.info("OutboundOrderStatusId : " + outboundorderstatusid);
+		return new ResponseEntity<>(outboundorderstatusid, HttpStatus.OK);
 	}
     
     @ApiOperation(response = OutboundOrderStatusId.class, value = "Create OutboundOrderStatusId") // label for swagger
 	@PostMapping("")
 	public ResponseEntity<?> postOutboundOrderStatusId(@Valid @RequestBody AddOutboundOrderStatusId newOutboundOrderStatusId, 
 			@RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(newOutboundOrderStatusId.getCompanyCodeId(), newOutboundOrderStatusId.getPlantId(), newOutboundOrderStatusId.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-			OutboundOrderStatusId createdOutboundOrderStatusId = outboundorderstatusidService.createOutboundOrderStatusId(newOutboundOrderStatusId, loginUserID);
-			return new ResponseEntity<>(createdOutboundOrderStatusId, HttpStatus.OK);
-		}
-		finally {
-			DataBaseContextHolder.clear();
-		}
+		OutboundOrderStatusId createdOutboundOrderStatusId = outboundorderstatusidService.createOutboundOrderStatusId(newOutboundOrderStatusId, loginUserID);
+		return new ResponseEntity<>(createdOutboundOrderStatusId , HttpStatus.OK);
 	}
     
     @ApiOperation(response = OutboundOrderStatusId.class, value = "Update OutboundOrderStatusId") // label for swagger
@@ -85,19 +60,9 @@ public class OutboundOrderStatusIdController {
 														@RequestParam String plantId, @RequestParam String loginUserID,
 			@Valid @RequestBody UpdateOutboundOrderStatusId updateOutboundOrderStatusId)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-			OutboundOrderStatusId createdOutboundOrderStatusId =
-					outboundorderstatusidService.updateOutboundOrderStatusId(warehouseId, outboundOrderStatusId, companyCodeId, languageId, plantId, loginUserID, updateOutboundOrderStatusId);
-			return new ResponseEntity<>(createdOutboundOrderStatusId, HttpStatus.OK);
-		}
-		finally {
-			DataBaseContextHolder.clear();
-		}
+		OutboundOrderStatusId createdOutboundOrderStatusId = 
+				outboundorderstatusidService.updateOutboundOrderStatusId(warehouseId, outboundOrderStatusId,companyCodeId,languageId,plantId,loginUserID,updateOutboundOrderStatusId);
+		return new ResponseEntity<>(createdOutboundOrderStatusId , HttpStatus.OK);
 	}
     
     @ApiOperation(response = OutboundOrderStatusId.class, value = "Delete OutboundOrderStatusId") // label for swagger
@@ -105,34 +70,14 @@ public class OutboundOrderStatusIdController {
 	public ResponseEntity<?> deleteOutboundOrderStatusId(@RequestParam String warehouseId,@PathVariable String outboundOrderStatusId,@RequestParam String companyCodeId,
 														 @RequestParam String languageId, @RequestParam String plantId,
 			 @RequestParam String loginUserID) {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-			outboundorderstatusidService.deleteOutboundOrderStatusId(warehouseId, outboundOrderStatusId, companyCodeId, languageId, plantId, loginUserID);
-			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-		}
-		finally {
-			DataBaseContextHolder.clear();
-		}
+    	outboundorderstatusidService.deleteOutboundOrderStatusId(warehouseId, outboundOrderStatusId,companyCodeId,languageId,plantId,loginUserID);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 	//Search
 	@ApiOperation(response = OutboundOrderStatusId.class, value = "Find OutboundOrderStatusId") // label for swagger
 	@PostMapping("/find")
 	public ResponseEntity<?> findOutboundOrderStatusId(@Valid @RequestBody FindOutboundOrderStatusId findOutboundOrderStatusId) throws Exception {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(findOutboundOrderStatusId.getCompanyCodeId(), findOutboundOrderStatusId.getPlantId(), findOutboundOrderStatusId.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-			List<OutboundOrderStatusId> createdOutboundOrderStatusId = outboundorderstatusidService.findOutboundOrderStatusId(findOutboundOrderStatusId);
-			return new ResponseEntity<>(createdOutboundOrderStatusId, HttpStatus.OK);
-		}
-		finally {
-			DataBaseContextHolder.clear();
-		}
+		List<OutboundOrderStatusId> createdOutboundOrderStatusId = outboundorderstatusidService.findOutboundOrderStatusId(findOutboundOrderStatusId);
+		return new ResponseEntity<>(createdOutboundOrderStatusId, HttpStatus.OK);
 	}
 }

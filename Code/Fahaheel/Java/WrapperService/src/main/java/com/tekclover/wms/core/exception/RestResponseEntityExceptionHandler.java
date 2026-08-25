@@ -87,6 +87,4 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
     	data = data.replace('"', ' ');
     	return data = data.substring(data.indexOf('[')+1, data.lastIndexOf(']'));
     }
-
-
 }

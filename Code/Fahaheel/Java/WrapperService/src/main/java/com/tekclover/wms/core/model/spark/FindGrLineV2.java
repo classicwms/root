@@ -2,7 +2,6 @@ package com.tekclover.wms.core.model.spark;
 
 import lombok.Data;
 
-import java.util.Date;
 import java.util.List;
 
 @Data
@@ -22,15 +21,9 @@ public class FindGrLineV2 {
     private List<String> caseCode;
     private List<Long> lineNo;
     private List<String> itemCode;
-    private List<Long> inboundOrderTypeId;
     private List<Long> statusId;
     private List<String> interimStorageBin;
     private List<String> rejectType;
     private List<String> rejectReason;
     private List<String> packBarcodes;
-    private Date startCreatedOn;
-    private Date endCreatedOn;
-
-    /*--------------Namratha------------------*/
-    private List<String> putAwayNumber;
 }

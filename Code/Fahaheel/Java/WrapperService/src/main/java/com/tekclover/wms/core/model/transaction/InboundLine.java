@@ -36,7 +36,7 @@ import lombok.NoArgsConstructor;
 	private Long specialStockIndicatorId;
 	private String referenceOrderNo;
 	private Long statusId;
-	private String businessPartnerCode;
+	private String vendorCode;
 	private Date expectedArrivalDate;
 	private String containerNo;
 	private String invoiceNo;

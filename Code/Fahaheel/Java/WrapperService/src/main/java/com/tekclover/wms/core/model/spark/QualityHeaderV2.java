@@ -59,14 +59,4 @@ public class QualityHeaderV2 {
     private String manufacturerName;
     private String targetBranchCode;
     private Integer imsSaleTypeCode;
-    private String batchSerialNumber;
-    private String customerId;
-    private String customerName;
-    private String alternateUom;
-    private Double noBags;
-    private Double bagSize;
-    private Double mrp;
-    private String itemType;
-    private String itemGroup;
-    private String brand;
 }

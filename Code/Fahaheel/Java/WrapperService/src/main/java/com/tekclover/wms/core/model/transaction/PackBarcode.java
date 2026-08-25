@@ -11,5 +11,4 @@ public class PackBarcode {
 	//v2
 	private Double cbm;
 	private Double cbmQuantity;
-	private Double acceptTotalCbm;
 }

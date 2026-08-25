@@ -25,7 +25,4 @@ public class SOHeaderV2 {
 
     @NotBlank(message = "BranchCode is mandatory")
     private String branchCode;
-
-    private String warehouseId;
-    private String languageId;
 }

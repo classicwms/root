@@ -44,16 +44,4 @@ public class PreInboundHeaderV2 {
     private String middlewareTable;
     private String manufacturerFullName;
     private String statusDescription;
-    /*-------------------------------------------Reeferon-----------------------------------*/
-
-    private Double qtyInCase;
-    private Double qtyInPiece;
-    private Double qtyInCreate;
-    private String customerId;
-    private String customerName;
-
-    /*--------------------------------------Knowell-----------------------------------*/
-
-    private String sourceBranchCode;
-    private String sourceCompanyCode;
 }

@@ -1,13 +1,11 @@
 package com.tekclover.wms.core.model.transaction;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import java.util.Date;
 
 @Data
-@EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class InboundHeaderV2 extends InboundHeader {
 
@@ -27,5 +25,4 @@ public class InboundHeaderV2 extends InboundHeader {
     private Date mUpdatedOn;
     private String sourceBranchCode;
     private String sourceCompanyCode;
-    private String parentProductionOrderNo;
 }

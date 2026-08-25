@@ -1,8 +1,6 @@
 package com.tekclover.wms.api.idmaster.controller;
 
-import com.tekclover.wms.api.idmaster.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.idmaster.model.approvalid.*;
-import com.tekclover.wms.api.idmaster.repository.DbConfigRepository;
 import com.tekclover.wms.api.idmaster.service.ApprovalIdService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -30,9 +28,6 @@ public class ApprovalIdController {
 	
 	@Autowired
 	ApprovalIdService approvalidService;
-
-	@Autowired
-	DbConfigRepository dbConfigRepository;
 	
     @ApiOperation(response = ApprovalId.class, value = "Get all ApprovalId details") // label for swagger
 	@GetMapping("")
@@ -46,39 +41,19 @@ public class ApprovalIdController {
 	public ResponseEntity<?> getApprovalId(@PathVariable String approvalId,@RequestParam String approvalProcessId,
 			@RequestParam String warehouseId,@RequestParam String approvalLevel,@RequestParam String companyCodeId,
 										   @RequestParam String languageId,@RequestParam String plantId) {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-		ApprovalId approvalid =
+    	ApprovalId approvalid = 
     			approvalidService.getApprovalId(warehouseId, approvalId, approvalLevel,approvalProcessId,companyCodeId,languageId,plantId);
     	log.info("ApprovalId : " + approvalid);
 		return new ResponseEntity<>(approvalid, HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
     
     @ApiOperation(response = ApprovalId.class, value = "Create ApprovalId") // label for swagger
 	@PostMapping("")
 	public ResponseEntity<?> postApprovalId(@Valid @RequestBody AddApprovalId newApprovalId, 
 			@RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(newApprovalId.getCompanyCodeId(), newApprovalId.getPlantId(), newApprovalId.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
 		ApprovalId createdApprovalId = approvalidService.createApprovalId(newApprovalId, loginUserID);
 		return new ResponseEntity<>(createdApprovalId , HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
     
     @ApiOperation(response = ApprovalId.class, value = "Update ApprovalId") // label for swagger
     @PatchMapping("/{approvalId}")
@@ -87,55 +62,24 @@ public class ApprovalIdController {
 											 @RequestParam String languageId,@RequestParam String plantId,
 			@Valid @RequestBody UpdateApprovalId updateApprovalId, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
 		ApprovalId createdApprovalId = 
 				approvalidService.updateApprovalId(warehouseId, approvalId,approvalLevel,approvalProcessId,companyCodeId,languageId,plantId,loginUserID, updateApprovalId);
 		return new ResponseEntity<>(createdApprovalId , HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
     
     @ApiOperation(response = ApprovalId.class, value = "Delete ApprovalId") // label for swagger
 	@DeleteMapping("/{approvalId}")
 	public ResponseEntity<?> deleteApprovalId(@PathVariable String approvalId,@RequestParam String approvalProcessId,
 			@RequestParam String warehouseId,@RequestParam String approvalLevel,@RequestParam String companyCodeId,
 											  @RequestParam String languageId,@RequestParam String plantId,@RequestParam String loginUserID) {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-		approvalidService.deleteApprovalId(warehouseId, approvalId, approvalLevel,approvalProcessId,companyCodeId,languageId,plantId,loginUserID);
+    	approvalidService.deleteApprovalId(warehouseId, approvalId, approvalLevel,approvalProcessId,companyCodeId,languageId,plantId,loginUserID);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
 	//Search
 	@ApiOperation(response = ApprovalId.class, value = "Find ApprovalId") // label for swagger
 	@PostMapping("/find")
 	public ResponseEntity<?> findApprovalId(@Valid @RequestBody FindApprovalId findApprovalId) throws Exception {
-
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(findApprovalId.getCompanyCodeId(), findApprovalId.getPlantId(), findApprovalId.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
 		List<ApprovalId> createdApprovalId = approvalidService.findApprovalId(findApprovalId);
 		return new ResponseEntity<>(createdApprovalId, HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
 }

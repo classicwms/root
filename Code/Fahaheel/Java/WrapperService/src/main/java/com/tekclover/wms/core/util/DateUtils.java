@@ -1,6 +1,5 @@
 package com.tekclover.wms.core.util;
 
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -368,17 +367,5 @@ public class DateUtils {
 		System.out.println(kwtDate);
 		log.info("kwt date time: " + kwtDate);
 		return kwtDate;
-	}
-
-	/**
-	 *
-	 * @param date
-	 * @return
-	 */
-	public static String date2String_YYYYMMDD (Date date) {
-		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-		String strDate = dateFormat.format(date);
-		System.out.println(strDate);
-		return strDate;
 	}
 }

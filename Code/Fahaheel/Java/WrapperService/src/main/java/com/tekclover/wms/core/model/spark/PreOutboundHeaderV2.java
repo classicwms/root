@@ -52,6 +52,4 @@ public class PreOutboundHeaderV2 {
         private Timestamp mUpdatedOn;
         private String targetBranchCode;
         private Integer imsSaleTypeCode;
-private String customerId;
-        private String customerName;
 }

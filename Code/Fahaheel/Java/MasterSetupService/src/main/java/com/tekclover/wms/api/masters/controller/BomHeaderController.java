@@ -6,8 +6,6 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-import com.tekclover.wms.api.masters.config.dynamicConfig.DataBaseContextHolder;
-import com.tekclover.wms.api.masters.repository.DbConfigRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,9 +42,6 @@ public class BomHeaderController {
 	
 	@Autowired
 	BomHeaderService bomheaderService;
-
-	@Autowired
-	DbConfigRepository  dbConfigRepository;
 	
     @ApiOperation(response = BomHeader.class, value = "Get all BomHeader details") // label for swagger
 	@GetMapping("")
@@ -58,91 +53,41 @@ public class BomHeaderController {
     @ApiOperation(response = BomHeader.class, value = "Get a BomHeader") // label for swagger 
 	@GetMapping("/{parentItemCode}")
 	public ResponseEntity<?> getBomHeader(@PathVariable String parentItemCode, @RequestParam String warehouseId,@RequestParam String companyCode,@RequestParam String plantId,@RequestParam String languageId) {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCode, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-		AddBomHeader bomheader = bomheaderService.getBomHeader(warehouseId, parentItemCode,languageId,companyCode,plantId);
+    	AddBomHeader bomheader = bomheaderService.getBomHeader(warehouseId, parentItemCode,languageId,companyCode,plantId);
 //    	log.info("BomHeader : " + bomheader);
 		return new ResponseEntity<>(bomheader, HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
     
 	@ApiOperation(response = BomHeader.class, value = "Search BomHeader") // label for swagger
 	@PostMapping("/findBomHeader")
 	public List<AddBomHeader> findBomHeader(@RequestBody SearchBomHeader searchBomHeader)
 			throws Exception {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbNameList(searchBomHeader.getCompanyCode(), searchBomHeader.getPlantId(), searchBomHeader.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
 		return bomheaderService.findBomHeader(searchBomHeader);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
     
     @ApiOperation(response = BomHeader.class, value = "Create BomHeader") // label for swagger
 	@PostMapping("")
 	public ResponseEntity<?> postBomHeader(@Valid @RequestBody AddBomHeader newBomHeader, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(newBomHeader.getCompanyCode(), newBomHeader.getPlantId(), newBomHeader.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
 		AddBomHeader createdBomHeader = bomheaderService.createBomHeader(newBomHeader, loginUserID);
 		return new ResponseEntity<>(createdBomHeader , HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
     
     @ApiOperation(response = BomHeader.class, value = "Update BomHeader") // label for swagger
     @PatchMapping("/{parentItemCode}")
 	public ResponseEntity<?> patchBomHeader(@PathVariable String parentItemCode, @RequestParam String warehouseId,@RequestParam String languageId,@RequestParam String plantId,@RequestParam String companyCode,
 			@Valid @RequestBody UpdateBomHeader updateBomHeader, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCode, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
 		UpdateBomHeader createdBomHeader = 
 				bomheaderService.updateBomHeader(warehouseId, parentItemCode,languageId,companyCode,plantId,loginUserID, updateBomHeader);
 		return new ResponseEntity<>(createdBomHeader , HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
     
     @ApiOperation(response = BomHeader.class, value = "Delete BomHeader") // label for swagger
 	@DeleteMapping("/{parentItemCode}")
 	public ResponseEntity<?> deleteBomHeader(@PathVariable String parentItemCode, @RequestParam String warehouseId,@RequestParam String companyCode,@RequestParam String plantId,@RequestParam String languageId,
 			@RequestParam String loginUserID) {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCode, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
     	bomheaderService.deleteBomHeader(warehouseId, parentItemCode,companyCode,languageId,plantId,loginUserID);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
 }

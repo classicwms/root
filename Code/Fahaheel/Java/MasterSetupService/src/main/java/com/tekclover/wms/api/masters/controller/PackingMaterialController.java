@@ -6,8 +6,6 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-import com.tekclover.wms.api.masters.config.dynamicConfig.DataBaseContextHolder;
-import com.tekclover.wms.api.masters.repository.DbConfigRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,9 +42,6 @@ public class PackingMaterialController {
 	
 	@Autowired
 	PackingMaterialService packingmaterialService;
-
-	@Autowired
-	DbConfigRepository dbConfigRepository;
 	
     @ApiOperation(response = PackingMaterial.class, value = "Get all PackingMaterial details") // label for swagger
 	@GetMapping("")
@@ -58,87 +53,39 @@ public class PackingMaterialController {
     @ApiOperation(response = PackingMaterial.class, value = "Get a PackingMaterial") // label for swagger 
 	@GetMapping("/{packingMaterialNo}")
 	public ResponseEntity<?> getPackingMaterial(@PathVariable String packingMaterialNo,@RequestParam String companyCodeId,@RequestParam String plantId,@RequestParam String warehouseId,@RequestParam String languageId) {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-		PackingMaterial packingmaterial = packingmaterialService.getPackingMaterial(packingMaterialNo,companyCodeId,plantId,languageId,warehouseId);
+    	PackingMaterial packingmaterial = packingmaterialService.getPackingMaterial(packingMaterialNo,companyCodeId,plantId,languageId,warehouseId);
     	log.info("PackingMaterial : " + packingmaterial);
 		return new ResponseEntity<>(packingmaterial, HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
     
 	@ApiOperation(response = PackingMaterial.class, value = "Search PackingMaterial") // label for swagger
 	@PostMapping("/findPackingMaterial")
 	public List<PackingMaterial> findPackingMaterial(@RequestBody SearchPackingMaterial searchPackingMaterial)
 			throws Exception {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbNameList(searchPackingMaterial.getCompanyCodeId(), searchPackingMaterial.getPlantId(), searchPackingMaterial.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
 		return packingmaterialService.findPackingMaterial(searchPackingMaterial);
 	}
-	finally {
-			DataBaseContextHolder.clear();
-		}
-		}
+	
     @ApiOperation(response = PackingMaterial.class, value = "Create PackingMaterial") // label for swagger
 	@PostMapping("")
 	public ResponseEntity<?> postPackingMaterial(@Valid @RequestBody AddPackingMaterial newPackingMaterial, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(newPackingMaterial.getCompanyCodeId(), newPackingMaterial.getPlantId(), newPackingMaterial.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
 		PackingMaterial createdPackingMaterial = packingmaterialService.createPackingMaterial(newPackingMaterial, loginUserID);
 		return new ResponseEntity<>(createdPackingMaterial , HttpStatus.OK);
 	}
-    finally {
-			DataBaseContextHolder.clear();
-		}
-		}
+    
     @ApiOperation(response = PackingMaterial.class, value = "Update PackingMaterial") // label for swagger
     @PatchMapping("/{packingMaterialNo}")
 	public ResponseEntity<?> patchPackingMaterial(@PathVariable String packingMaterialNo, @RequestParam String companyCodeId,@RequestParam String plantId,@RequestParam String warehouseId,@RequestParam String languageId,
 			@Valid @RequestBody UpdatePackingMaterial updatePackingMaterial, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
 		PackingMaterial createdPackingMaterial = packingmaterialService.updatePackingMaterial(packingMaterialNo,companyCodeId,plantId,warehouseId,languageId,updatePackingMaterial, loginUserID);
 		return new ResponseEntity<>(createdPackingMaterial , HttpStatus.OK);
 	}
-    finally {
-			DataBaseContextHolder.clear();
-		}
-		}
+    
     @ApiOperation(response = PackingMaterial.class, value = "Delete PackingMaterial") // label for swagger
 	@DeleteMapping("/{packingMaterialNo}")
 	public ResponseEntity<?> deletePackingMaterial(@PathVariable String packingMaterialNo,@RequestParam String companyCodeId,@RequestParam String plantId,@RequestParam String warehouseId,@RequestParam String languageId, @RequestParam String loginUserID) throws ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-		packingmaterialService.deletePackingMaterial(packingMaterialNo,companyCodeId,plantId,warehouseId,languageId,loginUserID);
+    	packingmaterialService.deletePackingMaterial(packingMaterialNo,companyCodeId,plantId,warehouseId,languageId,loginUserID);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
 }
-

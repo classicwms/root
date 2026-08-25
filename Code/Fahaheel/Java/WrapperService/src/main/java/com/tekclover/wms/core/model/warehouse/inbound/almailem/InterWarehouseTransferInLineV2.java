@@ -16,7 +16,7 @@ public class InterWarehouseTransferInLineV2 {
 
     private String supplierName;
 
-//    @NotBlank(message = "Manufacturer Code is mandatory")
+    @NotBlank(message = "Manufacturer Code is mandatory")
     private String manufacturerCode;
 
     private String Brand;
@@ -27,24 +27,24 @@ public class InterWarehouseTransferInLineV2 {
     @NotNull(message = "Line Reference is mandatory")
     private Long lineReference;
 
-//    @NotBlank(message = "sku is mandatory")
+    @NotBlank(message = "sku is mandatory")
     private String sku;
 
-//    @NotBlank(message = "sku Description is mandatory")
+    @NotBlank(message = "sku Description is mandatory")
     private String skuDescription;
 
     private String supplierPartNumber;
 
-//    @NotBlank(message = "Manufacturer Name is mandatory")
+    @NotBlank(message = "Manufacturer Name is mandatory")
     private String manufacturerName;
 
-//    @NotBlank(message = "Excepted Date is mandatory")
+    @NotBlank(message = "Excepted Date is mandatory")
     private String expectedDate;
 
-//    @NotNull(message = "Excepted Qty is mandatory")
+    @NotNull(message = "Excepted Qty is mandatory")
     private Double expectedQty;
 
-//    @NotBlank(message = "Uom is mandatory")
+    @NotBlank(message = "Uom is mandatory")
     private String uom;
 
     private Double packQty;
@@ -57,24 +57,5 @@ public class InterWarehouseTransferInLineV2 {
     private Long middlewareId;
     private Long middlewareHeaderId;
     private String middlewareTable;
-
-    /*----------------Walkaroo changes------------------------------------------------------*/
-    private String materialNo;
-    private String priceSegment;
-    private String articleNo;
-    private String gender;
-    private String color;
-    private String size;
-    private String noPairs;
-	private String barcodeId;
-    /*----------------------Impex--------------------------------------------------*/
-    private String alternateUom;
-    private Double noBags;
-    private Double bagSize;
-    private Double mrp;
-
-    /*------------------------------Knowell -------------------------------------------------*/
-    private Double expectedQtyInPieces;
-    private Double expectedQtyInCases;
 
 }

@@ -1,12 +1,8 @@
 package com.tekclover.wms.core.model.masters;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 
 @Data
-@EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
 public class BusinessPartnerV2 extends BusinessPartner {
 
     private String alternatePhoneNumber;

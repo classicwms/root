@@ -123,11 +123,4 @@ public class ImAlternateUom {
 
 	@Column(name = "UTD_ON")
 	private Date updatedOn = new Date();
-
-	@Column(name = "UOM_QTY")
-	private Double uomIdQty;
-
-	@Column(name = "ALT_UOM_QTY")
-	private Double alternateUomQty;
-
 }

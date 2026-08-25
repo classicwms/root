@@ -6,9 +6,7 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-import com.tekclover.wms.api.enterprise.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.enterprise.model.variant.*;
-import com.tekclover.wms.api.enterprise.repository.DbConfigRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,9 +39,6 @@ public class VariantController {
 	
 	@Autowired
 	VariantService variantService;
-
-	@Autowired
-	DbConfigRepository dbConfigRepository;
 	
     @ApiOperation(response = Variant.class, value = "Get all Variant details") // label for swagger
 	@GetMapping("")
@@ -57,57 +52,25 @@ public class VariantController {
 	public ResponseEntity<?> getVariant(@PathVariable String variantId,@RequestParam String companyId,
 										@RequestParam String languageId,@RequestParam Long levelId,
 										@RequestParam String plantId,@RequestParam String warehouseId,@RequestParam String variantSubId) {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyId,plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
 		List<Variant> variant = variantService.getVariantOutput(variantId,companyId,languageId,plantId,warehouseId,levelId,variantSubId);
     	log.info("Variant : " + variant);
 		return new ResponseEntity<>(variant, HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
     
     @ApiOperation(response = Variant.class, value = "Search Variant") // label for swagger
    	@PostMapping("/findVariant")
    	public List<Variant> findVariant(@RequestBody SearchVariant searchVariant)
    			throws Exception {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(searchVariant.getCompanyId(), searchVariant.getPlantId(), searchVariant.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
    		return variantService.findVariant(searchVariant);
    	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
     
     @ApiOperation(response = Variant.class, value = "Create Variant") // label for swagger
 	@PostMapping("")
 	public ResponseEntity<?> postVariant(@Valid @RequestBody List<AddVariant> newVariant, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			for (AddVariant addVariant : newVariant){
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(addVariant.getCompanyId(), addVariant.getPlantId(), addVariant.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-		}
 		List<Variant> createdVariant = variantService.createVariant(newVariant, loginUserID);
 		return new ResponseEntity<>(createdVariant , HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
     
     @ApiOperation(response = Variant.class, value = "Update Variant") // label for swagger
     @PatchMapping("/{variantId}")
@@ -117,20 +80,10 @@ public class VariantController {
 										  @Valid @RequestBody List<UpdateVariant> updateVariant, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
 
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyId,plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
 		List<Variant> createdVariant = variantService.updateVariant(variantId,companyId,languageId,plantId,variantSubId,
 				warehouseId,levelId,updateVariant,loginUserID);
 		return new ResponseEntity<>(createdVariant , HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
     
     @ApiOperation(response = Variant.class, value = "Delete Variant") // label for swagger
 	@DeleteMapping("/{variantId}")
@@ -138,17 +91,7 @@ public class VariantController {
 										   @RequestParam String plantId,@RequestParam String languageId,
 										   @RequestParam String warehouseId,@RequestParam Long levelId,
 										   @RequestParam String variantSubId,@RequestParam String loginUserID) throws ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyId,plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-		variantService.deleteVariant(variantId,companyId,languageId,plantId,variantSubId,warehouseId,levelId,loginUserID);
+    	variantService.deleteVariant(variantId,companyId,languageId,plantId,variantSubId,warehouseId,levelId,loginUserID);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
 }

@@ -56,7 +56,4 @@ public class AddQualityLine {
 
 	private String manufacturerName;
 	private String barcodeId;
-
-	private String customerId;
-	private String customerName;
 }

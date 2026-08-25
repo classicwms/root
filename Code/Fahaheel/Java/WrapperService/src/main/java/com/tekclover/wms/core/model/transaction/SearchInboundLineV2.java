@@ -20,6 +20,4 @@ public class SearchInboundLineV2 extends SearchInboundLine {
 
 	private Date startCreatedOn;
 	private Date endCreatedOn;
-	private List<String> customerId;
-
 }

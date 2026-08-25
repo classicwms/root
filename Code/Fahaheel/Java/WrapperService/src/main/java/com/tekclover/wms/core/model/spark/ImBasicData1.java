@@ -53,10 +53,4 @@ public class ImBasicData1 {
     private Timestamp createdOn;
     private String updatedBy;
     private Timestamp updatedOn;
-    private String brand;
-    private String size;
-    private Long selfLife;
-    private String companyDescription;
-    private String plantDescription;
-    private String warehouseDescription;
 }

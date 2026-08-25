@@ -16,5 +16,4 @@ public class UpdateWarehouse {
 	private String referenceField8;
 	private String referenceField9;
 	private String referenceField10;
-	private Long noOfUsers;
 }

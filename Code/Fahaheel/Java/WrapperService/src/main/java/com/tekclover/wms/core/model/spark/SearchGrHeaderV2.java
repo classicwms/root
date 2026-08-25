@@ -22,7 +22,5 @@ public class SearchGrHeaderV2 {
     private List<String> languageId;
     private List<String> companyCodeId;
     private List<String> plantId;
-    private List<String> customerId;
-    private List<String> customerName;
 }
 

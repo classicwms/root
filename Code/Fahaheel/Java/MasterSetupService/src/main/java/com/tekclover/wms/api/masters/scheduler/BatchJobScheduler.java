@@ -1,6 +1,5 @@
 package com.tekclover.wms.api.masters.scheduler;
 
-import com.tekclover.wms.api.masters.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.masters.exception.BadRequestException;
 import com.tekclover.wms.api.masters.model.businesspartner.v2.BusinessPartnerV2;
 
@@ -62,10 +61,9 @@ public class BatchJobScheduler {
     static CopyOnWriteArrayList<ImBasicData1V2> spList = null;            // Inbound List
     static CopyOnWriteArrayList<BusinessPartnerV2> spCustomerList = null;    // Customer List
 
-    @Scheduled(fixedDelay = 20000)
+    @Scheduled(fixedDelay = 30000)
     public void processInboundOrder() throws IllegalAccessException, InvocationTargetException, ParseException, MessagingException, IOException {
         if (inboundItemList == null || inboundItemList.isEmpty()) {
-            DataBaseContextHolder.setCurrentDb("FAHAHEEL");
             List<Item> sqlInboundList = itemMasterRepository.findByProcessedStatusIdOrderByOrderReceivedOn(0L);
             inboundItemList = new ArrayList<>();
             for (Item item : sqlInboundList) {
@@ -170,10 +168,9 @@ public class BatchJobScheduler {
     //=====================================================================V2=============================================================================
 
     // CustomerMaster
-    @Scheduled(fixedDelay = 30000)
+    @Scheduled(fixedDelay = 50000)
     public void processCustomerMaster() throws IllegalAccessException, InvocationTargetException, ParseException, MessagingException, IOException {
         if (inboundCustomerList == null || inboundCustomerList.isEmpty()) {
-            DataBaseContextHolder.setCurrentDb("FAHAHEEL");
             List<Customer> sqlInboundList = customerMasterRepository.findByProcessedStatusIdOrderByOrderReceivedOn(0L);
             inboundCustomerList = new ArrayList<>();
 
@@ -189,9 +186,9 @@ public class BatchJobScheduler {
                         businessPartnerV2.setAddress1(customer.getAddress1());
                         businessPartnerV2.setAddress2(customer.getAddress2());
                         businessPartnerV2.setPhoneNumber(customer.getPhoneNumber());
-//                        businessPartnerV2.setCivilId(customer.getCivilId());
+                        businessPartnerV2.setCivilId(customer.getCivilId());
                         businessPartnerV2.setCountry(customer.getCountry());
-//                        businessPartnerV2.setAlternatePhoneNumber(customer.getAlternatePhoneNumber());
+                        businessPartnerV2.setAlternatePhoneNumber(customer.getAlternatePhoneNumber());
                         businessPartnerV2.setCreatedBy(customer.getCreatedBy());
                         try {
                             Date reqDelDate = new Date();

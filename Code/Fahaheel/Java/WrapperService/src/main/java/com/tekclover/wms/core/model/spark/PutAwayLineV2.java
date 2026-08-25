@@ -16,7 +16,7 @@ public class PutAwayLineV2 {
     private String preInboundNo;
     private String refDocNumber;
     private String putAwayNumber;
-    private Long lineNumber;
+    private Long lineNo;
     private String itemCode;
     private String proposedStorageBin;
     private String confirmedStorageBin;
@@ -94,20 +94,4 @@ public class PutAwayLineV2 {
     private String branchCode;
     private String transferOrderNo;
     private String isCompleted;
-    private String businessPartnerCode;
-    private String alternateUom;
-    private Double noBags;
-    private Double bagSize;
-    private Double mrp;
-    private String itemType;
-    private String itemGroup;
-    /*-------------------------------------------Reeferon-----------------------------------*/
-
-    private Double qtyInCase;
-    private Double qtyInPiece;
-    private Double qtyInCreate;
-    private String vehicleNo;
-    private Timestamp vehicleReportingDate;
-    private Timestamp vehicleUnloadingDate;
-    private String receivingVariance;
 }

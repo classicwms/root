@@ -36,5 +36,4 @@ public class ImBatchSerial {
     private Date createdOn = new Date();
     private String updatedBy;
     private Date updatedOn = new Date();
-    private Long sequenceIndicator;
 }

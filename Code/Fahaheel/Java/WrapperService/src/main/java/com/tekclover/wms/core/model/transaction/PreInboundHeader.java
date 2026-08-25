@@ -36,7 +36,6 @@ public class PreInboundHeader {
 	private Date createdOn = new Date();
 	private String updatedBy;
 	private Date updatedOn = new Date();
-
-
+	
 	private List<PreInboundLine> preInboundLine;
 }

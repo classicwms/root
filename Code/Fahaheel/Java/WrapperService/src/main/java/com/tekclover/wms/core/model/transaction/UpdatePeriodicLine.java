@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 public class UpdatePeriodicLine {
 	private String languageId;
-	private String companyCode;
+	private String companyCodeId;
 	private String plantId;
 	private String warehouseId;
 	private String cycleCountNo;

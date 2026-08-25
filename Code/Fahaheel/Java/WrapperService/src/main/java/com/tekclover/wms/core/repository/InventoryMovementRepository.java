@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 @Transactional
 public interface InventoryMovementRepository extends JpaRepository<DBInventoryMovement,Long>, JpaSpecificationExecutor<DBInventoryMovement> {
-
+	
 	@Async
     CompletableFuture<List<DBInventoryMovement>> readAllBy();
 }

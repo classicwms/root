@@ -6,9 +6,7 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-import com.tekclover.wms.api.idmaster.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.idmaster.model.plantid.FindPlantId;
-import com.tekclover.wms.api.idmaster.repository.DbConfigRepository;
 import com.tekclover.wms.api.idmaster.repository.LanguageIdRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -48,9 +46,6 @@ public class PlantIdController {
 	@Autowired
 	PlantIdService plantidService;
 
-	@Autowired
-	DbConfigRepository dbConfigRepository;
-
 	@ApiOperation(response = PlantId.class, value = "Get all PlantId details") // label for swagger
 	@GetMapping("")
 	public ResponseEntity<?> getAll() {
@@ -61,7 +56,6 @@ public class PlantIdController {
 	@ApiOperation(response = PlantId.class, value = "Get a PlantId") // label for swagger
 	@GetMapping("/{plantId}")
 	public ResponseEntity<?> getPlantId(@PathVariable String plantId,@RequestParam String companyCodeId,@RequestParam String languageId) {
-
 		PlantId plantid = plantidService.getPlantId(plantId,companyCodeId,languageId);
 		log.info("PlantId : " + plantid);
 		return new ResponseEntity<>(plantid, HttpStatus.OK);
@@ -70,11 +64,6 @@ public class PlantIdController {
 	@ApiOperation(response = PlantId.class, value = "Get a PlantId") // label for swagger
 	@GetMapping("/branchCode")
 	public ResponseEntity<?> getPlantIdForAlmailem(@RequestParam String companyCodeId,@RequestParam String languageId) {
-		DataBaseContextHolder.setCurrentDb("MT");
-		String routingDb = dbConfigRepository.getDbNameByCompany(companyCodeId);
-		log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-		DataBaseContextHolder.clear();
-		DataBaseContextHolder.setCurrentDb(routingDb);
 		List<PlantId> plantid = plantidService.getPlantId(companyCodeId,languageId);
 		log.info("PlantId : " + plantid);
 		return new ResponseEntity<>(plantid, HttpStatus.OK);
@@ -84,7 +73,6 @@ public class PlantIdController {
 	@PostMapping("")
 	public ResponseEntity<?> postPlantId(@Valid @RequestBody AddPlantId newPlantId,
 										 @RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException, ParseException {
-
 		PlantId createdPlantId = plantidService.createPlantId(newPlantId, loginUserID);
 		return new ResponseEntity<>(createdPlantId , HttpStatus.OK);
 	}
@@ -108,11 +96,6 @@ public class PlantIdController {
 	@ApiOperation(response = PlantId.class, value = "Find PlantId") // label for swagger
 	@PostMapping("/find")
 	public ResponseEntity<?> findPlantId(@Valid @RequestBody FindPlantId findPlantId) throws Exception {
-		DataBaseContextHolder.setCurrentDb("MT");
-		String routingDb = dbConfigRepository.getDbNameByCompanyList(findPlantId.getCompanyCodeId());
-		log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-		DataBaseContextHolder.clear();
-		DataBaseContextHolder.setCurrentDb(routingDb);
 		List<PlantId> createdPlant = plantidService.findPlant(findPlantId);
 		return new ResponseEntity<>(createdPlant, HttpStatus.OK);
 	}

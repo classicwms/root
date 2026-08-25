@@ -57,9 +57,5 @@ test {
 }
 
 bootJar {
-   archiveName = 'IDMasterService.jar'
+   archiveName = 'EnterpriseSetupService.jar'
 }
-bootRun {
-	jvmArgs = ['-Xms512m', '-Xmx1024m']
-}
-

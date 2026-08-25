@@ -3,7 +3,6 @@ package com.tekclover.wms.api.masters.controller;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
-import com.tekclover.wms.api.masters.repository.DbConfigRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,11 +36,9 @@ public class NotificationMessageController {
     @Autowired
     NotificationService notificationService;
 
-
     @ApiOperation(response = Notification.class, value = "Get a notification message") // label for swagger
     @PostMapping("/create")
     public void createNotificationFromOtherMicroService(@RequestBody NotificationSave notificationSave) {
-
         notificationService.saveNotifications(notificationSave.getUserId(),
                 notificationSave.getUserType(), notificationSave.getMessage(), notificationSave.getTopic(),
                 notificationSave.getCreatedOn(),notificationSave.getCreatedBy());

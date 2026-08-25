@@ -10,8 +10,6 @@ import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
 
-import com.tekclover.wms.api.idmaster.config.dynamicConfig.DataBaseContextHolder;
-import com.tekclover.wms.api.idmaster.repository.*;
 import com.tekclover.wms.api.idmaster.util.DateUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +24,11 @@ import com.tekclover.wms.api.idmaster.model.warehouseid.AddWarehouse;
 import com.tekclover.wms.api.idmaster.model.warehouseid.FindWarehouse;
 import com.tekclover.wms.api.idmaster.model.warehouseid.UpdateWarehouse;
 import com.tekclover.wms.api.idmaster.model.warehouseid.Warehouse;
+import com.tekclover.wms.api.idmaster.repository.CompanyIdRepository;
+import com.tekclover.wms.api.idmaster.repository.ModuleIdRepository;
+import com.tekclover.wms.api.idmaster.repository.PlantIdRepository;
+import com.tekclover.wms.api.idmaster.repository.RoleAccessRepository;
+import com.tekclover.wms.api.idmaster.repository.WarehouseRepository;
 import com.tekclover.wms.api.idmaster.repository.Specification.WarehouseSpecification;
 import com.tekclover.wms.api.idmaster.util.CommonUtils;
 
@@ -51,9 +54,6 @@ public class WarehouseService  {
 	
 	@Autowired
 	private ModuleIdRepository moduleIdRepository;
-
-	@Autowired
-	DbConfigRepository dbConfigRepository;
 
 	/**
 	 * getWarehouses
@@ -175,14 +175,6 @@ public class WarehouseService  {
 			dbWarehouse.setUpdatedBy(loginUserID);
 			dbWarehouse.setCreatedOn(new Date());
 			dbWarehouse.setUpdatedOn(new Date());
-			log.info("Saving in Common DB");
-			warehouseRepository.save(dbWarehouse);
-
-			String routingDb = dbConfigRepository.getDbNameByCompany(newWarehouse.getCompanyCodeId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-			log.info("Saving in FAHAHEEL DB");
 			warehouseRepository.save(dbWarehouse);
 		}
 		return dbWarehouse;

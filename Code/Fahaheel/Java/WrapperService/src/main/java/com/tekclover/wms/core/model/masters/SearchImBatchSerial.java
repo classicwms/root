@@ -13,5 +13,4 @@ public class SearchImBatchSerial {
     private List<String>warehouseId;
     private List<String> itemCode;
     private List<String>storageMethod;
-    private List<Long> sequenceIndicator;
 }

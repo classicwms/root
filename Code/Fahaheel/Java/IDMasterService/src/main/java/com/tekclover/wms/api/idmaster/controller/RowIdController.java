@@ -6,9 +6,7 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-import com.tekclover.wms.api.idmaster.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.idmaster.model.rowid.FindRowId;
-import com.tekclover.wms.api.idmaster.repository.DbConfigRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,9 +42,7 @@ public class RowIdController {
 	
 	@Autowired
 	RowIdService rowidService;
-
-	@Autowired
-	DbConfigRepository dbConfigRepository;
+	
     @ApiOperation(response = RowId.class, value = "Get all RowId details") // label for swagger
 	@GetMapping("")
 	public ResponseEntity<?> getAll() {
@@ -57,92 +53,42 @@ public class RowIdController {
 	@GetMapping("/{rowId}")
 	public ResponseEntity<?> getRowId(@RequestParam String warehouseId,@RequestParam Long floorId,@RequestParam String storageSectionId,@PathVariable String rowId,
 									  @RequestParam String companyCodeId,@RequestParam String languageId,@RequestParam String plantId) {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-		RowId rowid =
+    	RowId rowid =
     			rowidService.getRowId(warehouseId, floorId, storageSectionId, rowId,companyCodeId,languageId,plantId);
     	log.info("RowId : " + rowid);
 		return new ResponseEntity<>(rowid, HttpStatus.OK);
 	}
-finally {
-			DataBaseContextHolder.clear();
-		}
-		}
+
     
     @ApiOperation(response = RowId.class, value = "Create RowId") // label for swagger
 	@PostMapping("")
 	public ResponseEntity<?> postRowId(@Valid @RequestBody AddRowId newRowId, 
 			@RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(newRowId.getCompanyCodeId(), newRowId.getPlantId(), newRowId.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
 		RowId createdRowId = rowidService.createRowId(newRowId, loginUserID);
 		return new ResponseEntity<>(createdRowId, HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
-
     @ApiOperation(response = RowId.class, value = "Update RowId") // label for swagger
     @PatchMapping("/{rowId}")
 	public ResponseEntity<?> patchRowId(@RequestParam String warehouseId, @RequestParam Long floorId, @RequestParam String storageSectionId,@PathVariable String rowId,
 										@RequestParam String companyCodeId,@RequestParam String languageId,@RequestParam String plantId, @RequestParam String loginUserID,
 										@Valid @RequestBody UpdateRowId updateRowId)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
 		RowId createdRowId =
 				rowidService.updateRowId(warehouseId, floorId, storageSectionId, rowId,companyCodeId,languageId,plantId,loginUserID, updateRowId);
 		return new ResponseEntity<>(createdRowId, HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
     @ApiOperation(response = RowId.class, value = "Delete RowId") // label for swagger
 	@DeleteMapping("/{rowId}")
 	public ResponseEntity<?> deleteRowId(@RequestParam String warehouseId,@RequestParam Long floorId, @RequestParam String storageSectionId,@PathVariable String rowId,
 										 @RequestParam String companyCodeId,@RequestParam String languageId,@RequestParam String plantId,@RequestParam String loginUserID) {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-		rowidService.deleteRowId(warehouseId,floorId,storageSectionId, rowId,companyCodeId,languageId,plantId,loginUserID);
+    	rowidService.deleteRowId(warehouseId,floorId,storageSectionId, rowId,companyCodeId,languageId,plantId,loginUserID);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
 	//Search
 	@ApiOperation(response = RowId.class, value = "Find RowId") // label for swagger
 	@PostMapping("/find")
 	public ResponseEntity<?> findRowId(@Valid @RequestBody FindRowId findRowId) throws Exception {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(findRowId.getCompanyCodeId(), findRowId.getPlantId(), findRowId.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
 		List<RowId> createdRowId = rowidService.findRowId(findRowId);
 		return new ResponseEntity<>(createdRowId, HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
 }

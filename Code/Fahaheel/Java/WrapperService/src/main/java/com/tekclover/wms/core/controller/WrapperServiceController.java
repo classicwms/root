@@ -19,7 +19,7 @@ import java.util.Optional;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
-import com.lowagie.text.DocumentException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.core.io.ByteArrayResource;
@@ -38,7 +38,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.opencsv.CSVWriter;
+
 import com.tekclover.wms.core.batch.config.singleton.AccountService;
 import com.tekclover.wms.core.batch.config.singleton.AppConfig;
 import com.tekclover.wms.core.batch.scheduler.BatchJobScheduler;
@@ -59,7 +59,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
 import lombok.extern.slf4j.Slf4j;
-import net.sf.jasperreports.engine.JRException;
 
 @Slf4j
 @CrossOrigin(origins = "*")
@@ -131,48 +130,48 @@ public class WrapperServiceController {
     
     
     //----------------------------------------------------------------------------------------------------
-    @ApiOperation(response = Optional.class, value = "Batch Fetch") // label for swagger
-    @GetMapping("/batch-fetch/jobInventoryMovementQuery")
-    public ResponseEntity<?> jobInventoryQuery2() throws Exception {
-//    	AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
-//    	 
-//        batchJobScheduler.runJobInventoryMovement();
-//       
-//		AccountService service2 = context.getBean("accountService", AccountService.class);
-//		log.info("inventoryMovement size: " + service2.getInventoryHolder().size());
-//		context.close();
-    	
-    	List<User1> list = new ArrayList<User1>();
-    	String strDate = "2023-04-12";
-    	Date d = DateUtils.convertStringToYYYYMMDD(strDate);
-    	
-		User1 emp1 = new User1("3", "Reenta", d);
-		User1 emp2 = new User1("4", "DEffea", d);
-		list.add(emp1);
-		list.add(emp2);
-		
-    	try (
-				Writer writer = Files.newBufferedWriter(Paths.get("data.csv"));
-				CSVWriter csvWriter = new CSVWriter(writer, 
-					CSVWriter.DEFAULT_SEPARATOR, 
-					CSVWriter.NO_QUOTE_CHARACTER,
-					CSVWriter.DEFAULT_ESCAPE_CHARACTER,
-					CSVWriter.DEFAULT_LINE_END);
-			) {
-			String[] headerRecord = { "id", "name", "dob"};
-			csvWriter.writeNext(headerRecord);
-			
-			List<String[]> listArr = new ArrayList<>();
-			for (User1 user : list) {
-				String[] sarr = toArray(user);
-				listArr.add(sarr);
-			}
-			csvWriter.writeAll(listArr);
-		}
-
-		batchJobScheduler.runJobInventoryMovement();
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
+//    @ApiOperation(response = Optional.class, value = "Batch Fetch") // label for swagger
+//    @GetMapping("/batch-fetch/jobInventoryMovementQuery")
+//    public ResponseEntity<?> jobInventoryQuery2() throws Exception {
+////    	AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+////
+////        batchJobScheduler.runJobInventoryMovement();
+////
+////		AccountService service2 = context.getBean("accountService", AccountService.class);
+////		log.info("inventoryMovement size: " + service2.getInventoryHolder().size());
+////		context.close();
+//
+//    	List<User1> list = new ArrayList<User1>();
+//    	String strDate = "2023-04-12";
+//    	Date d = DateUtils.convertStringToYYYYMMDD(strDate);
+//
+//		User1 emp1 = new User1("3", "Reenta", d);
+//		User1 emp2 = new User1("4", "DEffea", d);
+//		list.add(emp1);
+//		list.add(emp2);
+//
+//    	try (
+//				Writer writer = Files.newBufferedWriter(Paths.get("data.csv"));
+//				CSVWriter csvWriter = new CSVWriter(writer,
+//					CSVWriter.DEFAULT_SEPARATOR,
+//					CSVWriter.NO_QUOTE_CHARACTER,
+//					CSVWriter.DEFAULT_ESCAPE_CHARACTER,
+//					CSVWriter.DEFAULT_LINE_END);
+//			) {
+//			String[] headerRecord = { "id", "name", "dob"};
+//			csvWriter.writeNext(headerRecord);
+//
+//			List<String[]> listArr = new ArrayList<>();
+//			for (User1 user : list) {
+//				String[] sarr = toArray(user);
+//				listArr.add(sarr);
+//			}
+//			csvWriter.writeAll(listArr);
+//		}
+//
+//		batchJobScheduler.runJobInventoryMovement();
+//        return new ResponseEntity<>(HttpStatus.OK);
+//    }
     
     private String[] toArray(User1 user) {
 		String[] strarr = new String[] {
@@ -252,51 +251,17 @@ public class WrapperServiceController {
         batchJobScheduler.runJobHandlingEquipment();
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-
+    
     /*--------------------------------imbasicdata1_110--------------------------------------------------------*/
     @ApiOperation(response = Optional.class, value = "Imbasicdata1") // label for swagger
     @PostMapping("/batch-upload/imbasicdata1")
-    public ResponseEntity<?> imbasicdata1110Upload(@RequestParam("file") MultipartFile file, @RequestParam String companyCodeId, @RequestParam String plantId,
-                                                   @RequestParam String languageId, @RequestParam String warehouseId)
-            throws Exception {
-        Map<String, String> response = null;
-        String profile = companyCodeId;
-        if (profile != null) {
-            if (companyCodeId.equals("1500")) {
-                response = fileStorageService.storeFileV5(file, companyCodeId, plantId, languageId, warehouseId);
-            } else {
-                response = fileStorageService.storeFile(file);
-            }
-        }
-
+    public ResponseEntity<?> imbasicdata1110Upload (@RequestParam("file") MultipartFile file) 
+    		throws Exception {
+        Map<String, String> response = fileStorageService.storeFile(file);
         batchJobScheduler.runJobImBasicData1();
-
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-
-
-    /*--------------------------------imbasicdata1_110--------------------------------------------------------*/
-//    @ApiOperation(response = Optional.class, value = "Imbasicdata1") // label for swagger
-//    @PostMapping("/batch-upload/imbasicdata1")
-//    public ResponseEntity<?> imbasicdata1110Upload(@RequestParam("file") MultipartFile file, @RequestParam String companyCodeId, @RequestParam String plantId,
-//                                                   @RequestParam String languageId, @RequestParam String warehouseId)
-//            throws Exception {
-//        Map<String, String> response = null;
-//        String profile = companyCodeId;
-//        if (profile != null) {
-//            if (companyCodeId.equals("1500")) {
-//                response = fileStorageService.storeFileV5(file, companyCodeId, plantId, languageId, warehouseId);
-//            } else {
-//                response = fileStorageService.storeFile(file);
-//            }
-//        }
-//
-//        batchJobScheduler.runJobImBasicData1();
-//
-//        return new ResponseEntity<>(response, HttpStatus.OK);
-//    }
-
-
+    
 //    /*--------------------------------imbasicdata1_111--------------------------------------------------------*/
 //    @ApiOperation(response = Optional.class, value = "Imbasicdata1 WH_ID 111") // label for swagger
 //    @PostMapping("/batch-upload/imbasicdata1-111")
@@ -349,12 +314,12 @@ public class WrapperServiceController {
     
     /*--------------------------------------------------------------------------------------------------*/
     
-    @ApiOperation(response = Optional.class, value = "Generate BOM Report") // label for swagger
-   	@GetMapping("/report/{format}/bomheader")
-   	public ResponseEntity<?> bomReport (@PathVariable String format) throws FileNotFoundException, JRException {
-   		String response = reportService.exportBom(format);
-       	return new ResponseEntity<>(response, HttpStatus.OK);
-   	}
+//    @ApiOperation(response = Optional.class, value = "Generate BOM Report") // label for swagger
+//   	@GetMapping("/report/{format}/bomheader")
+//   	public ResponseEntity<?> bomReport (@PathVariable String format) throws FileNotFoundException, JRException {
+//   		String response = reportService.exportBom(format);
+//       	return new ResponseEntity<>(response, HttpStatus.OK);
+//   	}
     
 //    @ApiOperation(response = Optional.class, value = "Get Placed Order Report") // label for swagger
 //   	@GetMapping("/report/orders")

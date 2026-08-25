@@ -1,14 +1,9 @@
 package com.tekclover.wms.core.model.transaction;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
-import javax.persistence.Column;
-import java.util.Date;
-
 @Data
-@EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class OrderManagementLineV2 extends OrderManagementLine {
 
@@ -40,29 +35,4 @@ public class OrderManagementLineV2 extends OrderManagementLine {
     private String isCompleted;
     private String isCancelled;
     private Integer imsSaleTypeCode;
-private String customerId;
-    private String customerName;
-
-    /*----------------Walkaroo changes------------------------------------------------------*/
-    private String materialNo;
-    private String priceSegment;
-    private String articleNo;
-    private String gender;
-    private String color;
-    private String size;
-    private String noPairs;
-    /*----------------------Impex--------------------------------------------------*/
-    private String alternateUom;
-    private Double noBags;
-    private Double bagSize;
-    private Double mrp;
-    private String itemType;
-    private String itemGroup;
-    /*----------------------REEFERON--------------------------------------------------*/
-    private Double qtyInCase;
-    private Double qtyInPiece;
-    private Double qtyInCrate;
-    private Date manufacturerDate;
-    private Date expiryDate;
-
 }

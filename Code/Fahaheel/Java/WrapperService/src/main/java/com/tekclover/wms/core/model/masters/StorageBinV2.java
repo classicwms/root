@@ -1,12 +1,8 @@
 package com.tekclover.wms.core.model.masters;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 
 @Data
-@EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
 public class StorageBinV2 extends StorageBin {
 
 	private boolean capacityCheck;

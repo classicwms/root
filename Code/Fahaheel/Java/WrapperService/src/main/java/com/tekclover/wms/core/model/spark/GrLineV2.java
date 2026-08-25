@@ -16,7 +16,7 @@ public class GrLineV2 {
     private String palletCode;
     private String caseCode;
     private String packBarcodes;
-    private Long lineNumber;
+    private Long lineNo;
     private String itemCode;
     private Long inboundOrderTypeId;
     private Long variantCode;
@@ -95,34 +95,4 @@ public class GrLineV2 {
     private String branchCode;
     private String transferOrderNo;
     private String isCompleted;
-    private Double threePLCbm;
-    private String threePLUom;
-    private String threePLBillStatus;
-    private Double threePLLength;
-    private Double threePLHeight;
-    private Double threePLWidth;
-    private Double acceptTotalCbm;
-    private String alternateUom;
-    private Double noBags;
-    private Double bagSize;
-    private Double mrp;
-    private String itemType;
-    private String itemGroup;
-
-    /*--------------------------Namratha--------------------------*/
-    private String putAwayNumber;
-
-    /*--------------------------REEFERON--------------------------*/
-    private Double pieceQty;
-    private Double caseQty;
-
-    /*-------------------------------------------Reeferon-----------------------------------*/
-
-    private Double qtyInCase;
-    private Double qtyInPiece;
-    private Double qtyInCreate;
-    private String vehicleNo;
-    private Timestamp vehicleReportingDate;
-    private Timestamp vehicleUnloadingDate;
-    private String receivingVariance;
 }

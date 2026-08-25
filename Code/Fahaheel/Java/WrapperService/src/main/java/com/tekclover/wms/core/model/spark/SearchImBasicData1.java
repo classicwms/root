@@ -19,7 +19,6 @@ public class SearchImBasicData1 {
     private List<String> languageId;
     private List<String> createdBy;
     private List<String> updatedBy;
-    private List<Long> selfLife;
 
     private Date startCreatedOn;
     private Date endCreatedOn;

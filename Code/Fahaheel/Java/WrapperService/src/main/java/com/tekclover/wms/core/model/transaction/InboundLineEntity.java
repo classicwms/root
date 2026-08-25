@@ -29,7 +29,7 @@ public class InboundLineEntity {
 	private Long specialStockIndicatorId;
 	private String referenceOrderNo;
 	private Long statusId;
-	private String businessPartnerCode;
+	private String vendorCode;
 	private Date expectedArrivalDate;
 	private String containerNo;
 	private String invoiceNo;
@@ -54,13 +54,4 @@ public class InboundLineEntity {
 	private Date updatedOn = new Date();
 	private String middlewareId;
 	private String middlewareTable;
-	private String parentProductionOrderNo;
-	/*----------------------Impex--------------------------------------------------*/
-	private String alternateUom;
-	private Double noBags;
-	private Double bagSize;
-	private Double mrp;
-	private String itemType;
-	private String itemGroup;
-	private String brand;
 }

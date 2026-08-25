@@ -1,8 +1,6 @@
 package com.tekclover.wms.api.idmaster.controller;
 
-import com.tekclover.wms.api.idmaster.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.idmaster.model.palletizationlevelid.*;
-import com.tekclover.wms.api.idmaster.repository.DbConfigRepository;
 import com.tekclover.wms.api.idmaster.service.PalletizationLevelIdService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -30,9 +28,6 @@ public class PalletizationLevelIdController {
 
 	@Autowired
 	PalletizationLevelIdService palletizationlevelidService;
-
-	@Autowired
-	DbConfigRepository dbConfigRepository;
 	
     @ApiOperation(response = PalletizationLevelId.class, value = "Get all PalletizationLevelId details") // label for swagger
 	@GetMapping("")
@@ -46,91 +41,44 @@ public class PalletizationLevelIdController {
 	public ResponseEntity<?> getPalletizationLevelId(@PathVariable String palletizationLevelId,@RequestParam String palletizationLevel,
 			@RequestParam String warehouseId,@RequestParam String companyCodeId,@RequestParam String languageId,@RequestParam String plantId
 													 ) {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
     	PalletizationLevelId palletizationlevelid = 
     			palletizationlevelidService.getPalletizationLevelId(warehouseId, palletizationLevelId, palletizationLevel,companyCodeId,languageId,plantId);
     	log.info("PalletizationLevelId : " + palletizationlevelid);
 		return new ResponseEntity<>(palletizationlevelid, HttpStatus.OK);
 	}
-    finally {
-			DataBaseContextHolder.clear();
-		}
-		}
+    
     @ApiOperation(response = PalletizationLevelId.class, value = "Create PalletizationLevelId") // label for swagger
 	@PostMapping("")
 	public ResponseEntity<?> postPalletizationLevelId(@Valid @RequestBody AddPalletizationLevelId newPalletizationLevelId, 
 			@RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(newPalletizationLevelId.getCompanyCodeId(), newPalletizationLevelId.getPlantId(), newPalletizationLevelId.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
 		PalletizationLevelId createdPalletizationLevelId = palletizationlevelidService.createPalletizationLevelId(newPalletizationLevelId, loginUserID);
 		return new ResponseEntity<>(createdPalletizationLevelId , HttpStatus.OK);
 	}
-    finally {
-			DataBaseContextHolder.clear();
-		}
-		}
+    
     @ApiOperation(response = PalletizationLevelId.class, value = "Update PalletizationLevelId") // label for swagger
     @PatchMapping("/{palletizationLevelId}")
 	public ResponseEntity<?> patchPalletizationLevelId(@PathVariable String palletizationLevelId, @RequestParam String palletizationLevel,
 			@RequestParam String warehouseId, @RequestParam String companyCodeId,@RequestParam String languageId,@RequestParam String plantId, @RequestParam String loginUserID,
 			@Valid @RequestBody UpdatePalletizationLevelId updatePalletizationLevelId)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-		PalletizationLevelId createdPalletizationLevelId =
+		PalletizationLevelId createdPalletizationLevelId = 
 				palletizationlevelidService.updatePalletizationLevelId(warehouseId,palletizationLevelId, palletizationLevel,companyCodeId,languageId,plantId,loginUserID, updatePalletizationLevelId);
 		return new ResponseEntity<>(createdPalletizationLevelId , HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
     
     @ApiOperation(response = PalletizationLevelId.class, value = "Delete PalletizationLevelId") // label for swagger
 	@DeleteMapping("/{palletizationLevelId}")
 	public ResponseEntity<?> deletePalletizationLevelId(@PathVariable String palletizationLevelId,@RequestParam String palletizationLevel,
 			@RequestParam String warehouseId,@RequestParam String companyCodeId,@RequestParam String languageId,@RequestParam String plantId, @RequestParam String loginUserID) {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-		palletizationlevelidService.deletePalletizationLevelId(warehouseId, palletizationLevelId, palletizationLevel,companyCodeId,languageId,plantId,loginUserID);
+    	palletizationlevelidService.deletePalletizationLevelId(warehouseId, palletizationLevelId, palletizationLevel,companyCodeId,languageId,plantId,loginUserID);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-finally {
-			DataBaseContextHolder.clear();
-		}
-		}
+
 	//Search
 	@ApiOperation(response = PalletizationLevelId.class, value = "Find PalletizationLevelId") // label for swagger
 	@PostMapping("/find")
 	public ResponseEntity<?> findPalletizationLevelId(@Valid @RequestBody FindPalletizationLevelId findPalletizationLevelId) throws Exception {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(findPalletizationLevelId.getCompanyCodeId(), findPalletizationLevelId.getPlantId(), findPalletizationLevelId.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
 		List<PalletizationLevelId> createdPalletizationLevelId = palletizationlevelidService.findPalletizationLevelId(findPalletizationLevelId);
 		return new ResponseEntity<>(createdPalletizationLevelId, HttpStatus.OK);
 	}
-	finally {
-			DataBaseContextHolder.clear();
-		}
-		}
 }

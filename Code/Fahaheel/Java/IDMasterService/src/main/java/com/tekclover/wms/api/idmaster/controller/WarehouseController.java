@@ -6,9 +6,6 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-import com.tekclover.wms.api.idmaster.config.dynamicConfig.DataBaseContextHolder;
-import com.tekclover.wms.api.idmaster.repository.DbConfigRepository;
-import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -48,9 +45,6 @@ public class WarehouseController {
 
 	@Autowired
 	WarehouseService warehouseService;
-
-	@Autowired
-	DbConfigRepository dbConfigRepository;
 	
     @ApiOperation(response = Warehouse.class, value = "Get all Warehouse details") // label for swagger
 	@GetMapping("")
@@ -62,26 +56,15 @@ public class WarehouseController {
     @ApiOperation(response = Warehouse.class, value = "Get a Warehouse") // label for swagger 
 	@GetMapping("/{warehouseId}")
 	public ResponseEntity<?> getWarehouse(@PathVariable String warehouseId,@RequestParam String companyCodeId,@RequestParam String plantId,@RequestParam String languageId) {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-			Warehouse warehouseid = warehouseService.getWarehouse(warehouseId,companyCodeId,plantId,languageId);
-			log.info("Warehouse : " + warehouseid);
-			return new ResponseEntity<>(warehouseid, HttpStatus.OK);
-		}
-		finally {
-			DataBaseContextHolder.clear();
-		}
+    	Warehouse warehouseid = warehouseService.getWarehouse(warehouseId,companyCodeId,plantId,languageId);
+    	log.info("Warehouse : " + warehouseid);
+		return new ResponseEntity<>(warehouseid, HttpStatus.OK);
 	}
     
 	@ApiOperation(response = Warehouse.class, value = "Get a Warehouse") // label for swagger 
 	@GetMapping("/warehouseId")
 	public ResponseEntity<?> getWarehouse (@RequestParam String companyCodeId, @RequestParam String plantId, @RequestParam String languageId) {
-
-		Warehouse warehouseid = warehouseService.getWarehouse(companyCodeId, plantId, languageId);
+    	Warehouse warehouseid = warehouseService.getWarehouse(companyCodeId, plantId, languageId);
     	log.info("Warehouse : " + warehouseid);
 		return new ResponseEntity<>(warehouseid, HttpStatus.OK);
 	}
@@ -90,73 +73,32 @@ public class WarehouseController {
 	@PostMapping("")
 	public ResponseEntity<?> postWarehouse(@Valid @RequestBody AddWarehouse newWarehouse, 
 			@RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-//			String routingDb = dbConfigRepository.getDbName(newWarehouse.getCompanyCodeId(), newWarehouse.getPlantId(), newWarehouse.getWarehouseId());
-			String routingDb = dbConfigRepository.getDbNameByCompany(newWarehouse.getCompanyCodeId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-			Warehouse createdWarehouse = warehouseService.createWarehouse(newWarehouse, loginUserID);
-			return new ResponseEntity<>(createdWarehouse , HttpStatus.OK);
-		}
-		finally {
-				DataBaseContextHolder.clear();
-		}
+		Warehouse createdWarehouse = warehouseService.createWarehouse(newWarehouse, loginUserID);
+		return new ResponseEntity<>(createdWarehouse , HttpStatus.OK);
 	}
-
+    
     @ApiOperation(response = Warehouse.class, value = "Update Warehouse") // label for swagger
     @PatchMapping("/{warehouseId}")
 	public ResponseEntity<?> patchWarehouse(@PathVariable String warehouseId, @RequestParam String companyCodeId,@RequestParam String plantId,@RequestParam String languageId,
 			@Valid @RequestBody UpdateWarehouse updateWarehouse, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-			Warehouse createdWarehouse =
-					warehouseService.updateWarehouse(warehouseId,companyCodeId,plantId,languageId,loginUserID, updateWarehouse);
-			return new ResponseEntity<>(createdWarehouse , HttpStatus.OK);
-		}
-		finally {
-			DataBaseContextHolder.clear();
-		}
+		Warehouse createdWarehouse = 
+				warehouseService.updateWarehouse(warehouseId,companyCodeId,plantId,languageId,loginUserID, updateWarehouse);
+		return new ResponseEntity<>(createdWarehouse , HttpStatus.OK);
 	}
     
     @ApiOperation(response = Warehouse.class, value = "Delete Warehouse") // label for swagger
 	@DeleteMapping("/{warehouseId}")
 	public ResponseEntity<?> deleteWarehouse(@PathVariable String warehouseId, @RequestParam String companyCodeId,@RequestParam String plantId,@RequestParam String languageId,
 			@RequestParam String loginUserID) {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-			warehouseService.deleteWarehouse(warehouseId,companyCodeId,plantId,languageId,loginUserID);
-			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-		}
-		finally {
-			DataBaseContextHolder.clear();
-		}
+    	warehouseService.deleteWarehouse(warehouseId,companyCodeId,plantId,languageId,loginUserID);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-
 	//Search
 	@ApiOperation(response = Warehouse.class, value = "Find Warehouse") // label for swagger
 	@PostMapping("/find")
 	public ResponseEntity<?> findWarehouse(@Valid @RequestBody FindWarehouse findWarehouse) throws Exception {
-        try {
-            DataBaseContextHolder.setCurrentDb("MT");
-            String routingDb = dbConfigRepository.getDbNameByCompany(findWarehouse.getCompanyCodeId());
-            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-            DataBaseContextHolder.clear();
-            DataBaseContextHolder.setCurrentDb(routingDb);
-            List<Warehouse> createdWarehouse = warehouseService.findWarehouse(findWarehouse);
-            return new ResponseEntity<>(createdWarehouse, HttpStatus.OK);
-        } finally {
-			DataBaseContextHolder.clear();
-        }
-    }
+		List<Warehouse> createdWarehouse = warehouseService.findWarehouse(findWarehouse);
+		return new ResponseEntity<>(createdWarehouse, HttpStatus.OK);
+	}
 }

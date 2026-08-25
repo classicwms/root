@@ -6,9 +6,7 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-import com.tekclover.wms.api.enterprise.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.enterprise.model.batchserial.*;
-import com.tekclover.wms.api.enterprise.repository.DbConfigRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,9 +39,6 @@ public class BatchSerialController {
 	
 	@Autowired
 	BatchSerialService batchserialService;
-
-	@Autowired
-	DbConfigRepository dbConfigRepository;
 	
     @ApiOperation(response = BatchSerial.class, value = "Get all BatchSerial details") // label for swagger
 	@GetMapping("")
@@ -56,58 +51,26 @@ public class BatchSerialController {
 	@GetMapping("/{storageMethod}")
 	public ResponseEntity<?> getBatchSerial(@PathVariable String storageMethod,@RequestParam String plantId,
 											@RequestParam String companyId,@RequestParam String languageId,
-											@RequestParam String warehouseId,@RequestParam Long levelId,@RequestParam String maintenance){
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyId,plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
+											@RequestParam String warehouseId,@RequestParam Long levelId,@RequestParam String maintenance) {
 		List<BatchSerial> batchserial = batchserialService.getBatchSerialOutput(storageMethod,plantId,companyId,languageId,warehouseId,levelId,maintenance);
     	log.info("BatchSerial : " + batchserial);
 		return new ResponseEntity<>(batchserial, HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
     
     @ApiOperation(response = BatchSerial.class, value = "Search BatchSerial") // label for swagger
 	@PostMapping("/findBatchSerial")
 	public List<BatchSerial> findBatchSerial(@RequestBody SearchBatchSerial searchBatchSerial)
 			throws Exception {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName1(searchBatchSerial.getCompanyId(),searchBatchSerial.getPlantId(), searchBatchSerial.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
 		return batchserialService.findBatchSerial(searchBatchSerial);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
     
     @ApiOperation(response = BatchSerial.class, value = "Create BatchSerial") // label for swagger
 	@PostMapping("")
 	public ResponseEntity<?> postBatchSerial(@Valid @RequestBody List<AddBatchSerial> newBatchSerial, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			for (AddBatchSerial addBatchSerials : newBatchSerial) {
-				DataBaseContextHolder.setCurrentDb("MT");
-				String routingDb = dbConfigRepository.getDbName(addBatchSerials.getCompanyId(), addBatchSerials.getPlantId(), addBatchSerials.getWarehouseId());
-				log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-				DataBaseContextHolder.clear();
-				DataBaseContextHolder.setCurrentDb(routingDb);
-			}
 		List<BatchSerial> createdBatchSerial = batchserialService.createBatchSerial(newBatchSerial, loginUserID);
 		return new ResponseEntity<>(createdBatchSerial , HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
     
     @ApiOperation(response = BatchSerial.class, value = "Update BatchSerial") // label for swagger
     @PatchMapping("/{storageMethod}")
@@ -117,20 +80,11 @@ public class BatchSerialController {
 											  @Valid @RequestBody List<UpdateBatchSerial> updateBatchSerial,@RequestParam String maintenance,
 											  @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyId,plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
+
 		List<BatchSerial> createdBatchSerial = batchserialService.updateBatchSerial(storageMethod,companyId,plantId,
 				languageId,maintenance,warehouseId,levelId,updateBatchSerial, loginUserID);
 		return new ResponseEntity<>(createdBatchSerial, HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
     
     @ApiOperation(response = BatchSerial.class, value = "Delete BatchSerial") // label for swagger
 	@DeleteMapping("/{storageMethod}")
@@ -138,17 +92,7 @@ public class BatchSerialController {
 											   @RequestParam String languageId,@RequestParam String plantId,
 											   @RequestParam Long levelId,@RequestParam String warehouseId,@RequestParam String maintenance,
 											   @RequestParam String loginUserID) throws ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyId,plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
     	batchserialService.deleteBatchSerial(storageMethod,companyId,languageId,plantId,warehouseId,levelId,maintenance,loginUserID);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
 }

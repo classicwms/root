@@ -2,13 +2,10 @@ package com.tekclover.wms.api.enterprise.controller;
 
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
-import java.util.Date;
 import java.util.List;
 
 import javax.validation.Valid;
 
-import com.tekclover.wms.api.enterprise.config.dynamicConfig.DataBaseContextHolder;
-import com.tekclover.wms.api.enterprise.repository.DbConfigRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,9 +41,6 @@ public class DoorsController {
 	
 	@Autowired
 	DoorsService doorsService;
-
-	@Autowired
-	DbConfigRepository dbConfigRepository;
 	
     @ApiOperation(response = Doors.class, value = "Get all Doors details") // label for swagger
 	@GetMapping("")
@@ -67,38 +61,18 @@ public class DoorsController {
 	@PostMapping("")
 	public ResponseEntity<?> postDoors(@Valid @RequestBody AddDoors newDoors, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(newDoors.getCompanyId(), newDoors.getPlantId(), newDoors.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
 		Doors createdDoors = doorsService.createDoors(newDoors, loginUserID);
 		return new ResponseEntity<>(createdDoors , HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
     
     @ApiOperation(response = Doors.class, value = "Update Doors") // label for swagger
     @PatchMapping("/{doorNumber}")
 	public ResponseEntity<?> patchDoors(@PathVariable String doorNumber, 
 			@Valid @RequestBody UpdateDoors updateDoors, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(updateDoors.getCompanyId(), updateDoors.getPlantId(), updateDoors.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
 		Doors createdDoors = doorsService.updateDoors(doorNumber, updateDoors, loginUserID);
 		return new ResponseEntity<>(createdDoors , HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
     
     @ApiOperation(response = Doors.class, value = "Delete Doors") // label for swagger
 	@DeleteMapping("/{doorNumber}")

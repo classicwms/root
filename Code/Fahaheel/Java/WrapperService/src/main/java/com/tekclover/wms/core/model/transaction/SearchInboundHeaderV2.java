@@ -12,7 +12,4 @@ public class SearchInboundHeaderV2 extends SearchInboundHeader {
 	private List<String> languageId;
 	private List<String> companyCodeId;
 	private List<String> plantId;
-	private List<String> customerId;
-	private List<String> customerName;
-
 }

@@ -30,18 +30,9 @@ public class InboundOrderV2 {
 
     private String purchaseOrderNumber;
     private Long inboundOrderTypeId;
-    private String warehouseId;
-    private String languageId;
 
     //MiddleWare Fields
     private Long middlewareId;
     private String middlewareTable;
-    // Order_Processing
-    private Long preInboundHeader;
-    private Long inboundHeader;
-    private Long stagingHeader;
-    private Long grHeader;
-    private Long putawayHeader;
-    private String orderText;
     private Set<InboundOrderLinesV2> line;
 }

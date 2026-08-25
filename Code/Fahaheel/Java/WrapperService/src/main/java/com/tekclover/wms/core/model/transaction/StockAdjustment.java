@@ -10,7 +10,6 @@ public class StockAdjustment {
     private Long stockAdjustmentId;
     private Long stockAdjustmentKey;
     private String companyCode;
-    private String languageId;
     private String branchCode;
     private String branchName;
     private Date dateOfAdjustment;
@@ -74,12 +73,4 @@ public class StockAdjustment {
 
     private Double beforeAdjustment;
     private Double afterAdjustment;
-    private String batchSerialNumber;
-    /*----------------------Impex--------------------------------------------------*/
-    private String alternateUom;
-    private Double noBags;
-    private Double bagSize;
-    private Double mrp;
-    private String itemType;
-    private String itemGroup;
 }

@@ -30,7 +30,6 @@ import org.springframework.stereotype.Service;
 import javax.persistence.EntityNotFoundException;
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -195,7 +194,6 @@ public class ImBasicData1Service {
      */
     public List<ImBasicData1> findImBasicData1(SearchImBasicData1 searchImBasicData1)
             throws Exception {
-        log.info("ImbasicData1---->" +searchImBasicData1);
         if (searchImBasicData1.getStartCreatedOn() != null && searchImBasicData1.getEndCreatedOn() != null) {
             Date[] dates = DateUtils.addTimeToDatesForSearch(searchImBasicData1.getStartCreatedOn(), searchImBasicData1.getEndCreatedOn());
             searchImBasicData1.setStartCreatedOn(dates[0]);
@@ -210,12 +208,12 @@ public class ImBasicData1Service {
 
         ImBasicData1Specification spec = new ImBasicData1Specification(searchImBasicData1);
         List<ImBasicData1> results = imbasicdata1Repository.findAll(spec);
-		log.info("results: " + results);
+//		log.info("results: " + results);
         return results;
     }
 
-    //Streaming Changed to List for Fahaheel MT
-    public List<ImBasicData1> findImBasicData1StreamToList(SearchImBasicData1 searchImBasicData1)
+    //Streaming
+    public Stream<ImBasicData1> findImBasicData1Stream(SearchImBasicData1 searchImBasicData1)
             throws Exception {
         if (searchImBasicData1.getStartCreatedOn() != null && searchImBasicData1.getEndCreatedOn() != null) {
             Date[] dates = DateUtils.addTimeToDatesForSearch(searchImBasicData1.getStartCreatedOn(), searchImBasicData1.getEndCreatedOn());
@@ -230,8 +228,8 @@ public class ImBasicData1Service {
         }
 
         ImBasicData1Specification spec = new ImBasicData1Specification(searchImBasicData1);
-        List<ImBasicData1> results = imbasicdata1Repository.findAll(spec);
-		log.info("results: " + results);
+        Stream<ImBasicData1> results = imbasicdata1Repository.stream(spec, ImBasicData1.class);
+//		log.info("results: " + results);
         return results;
     }
 
@@ -271,10 +269,6 @@ public class ImBasicData1Service {
 
         if (likeSearchInput.getLikeSearchByDesc() != null && !likeSearchInput.getLikeSearchByDesc().trim().isEmpty()) {
 
-            log.info("searchText1 -----> {}", likeSearchInput.getLikeSearchByDesc().trim());
-            log.info("searchText2 -----> {}", likeSearchInput.getLikeSearchByDesc().trim());
-            log.info("searchText3 -----> {}", likeSearchInput.getLikeSearchByDesc().trim());
-            log.info("LikeSearchInput -----> {}", likeSearchInput);
             List<ItemListImpl> data = imbasicdata1Repository.getItemListBySearchV2(
                     likeSearchInput.getLikeSearchByDesc().trim(),
                     likeSearchInput.getLikeSearchByDesc().trim(),
@@ -283,36 +277,6 @@ public class ImBasicData1Service {
                     likeSearchInput.getPlantId(),
                     likeSearchInput.getLanguageId(),
                     likeSearchInput.getWarehouseId());
-            log.info("Like Search ImBasicDate size ----> {}", data.size());
-            return data;
-        } else {
-            throw new BadRequestException("Search string must not be empty");
-        }
-    }
-
-    //Like Search filter ItemCode, Description, Company Code, Plant, Language and warehouse
-
-    /**
-     * Modified for Fahaheel Filter only based on WarehouseId
-     * Aakash vinayak - 29/07/2025
-     *
-     * @param likeSearchInput
-     * @return
-     */
-    public List<ItemListImpl> findImBasicData1LikeSearchV3(LikeSearchInput likeSearchInput) {
-
-        if (likeSearchInput.getLikeSearchByDesc() != null && !likeSearchInput.getLikeSearchByDesc().trim().isEmpty()) {
-
-            log.info("searchText1 -----> {}", likeSearchInput.getLikeSearchByDesc().trim());
-            log.info("searchText2 -----> {}", likeSearchInput.getLikeSearchByDesc().trim());
-            log.info("searchText3 -----> {}", likeSearchInput.getLikeSearchByDesc().trim());
-            log.info("LikeSearchInput -----> {}", likeSearchInput);
-            List<ItemListImpl> data = imbasicdata1Repository.getItemListBySearchV3(
-                    likeSearchInput.getLikeSearchByDesc().trim(),
-                    likeSearchInput.getLikeSearchByDesc().trim(),
-                    likeSearchInput.getLikeSearchByDesc().trim(),
-                    likeSearchInput.getWarehouseId());
-            log.info("Like Search ImBasicDate size ----> {}", data.size());
             return data;
         } else {
             throw new BadRequestException("Search string must not be empty");
@@ -422,141 +386,6 @@ public class ImBasicData1Service {
     }
 
     /**
-     *
-     * @param newImBasicData1
-     * @param loginUserID
-     * @return
-     * @throws IllegalAccessException
-     * @throws InvocationTargetException
-     * @throws ParseException
-     */
-    public ImBasicData1V2 createImBasicData1V5(ImBasicData1V2 newImBasicData1, String loginUserID)
-            throws IllegalAccessException, InvocationTargetException, ParseException {
-      try {
-          ImBasicData1V2 dbImBasicData1 = new ImBasicData1V2();
-          Optional<ImBasicData1V2> duplicateImBasicData1 = imBasicData1V2Repository.findByCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndManufacturerPartNoAndLanguageIdAndDeletionIndicator(newImBasicData1.getCompanyCodeId(),
-                  newImBasicData1.getPlantId(), newImBasicData1.getWarehouseId(), newImBasicData1.getItemCode(),
-                  newImBasicData1.getManufacturerPartNo(), newImBasicData1.getLanguageId(), 0L);
-
-          if (!duplicateImBasicData1.isEmpty()) {
-              // Exception Log
-              createImBasicData1Log2(newImBasicData1, "Record is getting Duplicated.");
-              throw new EntityNotFoundException("Record is Getting Duplicated");
-          } else {
-              BeanUtils.copyProperties(newImBasicData1, dbImBasicData1, CommonUtils.getNullPropertyNames(newImBasicData1));
-              if (newImBasicData1.getCapacityCheck() != null) {
-                  dbImBasicData1.setCapacityCheck(newImBasicData1.getCapacityCheck());
-              }
-              if (newImBasicData1.getCapacityCheck() == null) {
-                  dbImBasicData1.setCapacityCheck(false);
-              }
-              if (newImBasicData1.getItemType() == null) {
-                  dbImBasicData1.setItemType(1L);
-              }
-              if (newImBasicData1.getManufacturerName() == null) {
-                  dbImBasicData1.setManufacturerName(newImBasicData1.getManufacturerPartNo());
-              }
-              if (newImBasicData1.getManufacturerCode() == null) {
-                  dbImBasicData1.setManufacturerCode(newImBasicData1.getManufacturerPartNo());
-              }
-              if (newImBasicData1.getManufacturerFullName() == null) {
-                  dbImBasicData1.setManufacturerFullName(newImBasicData1.getManufacturerPartNo());
-              }
-
-              log.info("Id: " + newImBasicData1.getCompanyCodeId() + ", " + newImBasicData1.getPlantId() + ", " + newImBasicData1.getWarehouseId() + ", " + newImBasicData1.getLanguageId());
-              IKeyValuePair description = imBasicData1V2Repository.getDescription(newImBasicData1.getCompanyCodeId(),
-                      newImBasicData1.getLanguageId(),
-                      newImBasicData1.getPlantId(),
-                      newImBasicData1.getWarehouseId());
-              log.info("Description: " + description);
-              if (description != null) {
-                  log.info("Description: " + description.getCompanyDesc() + ", " + description.getPlantDesc() + ", " + description.getWarehouseDesc());
-                  dbImBasicData1.setCompanyDescription(description.getCompanyDesc());
-                  dbImBasicData1.setPlantDescription(description.getPlantDesc());
-                  dbImBasicData1.setWarehouseDescription(description.getWarehouseDesc());
-              }
-
-              dbImBasicData1.setDeletionIndicator(0L);
-              dbImBasicData1.setCreatedBy(loginUserID);
-              dbImBasicData1.setUpdatedBy(loginUserID);
-              dbImBasicData1.setCreatedOn(new Date());
-              dbImBasicData1.setUpdatedOn(new Date());
-              return imBasicData1V2Repository.save(dbImBasicData1);
-          }
-      }catch (Exception e){
-          log.info(e.getMessage());
-      }
-      return null;
-    }
-
-    /**
-     *
-     * @param newImBasicData1
-     * @param loginUserID
-     * @return
-     * @throws IllegalAccessException
-     * @throws InvocationTargetException
-     * @throws ParseException
-     */
-    public ImBasicData1V2 createImBasicData1V7(ImBasicData1V2 newImBasicData1, String loginUserID)
-            throws IllegalAccessException, InvocationTargetException, ParseException {
-        ImBasicData1V2 dbImBasicData1 = new ImBasicData1V2();
-        Optional<ImBasicData1V2> duplicateImBasicData1 = imBasicData1V2Repository.findByCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndUomIdAndManufacturerPartNoAndLanguageIdAndDeletionIndicator(newImBasicData1.getCompanyCodeId(),
-                newImBasicData1.getPlantId(), newImBasicData1.getWarehouseId(), newImBasicData1.getItemCode(),
-                newImBasicData1.getUomId(), newImBasicData1.getManufacturerPartNo(), newImBasicData1.getLanguageId(), 0L);
-
-        if (!duplicateImBasicData1.isEmpty()) {
-            // Exception Log
-            createImBasicData1Log2(newImBasicData1, "Record is getting Duplicated.");
-            throw new EntityNotFoundException("Record is Getting Duplicated");
-        } else {
-            BeanUtils.copyProperties(newImBasicData1, dbImBasicData1, CommonUtils.getNullPropertyNames(newImBasicData1));
-
-            dbImBasicData1.setItemCode(newImBasicData1.getItemCode());
-            dbImBasicData1.setDescription(newImBasicData1.getDescription());
-
-            if(newImBasicData1.getCapacityCheck() != null) {
-                dbImBasicData1.setCapacityCheck(newImBasicData1.getCapacityCheck());
-            }
-            if(newImBasicData1.getCapacityCheck() == null) {
-                dbImBasicData1.setCapacityCheck(false);
-            }
-            if(newImBasicData1.getItemType() == null) {
-                dbImBasicData1.setItemType(1L);
-            }
-            if(newImBasicData1.getManufacturerName() == null) {
-                dbImBasicData1.setManufacturerName(newImBasicData1.getManufacturerPartNo());
-            }
-            if(newImBasicData1.getManufacturerCode() == null) {
-                dbImBasicData1.setManufacturerCode(newImBasicData1.getManufacturerPartNo());
-            }
-            if(newImBasicData1.getManufacturerFullName() == null) {
-                dbImBasicData1.setManufacturerFullName(newImBasicData1.getManufacturerPartNo());
-            }
-
-            log.info("Id: " + newImBasicData1.getCompanyCodeId() + ", " + newImBasicData1.getPlantId() + ", " + newImBasicData1.getWarehouseId() + ", " + newImBasicData1.getLanguageId());
-            IKeyValuePair description = imBasicData1V2Repository.getDescription(newImBasicData1.getCompanyCodeId(),
-                    newImBasicData1.getLanguageId(),
-                    newImBasicData1.getPlantId(),
-                    newImBasicData1.getWarehouseId());
-            log.info("Description: " + description);
-            if(description != null) {
-                log.info("Description: " + description.getCompanyDesc() + ", " + description.getPlantDesc() + ", " + description.getWarehouseDesc());
-                dbImBasicData1.setCompanyDescription(description.getCompanyDesc());
-                dbImBasicData1.setPlantDescription(description.getPlantDesc());
-                dbImBasicData1.setWarehouseDescription(description.getWarehouseDesc());
-            }
-
-            dbImBasicData1.setDeletionIndicator(0L);
-            dbImBasicData1.setCreatedBy(loginUserID);
-            dbImBasicData1.setUpdatedBy(loginUserID);
-            dbImBasicData1.setCreatedOn(new Date());
-            dbImBasicData1.setUpdatedOn(new Date());
-            return imBasicData1V2Repository.save(dbImBasicData1);
-        }
-    }
-
-    /**
      * @param itemCode
      * @param companyCodeId
      * @param plantId
@@ -588,29 +417,8 @@ public class ImBasicData1Service {
         BeanUtils.copyProperties(updateImBasicData1, dbImBasicData1, CommonUtils.getNullPropertyNames(updateImBasicData1));
         dbImBasicData1.setUpdatedBy(loginUserID);
         dbImBasicData1.setUpdatedOn(new Date());
-        imBasicData1V2Repository.delete(dbImBasicData1);
         return imBasicData1V2Repository.save(dbImBasicData1);
     }
-
-    public ImBasicData1V2 updateImBasicDataWithQuery(String itemCode, String companyCodeId, String plantId, String languageId,
-                                           String uomId, String warehouseId, String manufacturerPartNo,
-                                           ImBasicData1V2 updateData, String loginUserID) {
-        int updated = imBasicData1V2Repository.updateImBasicData1V2(
-                itemCode, companyCodeId, plantId, languageId, uomId, warehouseId, manufacturerPartNo, updateData
-        );
-
-        ImBasicData1V2 returnImBasicData = new ImBasicData1V2();
-        if (updated > 0) {
-            Optional<ImBasicData1V2> imBasicData1V2 = imBasicData1V2Repository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndItemCodeAndUomIdAndManufacturerPartNo(
-                    companyCodeId, plantId, languageId, warehouseId, itemCode, uomId, manufacturerPartNo
-            );
-
-            returnImBasicData = imBasicData1V2.get();
-        }
-
-        return returnImBasicData;
-    }
-
 
     /**
      * @param itemCode
@@ -637,35 +445,30 @@ public class ImBasicData1Service {
     public void deleteImBasicData1V2(String itemCode, String companyCodeId, String plantId, String languageId, String uomId, String manufacturerPartNo, String warehouseId, String loginUserID) throws ParseException {
         ImBasicData1V2 imbasicdata1 = getaImBasicData1V2(itemCode, warehouseId, companyCodeId, plantId, uomId, manufacturerPartNo, languageId);
         if (imbasicdata1 != null) {
-            imBasicData1V2Repository.deleteImBasicData1(languageId, companyCodeId, plantId, warehouseId, itemCode, manufacturerPartNo, uomId);
-//            imbasicdata1.setDeletionIndicator(1L);
-//            imbasicdata1.setUpdatedBy(loginUserID);
-//            imbasicdata1.setUpdatedOn(new Date());
-//            imBasicData1V2Repository.save(imbasicdata1);
+            imbasicdata1.setDeletionIndicator(1L);
+            imbasicdata1.setUpdatedBy(loginUserID);
+            imbasicdata1.setUpdatedOn(new Date());
+            imBasicData1V2Repository.save(imbasicdata1);
         } else {
             throw new EntityNotFoundException("Error in deleting itemCode Id:" + itemCode);
         }
     }
 
     public ImBasicData1V2 getImBasicData1V2(ImBasicData imBasicData) {
-        try {
-            log.info("ImBasicData :" + imBasicData);
-            Optional<ImBasicData1V2> imbasicdata1 = imBasicData1V2Repository.findByCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndManufacturerPartNoAndLanguageIdAndDeletionIndicator(
-                    imBasicData.getCompanyCodeId(),
-                    imBasicData.getPlantId(),
-                    imBasicData.getWarehouseId(),
-                    imBasicData.getItemCode(),
-                    imBasicData.getManufacturerName(),
-                    imBasicData.getLanguageId(),
-                    0L);
-            if (!imbasicdata1.isEmpty()) {
-                return imbasicdata1.get();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            // Exception Log
-            log.info("ImBasicData1 with given values Not Available!");
+        log.info("ImBasicData :" + imBasicData);
+        Optional<ImBasicData1V2> imbasicdata1 = imBasicData1V2Repository.findByCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndManufacturerPartNoAndLanguageIdAndDeletionIndicator(
+                imBasicData.getCompanyCodeId(),
+                imBasicData.getPlantId(),
+                imBasicData.getWarehouseId(),
+                imBasicData.getItemCode(),
+                imBasicData.getManufacturerName(),
+                imBasicData.getLanguageId(),
+                0L);
+        if (!imbasicdata1.isEmpty()) {
+            return imbasicdata1.get();
         }
+        // Exception Log
+        createImBasicData1Log(imBasicData, "ImBasicData1 with given values Not Available!");
         return null;
     }
 
@@ -802,31 +605,6 @@ public class ImBasicData1Service {
         exceptionLog.setCreatedBy("MSD_API");
         exceptionLog.setCreatedOn(new Date());
         exceptionLogRepo.save(exceptionLog);
-    }
-
-    public List<ImBasicData1V2> imBasicData1Upload(List<ImBasicData1V2> imBasicDataList) {
-
-        List<ImBasicData1V2> saveImBasicData1 = new ArrayList<>();
-        for (ImBasicData1V2 imData1 : imBasicDataList) {
-            ImBasicData1V2 dbImBasicData1 = new ImBasicData1V2();
-            Optional<ImBasicData1V2> duplicateImBasicData1 = imBasicData1V2Repository.findByCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndUomIdAndManufacturerPartNoAndLanguageIdAndDeletionIndicator(imData1.getCompanyCodeId(),
-                    imData1.getPlantId(), imData1.getWarehouseId(), imData1.getItemCode(),
-                    imData1.getUomId(), imData1.getManufacturerPartNo(), imData1.getLanguageId(), 0L);
-
-            log.info("duplicateImBasicData1 ----> ", duplicateImBasicData1);
-
-            if (duplicateImBasicData1.isPresent()) {
-                throw new BadRequestException("Record is Getting Duplicate");
-            } else {
-                BeanUtils.copyProperties(imData1, dbImBasicData1, CommonUtils.getNullPropertyNames(imData1));
-                dbImBasicData1.setDeletionIndicator(0L);
-                dbImBasicData1.setCreatedOn(new Date());
-                dbImBasicData1.setUpdatedOn(new Date());
-                imBasicData1V2Repository.save(dbImBasicData1);
-                saveImBasicData1.add(dbImBasicData1);
-            }
-        }
-        return saveImBasicData1;
     }
 
 }

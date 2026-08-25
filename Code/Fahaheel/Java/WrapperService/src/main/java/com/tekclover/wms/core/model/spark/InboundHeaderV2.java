@@ -48,11 +48,4 @@ public class InboundHeaderV2 {
     private String referenceDocumentType;
     private Long countOfOrderLines;
     private Long receivedLines;
-    /*-------------------------------------------Reeferon-----------------------------------*/
-
-    private Double qtyInCase;
-    private Double qtyInPiece;
-    private Double qtyInCreate;
-    private String customerId;
-    private String customerName;
 }

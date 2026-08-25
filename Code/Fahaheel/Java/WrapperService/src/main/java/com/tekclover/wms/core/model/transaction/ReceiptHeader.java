@@ -18,5 +18,4 @@ public class ReceiptHeader {
 	private Double acceptedQtySum; 	// Sum of Accepted Qty in the List
 	private Double damagedQtySum; 		// Sum of Damaged Qty in the List
 	private Double missingORExcessSum; 	// Sum of Missing/Excess in the List
-	private  Double noOfBagsSum;  // Sum of Numbers Of Bags in the List
 }

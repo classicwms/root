@@ -31,10 +31,6 @@ public class PeriodicHeaderEntity {
 	private Date countedOn;
 	private String confirmedBy;
 	private Date confirmedOn;
-	private String companyDescription;
-	private String plantDescription;
-	private String warehouseDescription;
-	private String statusDescription;
 
 	private List<PeriodicLineEntity> periodicLine;
 }

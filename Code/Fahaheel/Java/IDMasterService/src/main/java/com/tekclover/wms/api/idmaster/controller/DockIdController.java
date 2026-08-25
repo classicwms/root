@@ -1,8 +1,6 @@
 package com.tekclover.wms.api.idmaster.controller;
 
-import com.tekclover.wms.api.idmaster.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.idmaster.model.dockid.*;
-import com.tekclover.wms.api.idmaster.repository.DbConfigRepository;
 import com.tekclover.wms.api.idmaster.repository.PlantIdRepository;
 import com.tekclover.wms.api.idmaster.service.DockIdService;
 import io.swagger.annotations.Api;
@@ -32,9 +30,6 @@ public class DockIdController {
 	private PlantIdRepository plantIdRepository;
 
 	@Autowired
-	DbConfigRepository dbConfigRepository;
-
-	@Autowired
 	DockIdService dockidService;
 	
     @ApiOperation(response = DockId.class, value = "Get all DockId details") // label for swagger
@@ -48,39 +43,19 @@ public class DockIdController {
 	@GetMapping("/{dockId}")
 	public ResponseEntity<?> getDockId(@PathVariable String dockId,
 			@RequestParam String warehouseId,@RequestParam String companyCodeId,@RequestParam String languageId,@RequestParam String plantId) {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-		DockId dockid =
+    	DockId dockid = 
     			dockidService.getDockId(warehouseId,dockId,companyCodeId,languageId,plantId);
     	log.info("DockId : " + dockid);
 		return new ResponseEntity<>(dockid, HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
     
     @ApiOperation(response = DockId.class, value = "Create DockId") // label for swagger
 	@PostMapping("")
 	public ResponseEntity<?> postDockId(@Valid @RequestBody AddDockId newDockId, 
 			@RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException, ParseException {
-
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(newDockId.getCompanyCodeId(), newDockId.getPlantId(), newDockId.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);DockId createdDockId = dockidService.createDockId(newDockId, loginUserID);
+		DockId createdDockId = dockidService.createDockId(newDockId, loginUserID);
 		return new ResponseEntity<>(createdDockId , HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
     
     @ApiOperation(response = DockId.class, value = "Update DockId") // label for swagger
     @PatchMapping("/{dockId}")
@@ -88,53 +63,23 @@ public class DockIdController {
 			@RequestParam String warehouseId, @RequestParam String companyCodeId,@RequestParam String languageId,@RequestParam String plantId,
 			@Valid @RequestBody UpdateDockId updateDockId, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-		DockId createdDockId =
+		DockId createdDockId = 
 				dockidService.updateDockId(warehouseId,dockId,companyCodeId,languageId,plantId,loginUserID, updateDockId);
 		return new ResponseEntity<>(createdDockId , HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
     
     @ApiOperation(response = DockId.class, value = "Delete DockId") // label for swagger
 	@DeleteMapping("/{dockId}")
 	public ResponseEntity<?> deleteDockId(@PathVariable String dockId,
 			@RequestParam String warehouseId,@RequestParam String companyCodeId,@RequestParam String languageId,@RequestParam String plantId,@RequestParam String loginUserID) {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-		dockidService.deleteDockId(warehouseId,dockId,companyCodeId,languageId,plantId,loginUserID);
+    	dockidService.deleteDockId(warehouseId,dockId,companyCodeId,languageId,plantId,loginUserID);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
 	//Search
 	@ApiOperation(response = DockId.class, value = "Find DockId") // label for swagger
 	@PostMapping("/find")
 	public ResponseEntity<?> findDockId(@Valid @RequestBody FindDockId findDockId) throws Exception {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(findDockId.getCompanyCodeId(), findDockId.getPlantId(), findDockId.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
 		List<DockId> createdDockId = dockidService.findDockId(findDockId);
 		return new ResponseEntity<>(createdDockId, HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-		}
 }

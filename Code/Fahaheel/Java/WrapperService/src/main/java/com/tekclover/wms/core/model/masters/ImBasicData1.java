@@ -121,22 +121,8 @@ public class ImBasicData1 {
 	private String companyDescription;
 	private String plantDescription;
 	private String warehouseDescription;
-	private Double batchQuantity;
-	private Double moq;
+
 	//MiddleWare Fields
 	private Long middlewareId;
 	private String middlewareTable;
-	
-    /*----------------Walkaroo changes------------------------------------------------------*/
-	private String barcodeId;
-    private String materialNo;
-    private String priceSegment;
-    private String articleNo;
-    private String gender;
-    private String color;
-    private String size;
-    private String noPairs;
-	private String itemTypeDescription;
-	private String itemGroupDescription;
-	private Long selfLife;
 }

@@ -10,7 +10,7 @@ public class FindOutboundOrderV2 {
 
     private List<String> branchCode;
     private List<String> companyCode;
-    private List<String> warehouseId;
+    private List<String> warehouseID;
     private List<String> languageId;
 
     private List<String> orderId;
@@ -27,5 +27,4 @@ public class FindOutboundOrderV2 {
     private List<String> salesInvoiceNumber;
     private List<Long> middlewareId;
     private List<String> middlewareTable;
-    private List<String> plantId;
 }

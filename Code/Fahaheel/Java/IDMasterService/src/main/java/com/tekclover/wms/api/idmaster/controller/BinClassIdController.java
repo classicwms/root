@@ -6,9 +6,7 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-import com.tekclover.wms.api.idmaster.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.idmaster.model.binclassid.FindBinClassId;
-import com.tekclover.wms.api.idmaster.repository.DbConfigRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,105 +39,55 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/binclassid")
 @RestController
 public class BinClassIdController {
-
+	
 	@Autowired
 	BinClassIdService binClassIdService;
-
-	@Autowired
-	DbConfigRepository dbConfigRepository;
-
-	@ApiOperation(response = BinClassId.class, value = "Get all BinClassId details") // label for swagger
+	
+    @ApiOperation(response = BinClassId.class, value = "Get all BinClassId details") // label for swagger
 	@GetMapping("")
 	public ResponseEntity<?> getAll() {
 		List<BinClassId> binclassidList = binClassIdService.getBinClassIds();
-		return new ResponseEntity<>(binclassidList, HttpStatus.OK);
+		return new ResponseEntity<>(binclassidList, HttpStatus.OK); 
 	}
-
-	@ApiOperation(response = BinClassId.class, value = "Get a BinClassId") // label for swagger
+    
+    @ApiOperation(response = BinClassId.class, value = "Get a BinClassId") // label for swagger 
 	@GetMapping("/{binClassId}")
-	public ResponseEntity<?> getBinClassId(@RequestParam String warehouseId, @PathVariable Long binClassId, @RequestParam String companyCodeId, @RequestParam String languageId, @RequestParam String plantId) {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-			BinClassId inhousetransferline = binClassIdService.getBinClassId(warehouseId, binClassId, companyCodeId, languageId, plantId);
-			log.info("BinClassId : " + inhousetransferline);
-			return new ResponseEntity<>(inhousetransferline, HttpStatus.OK);
-		} finally {
-			DataBaseContextHolder.clear();
-		}
+	public ResponseEntity<?> getBinClassId(@RequestParam String warehouseId,@PathVariable Long binClassId,@RequestParam String companyCodeId,@RequestParam String languageId,@RequestParam String plantId) {
+    	BinClassId inhousetransferline = binClassIdService.getBinClassId(warehouseId, binClassId,companyCodeId,languageId,plantId);
+    	log.info("BinClassId : " + inhousetransferline);
+		return new ResponseEntity<>(inhousetransferline, HttpStatus.OK);
 	}
-
-	@ApiOperation(response = BinClassId.class, value = "Create BinClassId") // label for swagger
+    
+    @ApiOperation(response = BinClassId.class, value = "Create BinClassId") // label for swagger
 	@PostMapping("")
 	public ResponseEntity<?> postBinClassId(@Valid @RequestBody AddBinClassId newBinClassId, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(newBinClassId.getCompanyCodeId(), newBinClassId.getPlantId(), newBinClassId.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-			BinClassId createdBinClassId = binClassIdService.createBinClassId(newBinClassId, loginUserID);
-			return new ResponseEntity<>(createdBinClassId, HttpStatus.OK);
-		} finally {
-			DataBaseContextHolder.clear();
-		}
+		BinClassId createdBinClassId = binClassIdService.createBinClassId(newBinClassId, loginUserID);
+		return new ResponseEntity<>(createdBinClassId , HttpStatus.OK);
 	}
-
-	@ApiOperation(response = BinClassId.class, value = "Update BinClassId") // label for swagger
-	@PatchMapping("/{binClassId}")
-	public ResponseEntity<?> patchBinClassId(@RequestParam String warehouseId, @PathVariable Long binClassId, @RequestParam String companyCodeId, @RequestParam String languageId, @RequestParam String plantId,
-											 @Valid @RequestBody UpdateBinClassId updateBinClassId, @RequestParam String loginUserID)
+    
+    @ApiOperation(response = BinClassId.class, value = "Update BinClassId") // label for swagger
+    @PatchMapping("/{binClassId}")
+	public ResponseEntity<?> patchBinClassId(@RequestParam String warehouseId,@PathVariable Long binClassId,@RequestParam String companyCodeId,@RequestParam String languageId,@RequestParam String plantId,
+			@Valid @RequestBody UpdateBinClassId updateBinClassId, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-			BinClassId createdBinClassId =
-					binClassIdService.updateBinClassId(warehouseId, binClassId, companyCodeId, languageId, plantId, loginUserID, updateBinClassId);
-			return new ResponseEntity<>(createdBinClassId, HttpStatus.OK);
-		} finally {
-			DataBaseContextHolder.clear();
-		}
+		BinClassId createdBinClassId = 
+				binClassIdService.updateBinClassId(warehouseId, binClassId,companyCodeId,languageId,plantId,loginUserID, updateBinClassId);
+		return new ResponseEntity<>(createdBinClassId , HttpStatus.OK);
 	}
-
-	@ApiOperation(response = BinClassId.class, value = "Delete BinClassId") // label for swagger
+    
+    @ApiOperation(response = BinClassId.class, value = "Delete BinClassId") // label for swagger
 	@DeleteMapping("/{binClassId}")
-	public ResponseEntity<?> deleteBinClassId(@RequestParam String warehouseId, @PathVariable Long binClassId, @RequestParam String companyCodeId, @RequestParam String languageId, @RequestParam String plantId,
-											  @RequestParam String loginUserID) {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
-			binClassIdService.deleteBinClassId(warehouseId, binClassId, companyCodeId, languageId, plantId, loginUserID);
-			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-		} finally {
-			DataBaseContextHolder.clear();
-		}
+	public ResponseEntity<?> deleteBinClassId( @RequestParam String warehouseId, @PathVariable Long binClassId,@RequestParam String companyCodeId,@RequestParam String languageId,@RequestParam String plantId,
+			@RequestParam String loginUserID) {
+    	binClassIdService.deleteBinClassId(warehouseId, binClassId,companyCodeId,languageId,plantId,loginUserID);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-
 	//Search
 	@ApiOperation(response = BinClassId.class, value = "Find BinClassId") // label for swagger
 	@PostMapping("/find")
 	public ResponseEntity<?> findBinClassId(@Valid @RequestBody FindBinClassId findBinClassId) throws Exception {
-		try {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(findBinClassId.getCompanyCodeId(), findBinClassId.getPlantId(), findBinClassId.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
 		List<BinClassId> createdBinClassId = binClassIdService.findBinClassId(findBinClassId);
 		return new ResponseEntity<>(createdBinClassId, HttpStatus.OK);
 	}
-		finally {
-			DataBaseContextHolder.clear();
-		}
-}
 }
