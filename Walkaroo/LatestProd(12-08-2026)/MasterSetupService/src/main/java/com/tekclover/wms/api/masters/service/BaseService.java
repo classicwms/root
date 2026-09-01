@@ -117,7 +117,7 @@ public class BaseService {
 	 */
 	public String getDataBase(String plantId, String warehouseId) {
 
-		if (plantId.equalsIgnoreCase("1207")) {
+		if (plantId.equalsIgnoreCase("1212")) {
 			return "MDU";
 		} else if (plantId.equalsIgnoreCase("1211")) {
 			return "CMP";
@@ -125,7 +125,7 @@ public class BaseService {
 			return "CHN";
 		} else if (plantId.equalsIgnoreCase("1200")) {
 			return "VGA";
-		} else if (plantId.equalsIgnoreCase("1202")) {
+		} else if (plantId.equalsIgnoreCase("1215")) {
 			return "CCL";
 		} else if (plantId.equalsIgnoreCase("1205")) {
 			return "HYD";
