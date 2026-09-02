@@ -28,6 +28,7 @@ public class StockAdjustmentMiddlewareService extends BaseService {
     public StockAdjustment createStockAdjustment(StockAdjustment stockAdjustment) {
 
         if (stockAdjustment != null) {
+            stockAdjustment.setStockAdjustmentId(null);
             StockAdjustment createStockAdjustment = stockAdjustmentMiddlewareRepository.save(stockAdjustment);
             log.info("StockAdjustment Created: " + createStockAdjustment);
             return createStockAdjustment;
