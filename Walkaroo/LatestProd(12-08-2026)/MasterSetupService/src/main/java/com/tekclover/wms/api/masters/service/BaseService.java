@@ -121,7 +121,7 @@ public class BaseService {
 			return "MDU";
 		} else if (plantId.equalsIgnoreCase("1211")) {
 			return "CMP";
-		} else if (plantId.equalsIgnoreCase("1203")) {
+		} else if (plantId.equalsIgnoreCase("1210")) {
 			return "CHN";
 		} else if (plantId.equalsIgnoreCase("1200")) {
 			return "VGA";
@@ -137,7 +137,7 @@ public class BaseService {
 			return "NGP1";
 		} else if (plantId.equalsIgnoreCase("1700") && warehouseId.equalsIgnoreCase("1001")) {
 			return "NGP2";
-		} else if (plantId.equalsIgnoreCase("1201")) {
+		} else if (plantId.equalsIgnoreCase("1214")) {
 			return "MYS";
 		} else if (plantId.equalsIgnoreCase("1250")) {
 			return "KNP";
