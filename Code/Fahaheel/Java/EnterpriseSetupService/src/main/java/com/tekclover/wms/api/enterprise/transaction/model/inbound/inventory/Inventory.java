@@ -158,6 +158,6 @@ public class Inventory {
     @Column(name = "MFR_CODE", columnDefinition = "nvarchar(255)")
     private String manufacturerCode;
 
-    @Version
-    private Long versionId = 0L;
+//    @Version
+//    private Long versionId = 0L;
 }
