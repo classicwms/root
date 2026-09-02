@@ -50,6 +50,8 @@ public class BatchJobScheduler {
         CompletableFuture<WarehouseApiResponse> outboundOrderV11 = scheduleAsyncService.processOutboundOrderV11();
         //KNP
         CompletableFuture<WarehouseApiResponse> outboundOrderV12 = scheduleAsyncService.processOutboundOrderV12();
+        //CTC
+        CompletableFuture<WarehouseApiResponse> outboundOrderV13 = scheduleAsyncService.processOutboundOrderV13();
 
     }
 
@@ -81,6 +83,8 @@ public class BatchJobScheduler {
         scheduleAsyncService.processDeliveryConfirmationV11();
         //KNP
         scheduleAsyncService.processDeliveryConfirmationV12();
+        //CTC
+        scheduleAsyncService.processDeliveryConfirmationV13();
 
     }
 

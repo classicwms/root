@@ -39,6 +39,7 @@ public class DataSourceConfig {
         DataSource ngp2 = ngp2DataSource();
         DataSource mys = mysDataSource();
         DataSource knp = knpDataSource();
+        DataSource ctc = ctcDataSource();
 
 
         Map<Object, Object> targetDataSources = new HashMap<>();
@@ -55,6 +56,7 @@ public class DataSourceConfig {
         targetDataSources.put("NGP2", ngp2);
         targetDataSources.put("MYS", mys);
         targetDataSources.put("KNP", knp);
+        targetDataSources.put("CTC", ctc);
 
         DynamicDataSource ds = new DynamicDataSource();
         ds.setTargetDataSources(targetDataSources);
@@ -175,6 +177,15 @@ public class DataSourceConfig {
         return buildDataSource(
                 "KNP",
                 "jdbc:sqlserver://10.10.6.30;databaseName=WMS_KNP",
+                "sa",
+                "SuHcHQR72nxvyJx6EPpoOsK4V"
+        );
+    }
+
+    private DataSource ctcDataSource() {
+        return buildDataSource(
+                "CTC",
+                "jdbc:sqlserver://10.10.6.30;databaseName=WMS_CTC",
                 "sa",
                 "SuHcHQR72nxvyJx6EPpoOsK4V"
         );

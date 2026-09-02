@@ -93,6 +93,10 @@ public class ScheduleAsyncService {
         WarehouseApiResponse inboundOrder = transactionService.processInboundOrder("KNP");
     }
 
+    @Async("asyncExecutor")
+    public void processInboundOrderV13() throws Exception{
+        WarehouseApiResponse inboundOrder = transactionService.processInboundOrder("CTC");
+    }
 
     //-------------------------------------------------------------------Inbound-Failed-Order-------------------------------------------------------------
     @Async("asyncExecutor")
