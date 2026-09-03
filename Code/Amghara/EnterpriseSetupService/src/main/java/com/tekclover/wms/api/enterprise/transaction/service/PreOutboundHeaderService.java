@@ -2982,6 +2982,7 @@ public class PreOutboundHeaderService extends BaseService {
 //        if (stockType1InventoryList.isEmpty()) {
 //            return createEMPTYOrderManagementLineV2(orderManagementLine);
 //        }
+
         return orderManagementLineService.updateAllocationV2(orderManagementLine, binClassId, ORD_QTY, warehouseId, itemCode, "ORDER_PLACED");
     }
 
