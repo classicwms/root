@@ -50,7 +50,7 @@ public class BatchJobScheduler {
         //KNP
         scheduleAsyncService.processInboundOrderV12();
         //CTC
-        scheduleAsyncService.processInboundOrderV13();
+//        scheduleAsyncService.processInboundOrderV13();
 
 
 //        CompletableFuture<WarehouseApiResponse> inboundFailedOrder = scheduleAsyncService.processInboundFailedOrder();
