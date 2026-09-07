@@ -160,4 +160,5 @@ public class Inventory {
 
     @Version
     private Long versionId = 0L;
+
 }
