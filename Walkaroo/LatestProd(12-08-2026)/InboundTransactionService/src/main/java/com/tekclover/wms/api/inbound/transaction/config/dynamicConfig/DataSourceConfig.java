@@ -185,9 +185,9 @@ public class DataSourceConfig {
     private DataSource ctcDataSource() {
         return buildDataSource(
                 "CTC",
-                "jdbc:sqlserver://10.10.6.30;databaseName=WMS_CTC",
+                "jdbc:sqlserver://10.20.0.19;databaseName=WMS_CTC",
                 "sa",
-                "SuHcHQR72nxvyJx6EPpoOsK4V"
+                "TvHcGBR84nxvyJx6EPpoOsL5V"
         );
     }
 
