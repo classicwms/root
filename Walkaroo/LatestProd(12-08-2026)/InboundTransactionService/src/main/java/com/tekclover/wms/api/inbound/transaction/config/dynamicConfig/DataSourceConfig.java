@@ -77,9 +77,9 @@ public class DataSourceConfig {
     private DataSource mduDataSource() {
         return buildDataSource(
                 "MDU",
-                "jdbc:sqlserver://10.10.6.30;databaseName=WMS_WK_PRD",
+                "jdbc:sqlserver://10.20.0.40;databaseName=WMS_WK_PRD",
                 "sa",
-                "SuHcHQR72nxvyJx6EPpoOsK4V"
+                "kT9mzQeF27vWbHsLXy8dPnJ4r"
         );
     }
 
@@ -167,9 +167,9 @@ public class DataSourceConfig {
     private DataSource mysDataSource() {
         return buildDataSource(
                 "MYS",
-                "jdbc:sqlserver://10.10.6.30;databaseName=WMS_MYS",
+                "jdbc:sqlserver://10.20.0.40;databaseName=WMS_MYS",
                 "sa",
-                "SuHcHQR72nxvyJx6EPpoOsK4V"
+                "kT9mzQeF27vWbHsLXy8dPnJ4r"
         );
     }
 
