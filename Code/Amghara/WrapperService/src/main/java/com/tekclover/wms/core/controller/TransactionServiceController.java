@@ -4410,4 +4410,28 @@ public class TransactionServiceController {
         transactionService.deleteOutboundOrder(orderId, authToken);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    // InboundCount FIND
+    @ApiOperation(response = MobileDashboard.class, value = "Find MobileDashBoard")//label for swagger
+    @PostMapping("/reports/dashboard/mobile/inboundCount/find")
+    public MobileDashboard findInboundCountMobileDashBoard(@RequestBody FindMobileDashBoard findMobileDashBoard,
+                                                           @RequestParam String authToken) throws Exception {
+        return transactionService.findInboundCountMobileDashBoard(findMobileDashBoard, authToken);
+    }
+
+    // OutboundCount FIND
+    @ApiOperation(response = MobileDashboard.class, value = "Find MobileDashBoard")//label for swagger
+    @PostMapping("/reports/dashboard/mobile/outboundCount/find")
+    public MobileDashboard findOutboundCountMobileDashBoard(@RequestBody FindMobileDashBoard findMobileDashBoard,
+                                                            @RequestParam String authToken) throws Exception {
+        return transactionService.findOutboundCountMobileDashBoard(findMobileDashBoard, authToken);
+    }
+
+    // StockCount FIND
+    @ApiOperation(response = MobileDashboard.class, value = "Find MobileDashBoard")//label for swagger
+    @PostMapping("/reports/dashboard/mobile/stockCount/find")
+    public MobileDashboard findStockCountMobileDashBoard(@RequestBody FindMobileDashBoard findMobileDashBoard,
+                                                         @RequestParam String authToken) throws Exception {
+        return transactionService.findStockCountMobileDashBoard(findMobileDashBoard, authToken);
+    }
 }
