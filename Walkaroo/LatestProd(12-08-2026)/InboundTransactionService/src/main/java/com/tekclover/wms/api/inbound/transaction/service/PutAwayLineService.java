@@ -3617,9 +3617,13 @@ public class PutAwayLineService extends BaseService {
 //            putAwayHeaderV2Repository.updatePutAwayHeaderStatusId( pu.getCompanyCode(), pu.getPlantId(), pu.getLanguageId(), pu.getWarehouseId(),
 //                    pu.getItemCode(), pu.getBarcodeId(), 20L);
 //        }
-        updatePutAwayHeader(companyCode, plantId, languageId, warehouseId, barcodeIds);
-        putAwayLineAsyncProcess.createPutAwayLine(putAwayLineV2s, loginUserID);
+        try {
+            updatePutAwayHeader(companyCode, plantId, languageId, warehouseId, barcodeIds);
+        } catch (Exception e) {
+            log.error("Error updating PutAwayHeader status for barcodes: {}", barcodeIds, e);
+        }
 
+        putAwayLineAsyncProcess.createPutAwayLine(putAwayLineV2s, loginUserID);
         log.info("Return Response Successfully In PutAwayConfirm --------------------------->");
         return putAwayLineV2s;
     }
