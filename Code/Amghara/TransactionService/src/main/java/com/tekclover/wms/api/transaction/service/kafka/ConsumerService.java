@@ -1,8 +1,7 @@
 package com.tekclover.wms.api.transaction.service.kafka;
 
 
-import com.tekclover.wms.api.transaction.model.kafka.PickupLineEvent;
-import com.tekclover.wms.api.transaction.model.kafka.UpdatePickupHeaderEvent;
+import com.tekclover.wms.api.transaction.model.kafka.*;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.v2.PickupLineV2;
 import com.tekclover.wms.api.transaction.repository.*;
 import com.tekclover.wms.api.transaction.service.OutboundLineService;
@@ -40,6 +39,10 @@ public class ConsumerService {
     QualityLineV2Repository qualityLineV2Repository;
     @Autowired
     OutboundLineService outboundLineService;
+    @Autowired
+    PreOutboundHeaderV2Repository preOutboundHeaderV2Repository;
+    @Autowired
+    OutboundHeaderV2Repository outboundHeaderV2Repository;
 
 
     // PickupLine Creation Process
@@ -49,12 +52,12 @@ public class ConsumerService {
     }
 
     // PickupLine Save
-//    @KafkaListener(topics = "pickupline-save-topic-v1", groupId = "pickupline-save-group-v1", containerFactory = "pickupLineSaveListenerFactory")
-//    public void consume(PickupLineCreateEvent event) {
-//        List<PickupLineV2> pickupLineV2List = event.getPickupLineV2List();
-//        log.info("Saving {} records", pickupLineV2List.size());
-//        pickupLineV2Repository.saveAll(pickupLineV2List);
-//    }
+    @KafkaListener(topics = "pickupline-save-topic-v1", groupId = "pickupline-save-group-v1", containerFactory = "pickupLineSaveListenerFactory")
+    public void consume(PickupLineCreateEvent event) {
+        List<PickupLineV2> pickupLineV2List = event.getPickupLineV2List();
+        log.info("Saving {} records", pickupLineV2List.size());
+        pickupLineV2Repository.saveAll(pickupLineV2List);
+    }
 
     // Inventory Creation
     @KafkaListener(topics = "pickupheader-update-topic-v1", groupId = "pickupHeader-update-group-v1", containerFactory = "updatePickupHeaderListenerFactory")
@@ -63,5 +66,63 @@ public class ConsumerService {
         pickupHeaderV2Repository.updatePickupheader(event.getRefDocNumber(), event.getPickupNumber(), event.getStatusId(), event.getStatusDescription(), event.getLoginUserID(), new Date());
     }
 
+    // QualityLine Creation
+    @KafkaListener(topics = "qualityline-save-topic-v1", groupId = "qualityline-save-group-v1", containerFactory = "qualitylineListenerFactory")
+    public void saveConsume(QualityLineSaveEvent event) throws ParseException, InvocationTargetException, IllegalAccessException {
+        log.info("Quality Line Create Event {} ", event);
+        qualityLineV2Repository.saveAll(event.getQualityLineV2List());
+//        qualityLineService.createQualityLineV2(event.getQualityLineV2s(), event.getLoginUserID());
+    }
 
+    // QualityHeader Update
+    @KafkaListener(topics = "qualityheader-update-topic-v1", groupId = "qualityheader-update-group-v1", containerFactory = "qualityHeaderUpdateListenerFactory")
+    public void consume(QualityHeaderUpdateEvent event) throws ParseException, InvocationTargetException, IllegalAccessException {
+        log.info("Quality Header Update Event {} ", event);
+        int qualityHeader= qualityHeaderV2Repository.updateQualityHeader(event.getStatusDescription(), event.getQualityInspectionNo() );
+        log.info("QualityHeader Updated Affected Row's: {} ", qualityHeader);
+    }
+
+    // OutboundLine Interim Save
+//    @KafkaListener(topics = "outboundlineinterim-save-topic-v1", groupId = "outboundlineinterim-save-group-v1", containerFactory = "outboundlineInterimListenerFactory")
+//    public void consume(OutboundLineInterimSaveEvent event) throws ParseException, InvocationTargetException, IllegalAccessException {
+//        log.info("OutboundLine Interim Save Event {} ", event.getOutboundLineInterimList());
+//        outboundLineInterimRepository.saveAll(event.getOutboundLineInterimList());
+//    }
+//    // DLV_QTY Update
+//    @KafkaListener(topics = "dlv_qty-update-topic-v1", groupId = "dlv_qty-update-group-v1", containerFactory = "dlvQtyInterimListenerFactory")
+//    public void consume(QualityLineSaveEvent event) throws ParseException, InvocationTargetException, IllegalAccessException {
+//        log.info("DLV_QTY Update Save Event {} ", event.getQualityLineV2List());
+//        qualityLineService.updateDeliveryQty(event.getQualityLineV2List());
+//    }
+    // Delivery Confirm
+    @KafkaListener(topics = "delivery-confirm-topic-v1", groupId = "delivery-confirm-group-v1", containerFactory = "deliveryConfirmInterimListenerFactory")
+    public void consume(DeliveryConfirmEvent event) throws ParseException, InvocationTargetException, IllegalAccessException {
+//        qualityLineService.postDeliveryConfirm(event.getQualityLineV2List(), event.getLoginUserID());
+        log.info("Delivery Confirm Process Started from Kafka: {} ", event);
+        outboundLineService.deliveryConfirmationV2Kafka(event.getCompanyCodeId(), event.getPlantId(), event.getLanguageId(), event.getWarehouseId(),
+                event.getPreOutboundNo(), event.getRefDocNumber(), event.getPartnerCode(), event.getLoginUserID(), event.getLineNumbers());
+    }
+
+
+    // New PreObHeader Update
+    @KafkaListener(topics = "preobheader-status-update-topic-v1", groupId = "preobheader-status-update-group-v1", containerFactory = "updatePreObHeaderStatusListenerFactory")
+    public void consume(UpdatePreOutboundHeaderStatus event) {
+        log.info("Update PreOutbound Line Event {}", event);
+        preOutboundHeaderV2Repository.updatePreOutboundHeaderStatusV2New(event.getCompanyId(), event.getPlantId(), event.getLanguageId(), event.getWarehouseId(),
+                event.getRefDocNo(), event.getPreOutboundNo(), event.getStatusId(), event.getStatusDescription(), event.getLoginUserID() ,new Date());
+    }
+
+    // New OutboundHeader Update
+    @KafkaListener(topics = "obheader-status-update-topic-v1", groupId = "obheader-status-update-group-v1", containerFactory = "updateObHeaderStatusListenerFactory")
+    public void consume(UpdateOutboundHeaderStatus event) {
+        log.info("Update Outbound Line Event {}", event);
+        outboundHeaderV2Repository.updateOutboundHeaderStatusV2New(event.getCompanyId(), event.getPlantId(), event.getLanguageId(), event.getWarehouseId(),
+                event.getRefDocNo(), event.getPreOutboundNo(), event.getStatusId(), event.getStatusDescription(), event.getLoginUserID() ,new Date());
+    }
+
+    // QualityLine Creation Process
+    @KafkaListener(topics = "qualityline-create-topic-v1", groupId = "qualityline-create-group-v1", containerFactory = "qualityLineProcessListenerFactory")
+    public void consume(QualityLineCreateEvent event) throws Exception {
+        qualityLineService.createQualityLineV2(event.getQualityLineV2s(), event.getLoginUserID());
+    }
 }

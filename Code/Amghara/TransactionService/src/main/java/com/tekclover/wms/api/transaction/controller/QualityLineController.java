@@ -115,7 +115,9 @@ public class QualityLineController {
     @PostMapping("/v2")
     public ResponseEntity<?> postQualityLineV2(@Valid @RequestBody List<AddQualityLineV2> newQualityLine,
     @RequestParam String loginUserID) throws Exception {
-        List<QualityLineV2> createdQualityLine = qualitylineService.createQualityLineV2(newQualityLine, loginUserID);
+//        List<QualityLineV2> createdQualityLine = qualitylineService.createQualityLineV2(newQualityLine, loginUserID);
+          List<AddQualityLineV2> createdQualityLine = qualitylineService.createQualityLineWithKafka(newQualityLine, loginUserID);
+
         return new ResponseEntity<>(createdQualityLine, HttpStatus.OK);
     }
 

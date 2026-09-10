@@ -753,4 +753,37 @@ public interface OutboundHeaderV2Repository extends JpaRepository<OutboundHeader
                                           @Param("alternateNo") String alternateNo,
                                           @Param("status") String status,
                                           @Param("updatedOn") Date updatedOn);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("Update OutboundHeaderV2 ob SET ob.statusId = :statusId, ob.statusDescription = :statusDescription, ob.updatedOn = :updatedOn, ob.updatedBy = :updatedBy  \r\n "
+            + " WHERE ob.companyCodeId = :companyCodeId AND ob.plantId = :plantId AND ob.languageId = :languageId AND ob.warehouseId = :warehouseId AND ob.refDocNumber = :refDocNumber AND ob.preOutboundNo = :preOutboundNo")
+    public void updateOutboundHeaderStatusV2New(@Param("companyCodeId") String companyCodeId,
+                                             @Param("plantId") String plantId,
+                                             @Param("languageId") String languageId,
+                                             @Param("warehouseId") String warehouseId,
+                                             @Param("refDocNumber") String refDocNumber,
+                                             @Param("preOutboundNo") String preOutboundNo,
+                                             @Param("statusId") Long statusId,
+                                             @Param("statusDescription") String statusDescription,
+                                             @Param("updatedBy") String updatedBy,
+                                             @Param("updatedOn") Date updatedOn);
+
+
+    @Query(value = "SELECT case when COUNT(REF_DOC_NO) = (sum(case when status_id in (:statusId) \n" +
+            " then 1 else 0 end)) then 1 else 0 end FROM tbloutboundline \n" +
+            " WHERE  C_ID = :companyCodeId AND \n" +
+            " PLANT_ID = :plantId AND \n" +
+            " LANG_ID = :languageId AND \n" +
+            " WH_ID = :warehouseId AND \n" +
+            " REF_DOC_NO = :refDocNumber AND\n" +
+            " PRE_OB_NO = :preOutboundNo AND\n" +
+            " IS_DELETED = 0 \n" +
+            " GROUP BY REF_DOC_NO",nativeQuery = true)
+    Long getOutboundLineCountWithStatusId(@Param("companyCodeId") String companyCodeId,
+                                          @Param("plantId") String plantId,
+                                          @Param("languageId") String languageId,
+                                          @Param("warehouseId") String warehouseId,
+                                          @Param("refDocNumber") String refDocNumber,
+                                          @Param("preOutboundNo") String preOutboundNo,
+                                          @Param("statusId")List<Long> statusId);
 }

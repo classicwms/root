@@ -1,7 +1,6 @@
 package com.tekclover.wms.api.transaction.service.kafka;
 
-import com.tekclover.wms.api.transaction.model.kafka.PickupLineEvent;
-import com.tekclover.wms.api.transaction.model.kafka.UpdatePickupHeaderEvent;
+import com.tekclover.wms.api.transaction.model.kafka.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -12,15 +11,19 @@ public class ProducerService {
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
-    //
-    public void pickupLineProcess(PickupLineEvent event) {
-        kafkaTemplate.send("pickupline-topic-v1", event);
+    public void publishPickupLine(String topic, Object event) {
+        kafkaTemplate.send(topic, event);
     }
 
-    // PutAwayLine Save
-//    public void savePickupLine(PickupLineCreateEvent event) {
-//        kafkaTemplate.send("pickupline-save-topic-v1", event);
+//    //
+//    public void pickupLineProcess(PickupLineEvent event) {
+//        kafkaTemplate.send("pickupline-topic-v1", event);
 //    }
+
+    // PutAwayLine Save
+    public void savePickupLine(PickupLineCreateEvent event) {
+        kafkaTemplate.send("pickupline-save-topic-v1", event);
+    }
 
     // Update PickupHeader
     public void updatePickupHeader(UpdatePickupHeaderEvent event) {
@@ -28,14 +31,14 @@ public class ProducerService {
     }
 
     // QualityLine Save
-//    public void qualityLineSave(QualityLineSaveEvent event) {
-//        kafkaTemplate.send("qualityline-save-topic-v1", event);
-//    }
+    public void qualityLineSave(QualityLineSaveEvent event) {
+        kafkaTemplate.send("qualityline-save-topic-v1", event);
+    }
 
     // QualityHeader Update
-//    public void qualityHeaderUpdate(QualityHeaderUpdateEvent event) {
-//        kafkaTemplate.send("qualityheader-update-topic-v1", event);
-//    }
+    public void qualityHeaderUpdate(QualityHeaderUpdateEvent event) {
+        kafkaTemplate.send("qualityheader-update-topic-v1", event);
+    }
 
 //    // OutboundLineInterim Save
 //    public void outboundLineInterimSave(OutboundLineInterimSaveEvent event) {
@@ -47,7 +50,22 @@ public class ProducerService {
 //        kafkaTemplate.send("dlv_qty-update-topic-v1", event);
 //    }
     // Delivery Confirm
-//    public void deliveryConfirm(DeliveryConfirmEvent event) {
-//        kafkaTemplate.send("delivery-confirm-topic-v1", event);
-//    }
+    public void deliveryConfirm(DeliveryConfirmEvent event) {
+        kafkaTemplate.send("delivery-confirm-topic-v1", event);
+    }
+
+
+    // Update OutboundLine
+    public void updatePreOutboundHeader(UpdatePreOutboundHeaderStatus event) {
+        kafkaTemplate.send("preobheader-status-update-topic-v1", event);
+    }
+
+    // Update OutboundLine
+    public void updateOutboundHeader(UpdateOutboundHeaderStatus event) {
+        kafkaTemplate.send("obheader-status-update-topic-v1", event);
+    }
+
+    public void publishQualityLine(String topic, Object event) {
+        kafkaTemplate.send(topic, event);
+    }
 }

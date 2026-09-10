@@ -3611,7 +3611,7 @@ public class TransactionServiceController {
     public ResponseEntity<?> postPickupLineV2(@Valid @RequestBody List<AddPickupLine> newPickupLine,
                                               @RequestParam String loginUserID, @RequestParam String authToken)
             throws IllegalAccessException, InvocationTargetException {
-        PickupLineV2[] createdPickupLine = transactionService.createPickupLineV2(newPickupLine, loginUserID, authToken);
+        AddPickupLine[] createdPickupLine = transactionService.createPickupLineV2(newPickupLine, loginUserID, authToken);
         return new ResponseEntity<>(createdPickupLine, HttpStatus.OK);
     }
 
@@ -3720,7 +3720,7 @@ public class TransactionServiceController {
     public ResponseEntity<?> postQualityLineV2(@Valid @RequestBody List<AddQualityLine> newQualityLine,
                                                @RequestParam String loginUserID, @RequestParam String authToken)
             throws IllegalAccessException, InvocationTargetException {
-        QualityLineV2[] createdQualityLine = transactionService.createQualityLineV2(newQualityLine, loginUserID, authToken);
+        AddQualityLineV2[] createdQualityLine = transactionService.createQualityLineV2(newQualityLine, loginUserID, authToken);
         return new ResponseEntity<>(createdQualityLine, HttpStatus.OK);
     }
 

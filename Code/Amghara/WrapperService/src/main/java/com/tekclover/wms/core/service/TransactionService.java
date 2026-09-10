@@ -11372,7 +11372,7 @@ public class TransactionService {
     }
 
     // POST
-    public PickupLineV2[] createPickupLineV2(@Valid List<AddPickupLine> newPickupLine, String loginUserID,
+    public AddPickupLine[] createPickupLineV2(@Valid List<AddPickupLine> newPickupLine, String loginUserID,
                                              String authToken) {
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -11382,8 +11382,8 @@ public class TransactionService {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "pickupline/v2")
                 .queryParam("loginUserID", loginUserID);
         HttpEntity<?> entity = new HttpEntity<>(newPickupLine, headers);
-        ResponseEntity<PickupLineV2[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity,
-                PickupLineV2[].class);
+        ResponseEntity<AddPickupLine[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity,
+                AddPickupLine[].class);
         log.info("result : " + result.getStatusCode());
         return result.getBody();
     }
@@ -11722,7 +11722,7 @@ public class TransactionService {
     }
 
     // POST
-    public QualityLineV2[] createQualityLineV2(@Valid List<AddQualityLine> newQualityLine, String loginUserID,
+    public AddQualityLineV2[] createQualityLineV2(@Valid List<AddQualityLine> newQualityLine, String loginUserID,
                                                String authToken) {
         try {
             HttpHeaders headers = new HttpHeaders();
@@ -11733,8 +11733,8 @@ public class TransactionService {
             UriComponentsBuilder builder = UriComponentsBuilder
                     .fromHttpUrl(getTransactionServiceApiUrl() + "qualityline/v2").queryParam("loginUserID", loginUserID);
             HttpEntity<?> entity = new HttpEntity<>(newQualityLine, headers);
-            ResponseEntity<QualityLineV2[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST,
-                    entity, QualityLineV2[].class);
+            ResponseEntity<AddQualityLineV2[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST,
+                    entity, AddQualityLineV2[].class);
             log.info("result : " + result.getStatusCode());
             return result.getBody();
         } catch (Exception e) {

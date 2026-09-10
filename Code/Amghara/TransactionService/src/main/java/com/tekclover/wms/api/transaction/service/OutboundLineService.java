@@ -3932,7 +3932,7 @@ public class OutboundLineService extends BaseService {
      * @throws IllegalAccessException
      * @throws InvocationTargetException
      */
-    public List<OutboundLineV2> deliveryConfirmationV2(String companyCodeId, String plantId, String languageId, String warehouseId,
+    public List<OutboundLineV2> deliveryConfirmationV2Kafka(String companyCodeId, String plantId, String languageId, String warehouseId,
            String preOutboundNo, String refDocNumber, String partnerCode, String loginUserID, List<Long> lineNumbers)
             throws IllegalAccessException, InvocationTargetException {
 //        /*--------------------OutboundLine-Check---------------------------------------------------------------------------*/

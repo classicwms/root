@@ -12,6 +12,12 @@ import java.util.stream.Stream;
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 
+import com.google.common.collect.Lists;
+import com.tekclover.wms.api.transaction.model.DescriptionDTO;
+import com.tekclover.wms.api.transaction.model.kafka.*;
+import com.tekclover.wms.api.transaction.model.outbound.pickup.AddPickupLine;
+import com.tekclover.wms.api.transaction.service.kafka.ProducerService;
+import com.tekclover.wms.api.transaction.service.redis.RedisService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
@@ -127,6 +133,12 @@ public class QualityLineService extends BaseService {
     @Autowired
     private StagingLineV2Repository stagingLineV2Repository;
     String statusDescription = null;
+
+    @Autowired
+    RedisService redisService;
+
+    @Autowired
+    ProducerService producerService;
     //------------------------------------------------------------------------------------------------------
 
     /**
@@ -1244,6 +1256,16 @@ public class QualityLineService extends BaseService {
         return results;
     }
 
+    public List<AddQualityLineV2> createQualityLineWithKafka(List<AddQualityLineV2> newQualityLines, String loginUserID) throws Exception {
+
+        log.info("Publishing PickupLine Creation Event to Kafka -------------------> ");
+        List<List<AddQualityLineV2>> batches = Lists.partition(newQualityLines, 300);
+        for (List<AddQualityLineV2> batch : batches) {
+            producerService.publishQualityLine("qualityline-create-topic-v1", new QualityLineCreateEvent(batch, loginUserID));
+        }
+        return newQualityLines;
+    }
+
     /**
      * @param newQualityLines
      * @param loginUserID
@@ -1267,12 +1289,12 @@ public class QualityLineService extends BaseService {
                 // STATUS_ID - HardCoded Value "55"
                 dbQualityLine.setStatusId(55L);
 
-                IKeyValuePair description = stagingLineV2Repository.getDescription(dbQualityLine.getCompanyCodeId(),
+                DescriptionDTO description = redisService.getDescription(dbQualityLine.getCompanyCodeId(),
                         dbQualityLine.getLanguageId(),
                         dbQualityLine.getPlantId(),
                         dbQualityLine.getWarehouseId());
 
-                statusDescription = stagingLineV2Repository.getStatusDescription(55L, dbQualityLine.getLanguageId());
+                statusDescription = redisService.getStatusDescription(55L, dbQualityLine.getLanguageId());
                 dbQualityLine.setStatusDescription(statusDescription);
                 dbQualityLine.setCompanyDescription(description.getCompanyDesc());
                 dbQualityLine.setPlantDescription(description.getPlantDesc());
@@ -1333,29 +1355,29 @@ public class QualityLineService extends BaseService {
             } // End of for
             
             if (toBeCreatedQLList != null) {
-                statusDescription = stagingLineV2Repository.getStatusDescription(55L, toBeCreatedQLList.get(0).getLanguageId());
+                statusDescription = redisService.getStatusDescription(55L, toBeCreatedQLList.get(0).getLanguageId());
                 List<String> getQualityInspectionNos =
                         toBeCreatedQLList.stream().map(QualityLineV2::getQualityInspectionNo).distinct().collect(Collectors.toList());
                 log.info("-----------getQualityInspectionNos-------> : " + getQualityInspectionNos);
-                int quality = qualityHeaderV2Repository.updateQualityHeader(statusDescription, getQualityInspectionNos);
-                log.info("QualityHeader Status Updated Successfully: Affected Row's {}", quality);
+//                int quality = qualityHeaderV2Repository.updateQualityHeader(statusDescription, getQualityInspectionNos);
+//                log.info("QualityHeader Status Updated Successfully: Affected Row's {}", quality);
 
-            	List<QualityLineV2> createdQualityLineList = qualityLineV2Repository.saveAll(toBeCreatedQLList);
-            	log.info("-----------createdQualityLineList-------> : " + createdQualityLineList);
+                log.info("QualityHeader update Event published -------->");
+                producerService.qualityHeaderUpdate(new QualityHeaderUpdateEvent(statusDescription, getQualityInspectionNos));
 
-                createOutboundLineInterimV2(createdQualityLineList);
+//            	List<QualityLineV2> createdQualityLineList = qualityLineV2Repository.saveAll(toBeCreatedQLList);
+//            	log.info("-----------createdQualityLineList-------> : " + createdQualityLineList);
 
+                log.info("Quality Line Saving Process in Kafka");
+                producerService.qualityLineSave(new QualityLineSaveEvent(toBeCreatedQLList));
 
-//                List<String> getQualityInspectionNos =
-//                		createdQualityLineList.stream().map(QualityLineV2::getQualityInspectionNo).distinct().collect(Collectors.toList());
-//                log.info("-----------getQualityInspectionNos-------> : " + getQualityInspectionNos);
-//                qualityHeaderV2Repository.updateQualityHeader(statusDescription, getQualityInspectionNos);
+//                createOutboundLineInterimV2(createdQualityLineList);
 
                 /*
                  * 
                  */
 				try {
-					statusDescription = stagingLineV2Repository.getStatusDescription(57L, createdQualityLineList.get(0).getLanguageId());
+					statusDescription = redisService.getStatusDescription(57L, toBeCreatedQLList.get(0).getLanguageId());
 					String companyCodeId = null;
 					String plantId = null;
 					String languageId = null;
@@ -1364,7 +1386,7 @@ public class QualityLineService extends BaseService {
 					String refDocNumber = null;
 					String partnerCode = null;
 					List<Long> lineNumbers = new ArrayList<>();
-					for (QualityLineV2 dbQualityLine : createdQualityLineList) {
+					for (QualityLineV2 dbQualityLine : toBeCreatedQLList) {
 						updateOutboundLineV2(dbQualityLine, statusDescription);
 						companyCodeId = dbQualityLine.getCompanyCodeId();
 						plantId = dbQualityLine.getPlantId();
@@ -1375,10 +1397,14 @@ public class QualityLineService extends BaseService {
 						partnerCode = dbQualityLine.getPartnerCode();
 						lineNumbers.add (dbQualityLine.getLineNumber());
 					}
-					List<OutboundLineV2> deliveryConfirmedOutboundLineV2 = 
-							outboundLineService.deliveryConfirmationV2 (companyCodeId, plantId,languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode, loginUserID, lineNumbers);
-					log.info("-----------deliveryConfirmedOutboundLineV2-------> : " + deliveryConfirmedOutboundLineV2);
-					return createdQualityLineList;
+//					List<OutboundLineV2> deliveryConfirmedOutboundLineV2 =
+//							outboundLineService.deliveryConfirmationV2Kafka (companyCodeId, plantId,languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode, loginUserID, lineNumbers);
+//					log.info("-----------deliveryConfirmedOutboundLineV2-------> : " + deliveryConfirmedOutboundLineV2);
+
+                    producerService.deliveryConfirm(new DeliveryConfirmEvent(companyCodeId, plantId,languageId, warehouseId,
+                            preOutboundNo, refDocNumber, partnerCode, loginUserID, lineNumbers));
+//            postDeliveryConfirm(createdQualityLineList, loginUserID);
+                    return toBeCreatedQLList;
 				} catch (Exception e) {
                     e.printStackTrace();
                     log.error("---ERROR:--------deliveryConfirmedOutboundLineV2-------> : " + e.toString());

@@ -118,5 +118,4 @@ public class PropertiesConfig {
 	//-----------------KAFKA-CONF-----------------------------------------------------
 	@Value("${spring.kafka.bootstrap-servers}")
 	private String bootstrapServers;
-
 }
