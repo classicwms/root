@@ -11722,7 +11722,7 @@ public class TransactionService {
     }
 
     // POST
-    public AddQualityLineV2[] createQualityLineV2(@Valid List<AddQualityLine> newQualityLine, String loginUserID,
+    public AddQualityLine[] createQualityLineV2(@Valid List<AddQualityLine> newQualityLine, String loginUserID,
                                                String authToken) {
         try {
             HttpHeaders headers = new HttpHeaders();
@@ -11733,8 +11733,8 @@ public class TransactionService {
             UriComponentsBuilder builder = UriComponentsBuilder
                     .fromHttpUrl(getTransactionServiceApiUrl() + "qualityline/v2").queryParam("loginUserID", loginUserID);
             HttpEntity<?> entity = new HttpEntity<>(newQualityLine, headers);
-            ResponseEntity<AddQualityLineV2[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST,
-                    entity, AddQualityLineV2[].class);
+            ResponseEntity<AddQualityLine[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST,
+                    entity, AddQualityLine[].class);
             log.info("result : " + result.getStatusCode());
             return result.getBody();
         } catch (Exception e) {

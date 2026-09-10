@@ -3720,7 +3720,7 @@ public class TransactionServiceController {
     public ResponseEntity<?> postQualityLineV2(@Valid @RequestBody List<AddQualityLine> newQualityLine,
                                                @RequestParam String loginUserID, @RequestParam String authToken)
             throws IllegalAccessException, InvocationTargetException {
-        AddQualityLineV2[] createdQualityLine = transactionService.createQualityLineV2(newQualityLine, loginUserID, authToken);
+        AddQualityLine[] createdQualityLine = transactionService.createQualityLineV2(newQualityLine, loginUserID, authToken);
         return new ResponseEntity<>(createdQualityLine, HttpStatus.OK);
     }
 
