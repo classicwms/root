@@ -164,8 +164,8 @@ public class PickupLineController {
     @PostMapping("/v2")
     public ResponseEntity<?> postPickupLineV2(@Valid @RequestBody List<AddPickupLine> newPickupLine, @RequestParam String loginUserID)
             throws Exception {
-//        List<PickupLineV2> createdPickupLine = pickuplineService.createPickupLineV2(newPickupLine, loginUserID);
-        List<PickupLineV2> createdPickupLine = pickuplineService.createPickupLineNonCBMV2(newPickupLine, loginUserID);
+//        List<PickupLineV2> createdPickupLine = pickuplineService.createPickupLineNonCBMV2(newPickupLine, loginUserID);
+        List<AddPickupLine> createdPickupLine = pickuplineService.createPickupLineInKafka(newPickupLine, loginUserID);
         return new ResponseEntity<>(createdPickupLine, HttpStatus.OK);
     }
 

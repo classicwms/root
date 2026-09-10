@@ -13,6 +13,9 @@ import java.util.stream.Stream;
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 
+import com.tekclover.wms.api.transaction.model.kafka.PickupLineEvent;
+import com.tekclover.wms.api.transaction.model.kafka.UpdatePickupHeaderEvent;
+import com.tekclover.wms.api.transaction.service.kafka.ProducerService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
@@ -175,6 +178,10 @@ public class PickupLineService extends BaseService {
  	private InventoryTransRepository inventoryTransRepository;
 
     String statusDescription = null;
+
+    @Autowired
+    ProducerService producerService;
+
     //------------------------------------------------------------------------------------------------------
 
     /**
@@ -1655,6 +1662,32 @@ public class PickupLineService extends BaseService {
     }
 
     /**
+     *
+     * @param newPickupLines
+     * @param loginUserID
+     * @return
+     */
+    public List<AddPickupLine> createPickupLineInKafka(List<AddPickupLine> newPickupLines, String loginUserID) {
+        for(AddPickupLine pickupLine : newPickupLines) {
+            Long STATUS_ID = 0L;
+            if (pickupLine.getPickConfirmQty() > 0) {
+                STATUS_ID = 50L;
+            } else {
+                STATUS_ID = 51L;
+            }
+            String refDocNumber = pickupLine.getRefDocNumber();
+            String pickupNumber = pickupLine.getPickupNumber();
+            log.info("Kafka PickupHeader Update Event is being published to Kafka for RefDocNo : {} ", refDocNumber);
+            UpdatePickupHeaderEvent pickupHeaderEvent = new UpdatePickupHeaderEvent(refDocNumber, pickupNumber, STATUS_ID, statusDescription, loginUserID);
+            producerService.updatePickupHeader(pickupHeaderEvent);
+        }
+        log.info("PickupLine Values add in Kafka Producer Started ");
+        producerService.pickupLineProcess(new PickupLineEvent(newPickupLines, loginUserID));
+        log.info("PickupLine Values add in Kafka Producer Completed");
+        return newPickupLines;
+    }
+
+    /**
      * @param newPickupLines
      * @param loginUserID
      * @return
@@ -1848,9 +1881,9 @@ public class PickupLineService extends BaseService {
             }
             
             // Prod Issue @Amghara
-            log.info("PickupNumber: " + pickupNumber);
-            updatePickupheader(refDocNumber, pickupNumber, STATUS_ID, statusDescription, loginUserID, new Date());
-            log.info("PickUpHeader status updated....");
+//            log.info("PickupNumber: " + pickupNumber);
+//            updatePickupheader(refDocNumber, pickupNumber, STATUS_ID, statusDescription, loginUserID, new Date());
+//            log.info("PickUpHeader status updated....");
         } catch (Exception e) {
             e.printStackTrace();
             log.info("PickupHeader update error: " + e.toString());
