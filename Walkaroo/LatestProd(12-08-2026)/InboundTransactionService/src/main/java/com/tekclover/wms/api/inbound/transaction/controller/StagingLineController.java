@@ -492,4 +492,20 @@ public class StagingLineController {
             DataBaseContextHolder.clear();
         }
     }
+
+
+    @ApiOperation(response = StagingLineEntityV2.class, value = "PutAwayHeader Creation ") // label for swagger
+    @PatchMapping("/post/putawayHeader")
+    public ResponseEntity<?> createPutAwayHeader(@Valid @RequestBody List<StagingLineEntityV2> stagingLine) throws Exception {
+        try {
+            String currentDB = baseService.getDataBase(stagingLine.get(0).getPlantId(),stagingLine.get(0).getWarehouseId());
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(currentDB);
+            log.info("StagingLine Update /v2/------> Current DB " + currentDB);
+            List<StagingLineEntityV2> createdStagingLine = staginglineService.createPutAwayHeader(stagingLine);
+            return new ResponseEntity<>(createdStagingLine, HttpStatus.OK);
+        } finally {
+            DataBaseContextHolder.clear();
+        }
+    }
 }

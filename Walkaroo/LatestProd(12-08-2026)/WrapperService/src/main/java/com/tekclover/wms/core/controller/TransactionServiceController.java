@@ -4683,4 +4683,14 @@ public class TransactionServiceController {
         BinOccupancyDashboardResponse response = inboundTransactionService.binOccupancy(authToken);
         return new ResponseEntity<>(response,HttpStatus.OK);
     }
+
+
+    @ApiOperation(response = StagingLineEntityV2.class, value = "Create PutAwayHeader ") // label for swagger
+    @PatchMapping("/post/putawayheader")
+    public ResponseEntity<?> stagingLine(@Valid @RequestBody StagingLineEntityV2[] stagingLine, @RequestParam String authToken) {
+        StagingLineEntityV2[] createdStagingLine =
+                inboundTransactionService.postPutAwayHeader(stagingLine, authToken);
+        return new ResponseEntity<>(createdStagingLine, HttpStatus.OK);
+    }
+
 }

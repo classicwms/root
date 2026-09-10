@@ -11965,5 +11965,28 @@ public class InboundTransactionService {
                 getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, BinOccupancyDashboardResponse.class);
         return result.getBody();
     }
+
+
+    public StagingLineEntityV2[] postPutAwayHeader(StagingLineEntityV2[] stagingLineEntityV2s, String authToken) {
+        try {
+            AuthToken oAuth = authTokenService.getInboundTransactionServiceAuthToken();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS RestTemplate");
+            headers.add("Authorization", "Bearer " + oAuth.getAccess_token());
+
+            HttpEntity<?> entity = new HttpEntity<>(stagingLineEntityV2s, headers);
+            HttpClient client = HttpClients.createDefault();
+            RestTemplate restTemplate = getRestTemplate();
+            restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getInboundTransactionServiceApiUrl() + "stagingline/post/putawayHeader");
+            ResponseEntity<StagingLineEntityV2[]> result = restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH,
+                    entity, StagingLineEntityV2[].class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            throw e;
+        }
+    }
 }
 

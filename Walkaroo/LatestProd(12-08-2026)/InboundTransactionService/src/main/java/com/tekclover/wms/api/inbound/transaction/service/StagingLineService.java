@@ -2983,4 +2983,14 @@ public class StagingLineService extends BaseService {
         }
     }
 
-}
+
+    /**
+     *
+     */
+    public List<StagingLineEntityV2> createPutAwayHeader(List<StagingLineEntityV2> stagingLineEntityV2List)  {
+        log.info("PutAwayHeader Creation Input's : {} ", stagingLineEntityV2List);
+        putAwayLineAsyncProcess.createPutawayHeaderv4(stagingLineEntityV2List);
+        return stagingLineEntityV2List;
+    }
+
+    }
