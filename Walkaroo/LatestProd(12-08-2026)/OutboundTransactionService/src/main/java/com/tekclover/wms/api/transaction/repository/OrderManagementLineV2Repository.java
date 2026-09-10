@@ -343,4 +343,17 @@ public interface OrderManagementLineV2Repository extends JpaRepository<OrderMana
     void deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
             String companyCodeId, String plantId, String warehouseId, String refDocNumber, Long deletionIndicator);
 
+
+    @Modifying(clearAutomatically = true)
+    @Query(value = "UPDATE tblordermangementline SET STATUS_ID = :statusId, REF_FIELD_10 = :statusDescription, STATUS_TEXT = :statusDescription \n" +
+            "WHERE LANG_ID = :languageId AND C_ID = :companyCodeId AND \n" +
+            "PLANT_ID = :plantId AND WH_ID = :warehouseId AND REF_DOC_NO = :refDocNumber ", nativeQuery = true)
+    public int updateOrderManagementLineStatusV3(@Param("companyCodeId") String companyCodeId,
+                                                  @Param("plantId") String plantId,
+                                                  @Param("languageId") String languageId,
+                                                  @Param("warehouseId") String warehouseId,
+                                                  @Param("refDocNumber") String refDocNumber,
+                                                  @Param("statusId") Long statusId,
+                                                  @Param("statusDescription") String statusDescription);
+
 }

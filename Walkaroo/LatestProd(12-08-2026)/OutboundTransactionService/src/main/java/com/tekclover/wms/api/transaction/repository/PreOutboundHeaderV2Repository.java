@@ -418,6 +418,17 @@ public interface PreOutboundHeaderV2Repository extends JpaRepository<PreOutbound
                                       @Param("statusId") Long statusId,
                                       @Param("statusDescription") String statusDescription);
 
+    @Modifying
+    @Query(value = "Update tblpreoutboundheader set status_id = :statusId, status_text = :statusDescription where c_id = :companyId and " +
+            "plant_id = :plantId and lang_id = :languageId and wh_id = :warehouseId and ref_doc_no = :refDocNo and is_deleted = 0", nativeQuery = true)
+    int updatePreOutboundHeaderStatusV2(@Param("companyId") String companyId,
+                                      @Param("plantId") String plantId,
+                                      @Param("languageId") String languageId,
+                                      @Param("warehouseId") String warehouseId,
+                                      @Param("refDocNo") String refDocNo,
+                                      @Param("statusId") Long statusId,
+                                      @Param("statusDescription") String statusDescription);
+
     void deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
             String companyCodeId, String plantId, String warehouseId, String refDocNumber, Long deletionIndicator);
 }

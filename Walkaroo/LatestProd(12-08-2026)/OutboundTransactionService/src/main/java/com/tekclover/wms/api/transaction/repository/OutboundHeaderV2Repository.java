@@ -869,15 +869,14 @@ public interface OutboundHeaderV2Repository extends JpaRepository<OutboundHeader
     
     //============================PGIReversal================================================================
     @Modifying(clearAutomatically = true)
-    @Query(value = "UPDATE tbloutboundheader SET STATUS_ID = :statusId, REF_FIELD_10 = :statusDescription, STATUS_TEXT = :statusDescription \n" +
+    @Query(value = "UPDATE tbloutboundheader SET STATUS_ID = :statusId, STATUS_TEXT = :statusDescription \n" +
             "WHERE LANG_ID = :languageId AND C_ID = :companyCodeId AND \n" +
-            "PLANT_ID = :plantId AND WH_ID = :warehouseId AND REF_DOC_NO = :refDocNumber AND ITM_CODE = :itemCode", nativeQuery = true)
-    public void updateOutboundHeaderForReversalStatusV3(@Param("companyCodeId") String companyCodeId,
+            "PLANT_ID = :plantId AND WH_ID = :warehouseId AND REF_DOC_NO = :refDocNumber ", nativeQuery = true)
+    public int updateOutboundHeaderStatus(@Param("companyCodeId") String companyCodeId,
                                          @Param("plantId") String plantId,
                                          @Param("languageId") String languageId,
                                          @Param("warehouseId") String warehouseId,
                                          @Param("refDocNumber") String refDocNumber,
-                                         @Param("itemCode") String itemCode,
                                          @Param("statusId") Long statusId,
                                          @Param("statusDescription") String statusDescription);
     

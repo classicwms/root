@@ -5939,9 +5939,26 @@ public class OutboundLineService extends BaseService {
                             outHeader.getRefDocNumber(), outHeader.getPartnerCode(), itemCode, "WK", pickedQty, STATUS_ID, statusDescription, loginUserId, new Date());
                     log.info("OutboundLine Status Updated Successfully -----------> RefDocNo Is ---> " + outHeader.getRefDocNumber());
 
-                    outboundLineV2Repository.deliveryConfirmationProc(companyCodeId, plantId, languageId, warehouseId,
+//                    outboundLineV2Repository.deliveryConfirmationProc(companyCodeId, plantId, languageId, warehouseId,
+//                            outHeader.getRefDocNumber(), outHeader.getPreOutboundNo(), STATUS_ID, statusDescription, loginUserId, new Date());
+//                    log.info("Outbound Order Status Updated Successfully --------------------> RefDocNo Is ---> " + outHeader.getRefDocNumber());
+
+                    try {
+                        int headerStatus = outboundHeaderV2Repository.updateOutboundHeaderStatus(companyCodeId, plantId, languageId, warehouseId, outHeader.getRefDocNumber(), STATUS_ID, statusDescription);
+                        log.info("Outbound Order Status Updated Successfully --------------------> Affected Row's---> " + headerStatus);
+
+                        int preOutboundHeaderStatus = preOutboundHeaderV2Repository.updatePreOutboundHeaderStatusV2(companyCodeId, plantId, languageId, warehouseId, outHeader.getRefDocNumber(), STATUS_ID, statusDescription);
+                        log.info("PreOutbound Order Status Updated Successfully -------------------->  Affected Row's ---> " + preOutboundHeaderStatus);
+
+                        int orderManagementLine = orderManagementLineV2Repository.updateOrderManagementLineStatusV3(companyCodeId, plantId, languageId, warehouseId, outHeader.getRefDocNumber(),
+                                STATUS_ID, statusDescription);
+                        log.info("OrderManagementLine Order Status Updated Sucessfully ----------------->  Affected Row's ---> " + orderManagementLine);
+
+                    } catch (Exception e) {
+                        log.info("Exception In DeliveryConfirm Status Id Update -->"+ e.getMessage());
+                        outboundLineV2Repository.deliveryConfirmationProc(companyCodeId, plantId, languageId, warehouseId,
                             outHeader.getRefDocNumber(), outHeader.getPreOutboundNo(), STATUS_ID, statusDescription, loginUserId, new Date());
-                    log.info("Outbound Order Status Updated Successfully --------------------> RefDocNo Is ---> " + outHeader.getRefDocNumber());
+                    }
 
                     int leadTimeUpdate = pickupHeaderV2Repository.updateLeadTime(companyCodeId, plantId, languageId, warehouseId,
                             outHeader.getRefDocNumber(), outHeader.getPreOutboundNo(), new Date(), STATUS_ID, statusDescription);
