@@ -88,9 +88,9 @@ public class DataSourceConfig {
     private DataSource mduDataSource() {
         return buildDataSource(
                 "MDU",
-                "jdbc:sqlserver://10.20.0.19;databaseName=WMS_WK_PRD",
+                "jdbc:sqlserver://10.20.0.40;databaseName=WMS_WK_PRD",
                 "sa",
-                "TvHcGBR84nxvyJx6EPpoOsL5V"
+                "kT9mzQeF27vWbHsLXy8dPnJ4r"
         );
     }
 
@@ -222,7 +222,7 @@ public class DataSourceConfig {
         config.setIdleTimeout(300000);
         config.setMaxLifetime(1800000);
 //        config.setAutoCommit(false);
-        config.setLeakDetectionThreshold(30000); //
+//        config.setLeakDetectionThreshold(30000); //
 
         // SQL Server recommended
         config.addDataSourceProperty("encrypt", "false");
