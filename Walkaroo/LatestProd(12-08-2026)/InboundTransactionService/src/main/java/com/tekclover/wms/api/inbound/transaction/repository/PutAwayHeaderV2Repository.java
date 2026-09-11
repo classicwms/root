@@ -613,6 +613,15 @@ public interface PutAwayHeaderV2Repository extends JpaRepository<PutAwayHeaderV2
                                       @Param("languageId") String languageId, @Param("warehouseId") String warehouseId,
                                       @Param("barcodeIds") List<String> barcodeIds, @Param("statusId") Long statusId);
 
+    @Transactional
+    @Modifying
+    @Query(value = "UPDATE tblputawayheader SET STATUS_ID = :statusId, REF_FIELD_2 = :storageBin where C_ID = :companyCodeId and PLANT_ID = :plantId \n" +
+            "AND LANG_ID = :languageId and WH_ID = :warehouseId \n" +
+            "AND BARCODE_ID = :barcodeId", nativeQuery = true)
+    int updatePutAwayHeader(@Param("companyCodeId") String companyCodeId, @Param("plantId") String plantId,
+                                      @Param("languageId") String languageId, @Param("warehouseId") String warehouseId,
+                                      @Param("barcodeId") String barcodeId, @Param("statusId") Long statusId, @Param("storageBin") String storageBin);
+
     @Query(value = "select  PROP_ST_BIN proposedStorageBin, pal_id palletId, max(ref_doc_no) refDocNumber, max(pa_no) putAwayNumber, count(*) groupCount, max(ASS_USER_ID) assignedUserId, \n" +
             "max(pa_ctd_on) createdOn, max(pa_ctd_by) createdBy from tblputawayheader \n" +
             "where (COALESCE(:palletId, null) IS NULL OR (pal_id IN (:palletId))) and STATUS_ID = :statusId \n" +

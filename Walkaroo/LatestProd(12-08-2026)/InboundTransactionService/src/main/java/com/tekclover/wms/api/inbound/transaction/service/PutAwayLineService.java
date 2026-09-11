@@ -3600,31 +3600,23 @@ public class PutAwayLineService extends BaseService {
         String plantId = putAwayLineV2s.get(0).getPlantId();
         String languageId = putAwayLineV2s.get(0).getLanguageId();
         String warehouseId = putAwayLineV2s.get(0).getWarehouseId();
-        List<String> barcodeIds = putAwayLineV2s.stream()
-                .map(PutAwayLineV2::getBarcodeId)
-                .distinct()
-                .collect(Collectors.toList());
+//        List<String> barcodeIds = putAwayLineV2s.stream()
+//                .map(PutAwayLineV2::getBarcodeId)
+//                .distinct()
+//                .collect(Collectors.toList());
 
         log.info(" Collected CompanyCode={}, PlantId={}, LangId={}, WarehouseId={}, BarcodeCount={}",
-                companyCode, plantId, languageId, warehouseId, barcodeIds.size());
-
-//        putAwayHeaderV2Repository.updatePutAwayHeaderStatusIds(
-//                companyCode, plantId, languageId, warehouseId, barcodeIds, 20L);
-//        log.info("✅ Successfully updated StatusId=20 for {} records.", barcodeIds);
-
-//        for(PutAwayLineV2 pu : putAwayLineV2s) {
-//            log.info("PutAwayLine confirm Status Id Updated ItemCode {}, BarcodeIs {} ", pu.getItemCode(), pu.getBarcodeId());
-//            putAwayHeaderV2Repository.updatePutAwayHeaderStatusId( pu.getCompanyCode(), pu.getPlantId(), pu.getLanguageId(), pu.getWarehouseId(),
-//                    pu.getItemCode(), pu.getBarcodeId(), 20L);
-//        }
-        try {
-            updatePutAwayHeader(companyCode, plantId, languageId, warehouseId, barcodeIds);
-        } catch (Exception e) {
-            log.error("Error updating PutAwayHeader status for barcodes: {}", barcodeIds, e);
-        }
+                companyCode, plantId, languageId, warehouseId, putAwayLineV2s.size());
 
         putAwayLineAsyncProcess.createPutAwayLine(putAwayLineV2s, loginUserID);
         log.info("Return Response Successfully In PutAwayConfirm --------------------------->");
+
+        try {
+            updatePutAwayHeader(companyCode, plantId, languageId, warehouseId, putAwayLineV2s);
+        } catch (Exception e) {
+            log.error("Error updating PutAwayHeader status for barcodes: {}", putAwayLineV2s, e);
+        }
+
         return putAwayLineV2s;
     }
 
@@ -3640,25 +3632,22 @@ public class PutAwayLineService extends BaseService {
 //    }
 
     public void updatePutAwayHeader(String companyCode, String plantId, String languageId,
-                                    String warehouseId, List<String> barcodeIds) {
+                                    String warehouseId, List<PutAwayLineV2> putAwayLineV2s) {
 
         int maxAttempts = 2;
         int attempt = 0;
 
         while (attempt < maxAttempts) {
             try {
-
-                putAwayHeaderV2Repository.updatePutAwayHeaderStatusIds(
-                        companyCode, plantId, languageId, warehouseId, barcodeIds, 20L);
-
-                log.info(" Successfully updated StatusId=20 for {} records.", barcodeIds);
-                return; // success na exit
-
+                for(PutAwayLineV2 putAwayLine : putAwayLineV2s) {
+                    int putaway = putAwayHeaderV2Repository.updatePutAwayHeader(
+                            companyCode, plantId, languageId, warehouseId, putAwayLine.getBarcodeId(), 20L, putAwayLine.getConfirmedStorageBin());
+                    log.info("Successfully updated StatusId=20 for Barcode {}, And Affected Row's :{}", putAwayLine.getBarcodeId(), putaway);
+                }
+                return;
             } catch (CannotAcquireLockException |
                      LockAcquisitionException | UnexpectedRollbackException ex) {
-
                 attempt++;
-
                 if (attempt >= maxAttempts) {
                     log.error(" Retry failed after {} attempts", attempt, ex);
 //                    throw ex;
