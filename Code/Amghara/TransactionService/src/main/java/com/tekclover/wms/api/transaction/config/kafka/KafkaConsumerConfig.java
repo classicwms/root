@@ -65,6 +65,16 @@ public class KafkaConsumerConfig {
         return createConsumerFactory(QualityLineCreateEvent.class, "qualityline-create-topic-v1");
     }
 
+    @Bean
+    public ConsumerFactory<String, PickupHeaderEvent> pikcupHeaderProcessConsumerFactory() {
+        return createConsumerFactory(PickupHeaderEvent.class, "save-pickupheader-topic-v1");
+    }
+
+
+    @Bean
+    public ConsumerFactory<String, AssignPickerEvent> assignPickerEventConsumerFactory() {
+        return createConsumerFactory(AssignPickerEvent.class, "assign-picker-topic-v1");
+    }
 
     @Bean("pickupLineListenerFactory")
     public ConcurrentKafkaListenerContainerFactory<String, PickupLineEvent> pickupLineListenerFactory() {
@@ -145,6 +155,22 @@ public class KafkaConsumerConfig {
     public ConcurrentKafkaListenerContainerFactory<String, QualityLineCreateEvent> qualityLineProcessListenerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, QualityLineCreateEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(qualityLineProcessConsumerFactory());
+        factory.setConcurrency(10);
+        return factory;
+    }
+
+    @Bean("assignPickerListenerFactory")
+    public ConcurrentKafkaListenerContainerFactory<String, AssignPickerEvent> assignProcessListenerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, AssignPickerEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(assignPickerEventConsumerFactory());
+        factory.setConcurrency(10);
+        return factory;
+    }
+
+    @Bean("pickupHeaderSaveListenerFactory")
+    public ConcurrentKafkaListenerContainerFactory<String, PickupHeaderEvent> savePickupHeaderListenerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, PickupHeaderEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(pikcupHeaderProcessConsumerFactory());
         factory.setConcurrency(10);
         return factory;
     }

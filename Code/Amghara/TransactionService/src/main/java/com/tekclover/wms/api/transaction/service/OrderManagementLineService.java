@@ -13,6 +13,9 @@ import java.util.stream.Stream;
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 
+import com.tekclover.wms.api.transaction.model.kafka.AssignPickerEvent;
+import com.tekclover.wms.api.transaction.model.kafka.PickupHeaderEvent;
+import com.tekclover.wms.api.transaction.service.kafka.ProducerService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
@@ -147,6 +150,9 @@ public class OrderManagementLineService extends BaseService {
     PickupHeaderService pickupHeaderService;
 
     String statusDescription = null;
+
+    @Autowired
+    ProducerService producerService;
     //------------------------------------------------------------------------------------------------------
 
     /**
@@ -1944,6 +1950,21 @@ public class OrderManagementLineService extends BaseService {
     }
 
 
+    // Do AssignPicker
+    public List<OrderManagementLineV2> assignPickerInKafka(List<AssignPickerV2> assignPickers, String assignedPickerId,
+                                                        String loginUserID) throws Exception {
+
+        log.info("Assign Picker Event Initiated : ---> {}, Values : {} ", assignPickers.size(), assignPickers);
+        AssignPickerEvent assignPickerEvent = new AssignPickerEvent(assignPickers, assignedPickerId, loginUserID);
+
+        producerService.doAssignPicker(assignPickerEvent);
+        log.info("Assign Picker Event Published "+ assignPickerEvent);
+
+        return new ArrayList<>();
+    }
+
+
+
     /**
      * @param assignPickers
      * @param assignedPickerId
@@ -1966,15 +1987,10 @@ public class OrderManagementLineService extends BaseService {
 			String proposedStorageBin = null;
 			String proposedPackCode = null;
 			
-			// push Notification
-//			Set<String> preOutboundNoList = new HashSet<>();
-//			Set<String> warehouseIdList = new HashSet<>();
 			String notificationPreOutboundNo = null;
 			String notificationWarehouseId = null;
 			List<OrderManagementLineV2> orderManagementLineList = new ArrayList<>();
 			List<PickupHeaderV2> pickupHeaders = new ArrayList<>();
-//			List<AssignPickerV2> sortedList = assignPickers.stream()
-//					.sorted(Comparator.comparing(AssignPickerV2::getPreOutboundNo)).collect(Collectors.toList());
 			AuthToken authTokenForIdmasterService = authTokenService.getIDMasterServiceAuthToken();
 			statusDescription = stagingLineV2Repository.getStatusDescription(48L, languageId);
 			
@@ -1995,10 +2011,6 @@ public class OrderManagementLineService extends BaseService {
 				proposedPackCode = assignPicker.getProposedPackCode();
 				preOutboundNo = assignPicker.getPreOutboundNo();
 				warehouseId = assignPicker.getWarehouseId();
-				
-				// push notification
-//				preOutboundNoList.add(assignPicker.getPreOutboundNo());
-//				warehouseIdList.add(assignPicker.getWarehouseId());
 
 				/**
 				 * Check for duplicates
@@ -2024,16 +2036,6 @@ public class OrderManagementLineService extends BaseService {
 					OutboundHeaderV2 outboundHeader = outboundHeaderService.getOutboundHeaderV2(companyCodeId, plantId,
 							languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode);
 
-					// Create Pickup TO Number
-					/*
-					 * Pass the Selected WH_ID/PRE_OB_NO/REF_DOC_NO/PARTNER_CODE/ITM_CODE/OBLINE_NO
-					 * and validate PU_NO is Null in ORDERMANAGEMENTLINE table , If yes
-					 *
-					 * Create New PU_NO by Pass WH_ID - Userlogged in WH_ID and NUM_RAN_CODE = 10 in
-					 * NUMBERRANGE table and fetch NUM_RAN_CURRENT value of FISCALYEAR=CURRENT YEAR
-					 * and add +1 and then update in ORDERMANAGEMENTLINE table by passing
-					 * WH_ID/PRE_OB_NO/OB_LINE_NO/REF_DOC_NO/ITM_CODE
-					 */
 					log.info("dbOrderManagementLine.getPickupNumber() -----> : " + dbOrderManagementLine.getPickupNumber());
 					if (dbOrderManagementLine.getPickupNumber() == null) {
 						String PU_NO = getNextRangeNumber(NUM_RAN_CODE, dbOrderManagementLine.getCompanyCodeId(),
@@ -2088,16 +2090,21 @@ public class OrderManagementLineService extends BaseService {
 					orderManagementLineList.add(dbOrderManagementLine);
 				}
 			} // end of for
-			
+
+
+
+
 			if (pickupHeaders != null && pickupHeaders.size() > 0) {
-				List<PickupHeaderV2> pickupHeaderList = pickupHeaderV2Repository.saveAll(pickupHeaders);
-				log.info("-----PickupHeader create----->: " + pickupHeaderList.size());
-				
-				pickupHeaderList.stream().forEach(ph -> {
-					orderManagementLineV2Repository.updateOrderManagementLineV2(ph.getCompanyCodeId(), ph.getPlantId(), ph.getLanguageId(),
-							ph.getWarehouseId(), ph.getPreOutboundNo(), ph.getRefDocNumber(), ph.getPartnerCode(), ph.getLineNumber(), ph.getItemCode(), 48L,
-							statusDescription, assignedPickerId, ph.getPickupNumber(), loginUserID, ph.getProposedStorageBin(), new Date());
-				});	
+//				List<PickupHeaderV2> pickupHeaderList = pickupHeaderV2Repository.saveAll(pickupHeaders);
+//				log.info("-----PickupHeader create----->: " + pickupHeaderList.size());
+
+                log.info("PickupHeader Save Process published in Kafka -------> AssignPickerId is :  {} ", assignedPickerId);
+                producerService.savePickupHeader(new PickupHeaderEvent(pickupHeaders, assignedPickerId, statusDescription, 48L, loginUserID));
+//				pickupHeaderList.stream().forEach(ph -> {
+//					orderManagementLineV2Repository.updateOrderManagementLineV2(ph.getCompanyCodeId(), ph.getPlantId(), ph.getLanguageId(),
+//							ph.getWarehouseId(), ph.getPreOutboundNo(), ph.getRefDocNumber(), ph.getPartnerCode(), ph.getLineNumber(), ph.getItemCode(), 48L,
+//							statusDescription, assignedPickerId, ph.getPickupNumber(), loginUserID, ph.getProposedStorageBin(), new Date());
+//				});
 				
 				// 26_02_2025_update uniqueOrderManagementLine stBin added
 				log.info("OrderManagementLine updated..! ");
@@ -2117,14 +2124,6 @@ public class OrderManagementLineService extends BaseService {
 				}
 			}
 			
-			// push notification separated from pickup header and consolidated notification
-			// sent
-//        if(preOutboundNoList != null && !preOutboundNoList.isEmpty() && warehouseIdList != null && !warehouseIdList.isEmpty()) {
-//            sendPushNotification(preOutboundNoList, warehouseIdList);
-//            sendPushNotification(pickupHeaders);
-//        } else {
-//            sendPushNotification();
-//        }
 			return orderManagementLineList;
 		} catch (Exception e) {
 			log.info("Exception while PickupHeader Create : " + e.getMessage());

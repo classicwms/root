@@ -324,7 +324,7 @@ public interface OrderManagementLineV2Repository extends JpaRepository<OrderMana
             + " WHERE ob.companyCodeId = :companyCodeId AND ob.plantId = :plantId AND ob.languageId = :languageId AND ob.warehouseId = :warehouseId AND \r\n "
             + " ob.partnerCode = :partnerCode AND ob.itemCode = :itemCode AND  ob.proposedStorageBin = :proposedStorageBin AND \r\n "   //26_02_2025_update uniqueOrderManagementLine stBin added
             + " ob.refDocNumber = :refDocNumber AND ob.preOutboundNo = :preOutboundNo AND ob.lineNumber = :lineNumber")
-    void updateOrderManagementLineV2(@Param("companyCodeId") String companyCodeId,
+    int updateOrderManagementLineV2(@Param("companyCodeId") String companyCodeId,
                                      @Param("plantId") String plantId,
                                      @Param("languageId") String languageId,
                                      @Param("warehouseId") String warehouseId,

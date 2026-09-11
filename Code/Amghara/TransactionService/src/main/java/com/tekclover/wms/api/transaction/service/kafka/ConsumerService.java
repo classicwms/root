@@ -2,14 +2,17 @@ package com.tekclover.wms.api.transaction.service.kafka;
 
 
 import com.tekclover.wms.api.transaction.model.kafka.*;
+import com.tekclover.wms.api.transaction.model.outbound.pickup.v2.PickupHeaderV2;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.v2.PickupLineV2;
 import com.tekclover.wms.api.transaction.repository.*;
+import com.tekclover.wms.api.transaction.service.OrderManagementLineService;
 import com.tekclover.wms.api.transaction.service.OutboundLineService;
 import com.tekclover.wms.api.transaction.service.PickupLineService;
 import com.tekclover.wms.api.transaction.service.QualityLineService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.expression.spel.ast.Assign;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
@@ -43,7 +46,10 @@ public class ConsumerService {
     PreOutboundHeaderV2Repository preOutboundHeaderV2Repository;
     @Autowired
     OutboundHeaderV2Repository outboundHeaderV2Repository;
-
+    @Autowired
+    OrderManagementLineService orderManagementLineService;
+    @Autowired
+    OrderManagementLineV2Repository orderManagementLineV2Repository;
 
     // PickupLine Creation Process
     @KafkaListener(topics = "pickupline-topic-v1", groupId = "pickupline-group-v1", containerFactory = "pickupLineListenerFactory")
@@ -124,5 +130,28 @@ public class ConsumerService {
     @KafkaListener(topics = "qualityline-create-topic-v1", groupId = "qualityline-create-group-v1", containerFactory = "qualityLineProcessListenerFactory")
     public void consume(QualityLineCreateEvent event) throws Exception {
         qualityLineService.createQualityLineV2(event.getQualityLineV2s(), event.getLoginUserID());
+    }
+
+    // AssignPicker
+    @KafkaListener(topics = "assign-picker-topic-v1", groupId = "assign-picker-group-v1", containerFactory = "assignPickerListenerFactory")
+    public void consume(AssignPickerEvent event) throws Exception {
+        log.info("Assign Picker Event {}", event);
+        orderManagementLineService.doAssignPickerV2(event.getAssignPickers(), event.getAssignedPickerId(), event.getLoginUserID());
+        log.info("Assign Picker Event Completed {}", event);
+    }
+
+    // Save PickupHeader
+    @KafkaListener(topics = "save-pickupheader-topic-v1", groupId = "pickupheader-save-group-v1", containerFactory = "pickupHeaderSaveListenerFactory")
+    public void consume(PickupHeaderEvent event) throws Exception {
+        log.info("Save PickupHeader Event {}", event);
+        List<PickupHeaderV2> pickupHeaderList = pickupHeaderV2Repository.saveAll(event.getPickupHeaderV2List());
+        log.info("Save PickupHeader Event Completed {}", event);
+
+        pickupHeaderList.stream().forEach(ph -> {
+            int orderLine = orderManagementLineV2Repository.updateOrderManagementLineV2(ph.getCompanyCodeId(), ph.getPlantId(), ph.getLanguageId(),
+                    ph.getWarehouseId(), ph.getPreOutboundNo(), ph.getRefDocNumber(), ph.getPartnerCode(), ph.getLineNumber(), ph.getItemCode(), 48L,
+                    event.getStatusDescription(), event.getAssignPickerId(), ph.getPickupNumber(), event.getLoginUserID(), ph.getProposedStorageBin(), new Date());
+            log.info("OrderManagementLine Updated Affected Row's: {} ", orderLine);
+        });
     }
 }

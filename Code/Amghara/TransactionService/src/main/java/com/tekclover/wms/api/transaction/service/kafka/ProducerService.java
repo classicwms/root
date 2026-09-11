@@ -65,6 +65,16 @@ public class ProducerService {
         kafkaTemplate.send("obheader-status-update-topic-v1", event);
     }
 
+    // AssignPikcer
+    public void doAssignPicker(AssignPickerEvent event) {
+        kafkaTemplate.send("assign-picker-topic-v1", event);
+    }
+
+    // AssignPikcer
+    public void savePickupHeader(PickupHeaderEvent event) {
+        kafkaTemplate.send("save-pickupheader-topic-v1", event);
+    }
+
     public void publishQualityLine(String topic, Object event) {
         kafkaTemplate.send(topic, event);
     }

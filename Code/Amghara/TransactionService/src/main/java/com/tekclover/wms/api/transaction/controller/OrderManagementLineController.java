@@ -249,7 +249,7 @@ public class OrderManagementLineController {
     public ResponseEntity<?> assignPickerV2(@RequestBody List<AssignPickerV2> assignPicker, @RequestParam String assignedPickerId,
                                             @RequestParam String loginUserID) throws Exception {
         List<OrderManagementLineV2> updatedOrderManagementLine =
-                ordermangementlineService.doAssignPickerV2(assignPicker, assignedPickerId, loginUserID);
+                ordermangementlineService.assignPickerInKafka(assignPicker, assignedPickerId, loginUserID);
         return new ResponseEntity<>(updatedOrderManagementLine, HttpStatus.OK);
     }
 
