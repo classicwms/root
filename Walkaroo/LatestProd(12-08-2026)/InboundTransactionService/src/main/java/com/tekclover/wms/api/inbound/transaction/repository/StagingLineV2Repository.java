@@ -783,4 +783,22 @@ public interface StagingLineV2Repository extends JpaRepository<StagingLineEntity
     @Query(value = "delete tblstagingline where REF_DOC_NO = :refDocNumber AND PRE_IB_NO = :preInboundNo ", nativeQuery = true)
     void deleteByRefDocNo(@Param("refDocNumber") String refDocNumber,
                           @Param("preInboundNo") String preInboundNo);
+
+
+    @Query(value = "SELECT * FROM tblstagingline " +
+            "WHERE lang_id = :languageId " +
+            "AND c_id = :companyCode " +
+            "AND plant_id = :plantId " +
+            "AND wh_id = :warehouseId " +
+            "AND barcode_id = :barcodeId " +
+            "AND deletion_indicator = :deletionIndicator " +
+            "AND price_segment IS NULL",
+            nativeQuery = true)
+    List<StagingLineEntityV2> getStagingLine(
+            @Param("languageId") String languageId,
+            @Param("companyCode") String companyCode,
+            @Param("plantId") String plantId,
+            @Param("warehouseId") String warehouseId,
+            @Param("barcodeId") String barcodeId,
+            @Param("deletionIndicator") Long deletionIndicator);
 }
