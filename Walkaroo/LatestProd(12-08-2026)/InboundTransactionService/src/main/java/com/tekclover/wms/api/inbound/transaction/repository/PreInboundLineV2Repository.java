@@ -165,4 +165,22 @@ public interface PreInboundLineV2Repository extends JpaRepository<PreInboundLine
     void deleteByRefDocNo(@Param("refDocNumber") String refDocNumber,
                               @Param("preInboundNo") String preInboundNo);
 
+
+    @Query(value = "SELECT * FROM tblpreinboundline " +
+            "WHERE lang_id = :languageId " +
+            "AND c_id = :companyCode " +
+            "AND plant_id = :plantId " +
+            "AND wh_id = :warehouseId " +
+            "AND barcode_id = :barcodeId " +
+            "AND deletion_indicator = :deletionIndicator " +
+            "AND price_segment IS NULL",
+            nativeQuery = true)
+    List<PreInboundLineEntityV2> getPreInbLine(
+            @Param("languageId") String languageId,
+            @Param("companyCode") String companyCode,
+            @Param("plantId") String plantId,
+            @Param("warehouseId") String warehouseId,
+            @Param("barcodeId") String barcodeId,
+            @Param("deletionIndicator") Long deletionIndicator);
+
 }
