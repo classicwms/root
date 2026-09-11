@@ -5617,14 +5617,18 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Transactional
     @Query(value = "UPDATE tblinventory SET MATERIAL_NO = :materialNo, PRICE_SEGMENT = :priceSegment, ITM_CODE = :itemCode " +
-            "WHERE LANG_ID = :languageId AND C_ID = :companyCode AND PLANT_ID = :plantId AND WH_ID = :warehouseId AND BARCODE_ID = :barcodeId ",
+            "WHERE LANG_ID = :languageId AND C_ID = :companyCode AND PLANT_ID = :plantId " +
+            "AND WH_ID = :warehouseId AND BARCODE_ID = :barcodeId " +
+            "AND PRICE_SEGMENT IS NULL",
             nativeQuery = true)
     int updateInventory(@Param("materialNo") String materialNo,
-                            @Param("priceSegment") String priceSegment, @Param("itemCode") String itemCode,
-                            @Param("languageId") String languageId,
-                            @Param("companyCode") String companyCode, @Param("plantId") String plantId,
-                            @Param("warehouseId") String warehouseId,
-                            @Param("barcodeId") String barcodeId);
+                        @Param("priceSegment") String priceSegment,
+                        @Param("itemCode") String itemCode,
+                        @Param("languageId") String languageId,
+                        @Param("companyCode") String companyCode,
+                        @Param("plantId") String plantId,
+                        @Param("warehouseId") String warehouseId,
+                        @Param("barcodeId") String barcodeId);
 
     @Modifying
     @Query(value = "update tblinventory set is_deleted = 1 where REF_ORD_NO = :refDocNo and is_deleted = 0 ", nativeQuery = true)

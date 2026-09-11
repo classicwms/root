@@ -679,14 +679,20 @@ int getBarcodeId(
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Transactional
     @Query(value = "UPDATE tblputawayheader SET MATERIAL_NO = :materialNo, PRICE_SEGMENT = :priceSegment, REF_FIELD_5 = :itemCode " +
-            "WHERE LANG_ID = :languageId AND C_ID = :companyCode AND PLANT_ID = :plantId AND WH_ID = :warehouseId AND BARCODE_ID = :barcodeId ",
+            "WHERE LANG_ID = :languageId AND C_ID = :companyCode AND PLANT_ID = :plantId " +
+            "AND WH_ID = :warehouseId AND BARCODE_ID = :barcodeId " +
+            "AND PRICE_SEGMENT IS NULL",
             nativeQuery = true)
     int updatePutawayHeader(@Param("materialNo") String materialNo,
-                          @Param("priceSegment") String priceSegment, @Param("itemCode") String itemCode,
-                          @Param("languageId") String languageId,
-                          @Param("companyCode") String companyCode, @Param("plantId") String plantId,
-                          @Param("warehouseId") String warehouseId,
-                          @Param("barcodeId") String barcodeId);
+                            @Param("priceSegment") String priceSegment,
+                            @Param("itemCode") String itemCode,
+                            @Param("languageId") String languageId,
+                            @Param("companyCode") String companyCode,
+                            @Param("plantId") String plantId,
+                            @Param("warehouseId") String warehouseId,
+                            @Param("barcodeId") String barcodeId);
+
+
 
     @Modifying
     @Query(value = "delete tblputawayheader where REF_DOC_NO = :refDocNumber AND PRE_IB_NO = :preInboundNo ", nativeQuery = true)

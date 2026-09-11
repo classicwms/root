@@ -354,7 +354,7 @@ public interface InboundLineV2Repository extends JpaRepository<InboundLineV2, Lo
             "AND plant_id = :plantId " +
             "AND wh_id = :warehouseId " +
             "AND barcode_id = :barcodeId " +
-            "AND deletion_indicator = :deletionIndicator " +
+            "AND IS_DELETED = :deletionIndicator " +
             "AND price_segment IS NULL",
             nativeQuery = true)
     List<InboundLineV2> getInboundLine(

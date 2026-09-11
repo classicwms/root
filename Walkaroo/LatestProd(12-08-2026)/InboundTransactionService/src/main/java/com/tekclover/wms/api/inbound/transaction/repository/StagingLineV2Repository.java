@@ -791,7 +791,7 @@ public interface StagingLineV2Repository extends JpaRepository<StagingLineEntity
             "AND plant_id = :plantId " +
             "AND wh_id = :warehouseId " +
             "AND barcode_id = :barcodeId " +
-            "AND deletion_indicator = :deletionIndicator " +
+            "AND IS_DELETED = :deletionIndicator " +
             "AND price_segment IS NULL",
             nativeQuery = true)
     List<StagingLineEntityV2> getStagingLine(

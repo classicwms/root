@@ -172,7 +172,7 @@ public interface PreInboundLineV2Repository extends JpaRepository<PreInboundLine
             "AND plant_id = :plantId " +
             "AND wh_id = :warehouseId " +
             "AND barcode_id = :barcodeId " +
-            "AND deletion_indicator = :deletionIndicator " +
+            "AND IS_DELETED = :deletionIndicator " +
             "AND price_segment IS NULL",
             nativeQuery = true)
     List<PreInboundLineEntityV2> getPreInbLine(
