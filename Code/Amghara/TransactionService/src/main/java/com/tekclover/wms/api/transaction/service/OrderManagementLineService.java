@@ -2083,6 +2083,8 @@ public class OrderManagementLineService extends BaseService {
 
 						// REF_FIELD_1
 						pickupHeader.setReferenceField1(dbOrderManagementLine.getReferenceField1());
+                        pickupHeader.setReferenceField2(dbOrderManagementLine.getInventoryQty() != null ? String.valueOf(dbOrderManagementLine.getInventoryQty()) : "0");
+                        pickupHeader.setReferenceField3(dbOrderManagementLine.getDescription() != null ? dbOrderManagementLine.getDescription() : "");
 //						PickupHeaderV2 pickup = pickupHeaderV2Repository.save(pickupHeader);
 						pickupHeaders.add(pickupHeader);
 						log.info("-----PickupHeader b4 create----->: " + pickupHeader);

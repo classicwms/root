@@ -2264,6 +2264,9 @@ public class PreOutboundHeaderService extends BaseService {
                 newPickupHeader.setLineNumber(orderManagementLine.getLineNumber());
                 newPickupHeader.setImsSaleTypeCode(orderManagementLine.getImsSaleTypeCode());
 
+                newPickupHeader.setReferenceField2(orderManagementLine.getInventoryQty() != null ? String.valueOf(orderManagementLine.getInventoryQty()) : "0");
+                newPickupHeader.setReferenceField3(orderManagementLine.getDescription() != null ? orderManagementLine.getDescription() : "");
+
                 newPickupHeader.setFromBranchCode(outboundIntegrationHeader.getFromBranchCode());
                 newPickupHeader.setIsCompleted(outboundIntegrationHeader.getIsCompleted());
                 newPickupHeader.setIsCancelled(outboundIntegrationHeader.getIsCancelled());
