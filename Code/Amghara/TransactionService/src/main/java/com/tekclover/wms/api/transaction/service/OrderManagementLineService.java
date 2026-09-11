@@ -1992,7 +1992,7 @@ public class OrderManagementLineService extends BaseService {
 			List<OrderManagementLineV2> orderManagementLineList = new ArrayList<>();
 			List<PickupHeaderV2> pickupHeaders = new ArrayList<>();
 			AuthToken authTokenForIdmasterService = authTokenService.getIDMasterServiceAuthToken();
-			statusDescription = stagingLineV2Repository.getStatusDescription(48L, languageId);
+			statusDescription = stagingLineV2Repository.getStatusDescription(48L, "EN");
 			
 			long NUM_RAN_CODE = 10;
 			
