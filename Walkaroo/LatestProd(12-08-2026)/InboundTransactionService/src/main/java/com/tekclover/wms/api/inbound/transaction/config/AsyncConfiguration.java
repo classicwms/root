@@ -25,15 +25,15 @@ public class AsyncConfiguration {
         return executor;
     }
 
-//    @Bean(name = "asyncExecutorGrLine")
-//    public Executor asyncExecutorForGrLine() {
-//        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-//        executor.setCorePoolSize(8);
-//        executor.setMaxPoolSize(12);
-//        executor.setQueueCapacity(100);
-//        executor.setTaskDecorator(new TenantAwareTaskDecorator());
-//        executor.setThreadNamePrefix("AsyncExecutorGrLine-");
-//        executor.initialize();
-//        return executor;
-//    }
+    @Bean(name = "asyncExecutorPutAway")
+    public Executor asyncExecutorForGrLine() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(8);
+        executor.setMaxPoolSize(12);
+        executor.setQueueCapacity(100);
+        executor.setTaskDecorator(new TenantAwareTaskDecorator());
+        executor.setThreadNamePrefix("AsyncExecutorPutAway-");
+        executor.initialize();
+        return executor;
+    }
 }
