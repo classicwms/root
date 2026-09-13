@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 @Service
@@ -117,13 +119,20 @@ public class PutAwayLineAsyncProcess extends BaseService {
 //            }
 //    }
 
-
+    private final Set<String> runningProfiles = ConcurrentHashMap.newKeySet();
     /**
      *  Create PutAwayHeader In Schedule
      * @param profile currentDB
      */
     @Async("asyncExecutorPutAway")
     public void createPutAwayHeaderInSchedule(String profile) {
+
+        if(!runningProfiles.add(profile)) {
+            log.warn("PutAway already running for DB={}, skipping", profile);
+            return;
+        }
+
+        long start = System.currentTimeMillis();
         try {
             DataBaseContextHolder.clear();
             DataBaseContextHolder.setCurrentDb(profile);
@@ -139,8 +148,13 @@ public class PutAwayLineAsyncProcess extends BaseService {
 
                 createPutawayHeader(listOfStaging);
             }
-        } finally {
+        } catch (Exception e) {
+            log.error("PutAway failed DB={}", profile, e);
+        }
+        finally {
             DataBaseContextHolder.clear();
+            runningProfiles.remove(profile);
+            log.info("PutAway completed DB={} in {} ms", profile, System.currentTimeMillis() - start);
         }
     }
 

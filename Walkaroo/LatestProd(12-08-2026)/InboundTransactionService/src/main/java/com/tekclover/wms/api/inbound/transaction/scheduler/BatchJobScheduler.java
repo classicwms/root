@@ -87,7 +87,7 @@ public class BatchJobScheduler {
 //        }
 //    }
 
-    @Scheduled(fixedDelay = 20000)
+    @Scheduled(fixedDelay = 30000)
     public void scheduleInPutAway() throws Exception {
 
         // MDU
