@@ -2972,9 +2972,9 @@ public class StagingLineService extends BaseService {
                     }
                 }
             }
-            if(!sapPushLineList.isEmpty()) {
-                putAwayLineAsyncProcess.createPutawayHeaderv4(sapPushLineList);
-            }
+//            if(!sapPushLineList.isEmpty()) {
+//                putAwayLineAsyncProcess.createPutawayHeaderv4(sapPushLineList);
+//            }
             return stagingLineEntityV2List;
 
         } catch (Exception e) {

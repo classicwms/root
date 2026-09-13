@@ -801,4 +801,22 @@ public interface StagingLineV2Repository extends JpaRepository<StagingLineEntity
             @Param("warehouseId") String warehouseId,
             @Param("barcodeId") String barcodeId,
             @Param("deletionIndicator") Long deletionIndicator);
+
+    @Query(value = "SELECT  *\n" +
+            "FROM tblstagingline\n" +
+            "WHERE is_deleted = 0\n" +
+            "  AND ref_doc_no IN (\n" +
+            "      SELECT top 1 ref_doc_no\n" +
+            "      FROM tblstagingline\n" +
+            "      WHERE is_deleted = 0\n" +
+            "      GROUP BY ref_doc_no\n" +
+            "      HAVING COUNT(*) = SUM(CASE WHEN status_id = 101 THEN 1 ELSE 0 END)\n" +
+            "  ) ", nativeQuery = true)
+    List<StagingLineEntityV2> findStagingLine();
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query(value = "update tblstagingline set status_id = 19, status_text = :text where " +
+            "REF_DOC_NO = :refDocNo", nativeQuery = true)
+    int stagingUpdate(@Param("refDocNo") String refDocNo,
+                      @Param("text") String text);
 }

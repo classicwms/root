@@ -117,4 +117,65 @@ public class PutAwayLineAsyncProcess extends BaseService {
 //            }
 //    }
 
+
+    /**
+     *  Create PutAwayHeader In Schedule
+     * @param profile currentDB
+     */
+    @Async("asyncExecutorPutAway")
+    public void createPutAwayHeaderInSchedule(String profile) {
+        try {
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(profile);
+            log.info("PutAwayHeader Creation Process Started DB: {} ", profile);
+            List<StagingLineEntityV2> listOfStaging = stagingLineV2Repository.findStagingLine();
+            log.info("List of StagingLine Values : {} ", listOfStaging);
+            if(!listOfStaging.isEmpty()) {
+                String orderText = "PutAway Created";
+                String refDocNo = listOfStaging.get(0).getRefDocNumber();
+                log.info("PutAwayHeader Creation in RefDocNo is -- : {}", refDocNo);
+                int stagingUpdate = stagingLineV2Repository.stagingUpdate(refDocNo, orderText);
+                log.info("Staging Update Count is : {}", stagingUpdate);
+
+                createPutawayHeader(listOfStaging);
+            }
+        } finally {
+            DataBaseContextHolder.clear();
+        }
+    }
+
+
+    /**
+     *
+     * @param stagingLineEntityV2List stagingLineEntityV2List
+     */
+    public void createPutawayHeader(List<StagingLineEntityV2> stagingLineEntityV2List) {
+
+        String idMasterAuthToken = getIDMasterAuthToken();
+        long NUM_RAN_CODE_PA_NO = 7;
+        /*
+         * PutAway Creation
+         */
+        Map<String, List<StagingLineEntityV2>> groupedByPalletId =
+                stagingLineEntityV2List.stream()
+                        .collect(Collectors.groupingBy(StagingLineEntityV2::getPalletId));
+
+        for (Map.Entry<String, List<StagingLineEntityV2>> entry : groupedByPalletId.entrySet()) {
+            String palletId = entry.getKey();
+            List<StagingLineEntityV2> grLines = entry.getValue();
+
+            // Getting PA_NUMBER per Pallet Id
+            String nextPANumber = getNextRangeNumber(NUM_RAN_CODE_PA_NO, grLines.get(0).getCompanyCode(),
+                    grLines.get(0).getPlantId(), grLines.get(0).getLanguageId(), grLines.get(0).getWarehouseId(),
+                    idMasterAuthToken);
+            try {
+                log.info("-----nextPANumber:{} | PalId: {} ---->", nextPANumber, palletId);
+                putAwayHeaderService.createPutAwayHeaderInSchedule(nextPANumber, grLines);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
 }

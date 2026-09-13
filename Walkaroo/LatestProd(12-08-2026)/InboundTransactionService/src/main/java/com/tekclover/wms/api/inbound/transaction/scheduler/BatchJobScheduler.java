@@ -20,6 +20,10 @@ public class BatchJobScheduler {
     @Autowired
     ScheduleAsyncService scheduleAsyncService;
 
+    @Autowired
+    PutAwayLineAsyncProcess putAwayService;
+
+
     //-------------------------------------------------------------------------------------------
 
     @Scheduled(fixedDelay = 30000)
@@ -82,5 +86,36 @@ public class BatchJobScheduler {
 //            running.set(false); //  only after async completes
 //        }
 //    }
+
+    @Scheduled(fixedDelay = 20000)
+    public void scheduleInPutAway() throws Exception {
+
+        // MDU
+        putAwayService.createPutAwayHeaderInSchedule("MDU");
+        // CMP
+        putAwayService.createPutAwayHeaderInSchedule("CMP");
+        // CHN
+        putAwayService.createPutAwayHeaderInSchedule("CHN");
+        //VGA
+        putAwayService.createPutAwayHeaderInSchedule("VGA");
+        //CCL
+        putAwayService.createPutAwayHeaderInSchedule("CCL");
+        //HYD
+        putAwayService.createPutAwayHeaderInSchedule("HYD");
+        //AHM
+        putAwayService.createPutAwayHeaderInSchedule("AHM");
+        //MUB
+        putAwayService.createPutAwayHeaderInSchedule("MUB");
+        // NGP1
+        putAwayService.createPutAwayHeaderInSchedule("NGP1");
+        // NGP2
+        putAwayService.createPutAwayHeaderInSchedule("NGP2");
+        //MYS
+        putAwayService.createPutAwayHeaderInSchedule("MYS");
+        //KNP
+        putAwayService.createPutAwayHeaderInSchedule("KNP");
+        //CTC
+        putAwayService.createPutAwayHeaderInSchedule("CTC");
+    }
 
 }
