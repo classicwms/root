@@ -140,18 +140,17 @@ public class PutAwayLineAsyncProcess extends BaseService {
             List<StagingLineEntityV2> listOfStaging = stagingLineV2Repository.findStagingLine();
             log.info("List of StagingLine Values : {} ", listOfStaging);
             if(!listOfStaging.isEmpty()) {
-                String orderText = "PutAway Created";
+//                String orderText = "PutAway Created";
                 String refDocNo = listOfStaging.get(0).getRefDocNumber();
                 log.info("PutAwayHeader Creation in RefDocNo is -- : {}", refDocNo);
-                int stagingUpdate = stagingLineV2Repository.stagingUpdate(refDocNo, orderText);
-                log.info("Staging Update Count is : {}", stagingUpdate);
+//                int stagingUpdate = stagingLineV2Repository.stagingUpdate(refDocNo, orderText);
+//                log.info("Staging Update Count is : {}", stagingUpdate);
 
                 createPutawayHeader(listOfStaging);
             }
         } catch (Exception e) {
             log.error("PutAway failed DB={}", profile, e);
-        }
-        finally {
+        } finally {
             DataBaseContextHolder.clear();
             runningProfiles.remove(profile);
             log.info("PutAway completed DB={} in {} ms", profile, System.currentTimeMillis() - start);
