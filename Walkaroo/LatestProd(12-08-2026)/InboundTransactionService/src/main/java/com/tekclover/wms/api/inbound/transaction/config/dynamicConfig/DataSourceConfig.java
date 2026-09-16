@@ -86,9 +86,9 @@ public class DataSourceConfig {
     private DataSource cmpDataSource() {
         return buildDataSource(
                 "CMP",
-                "jdbc:sqlserver://10.20.0.19;databaseName=WMS_CBE",
+                "jdbc:sqlserver://10.10.6.30;databaseName=WMS_CBE",
                 "sa",
-                "TvHcGBR84nxvyJx6EPpoOsL5V"
+                "SuHcHQR72nxvyJx6EPpoOsK4V"
         );
     }
 
