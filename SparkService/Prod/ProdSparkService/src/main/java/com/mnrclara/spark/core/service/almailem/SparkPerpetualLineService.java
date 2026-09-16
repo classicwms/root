@@ -33,8 +33,10 @@ public class SparkPerpetualLineService {
         conProp.put("password", "SuHcHQR72nxvyJx6EPpoOsK4V");
 
         // Initialize Spark session and read data from SQL table
-        sparkSession = SparkSession.builder().master("local[*]").appName("SparkByExample.com").config("spark.executor.memory", "4g")
-                .config("spark.executor.cores", "4").getOrCreate();
+        sparkSession = SparkSession.builder().master("local[*]").appName("SparkByExample.com")
+//                .config("spark.executor.memory", "4g")
+//                .config("spark.executor.cores", "4")
+                .getOrCreate();
 
         val df2 = sparkSession.read().jdbc("jdbc:sqlserver://10.10.6.30;databaseName=WMS_ALMPRD", "tblperpetualline", conProp)
                 .repartition(16);

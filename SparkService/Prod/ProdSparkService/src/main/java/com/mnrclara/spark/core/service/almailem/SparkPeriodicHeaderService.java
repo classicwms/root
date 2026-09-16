@@ -35,8 +35,10 @@ public class SparkPeriodicHeaderService {
         connProp.setProperty("driver", "com.microsoft.sqlserver.jdbc.SQLServerDriver");
         connProp.put("user", "sa");
         connProp.put("password", "SuHcHQR72nxvyJx6EPpoOsK4V");
-        sparkSession = SparkSession.builder().master("local[*]").appName("PeriodicHeader.com").config("spark.executor.memory", "4g")
-                .config("spark.executor.cores", "4").getOrCreate();
+        sparkSession = SparkSession.builder().master("local[*]").appName("PeriodicHeader.com")
+//                .config("spark.executor.memory", "4g")
+//                .config("spark.executor.cores", "4")
+                .getOrCreate();
 
         //Read from Sql Table
         val df2 = sparkSession.read()

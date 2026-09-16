@@ -10,9 +10,9 @@ public class SparkSessionUtil {
         SparkConf conf = new SparkConf()
                 .setAppName("SparkSession")
                 .setMaster("local")
-                .set("spark.executor.memory", "4g")
-                .set("spark.executor.cores", "4")
-                .set("spark.driver.memory", "4g")
+//                .set("spark.executor.memory", "4g")
+//                .set("spark.executor.cores", "4")
+//                .set("spark.driver.memory", "4g")
                 .set("spark.sql.shuffle.partitions", "16");
 
         // SparkSession

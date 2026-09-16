@@ -31,8 +31,10 @@ public class SparkPreOutboundHeaderService {
         conProp.setProperty("driver", "com.microsoft.sqlserver.jdbc.SQLServerDriver");
         conProp.put("user", "sa");
         conProp.put("password", "SuHcHQR72nxvyJx6EPpoOsK4V");
-        sparkSession = SparkSession.builder().master("local[*]").appName("PreOutboundHeader.com").config("spark.executor.memory", "4g")
-                .config("spark.executor.cores", "4").getOrCreate();
+        sparkSession = SparkSession.builder().master("local[*]").appName("PreOutboundHeader.com")
+//                .config("spark.executor.memory", "4g")
+//                .config("spark.executor.cores", "4")
+                .getOrCreate();
 
         //Read from Sql Table
         val df2 = sparkSession.read().jdbc("jdbc:sqlserver://10.10.6.30;databaseName=WMS_ALMPRD", "tblpreoutboundheader", conProp)

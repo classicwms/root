@@ -18,9 +18,9 @@ public class SparkInventoryServiceV3 {
     SparkConf conf = new SparkConf()
             .setAppName("SparkInventory")
             .setMaster("local")
-            .set("spark.executor.memory", "4g")
-            .set("spark.executor.cores", "4")
-            .set("spark.driver.memory", "4g")
+//            .set("spark.executor.memory", "4g")
+//            .set("spark.executor.cores", "4")
+//            .set("spark.driver.memory", "4g")
             .set("spark.sql.shuffle.partitions", "16");
 
     SparkSession spark = SparkSession.builder()
