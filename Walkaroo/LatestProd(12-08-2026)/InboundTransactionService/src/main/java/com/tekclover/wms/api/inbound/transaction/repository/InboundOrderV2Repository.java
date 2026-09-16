@@ -154,4 +154,13 @@ public interface InboundOrderV2Repository extends JpaRepository<InboundOrderV2, 
             @Param("plantId") String plantId,
             @Param("warehouseId") String warehouseId);
 
+    @Modifying
+    @Query(value = "UPDATE tbliborder2 SET processed_status_id = 0 WHERE company_code = :companyCode " +
+            "AND branch_code = :branchCode AND warehouseid = :warehouseID AND language_id = :languageId " +
+            "AND order_id IN (:orderId)",
+            nativeQuery = true)
+    int updateInboundProcessStatus(@Param("companyCode") String companyCode,
+                                   @Param("branchCode") String branchCode, @Param("warehouseID") String warehouseID,
+                                   @Param("languageId") String languageId, @Param("orderId") List<String> orderId);
+
 }

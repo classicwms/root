@@ -1,9 +1,11 @@
 package com.tekclover.wms.api.inbound.transaction.controller;
 
 import com.tekclover.wms.api.inbound.transaction.config.dynamicConfig.DataBaseContextHolder;
+import com.tekclover.wms.api.inbound.transaction.model.dto.IbObOrderUpdateRequest;
 import com.tekclover.wms.api.inbound.transaction.model.inbound.preinbound.InboundIntegrationLog;
 import com.tekclover.wms.api.inbound.transaction.model.integration.IntegrationApiResponse;
 import com.tekclover.wms.api.inbound.transaction.model.warehouse.inbound.InboundOrder;
+import com.tekclover.wms.api.inbound.transaction.model.warehouse.inbound.WarehouseApiResponse;
 import com.tekclover.wms.api.inbound.transaction.model.warehouse.inbound.v2.FindInboundOrderLineV2;
 import com.tekclover.wms.api.inbound.transaction.model.warehouse.inbound.v2.FindInboundOrderV2;
 import com.tekclover.wms.api.inbound.transaction.model.warehouse.inbound.v2.InboundOrderLinesV2;
@@ -255,4 +257,11 @@ public class OrderController {
         }
     }
 
+    @ApiOperation(response = WarehouseApiResponse.class, value = "IB Order ReProcessStatus")
+    @PostMapping("/ib/reProcess/status")
+    public ResponseEntity<?> patchIbOrder(@RequestBody IbObOrderUpdateRequest request) throws Exception {
+
+        WarehouseApiResponse result = orderService.inboundReProcessStatus(request);
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
 }

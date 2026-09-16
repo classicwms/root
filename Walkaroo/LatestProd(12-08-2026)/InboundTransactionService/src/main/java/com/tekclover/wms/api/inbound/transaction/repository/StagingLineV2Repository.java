@@ -765,7 +765,7 @@ public interface StagingLineV2Repository extends JpaRepository<StagingLineEntity
                           @Param("loginUserId") String loginUserID);
 
     @Query(value = "select * from tblstagingline where \n" +
-            "(select count(*) from tblstagingline where REF_DOC_NO = :refDocNo and STATUS_ID = 101 and is_deleted = 0) = \n" +
+            "(select count(*) from tblstagingline where REF_DOC_NO = :refDocNo and STATUS_ID in (101,19) and is_deleted = 0) = \n" +
             "(select count(*) from tblstagingline where REF_DOC_NO = :refDocNo and is_deleted = 0) AND \n" +
             "REF_DOC_NO = :refDocNo and is_deleted = 0 ", nativeQuery = true)
     List<StagingLineEntityV2> findStagingLineList(@Param("refDocNo") String refDocNo);
@@ -785,22 +785,15 @@ public interface StagingLineV2Repository extends JpaRepository<StagingLineEntity
                           @Param("preInboundNo") String preInboundNo);
 
 
-    @Query(value = "SELECT * FROM tblstagingline " +
-            "WHERE lang_id = :languageId " +
-            "AND c_id = :companyCode " +
-            "AND plant_id = :plantId " +
-            "AND wh_id = :warehouseId " +
-            "AND barcode_id = :barcodeId " +
+    @Query(value = "SELECT * FROM tblstagingline WHERE lang_id = :languageId " +
+            "AND c_id = :companyCode AND plant_id = :plantId " +
+            "AND wh_id = :warehouseId AND PARTNER_ITEM_BARCODE = :barcodeId " +
             "AND IS_DELETED = :deletionIndicator " +
             "AND price_segment IS NULL",
             nativeQuery = true)
-    List<StagingLineEntityV2> getStagingLine(
-            @Param("languageId") String languageId,
-            @Param("companyCode") String companyCode,
-            @Param("plantId") String plantId,
-            @Param("warehouseId") String warehouseId,
-            @Param("barcodeId") String barcodeId,
-            @Param("deletionIndicator") Long deletionIndicator);
+    List<StagingLineEntityV2> getStagingLine(@Param("languageId") String languageId,
+                                             @Param("companyCode") String companyCode, @Param("plantId") String plantId, @Param("warehouseId") String warehouseId,
+                                             @Param("barcodeId") String barcodeId, @Param("deletionIndicator") Long deletionIndicator);
 
     @Query(value = "SELECT  *\n" +
             "FROM tblstagingline\n" +

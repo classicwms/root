@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Set;
 
 import com.tekclover.wms.api.inbound.transaction.config.dynamicConfig.DataBaseContextHolder;
+import com.tekclover.wms.api.inbound.transaction.model.dto.IbObOrderUpdateRequest;
+import com.tekclover.wms.api.inbound.transaction.model.warehouse.inbound.WarehouseApiResponse;
 import com.tekclover.wms.api.inbound.transaction.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -366,5 +368,22 @@ public class OrderService extends BaseService {
                 companyCode,
                 plantId,
                 warehouseId);
+    }
+
+    public WarehouseApiResponse inboundReProcessStatus(IbObOrderUpdateRequest request) {
+
+        log.info("Update Inbound Process Status Request: {}", request);
+        int inboundUpdated = inboundOrderV2Repository.updateInboundProcessStatus(request.getCompanyCode(), request.getBranchCode(),
+                request.getWarehouseID(), request.getLanguageId(), request.getOrderId());
+        log.info("Inbound Order Status Updated: {}", inboundUpdated);
+        WarehouseApiResponse response = new WarehouseApiResponse();
+        if (inboundUpdated > 0) {
+            response.setMessage("Inbound process status updated successfully");
+            response.setStatusCode("200");
+        } else {
+            response.setMessage("Inbound order not found");
+            response.setStatusCode("1400");
+        }
+        return response;
     }
 }
