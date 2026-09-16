@@ -48,7 +48,7 @@ public class KafkaConsumerConfig {
     }
     @Bean
     public ConsumerFactory<String, QualityLineSaveEvent> qualityLineCreateEventConsumerFactory() {
-        return createConsumerFactory(QualityLineSaveEvent.class, "qualityline-save-topic-v1");
+        return createConsumerFactory(QualityLineSaveEvent.class, "qualityline-save-topic-v2");
     }
 
     @Bean
