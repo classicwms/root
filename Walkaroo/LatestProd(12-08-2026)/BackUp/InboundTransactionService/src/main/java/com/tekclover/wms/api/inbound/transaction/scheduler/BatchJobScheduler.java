@@ -1,0 +1,121 @@
+package com.tekclover.wms.api.inbound.transaction.scheduler;
+
+import com.tekclover.wms.api.inbound.transaction.config.dynamicConfig.DataBaseContextHolder;
+import com.tekclover.wms.api.inbound.transaction.model.warehouse.inbound.WarehouseApiResponse;
+import com.tekclover.wms.api.inbound.transaction.service.*;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+
+import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+@Slf4j
+@Component
+public class BatchJobScheduler {
+
+    @Autowired
+    ScheduleAsyncService scheduleAsyncService;
+
+    @Autowired
+    PutAwayLineAsyncProcess putAwayService;
+
+
+    //-------------------------------------------------------------------------------------------
+
+    @Scheduled(fixedDelay = 30000)
+    public void scheduleJob() throws Exception {
+
+        // MDU
+        scheduleAsyncService.processInboundOrder();
+        // CMP
+        scheduleAsyncService.processInboundOrderV2();
+        // CHN
+        scheduleAsyncService.processInboundOrderV3();
+        //VGA
+        scheduleAsyncService.processInboundOrderV4();
+        //CCL
+        scheduleAsyncService.processInboundOrderV5();
+        //HYD
+        scheduleAsyncService.processInboundOrderV6();
+        //AHM
+        scheduleAsyncService.processInboundOrderV7();
+        //MUB
+        scheduleAsyncService.processInboundOrderV8();
+        // NGP1
+        scheduleAsyncService.processInboundOrderV9();
+        // NGP2
+        scheduleAsyncService.processInboundOrderV10();
+        //MYS
+        scheduleAsyncService.processInboundOrderV11();
+        //KNP
+        scheduleAsyncService.processInboundOrderV12();
+        //CTC
+        scheduleAsyncService.processInboundOrderV13();
+
+
+//        CompletableFuture<WarehouseApiResponse> inboundFailedOrder = scheduleAsyncService.processInboundFailedOrder();
+
+    }
+
+//    private final AtomicBoolean running = new AtomicBoolean(false);
+//
+//    @Scheduled(fixedDelay = 20000)
+//    public void scheduleJob() {
+//
+//        if (!running.compareAndSet(false, true)) {
+//            log.info("Previous inbound job still running, skipping...");
+//            return;
+//        }
+//
+//        try {
+//            CompletableFuture<WarehouseApiResponse> mdu =
+//                    scheduleAsyncService.processInboundOrder();
+//
+//            CompletableFuture<WarehouseApiResponse> cmp =
+//                    scheduleAsyncService.processInboundOrderV2();
+//
+//            CompletableFuture.allOf(mdu, cmp).join(); //  wait for completion
+//
+//        } catch (Exception e) {
+//            log.error("Scheduler exception", e);
+//        } finally {
+//            running.set(false); //  only after async completes
+//        }
+//    }
+
+    @Scheduled(fixedDelay = 20000)
+    public void scheduleInPutAway() throws Exception {
+
+        // MDU
+        putAwayService.createPutAwayHeaderInSchedule("MDU");
+        // CMP
+        putAwayService.createPutAwayHeaderInSchedule("CMP");
+        // CHN
+        putAwayService.createPutAwayHeaderInSchedule("CHN");
+        //VGA
+        putAwayService.createPutAwayHeaderInSchedule("VGA");
+        //CCL
+        putAwayService.createPutAwayHeaderInSchedule("CCL");
+        //HYD
+        putAwayService.createPutAwayHeaderInSchedule("HYD");
+        //AHM
+        putAwayService.createPutAwayHeaderInSchedule("AHM");
+        //MUB
+        putAwayService.createPutAwayHeaderInSchedule("MUB");
+        // NGP1
+        putAwayService.createPutAwayHeaderInSchedule("NGP1");
+        // NGP2
+        putAwayService.createPutAwayHeaderInSchedule("NGP2");
+        //MYS
+        putAwayService.createPutAwayHeaderInSchedule("MYS");
+        //KNP
+        putAwayService.createPutAwayHeaderInSchedule("KNP");
+        //CTC
+        putAwayService.createPutAwayHeaderInSchedule("CTC");
+    }
+
+}
