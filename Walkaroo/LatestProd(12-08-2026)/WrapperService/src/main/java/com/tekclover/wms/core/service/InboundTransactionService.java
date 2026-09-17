@@ -11988,5 +11988,19 @@ public class InboundTransactionService {
             throw e;
         }
     }
+
+    public WarehouseApiResponse inboundReProcessStatus(IbObOrderUpdateRequest request, String authToken) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        headers.add("User-Agent", "ClassicWMS RestTemplate");
+        headers.add("Authorization", "Bearer " + authToken);
+        UriComponentsBuilder builder =
+                UriComponentsBuilder.fromHttpUrl(getInboundTransactionServiceApiUrl() + "orders/ib/reProcess/status");
+        HttpEntity<?> entity = new HttpEntity<>(request, headers);
+        ResponseEntity<WarehouseApiResponse> result =
+                getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, WarehouseApiResponse.class);
+        log.info("result : " + result.getStatusCode());
+        return result.getBody();
+    }
 }
 

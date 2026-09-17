@@ -349,6 +349,11 @@ public class OrderController {
 				DataBaseContextHolder.clear();
 			}
 		}
+    @ApiOperation(response = WarehouseApiResponse.class, value = "OB Order ReProcessStatus")
+    @PostMapping("/ob/reProcess/status")
+    public ResponseEntity<?> patchObOrder(@RequestBody IbObOrderUpdateRequest request) throws Exception {
 
-
+        WarehouseApiResponse result = orderService.outboundReProcessStatus(request);
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
 	}

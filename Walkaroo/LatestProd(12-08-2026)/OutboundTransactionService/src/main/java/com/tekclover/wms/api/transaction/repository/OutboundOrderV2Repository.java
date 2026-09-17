@@ -145,4 +145,14 @@ public interface OutboundOrderV2Repository extends JpaRepository<OutboundOrderV2
             @Param("warehouseId") String warehouseId);
 
     void deleteByOrderId(String orderId);
+
+    @Modifying
+    @Query(value = "UPDATE tbloborder2 SET processed_status_id = 0 WHERE company_code = :companyCode " +
+            "AND branch_code = :branchCode AND WAREHOUSEID = :warehouseID AND language_id = :languageId " +
+            "AND order_id IN (:orderId)",
+            nativeQuery = true)
+    int updateOutboundProcessStatus(@Param("companyCode") String companyCode,
+                                    @Param("branchCode") String branchCode, @Param("warehouseID") String warehouseID,
+                                    @Param("languageId") String languageId, @Param("orderId") List<String> orderId);
+
 }

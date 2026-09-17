@@ -4693,4 +4693,20 @@ public class TransactionServiceController {
         return new ResponseEntity<>(createdStagingLine, HttpStatus.OK);
     }
 
+
+    @ApiOperation(response = InboundOrderV2.class, value = "IB ReProcess status") // label for swagger
+    @PostMapping("/ib/reProcess/status")
+    public ResponseEntity<?> inboundReProcessStatus(@RequestBody IbObOrderUpdateRequest request, @RequestParam String authToken)
+            throws IllegalAccessException, InvocationTargetException {
+        WarehouseApiResponse ibOrder = inboundTransactionService.inboundReProcessStatus(request, authToken);
+        return new ResponseEntity<>(ibOrder, HttpStatus.OK);
+    }
+
+    @ApiOperation(response = OutboundOrderV2.class, value = "OB ReProcess status") // label for swagger
+    @PostMapping("/ob/reProcess/status")
+    public ResponseEntity<?> outboundReProcessStatus(@RequestBody IbObOrderUpdateRequest request, @RequestParam String authToken)
+            throws IllegalAccessException, InvocationTargetException {
+        WarehouseApiResponse obOrder = outboundTransactionService.outboundReProcessStatus(request, authToken);
+        return new ResponseEntity<>(obOrder, HttpStatus.OK);
+    }
 }
