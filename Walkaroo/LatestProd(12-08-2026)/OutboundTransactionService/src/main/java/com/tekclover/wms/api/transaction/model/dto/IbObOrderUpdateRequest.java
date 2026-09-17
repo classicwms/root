@@ -1,4 +1,4 @@
-package com.tekclover.wms.api.inbound.transaction.model.dto;
+package com.tekclover.wms.api.transaction.model.dto;
 
 
 import lombok.Data;
