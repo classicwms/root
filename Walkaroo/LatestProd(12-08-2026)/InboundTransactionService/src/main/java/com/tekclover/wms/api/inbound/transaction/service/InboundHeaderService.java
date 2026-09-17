@@ -2697,4 +2697,68 @@ public class InboundHeaderService extends BaseService {
         }
     }
 
+    /**
+     *
+     * @param companyCode companyCode
+     * @param plantId plantId
+     * @param languageId languageId
+     * @param warehouseId warehouseId
+     * @param preInboundNo preInboundNo
+     * @param refDocNumber refDocNumber
+     * @param loginUserID loginUserID
+     */
+    public void inboundConfirmStatusUpdate(String companyCode, String plantId, String languageId, String warehouseId,
+                                             String preInboundNo, String refDocNumber, String loginUserID) {
+        try {
+            log.info("DSR/Auto--->Inbound Confirmation Process Initiated Order Number -----> " + refDocNumber);
+
+            statusDescription = getStatusDescription(24L, languageId);
+//            inboundHeaderV2Repository.updateAllStatusInboundConfirmProcedure(companyCode, plantId, languageId, warehouseId, preInboundNo,
+//                    refDocNumber, 24L, statusDescription, loginUserID, new Date());
+
+            int preinboundCount = inboundHeaderV2Repository.updatePreInboundHeaderStatus(companyCode, plantId, languageId, warehouseId, preInboundNo,
+                    refDocNumber, 24L, statusDescription, loginUserID, new Date());
+            log.info("preinboundCount ---> {}", preinboundCount);
+
+            int inboundHeaderCount = inboundHeaderV2Repository.updateInboundHeaderStatus(companyCode, plantId, languageId, warehouseId, preInboundNo,
+                    refDocNumber, 24L, statusDescription, loginUserID, new Date());
+            log.info("inboundHeaderCount ----> {}", inboundHeaderCount);
+
+            int grHeaderCount = inboundHeaderV2Repository.updateGrHeaderStatus(companyCode, plantId, languageId, warehouseId, preInboundNo,
+                    refDocNumber, 24L, statusDescription, loginUserID, new Date());
+            log.info("grHeaderCount -----> {}", grHeaderCount);
+
+            int stagingHeaderCount = inboundHeaderV2Repository.updateStagingHeaderStatus(companyCode, plantId, languageId, warehouseId, preInboundNo,
+                    refDocNumber, 24L, statusDescription, loginUserID, new Date());
+            log.info("stagingHeaderCount ----> {}", stagingHeaderCount);
+
+            int putawayCount = inboundHeaderV2Repository.updatePutAwayHeaderStatus(companyCode, plantId, languageId, warehouseId, preInboundNo,
+                    refDocNumber, 24L, statusDescription, loginUserID, new Date());
+            log.info("putawayCount ----> {}", putawayCount);
+
+            int putawayLineCount = inboundHeaderV2Repository.updatePutAwayLineStatus(companyCode, plantId, languageId, warehouseId, preInboundNo,
+                    refDocNumber, 24L, statusDescription, loginUserID, new Date());
+            log.info("putawayLineCount ----> {}", putawayLineCount);
+
+            int preInboundLineCount = inboundHeaderV2Repository.updatePreInboundLineStatus(companyCode, plantId, languageId, warehouseId, preInboundNo,
+                    refDocNumber, 24L, statusDescription, loginUserID, new Date());
+            log.info("preInboundLineCount ----> {}", preInboundLineCount);
+
+//            int grLineCount = inboundHeaderV2Repository.updateGrLineStatus(companyCode, plantId, languageId, warehouseId, preInboundNo,
+//                    refDocNumber, 24L, statusDescription, loginUserID, new Date());
+//            log.info("grLineCount ----> {}", grLineCount);
+
+            int stagingLineCount = inboundHeaderV2Repository.updateStagingLineStatus(companyCode, plantId, languageId, warehouseId, preInboundNo,
+                    refDocNumber, 24L, statusDescription, loginUserID, new Date());
+            log.info("stagingLineCount ----> {}", stagingLineCount);
+
+            int inboundLineCount = inboundHeaderV2Repository.updateInboundLineStatus(companyCode, plantId, languageId, warehouseId, preInboundNo,
+                    refDocNumber, 24L, statusDescription, loginUserID, new Date());
+            log.info("inboundLineCount -----> {}", inboundLineCount);
+
+            log.info("Inbound Confirm Successfully---> " + refDocNumber);
+        } catch (Exception e) {
+            log.info("Inbound confirmation [DSR]: Exception ----> " + e.toString());
+        }
+    }
 }

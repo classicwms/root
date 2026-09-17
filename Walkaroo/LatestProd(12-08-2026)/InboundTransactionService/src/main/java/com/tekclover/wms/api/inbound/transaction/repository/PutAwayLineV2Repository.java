@@ -363,4 +363,51 @@ public interface PutAwayLineV2Repository extends JpaRepository<PutAwayLineV2, Lo
     @Query(value = "delete tblputawayline where REF_DOC_NO = :refDocNumber AND PRE_IB_NO = :preInboundNo ", nativeQuery = true)
     int deleteByRefDocNo(@Param("refDocNumber") String refDocNumber,
                          @Param("preInboundNo") String preInboundNo);
+
+    @Query(value =
+            "SELECT COUNT(*)\n" +
+                    "FROM (\n" +
+                    "    SELECT IB_LINE_NO\n" +
+                    "    FROM tblputawayline\n" +
+                    "    WHERE C_ID = :companyCodeId\n" +
+                    "      AND PLANT_ID = :plantId\n" +
+                    "      AND LANG_ID = :languageId\n" +
+                    "      AND WH_ID = :warehouseId\n" +
+                    "      AND REF_DOC_NO = :refDocNumber\n" +
+                    "      AND PRE_IB_NO = :preInboundNo\n" +
+                    "      AND IS_DELETED = 0\n" +
+                    "      AND STATUS_ID IN (20,24)\n" +
+                    "    GROUP BY IB_LINE_NO, REF_DOC_NO, PRE_IB_NO, PLANT_ID, WH_ID, C_ID\n" +
+                    ") x",
+            nativeQuery = true)
+    Long getReceivedLinesCount(
+            @Param("companyCodeId") String companyCodeId,
+            @Param("plantId") String plantId,
+            @Param("languageId") String languageId,
+            @Param("warehouseId") String warehouseId,
+            @Param("refDocNumber") String refDocNumber,
+            @Param("preInboundNo") String preInboundNo);
+
+
+    @Modifying
+    @Transactional
+    @Query(value =
+            "UPDATE tblinboundheader " +
+                    "SET RECEIVED_LINES = :receivedLines " +
+                    "WHERE IS_DELETED = 0 " +
+                    "AND C_ID = :companyCodeId " +
+                    "AND PLANT_ID = :plantId " +
+                    "AND LANG_ID = :languageId " +
+                    "AND WH_ID = :warehouseId " +
+                    "AND REF_DOC_NO = :refDocNumber " +
+                    "AND PRE_IB_NO = :preInboundNo",
+            nativeQuery = true)
+    int updateReceivedLinesCount(
+            @Param("receivedLines") Long receivedLines,
+            @Param("companyCodeId") String companyCodeId,
+            @Param("plantId") String plantId,
+            @Param("languageId") String languageId,
+            @Param("warehouseId") String warehouseId,
+            @Param("refDocNumber") String refDocNumber,
+            @Param("preInboundNo") String preInboundNo);
 }

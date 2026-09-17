@@ -4147,4 +4147,152 @@ public class InventoryService extends BaseService {
         }
         return saveInventory;
     }
+
+
+    /**
+     *
+     * @param putAwayLine putAwayline
+     * @param loginUserId userID
+     * @return
+     * @throws Exception exception
+     */
+    public InventoryV2 createInventoryInPutAwayLine(PutAwayLineV2 putAwayLine, String loginUserId) throws Exception {
+
+        InventoryV2 newInventoryBinClassId1 = new InventoryV2();
+
+        String companyCode = putAwayLine.getCompanyCode();
+        String plantId = putAwayLine.getPlantId();
+        String languageId = putAwayLine.getLanguageId();
+        String warehouseId = putAwayLine.getWarehouseId();
+        String barCodeId = putAwayLine.getBarcodeId();
+        String itemCode = putAwayLine.getItemCode();
+        String manufacturerName = putAwayLine.getManufacturerName();
+        String refDocNumber = putAwayLine.getRefDocNumber();
+        try {
+            //BinClassId 3 reduce Inventory
+            log.info("companyCode ---> {}, plantId ---> {}, languageId ----> {}, warehouseId ----> {}, barcodeId ----> {}, itemCode ----> {}, manufacturerName -----> {}",
+                    companyCode, plantId, languageId, warehouseId, barCodeId, itemCode, manufacturerName);
+            InventoryV2 dbInventory = inventoryV2Repository.findInventoryInPutAwayLine(companyCode, plantId, languageId, warehouseId, barCodeId,
+                    null, itemCode, manufacturerName, PACK_BARCODE, null, 3L, 1L);
+            log.info("BinClassId 3 Values -------------> In PutAwayLine Creation ---->" + dbInventory);
+            if (dbInventory != null) {
+                InventoryV2 inventory = new InventoryV2();
+                BeanUtils.copyProperties(dbInventory, inventory, CommonUtils.getNullPropertyNames(dbInventory));
+
+                Double INV_QTY = round(dbInventory.getInventoryQuantity());
+                Double ALLOC_QTY = round(dbInventory.getAllocatedQuantity());
+                Double PA_QTY = round(putAwayLine.getPutawayConfirmedQty());
+
+                log.info("Before - B3-Inventory - INV_QTY,ALLOC_QTY,TOT_QTY,GrQty: {}, {}, {}, {}", INV_QTY, ALLOC_QTY, dbInventory.getReferenceField4(), PA_QTY);
+                INV_QTY = INV_QTY - PA_QTY;
+                INV_QTY = INV_QTY < 0 ? 0 : round(INV_QTY);
+                double TOT_QTY = INV_QTY + ALLOC_QTY;
+
+                inventory.setInventoryQuantity(INV_QTY);
+                inventory.setAllocatedQuantity(ALLOC_QTY);
+                inventory.setReferenceField4(TOT_QTY);
+                log.info("After - B3-Inventory - INV_QTY,ALLOC_QTY,TOT_QTY: {}, {}, {}", INV_QTY, ALLOC_QTY, TOT_QTY);
+
+                if (inventory.getItemType() == null) {
+                    IKeyValuePair itemType = getItemTypeAndDesc(companyCode, plantId, languageId, warehouseId, itemCode);
+                    if (itemType != null) {
+                        inventory.setItemType(itemType.getItemType());
+                        inventory.setItemTypeDescription(itemType.getItemTypeDescription());
+                    }
+                }
+
+                inventory.setReferenceDocumentNo(refDocNumber);
+                inventory.setReferenceOrderNo(refDocNumber);
+                inventory.setUpdatedBy(loginUserId);
+                inventory.setCreatedOn(dbInventory.getCreatedOn());
+                inventory.setUpdatedOn(new Date());
+                inventory.setInventoryId(null);
+
+                InventoryV2 createdinventory = inventoryV2Repository.save(inventory);
+                log.info("BinClassId 3 created inventory[Existing] - reduced : {}", createdinventory);
+
+
+                log.info("Inventory BinClassID 1 Creation In PutAwayLine Started ---->  " + new Date());
+                BeanUtils.copyProperties(putAwayLine, newInventoryBinClassId1, CommonUtils.getNullPropertyNames(putAwayLine));
+                newInventoryBinClassId1.setCompanyCodeId(companyCode);
+
+                // VAR_ID, VAR_SUB_ID, STR_MTD, STR_NO ---> Hard coded as '1'
+                newInventoryBinClassId1.setVariantCode(1L);
+                newInventoryBinClassId1.setVariantSubCode("1");
+                newInventoryBinClassId1.setStorageMethod("1");
+                newInventoryBinClassId1.setBatchSerialNumber("1");
+                newInventoryBinClassId1.setPackBarcodes(PACK_BARCODE);
+                newInventoryBinClassId1.setDeletionIndicator(0L);
+                newInventoryBinClassId1.setReferenceField8(putAwayLine.getDescription());
+                newInventoryBinClassId1.setReferenceField9(putAwayLine.getManufacturerName());
+                newInventoryBinClassId1.setManufacturerCode(putAwayLine.getManufacturerName());
+                newInventoryBinClassId1.setDescription(putAwayLine.getDescription());
+                newInventoryBinClassId1.setReferenceDocumentNo(putAwayLine.getRefDocNumber());
+                newInventoryBinClassId1.setReferenceOrderNo(putAwayLine.getRefDocNumber());
+                newInventoryBinClassId1.setMtoNumber(dbInventory.getMtoNumber() != null ? dbInventory.getMtoNumber() : null);
+
+                // ST_BIN ---Pass WH_ID/BIN_CL_ID=3 in STORAGEBIN table and fetch ST_BIN value and update
+                StorageBinV2 storageBin = storageBinService.getStorageBinV2(companyCode, plantId, languageId, warehouseId, putAwayLine.getConfirmedStorageBin());
+                log.info("storageBin: {}", storageBin);
+
+                if (storageBin != null) {
+                    newInventoryBinClassId1.setStorageBin(storageBin.getStorageBin());
+                    newInventoryBinClassId1.setBinClassId(storageBin.getBinClassId());
+                    newInventoryBinClassId1.setReferenceField10(storageBin.getStorageSectionId());
+                    newInventoryBinClassId1.setStorageSectionId(storageBin.getStorageSectionId());
+                    newInventoryBinClassId1.setReferenceField5(storageBin.getAisleNumber());
+                    newInventoryBinClassId1.setReferenceField6(storageBin.getShelfId());
+                    newInventoryBinClassId1.setReferenceField7(storageBin.getRowId());
+                    newInventoryBinClassId1.setLevelId(String.valueOf(storageBin.getFloorId()));
+                }
+
+                // STCK_TYP_ID
+                newInventoryBinClassId1.setStockTypeId(1L);
+                String stockTypeDesc = getStockTypeDesc(companyCode, plantId, languageId, warehouseId, 1L);
+                newInventoryBinClassId1.setStockTypeDescription(stockTypeDesc);
+
+                // SP_ST_IND_ID
+                newInventoryBinClassId1.setSpecialStockIndicatorId(1L);
+                double PA_QTY_1 = round(putAwayLine.getPutawayConfirmedQty());
+                // INV_QTY
+                double INV_QTY_1 = round(PA_QTY_1);
+                newInventoryBinClassId1.setInventoryQuantity(INV_QTY_1);
+                newInventoryBinClassId1.setAllocatedQuantity(0D);
+                newInventoryBinClassId1.setReferenceField4(INV_QTY_1);      //Allocated Qty is zero for newInventory
+                log.info("B1 New - Inventory - INV_QTY,TOT_QTY: {}", INV_QTY_1);
+
+                // INV_UOM
+                newInventoryBinClassId1.setInventoryUom(putAwayLine.getPutAwayUom());
+                newInventoryBinClassId1.setCreatedBy(loginUserId);
+                newInventoryBinClassId1.setUpdatedBy(loginUserId);
+
+                if (newInventoryBinClassId1.getItemType() == null) {
+                    IKeyValuePair itemType = getItemTypeAndDesc(companyCode, plantId, languageId, warehouseId, itemCode);
+                    if (itemType != null) {
+                        newInventoryBinClassId1.setItemType(itemType.getItemType());
+                        newInventoryBinClassId1.setItemTypeDescription(itemType.getItemTypeDescription());
+                    }
+                }
+
+                newInventoryBinClassId1.setCreatedOn(new Date());
+                newInventoryBinClassId1.setUpdatedOn(new Date());
+                log.info("Inventory Quantity is {}, BarcodeID is {} ---------------------------->  ", newInventoryBinClassId1.getInventoryQuantity(), newInventoryBinClassId1.getBarcodeId());
+                if (newInventoryBinClassId1.getInventoryQuantity() == 1) {
+//                    newInventoryBinClassId1 = inventoryV2Repository.save(newInventoryBinClassId1);        Going to save with Kafka method
+                    log.info("B1-created inventory : {}", newInventoryBinClassId1);
+//                    createdBin1Inentory.add(newInventoryBinClassId1);
+                } else {
+                    log.info("Inventory Qty Value is {} ---------> So Skip the Value", newInventoryBinClassId1.getInventoryQuantity());
+                }
+
+//            return createdinventory;
+            }
+        } catch (Exception e) {
+            // Exception Log
+            e.printStackTrace();
+            throw e;
+        }
+        return newInventoryBinClassId1;
+    }
+
 }

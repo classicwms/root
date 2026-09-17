@@ -238,7 +238,12 @@ public class PutAwayLineController {
             DataBaseContextHolder.setCurrentDb(db);
             log.info("Current DB -------------> "  + db);
             log.info("Request for putAwayLines to confirm : " + newPutAwayLine);
-            List<PutAwayLineV2> createdPutAwayLine = putawaylineService.putAwayConfirmProcess(newPutAwayLine, loginUserID);
+            List<PutAwayLineV2> createdPutAwayLine = null;
+            if(db.equalsIgnoreCase("HYD")) {
+                createdPutAwayLine = putawaylineService.putAwayLineConfirmValidation(newPutAwayLine, loginUserID);
+            } else {
+                 createdPutAwayLine = putawaylineService.putAwayConfirmProcess(newPutAwayLine, loginUserID);
+            }
             return new ResponseEntity<>(createdPutAwayLine, HttpStatus.OK);
         } finally {
             DataBaseContextHolder.clear();
