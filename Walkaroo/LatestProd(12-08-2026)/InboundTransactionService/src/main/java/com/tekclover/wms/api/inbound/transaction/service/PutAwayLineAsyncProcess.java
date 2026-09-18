@@ -1,14 +1,17 @@
 package com.tekclover.wms.api.inbound.transaction.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.tekclover.wms.api.inbound.transaction.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.inbound.transaction.model.inbound.putaway.v2.PutAwayLineV2;
 import com.tekclover.wms.api.inbound.transaction.model.inbound.staging.v2.StagingLineEntityV2;
+import com.tekclover.wms.api.inbound.transaction.repository.GrHeaderV2Repository;
 import com.tekclover.wms.api.inbound.transaction.repository.PutAwayHeaderV2Repository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -31,6 +34,11 @@ public class PutAwayLineAsyncProcess extends BaseService {
 
     @Autowired
     PutAwayHeaderService putAwayHeaderService;
+
+    @Autowired
+    GrHeaderV2Repository grHeaderV2Repository;
+    @Autowired
+    ODataService oDataService;
 
 
     @Async("asyncExecutor")
@@ -190,5 +198,36 @@ public class PutAwayLineAsyncProcess extends BaseService {
         }
     }
 
+
+    /**
+     *
+     * @param stagingLineEntityV2List stagingLine
+     * @throws JsonProcessingException exception
+     */
+    public void sapPushingStatus(List<StagingLineEntityV2> stagingLineEntityV2List) throws JsonProcessingException {
+        // 2. Group by refDocNumber after all updates
+        Map<String, List<StagingLineEntityV2>> groupedByRefDoc = stagingLineEntityV2List.stream()
+                .collect(Collectors.groupingBy(StagingLineEntityV2::getRefDocNumber));
+
+        for (Map.Entry<String, List<StagingLineEntityV2>> entry : groupedByRefDoc.entrySet()) {
+            String refDocNumber = entry.getKey();
+            log.info("refDocNumber --> {}", refDocNumber);
+            List<StagingLineEntityV2> stagingLines = stagingLineV2Repository.findStagingLineList(refDocNumber);
+            log.info("List of StagingLine Values: {} ", stagingLines);
+            if(!stagingLines.isEmpty()) {
+                String response = oDataService.postODataRequest(stagingLines, refDocNumber, "1", "X");
+                System.out.println("RES ---> {}" + response);
+                if (response.equals("0")) {
+                    log.info("Sap Success RefDoc: {} ", refDocNumber);
+                    int grCount = grHeaderV2Repository.updateGRHeader_SAP(refDocNumber, "0");
+                    log.info("GrHeader Success Updated Rows: {}", grCount);
+                } else {
+                    log.info("Sap Failure RefDoc: {} ", refDocNumber);
+                    int grCount = grHeaderV2Repository.updateGRHeader_SAP(refDocNumber, "1");
+                    log.info("GrHeader Failure Updated Rows: {}", grCount);
+                }
+            }
+        }
+    }
 
 }

@@ -239,7 +239,7 @@ public class PutAwayLineController {
             log.info("Current DB -------------> "  + db);
             log.info("Request for putAwayLines to confirm : " + newPutAwayLine);
             List<PutAwayLineV2> createdPutAwayLine = null;
-            if(db.equalsIgnoreCase("HYD")) {
+            if(db.equalsIgnoreCase("HYD") || db.equalsIgnoreCase("MDU")) {
                 createdPutAwayLine = putawaylineService.putAwayLineConfirmValidation(newPutAwayLine, loginUserID);
             } else {
                  createdPutAwayLine = putawaylineService.putAwayConfirmProcess(newPutAwayLine, loginUserID);
