@@ -32,7 +32,7 @@ public class ProducerService {
 
     // QualityLine Save
     public void qualityLineSave(QualityLineSaveEvent event) {
-        kafkaTemplate.send("qualityline-save-topic-v2", event);
+        kafkaTemplate.send("qualityline-save-topic-v3", event);
     }
 
     // QualityHeader Update

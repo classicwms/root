@@ -73,7 +73,7 @@ public class ConsumerService {
     }
 
     // QualityLine Creation
-    @KafkaListener(topics = "qualityline-save-topic-v2", groupId = "qualityline-save-group-v1", containerFactory = "qualitylineListenerFactory")
+    @KafkaListener(topics = "qualityline-save-topic-v3", groupId = "qualityline-save-group-v1", containerFactory = "qualitylineListenerFactory")
     public void saveConsume(QualityLineSaveEvent event) throws ParseException, InvocationTargetException, IllegalAccessException {
         log.info("Quality Line Create Event {} ", event);
         try {
