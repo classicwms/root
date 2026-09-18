@@ -204,6 +204,7 @@ public class PutAwayLineAsyncProcess extends BaseService {
      * @param stagingLineEntityV2List stagingLine
      * @throws JsonProcessingException exception
      */
+    @Async("asyncExecutorPutAway")
     public void sapPushingStatus(List<StagingLineEntityV2> stagingLineEntityV2List) throws JsonProcessingException {
         // 2. Group by refDocNumber after all updates
         Map<String, List<StagingLineEntityV2>> groupedByRefDoc = stagingLineEntityV2List.stream()

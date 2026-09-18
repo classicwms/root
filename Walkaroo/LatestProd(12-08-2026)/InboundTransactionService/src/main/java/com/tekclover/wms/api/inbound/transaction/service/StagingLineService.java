@@ -17,6 +17,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.expression.ParseException;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.tekclover.wms.api.inbound.transaction.controller.exception.BadRequestException;
@@ -2933,6 +2934,7 @@ public class StagingLineService extends BaseService {
      * @return
      * @throws JsonProcessingException exception
      */
+
     public List<StagingLineEntityV2> updateStagingLinev4(List<StagingLineEntityV2> stagingLineEntityV2List, String loginUserID) throws JsonProcessingException {
         try{
             for(StagingLineEntityV2 sl : stagingLineEntityV2List) {
