@@ -59,9 +59,9 @@ public class DataSourceConfig {
     private DataSource mduDataSource() {
         return buildDataSource(
                 "MDU",
-                "jdbc:sqlserver://10.20.0.40;databaseName=WMS_WK_PRD",
+                "jdbc:sqlserver://10.10.0.37;databaseName=WMS_WK_PRD",
                 "sa",
-                "kT9mzQeF27vWbHsLXy8dPnJ4r"
+                "7Mg9b6nz)4J~w(C6L$&WG"
         );
     }
 
