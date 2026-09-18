@@ -2357,6 +2357,26 @@ public class PickupLineService extends BaseService {
         producerService.savePickupLine(event);
         log.info("Published PickupLine Save Event to Kafka RefDOcNo is -------------------> {}", refDocNumber);
 
+        for (PickupLineV2 dbPickupLine : createdPickupLineList) {
+            // Inserting record in InventoryMovement
+            Long subMvtTypeId;
+            String movementDocumentNo;
+            String stBin;
+            String movementQtyValue;
+            InventoryMovement inventoryMovement;
+            try {
+                subMvtTypeId = 1L;
+                movementDocumentNo = dbPickupLine.getPickupNumber();
+                stBin = dbPickupLine.getPickedStorageBin();
+                movementQtyValue = "N";
+                inventoryMovement = createInventoryMovementV2(dbPickupLine, subMvtTypeId, movementDocumentNo, stBin,
+                        movementQtyValue, loginUserID);
+                log.info("InventoryMovement created : " + inventoryMovement);
+            } catch (Exception e) {
+                log.error("InventoryMovement create Error :" + e.toString());
+                e.printStackTrace();
+            }
+        }
 //        try {
 //            log.info("PickupNumber :{}, StatusId: {} ", pickupNumber, STATUS_ID);
 //            log.info("Kafka PickupHeader Update Event is being published to Kafka for RefDocNo : {} ", refDocNumber);

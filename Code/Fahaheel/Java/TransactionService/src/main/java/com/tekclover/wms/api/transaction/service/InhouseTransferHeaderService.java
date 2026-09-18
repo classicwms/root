@@ -974,21 +974,21 @@ public class InhouseTransferHeaderService extends BaseService {
                  * If TR_TYP_ID = 03, insert 2 records in INVENTORYMOVEMENT table.
                  * One record with ST_BIN = SRCE_ST_BIN and other record with ST_BIN = TGT_ST_BIN
                  */
-//                if (transferTypeId == 3L) {
-//                    // Row insertion for Source
-//                    Long stockTypeId = createdInhouseTransferLine.getSourceStockTypeId();
-//                    String itemCode = createdInhouseTransferLine.getSourceItemCode();
-//                    String movementQtyValue = "N";
-//                    String storageBin = createdInhouseTransferLine.getSourceStorageBin();
-//                    createInventoryMovementV2(createdInhouseTransferLine, transferTypeId, stockTypeId, itemCode, createdInhouseTransferLine.getManufacturerName(),
-//                            storageBin, movementQtyValue, loginUserID);
-//
-//                    // Row insertion for Target
-//                    movementQtyValue = "P";
-//                    storageBin = createdInhouseTransferLine.getTargetStorageBin();
-//                    createInventoryMovementV2(createdInhouseTransferLine, transferTypeId, stockTypeId, itemCode, createdInhouseTransferLine.getManufacturerName(),
-//                            storageBin, movementQtyValue, loginUserID);
-//                }
+                if (transferTypeId == 3L) {
+                    // Row insertion for Source
+                    Long stockTypeId = createdInhouseTransferLine.getSourceStockTypeId();
+                    String itemCode = createdInhouseTransferLine.getSourceItemCode();
+                    String movementQtyValue = "N";
+                    String storageBin = createdInhouseTransferLine.getSourceStorageBin();
+                    createInventoryMovementV2(createdInhouseTransferLine, transferTypeId, stockTypeId, itemCode, createdInhouseTransferLine.getManufacturerName(),
+                            storageBin, movementQtyValue, loginUserID);
+
+                    // Row insertion for Target
+                    movementQtyValue = "P";
+                    storageBin = createdInhouseTransferLine.getTargetStorageBin();
+                    createInventoryMovementV2(createdInhouseTransferLine, transferTypeId, stockTypeId, itemCode, createdInhouseTransferLine.getManufacturerName(),
+                            storageBin, movementQtyValue, loginUserID);
+                }
 
                 /* Response Header */
                 BeanUtils.copyProperties(createdInhouseTransferHeader, responseHeader, CommonUtils.getNullPropertyNames(createdInhouseTransferHeader));

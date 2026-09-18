@@ -1534,7 +1534,7 @@ public class InboundHeaderService extends BaseService {
                     if (putAwayLineList != null) {
                         for(PutAwayLineV2 putAwayLine : putAwayLineList) {
                             InventoryV2 createdInventory = createInventoryV2(putAwayLine, grLine.getQuantityType());
-//                            createInventoryMovementV2(putAwayLine);
+                            createInventoryMovementV2(putAwayLine);
                             log.info("All Inbound Line --> Inventory Created Successfully");
                         }
                     }
