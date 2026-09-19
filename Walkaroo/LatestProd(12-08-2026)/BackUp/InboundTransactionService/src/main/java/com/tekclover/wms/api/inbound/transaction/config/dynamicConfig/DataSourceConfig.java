@@ -79,7 +79,7 @@ public class DataSourceConfig {
                 "MDU",
                 "jdbc:sqlserver://10.10.12.28;databaseName=WMS_WK_PRD",
                 "sa",
-                "1Z6n3[cHnFg-nf`j1BJ{uE,"
+                "1Z6n3[cHnFg-nf`j1BJ{uE"
         );
     }
 
