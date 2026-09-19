@@ -131,7 +131,7 @@ public class ConsumerService {
     }
 
     // QualityLine Creation Process
-    @KafkaListener(topics = "qualityline-create-topic-v2", groupId = "qualityline-create-group-v1", containerFactory = "qualityLineProcessListenerFactory")
+    @KafkaListener(topics = "qualityline-create-topic-v3", groupId = "qualityline-create-topic-v3", containerFactory = "qualityLineProcessListenerFactory")
     public void consume(QualityLineCreateEvent event) throws Exception {
         qualityLineService.createQualityLineV2(event.getQualityLineV2s(), event.getLoginUserID());
     }
