@@ -2272,23 +2272,23 @@ public class InboundHeaderService extends BaseService {
 				log.error("----createdinventory--------- :" + createdinventory);
 				isInventoryCreated = true;
 
-                // Inserting record in InventoryMovement
-                Long subMvtTypeId;
-                String movementDocumentNo;
-                String stBin;
-                String movementQtyValue;
-                InventoryMovement inventoryMovement;
-                try {
-                    subMvtTypeId = 1L;
-                    movementDocumentNo = putAwayLine.getPickupNumber();
-                    stBin = putAwayLine.getPickedStorageBin();
-                    movementQtyValue = "N";
+//                // Inserting record in InventoryMovement
+//                Long subMvtTypeId;
+//                String movementDocumentNo;
+//                String stBin;
+//                String movementQtyValue;
+//                InventoryMovement inventoryMovement;
+//                try {
+//                    subMvtTypeId = 1L;
+//                    movementDocumentNo = putAwayLine.getPickupNumber();
+//                    stBin = putAwayLine.getPickedStorageBin();
+//                    movementQtyValue = "N";
                    createInventoryMovementV2(putAwayLine);
                     log.info("InventoryMovement created :");
-                } catch (Exception e) {
-                    log.error("InventoryMovement create Error :" + e.toString());
-                    e.printStackTrace();
-                }
+//                } catch (Exception e) {
+//                    log.error("InventoryMovement create Error :" + e.toString());
+//                    e.printStackTrace();
+//                }
 
 			} catch (Exception e) {
 				log.error("--ERROR--createInventoryNonCBMV2 ----level1--inventory--error----> :" + e.toString());
