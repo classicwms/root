@@ -90,6 +90,10 @@ public class BatchJobScheduler {
     @Scheduled(fixedDelay = 20000)
     public void scheduleInPutAway() throws Exception {
 
+        long schedulerStart = System.currentTimeMillis();
+
+        log.info("========== PUTAWAY SCHEDULER START ==========");
+
         // MDU
         putAwayService.createPutAwayHeaderInSchedule("MDU");
         // CMP
@@ -116,6 +120,11 @@ public class BatchJobScheduler {
         putAwayService.createPutAwayHeaderInSchedule("KNP");
         //CTC
         putAwayService.createPutAwayHeaderInSchedule("CTC");
+
+        log.info(
+                "========== PUTAWAY SCHEDULER SUBMISSION COMPLETED in {} ms ==========",
+                System.currentTimeMillis() - schedulerStart
+        );
     }
 
 }
