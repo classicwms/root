@@ -62,7 +62,7 @@ public class KafkaConsumerConfig {
 
     @Bean
     public ConsumerFactory<String, QualityLineCreateEvent> qualityLineProcessConsumerFactory() {
-        return createConsumerFactory(QualityLineCreateEvent.class, "qualityline-create-topic-v3");
+        return createConsumerFactory(QualityLineCreateEvent.class, "qualityline-create-topic-v4");
     }
 
     @Bean
