@@ -1258,6 +1258,17 @@ public class QualityLineService extends BaseService {
 
     public List<AddQualityLineV2> createQualityLineWithKafka(List<AddQualityLineV2> newQualityLines, String loginUserID) throws Exception {
 
+        try {
+            statusDescription = redisService.getStatusDescription(55L, newQualityLines.get(0).getLanguageId());
+            List<String> getQualityInspectionNos =
+                    newQualityLines.stream().map(AddQualityLineV2::getQualityInspectionNo).distinct().collect(Collectors.toList());
+            log.info("-----------getQualityInspectionNos-------> : " + getQualityInspectionNos);
+            int quality = qualityHeaderV2Repository.updateQualityHeader(statusDescription, getQualityInspectionNos);
+            log.info("QualityHeader Status Updated Successfully: Affected Row's {}", quality);
+        } catch (Exception e) {
+            log.info("QualityHeader Status Update Status Exception" + e.getMessage());
+        }
+
         log.info("Publishing PickupLine Creation Event to Kafka -------------------> ");
         List<List<AddQualityLineV2>> batches = Lists.partition(newQualityLines, 300);
         for (List<AddQualityLineV2> batch : batches) {
@@ -1355,15 +1366,15 @@ public class QualityLineService extends BaseService {
             } // End of for
             
             if (toBeCreatedQLList != null) {
-                statusDescription = redisService.getStatusDescription(55L, toBeCreatedQLList.get(0).getLanguageId());
-                List<String> getQualityInspectionNos =
-                        toBeCreatedQLList.stream().map(QualityLineV2::getQualityInspectionNo).distinct().collect(Collectors.toList());
-                log.info("-----------getQualityInspectionNos-------> : " + getQualityInspectionNos);
+//                statusDescription = redisService.getStatusDescription(55L, toBeCreatedQLList.get(0).getLanguageId());
+//                List<String> getQualityInspectionNos =
+//                        toBeCreatedQLList.stream().map(QualityLineV2::getQualityInspectionNo).distinct().collect(Collectors.toList());
+//                log.info("-----------getQualityInspectionNos-------> : " + getQualityInspectionNos);
 //                int quality = qualityHeaderV2Repository.updateQualityHeader(statusDescription, getQualityInspectionNos);
 //                log.info("QualityHeader Status Updated Successfully: Affected Row's {}", quality);
 
-                log.info("QualityHeader update Event published -------->");
-                producerService.qualityHeaderUpdate(new QualityHeaderUpdateEvent(statusDescription, getQualityInspectionNos));
+//                log.info("QualityHeader update Event published -------->");
+//                producerService.qualityHeaderUpdate(new QualityHeaderUpdateEvent(statusDescription, getQualityInspectionNos));
 
 //            	List<QualityLineV2> createdQualityLineList = qualityLineV2Repository.saveAll(toBeCreatedQLList);
 //            	log.info("-----------createdQualityLineList-------> : " + createdQualityLineList);
