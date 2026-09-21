@@ -687,7 +687,7 @@ public class InhouseTransferHeaderService extends BaseService {
 
         // MVT_QTY
 //        inventoryMovement.setMovementQty(createdInhouseTransferLine.getTransferConfirmedQty());
-        inventoryMovement.setMovementQty(0D);                       //Instructed to set '0' since inventory remains unchanged, Qty only moved from one bin to another bin
+        inventoryMovement.setMovementQty(createdInhouseTransferLine.getTransferConfirmedQty());                       //Instructed to set '0' since inventory remains unchanged, Qty only moved from one bin to another bin
 
         // MVT_QTY_VAL
         inventoryMovement.setMovementQtyValue(movementQtyValue);
