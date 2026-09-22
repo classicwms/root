@@ -1272,7 +1272,7 @@ public class QualityLineService extends BaseService {
         log.info("Publishing PickupLine Creation Event to Kafka -------------------> ");
         List<List<AddQualityLineV2>> batches = Lists.partition(newQualityLines, 300);
         for (List<AddQualityLineV2> batch : batches) {
-            producerService.publishQualityLine("qualityline-create-topic-v4", new QualityLineCreateEvent(batch, loginUserID));
+            producerService.publishQualityLine("qualityline-create-topic-v5", new QualityLineCreateEvent(batch, loginUserID));
         }
         return newQualityLines;
     }

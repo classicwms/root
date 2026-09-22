@@ -32,7 +32,7 @@ public class ProducerService {
 
     // QualityLine Save
     public void qualityLineSave(QualityLineSaveEvent event) {
-        kafkaTemplate.send("qualityline-save-topic-v3", event);
+        kafkaTemplate.send("qualityline-save-topic-v4", event);
     }
 
     // QualityHeader Update
@@ -51,18 +51,18 @@ public class ProducerService {
 //    }
     // Delivery Confirm
     public void deliveryConfirm(DeliveryConfirmEvent event) {
-        kafkaTemplate.send("delivery-confirm-topic-v1", event);
+        kafkaTemplate.send("delivery-confirm-topic-v2", event);
     }
 
 
     // Update OutboundLine
     public void updatePreOutboundHeader(UpdatePreOutboundHeaderStatus event) {
-        kafkaTemplate.send("preobheader-status-update-topic-v1", event);
+        kafkaTemplate.send("preobheader-status-update-topic-v2", event);
     }
 
     // Update OutboundLine
     public void updateOutboundHeader(UpdateOutboundHeaderStatus event) {
-        kafkaTemplate.send("obheader-status-update-topic-v1", event);
+        kafkaTemplate.send("obheader-status-update-topic-v2", event);
     }
 
     // AssignPikcer

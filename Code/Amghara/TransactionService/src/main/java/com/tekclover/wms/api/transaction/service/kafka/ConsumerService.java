@@ -73,7 +73,7 @@ public class ConsumerService {
     }
 
     // QualityLine Creation
-    @KafkaListener(topics = "qualityline-save-topic-v3", groupId = "qualityline-save-group-v1", containerFactory = "qualitylineListenerFactory")
+    @KafkaListener(topics = "qualityline-save-topic-v4", groupId = "qualityline-save-group-v1", containerFactory = "qualitylineListenerFactory")
     public void saveConsume(QualityLineSaveEvent event) throws ParseException, InvocationTargetException, IllegalAccessException {
         log.info("Quality Line Create Event {} ", event);
         try {
@@ -105,7 +105,7 @@ public class ConsumerService {
 //        qualityLineService.updateDeliveryQty(event.getQualityLineV2List());
 //    }
     // Delivery Confirm
-    @KafkaListener(topics = "delivery-confirm-topic-v1", groupId = "delivery-confirm-group-v1", containerFactory = "deliveryConfirmInterimListenerFactory")
+    @KafkaListener(topics = "delivery-confirm-topic-v2", groupId = "delivery-confirm-group-v1", containerFactory = "deliveryConfirmInterimListenerFactory")
     public void consume(DeliveryConfirmEvent event) throws ParseException, InvocationTargetException, IllegalAccessException {
 //        qualityLineService.postDeliveryConfirm(event.getQualityLineV2List(), event.getLoginUserID());
         log.info("Delivery Confirm Process Started from Kafka: {} ", event);
@@ -115,7 +115,7 @@ public class ConsumerService {
 
 
     // New PreObHeader Update
-    @KafkaListener(topics = "preobheader-status-update-topic-v1", groupId = "preobheader-status-update-group-v1", containerFactory = "updatePreObHeaderStatusListenerFactory")
+    @KafkaListener(topics = "preobheader-status-update-topic-v2", groupId = "preobheader-status-update-group-v1", containerFactory = "updatePreObHeaderStatusListenerFactory")
     public void consume(UpdatePreOutboundHeaderStatus event) {
         log.info("Update PreOutbound Line Event {}", event);
         preOutboundHeaderV2Repository.updatePreOutboundHeaderStatusV2New(event.getCompanyId(), event.getPlantId(), event.getLanguageId(), event.getWarehouseId(),
@@ -123,7 +123,7 @@ public class ConsumerService {
     }
 
     // New OutboundHeader Update
-    @KafkaListener(topics = "obheader-status-update-topic-v1", groupId = "obheader-status-update-group-v1", containerFactory = "updateObHeaderStatusListenerFactory")
+    @KafkaListener(topics = "obheader-status-update-topic-v2", groupId = "obheader-status-update-group-v1", containerFactory = "updateObHeaderStatusListenerFactory")
     public void consume(UpdateOutboundHeaderStatus event) {
         log.info("Update Outbound Line Event {}", event);
         outboundHeaderV2Repository.updateOutboundHeaderStatusV2New(event.getCompanyId(), event.getPlantId(), event.getLanguageId(), event.getWarehouseId(),
@@ -131,7 +131,7 @@ public class ConsumerService {
     }
 
     // QualityLine Creation Process
-    @KafkaListener(topics = "qualityline-create-topic-v4", groupId = "qualityline-create-topic-v4", containerFactory = "qualityLineProcessListenerFactory")
+    @KafkaListener(topics = "qualityline-create-topic-v5", groupId = "qualityline-create-topic-v5", containerFactory = "qualityLineProcessListenerFactory")
     public void consume(QualityLineCreateEvent event) throws Exception {
         qualityLineService.createQualityLineV2(event.getQualityLineV2s(), event.getLoginUserID());
     }

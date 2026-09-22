@@ -48,7 +48,7 @@ public class KafkaConsumerConfig {
     }
     @Bean
     public ConsumerFactory<String, QualityLineSaveEvent> qualityLineCreateEventConsumerFactory() {
-        return createConsumerFactory(QualityLineSaveEvent.class, "qualityline-save-topic-v3");
+        return createConsumerFactory(QualityLineSaveEvent.class, "qualityline-save-topic-v4");
     }
 
     @Bean
@@ -57,12 +57,12 @@ public class KafkaConsumerConfig {
     }
     @Bean
     public ConsumerFactory<String, DeliveryConfirmEvent> deliveryConfirmEventConsumerFactory() {
-        return createConsumerFactory(DeliveryConfirmEvent.class, "delivery-confirm-topic-v1");
+        return createConsumerFactory(DeliveryConfirmEvent.class, "delivery-confirm-topic-v2");
     }
 
     @Bean
     public ConsumerFactory<String, QualityLineCreateEvent> qualityLineProcessConsumerFactory() {
-        return createConsumerFactory(QualityLineCreateEvent.class, "qualityline-create-topic-v4");
+        return createConsumerFactory(QualityLineCreateEvent.class, "qualityline-create-topic-v5");
     }
 
     @Bean
