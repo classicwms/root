@@ -4418,7 +4418,7 @@ public class PutAwayLineService extends BaseService {
                 log.info("Publishing PutAwayLine Creation Event to Kafka -------------------> ");
                 List<List<PutAwayLineV2>> batches = Lists.partition(createdPutAwayLines, 300);
                 for (List<PutAwayLineV2> batch : batches) {
-                    producerService.publish("putawayline-topic-v5", new PutAwayLineProcessEvent(loginUserID, batch));
+                    producerService.publish("putawayline-topic-v6", new PutAwayLineProcessEvent(loginUserID, batch));
                 }
             }
 

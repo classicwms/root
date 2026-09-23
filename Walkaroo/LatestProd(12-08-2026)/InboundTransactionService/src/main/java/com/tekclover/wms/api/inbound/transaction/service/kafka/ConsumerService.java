@@ -38,7 +38,7 @@ public class ConsumerService {
     BaseService baseService;
 
     // PutAwayLine Confirmation
-    @KafkaListener(topics = "putawayline-topic-v5", groupId = "putawayline-group-v5", containerFactory = "putAwayListenerFactory")
+    @KafkaListener(topics = "putawayline-topic-v6", groupId = "putawayline-group-v5", containerFactory = "putAwayListenerFactory")
     public void consume(PutAwayLineProcessEvent event) {
         try {
             DataBaseContextHolder.setCurrentDb("WK");
@@ -48,7 +48,7 @@ public class ConsumerService {
             log.info("Current DB " + currentDB);
             putAwayLineService.putAwayLineConfirmKafka(event.getPutAwayLines(), event.getLoginUserID());
         } catch (Exception e) {
-            throw new RuntimeException(e);
+           log.info("PutAwayLine Exception In Kafka" + e.getMessage());
         } finally {
             DataBaseContextHolder.clear();
         }
@@ -67,7 +67,7 @@ public class ConsumerService {
             log.info("Saving {} records", event.getPutAwayLineV2List().size());
             putAwayLineV2Repository.saveAll(event.getPutAwayLineV2List());
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            log.info("PutAwayLine Save Exception " + e.getMessage());
         } finally {
             DataBaseContextHolder.clear();
         }
@@ -86,7 +86,7 @@ public class ConsumerService {
             log.info("Inventory ---> {}", event.getInventoryV2());
             inventoryV2Repository.save(event.getInventoryV2());
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            log.info("Inventory Save In Kafka Exception " + e.getMessage());
         } finally {
             DataBaseContextHolder.clear();
         }
@@ -104,7 +104,7 @@ public class ConsumerService {
             log.info("Update StorageBin input ----> {}", event);
             storageBinV2Repository.updateStorageBin(event.getCompanyCode(), event.getPlantId(), event.getLanguageId(), event.getWarehouseId(), event.getStorageBin(), 1L);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            log.info("StorageBin Update Exception In Kafka " + e.getMessage());
         } finally {
             DataBaseContextHolder.clear();
         }
@@ -144,7 +144,7 @@ public class ConsumerService {
                     event.getWarehouseId(), event.getRefDocNumber(),
                     event.getPreInboundNo(), event.getLoginUserID());
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            log.info("InboundConfirmation Exception in Kafka " + e.getMessage());
         } finally {
             DataBaseContextHolder.clear();
         }
@@ -166,7 +166,7 @@ public class ConsumerService {
                     event.getPreInboundNo());
             log.info("InboundLines Updated Count : {} ", inboundCount);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            log.info("Inbound Header Received Lines Updated Exception in kafka " + e.getMessage());
         } finally {
             DataBaseContextHolder.clear();
         }
