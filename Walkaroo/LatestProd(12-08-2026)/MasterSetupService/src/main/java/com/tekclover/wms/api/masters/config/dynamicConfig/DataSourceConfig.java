@@ -150,9 +150,9 @@ public class DataSourceConfig {
     private DataSource mysDataSource() {
         return buildDataSource(
                 "MYS",
-                "jdbc:sqlserver://10.10.0.37;databaseName=WMS_MYS",
+                "jdbc:sqlserver://10.20.0.34;databaseName=WMS_MYS",
                 "sa",
-                "7Mg9b6nz)4J~w(C6L$&WG"
+                "JpMeGBR84nxvyJx6EPpoOsL8M"
         );
     }
 
