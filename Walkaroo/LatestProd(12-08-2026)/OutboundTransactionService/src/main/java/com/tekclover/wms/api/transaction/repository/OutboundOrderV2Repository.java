@@ -36,8 +36,8 @@ public interface OutboundOrderV2Repository extends JpaRepository<OutboundOrderV2
             + "top 2 * \n"
             + "from tbloborder2 \n"
             + "where \n"
-            + "processed_status_id = :processedStatusId order by order_received_on \n", nativeQuery = true)
-    List<OutboundOrderV2> findOutboundOrder(@Param("processedStatusId") Long processedStatusId);
+            + "processed_status_id in (0,900) order by order_received_on \n", nativeQuery = true)
+    List<OutboundOrderV2> findOutboundOrder();
 
     @Query(value = "select \n"
             + "tc.c_text AS companyDesc,\n"

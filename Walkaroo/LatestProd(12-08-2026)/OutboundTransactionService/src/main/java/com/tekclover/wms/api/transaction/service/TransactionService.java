@@ -121,7 +121,7 @@ public class TransactionService extends BaseService {
             log.info("Current DB ------->" + profile);
             WarehouseApiResponse warehouseApiResponse = new WarehouseApiResponse();
             List<OutboundIntegrationHeaderV2> outboundList = new ArrayList<>();
-            List<OutboundOrderV2> sqlOutboundList = outboundOrderV2Repository.findOutboundOrder(0L);
+            List<OutboundOrderV2> sqlOutboundList = outboundOrderV2Repository.findOutboundOrder();
                 log.info("ob header list: " + sqlOutboundList.size());
 
                 for(OutboundOrderV2 order : sqlOutboundList) {
@@ -479,24 +479,24 @@ public class TransactionService extends BaseService {
     }
 
     //-------------------------------------------------------------------Outbound-Failed-Order-------------------------------------------------------------
-    public synchronized WarehouseApiResponse processOutboundFailedOrder() throws Exception {
-        try {
-            WarehouseApiResponse warehouseApiResponse = new WarehouseApiResponse();
-            List<OutboundOrderV2> sqlOutboundList = outboundOrderV2Repository.findOutboundOrder(900L);
-            log.info("ob failedOrders list: " + sqlOutboundList);
-            if (sqlOutboundList != null && !sqlOutboundList.isEmpty()) {
-                for (OutboundOrderV2 dbOBOrder : sqlOutboundList) {
-                    log.info("DeadLock OrderId: " + dbOBOrder.getOrderId() + ", " + dbOBOrder.getOutboundOrderTypeID());
-                    Thread.sleep(10000);
-                    outboundOrderV2Repository.updateProcessStatusId(dbOBOrder.getOutboundOrderHeaderId());
-                }
-                warehouseApiResponse = successResponse(warehouseApiResponse);
-            }
-            return warehouseApiResponse;
-        } catch (Exception e) {
-            throw e;
-        }
-    }
+//    public synchronized WarehouseApiResponse processOutboundFailedOrder() throws Exception {
+//        try {
+//            WarehouseApiResponse warehouseApiResponse = new WarehouseApiResponse();
+//            List<OutboundOrderV2> sqlOutboundList = outboundOrderV2Repository.findOutboundOrder(900L);
+//            log.info("ob failedOrders list: " + sqlOutboundList);
+//            if (sqlOutboundList != null && !sqlOutboundList.isEmpty()) {
+//                for (OutboundOrderV2 dbOBOrder : sqlOutboundList) {
+//                    log.info("DeadLock OrderId: " + dbOBOrder.getOrderId() + ", " + dbOBOrder.getOutboundOrderTypeID());
+//                    Thread.sleep(10000);
+//                    outboundOrderV2Repository.updateProcessStatusId(dbOBOrder.getOutboundOrderHeaderId());
+//                }
+//                warehouseApiResponse = successResponse(warehouseApiResponse);
+//            }
+//            return warehouseApiResponse;
+//        } catch (Exception e) {
+//            throw e;
+//        }
+//    }
     //=========================================================================================================================================================
 
     /**
