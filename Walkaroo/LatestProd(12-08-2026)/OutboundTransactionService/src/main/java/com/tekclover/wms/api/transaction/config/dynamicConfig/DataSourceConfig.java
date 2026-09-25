@@ -133,18 +133,18 @@ public class DataSourceConfig {
     private DataSource hydDataSource() {
         return buildDataSource(
                 "HYD",
-                "jdbc:sqlserver://10.10.10.61;databaseName=WMS_HYD",
+                "jdbc:sqlserver://10.20.0.34;databaseName=WMS_HYD",
                 "sa",
-                "4V7lOXaxgAi3i6mgJL7qBUSPM"
+                "JpMeGBR84nxvyJx6EPpoOsL8M"
         );
     }
 
     private DataSource ahmDataSource() {
         return buildDataSource(
                 "AHM",
-                "jdbc:sqlserver://10.10.10.61;databaseName=WMS_AHM",
+                "jdbc:sqlserver://10.20.0.34;databaseName=WMS_AHM",
                 "sa",
-                "4V7lOXaxgAi3i6mgJL7qBUSPM"
+                "JpMeGBR84nxvyJx6EPpoOsL8M"
         );
     }
 
