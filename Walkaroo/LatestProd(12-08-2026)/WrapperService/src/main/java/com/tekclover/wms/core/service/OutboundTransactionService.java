@@ -9779,10 +9779,11 @@ public class OutboundTransactionService {
 
 
     public WarehouseApiResponse outboundReProcessStatus(IbObOrderUpdateRequest request, String authToken) {
+        AuthToken oAuth = authTokenService.getOutboundTransactionServiceAuthToken();
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         headers.add("User-Agent", "ClassicWMS RestTemplate");
-        headers.add("Authorization", "Bearer " + authToken);
+        headers.add("Authorization", "Bearer " + oAuth.getAccess_token());
         UriComponentsBuilder builder =
                 UriComponentsBuilder.fromHttpUrl(getOutboundTransactionServiceApiUrl() + "orders/ob/reProcess/status");
         HttpEntity<?> entity = new HttpEntity<>(request, headers);

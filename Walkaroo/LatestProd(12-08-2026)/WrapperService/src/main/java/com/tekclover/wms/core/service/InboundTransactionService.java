@@ -11990,10 +11990,11 @@ public class InboundTransactionService {
     }
 
     public WarehouseApiResponse inboundReProcessStatus(IbObOrderUpdateRequest request, String authToken) {
+        AuthToken oAuth = authTokenService.getInboundTransactionServiceAuthToken();
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         headers.add("User-Agent", "ClassicWMS RestTemplate");
-        headers.add("Authorization", "Bearer " + authToken);
+        headers.add("Authorization", "Bearer " + oAuth.getAccess_token());
         UriComponentsBuilder builder =
                 UriComponentsBuilder.fromHttpUrl(getInboundTransactionServiceApiUrl() + "orders/ib/reProcess/status");
         HttpEntity<?> entity = new HttpEntity<>(request, headers);
