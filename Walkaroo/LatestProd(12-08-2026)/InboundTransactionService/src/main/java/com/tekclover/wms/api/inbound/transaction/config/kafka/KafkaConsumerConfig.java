@@ -78,6 +78,11 @@ public class KafkaConsumerConfig {
         return createConsumerFactory(IBHeaderReceivedLinesEvent.class, "update-ibreceivedlines-count-group-v1");
     }
 
+    @Bean
+    public ConsumerFactory<String, SapGrRequestEvent> sapGrRequestEventConsumerFactory() {
+        return createConsumerFactory(SapGrRequestEvent.class, "sap-request-group-v1");
+    }
+
     @Bean("putAwayListenerFactory")
     public ConcurrentKafkaListenerContainerFactory<String, PutAwayLineProcessEvent> putAwayListenerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, PutAwayLineProcessEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
@@ -138,6 +143,13 @@ public class KafkaConsumerConfig {
     public ConcurrentKafkaListenerContainerFactory<String, IBHeaderReceivedLinesEvent> updateIBReceivedLinesCountListenerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, IBHeaderReceivedLinesEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(updateIBReceivedLinesCountConsumerFactory());
+        factory.setConcurrency(10);
+        return factory;
+    }
+    @Bean("sapGrRequestStatusListenerFactory")
+    public ConcurrentKafkaListenerContainerFactory<String, SapGrRequestEvent> sapGrRequestEventConcurrentKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, SapGrRequestEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(sapGrRequestEventConsumerFactory());
         factory.setConcurrency(10);
         return factory;
     }

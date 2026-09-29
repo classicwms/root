@@ -9,9 +9,11 @@ import java.util.stream.Stream;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.tekclover.wms.api.inbound.transaction.model.dto.*;
 import com.tekclover.wms.api.inbound.transaction.model.inbound.inventory.v2.InventoryV2;
+import com.tekclover.wms.api.inbound.transaction.model.kafka.event.SapGrRequestEvent;
 import com.tekclover.wms.api.inbound.transaction.model.report.StagingLineNewReport;
 import com.tekclover.wms.api.inbound.transaction.model.warehouse.inbound.v2.ASNLineV2;
 import com.tekclover.wms.api.inbound.transaction.repository.*;
+import com.tekclover.wms.api.inbound.transaction.service.kafka.ProducerService;
 import com.tekclover.wms.api.inbound.transaction.util.DateUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -141,6 +143,9 @@ public class StagingLineService extends BaseService {
 
     @Autowired
     private PutAwayLineAsyncProcess putAwayLineAsyncProcess;
+
+    @Autowired
+    private ProducerService producerService;
     //----------------------------------------------------------------------------------------
 
     /**
@@ -2945,9 +2950,15 @@ public class StagingLineService extends BaseService {
                 log.info("StagingLine Updated Rows: {}", countOfRows);
             }
 
-            log.info("SAP PUSHING PROCESS STARTED -------------->");
-            putAwayLineAsyncProcess.sapPushingStatus(stagingLineEntityV2List);
-            log.info("SAP PUSHING PROCESS COMPLETED -------------->");
+            if (stagingLineEntityV2List.get(0).getPlantId().equalsIgnoreCase("1700") && stagingLineEntityV2List.get(0).getWarehouseId().equalsIgnoreCase("1000")) {
+                log.info("SAP PUSHING KAFKA TOPIC PUBLISHED PROCESS STARTED -------------->");
+                producerService.sapGrPushingEvent(new SapGrRequestEvent(stagingLineEntityV2List));
+                log.info("SAP PUSHING KAFKA TOPIC PUBLISHED PROCESS COMPLETED -------------->");
+            } else {
+                log.info("SAP PUSHING PROCESS STARTED -------------->");
+                putAwayLineAsyncProcess.sapPushingStatus(stagingLineEntityV2List);
+                log.info("SAP PUSHING PROCESS COMPLETED -------------->");
+            }
 
             return stagingLineEntityV2List;
 

@@ -207,34 +207,70 @@ public class PutAwayLineAsyncProcess extends BaseService {
     @Async("asyncExecutorInSap")
     public void sapPushingStatus(List<StagingLineEntityV2> stagingLineEntityV2List) throws JsonProcessingException {
 
-        String db = baseService.getDataBase(stagingLineEntityV2List.get(0).getPlantId(),stagingLineEntityV2List.get(0).getWarehouseId());
-        DataBaseContextHolder.clear();
-        DataBaseContextHolder.setCurrentDb(db);
-        log.info("Current DB -------------> "  + db);
+        try {
+            String db = baseService.getDataBase(stagingLineEntityV2List.get(0).getPlantId(), stagingLineEntityV2List.get(0).getWarehouseId());
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(db);
+            log.info("Current DB -------------> " + db);
 
-        // 2. Group by refDocNumber after all updates
-        Map<String, List<StagingLineEntityV2>> groupedByRefDoc = stagingLineEntityV2List.stream()
-                .collect(Collectors.groupingBy(StagingLineEntityV2::getRefDocNumber));
+            // 2. Group by refDocNumber after all updates
+            Map<String, List<StagingLineEntityV2>> groupedByRefDoc = stagingLineEntityV2List.stream()
+                    .collect(Collectors.groupingBy(StagingLineEntityV2::getRefDocNumber));
 
-        for (Map.Entry<String, List<StagingLineEntityV2>> entry : groupedByRefDoc.entrySet()) {
-            String refDocNumber = entry.getKey();
-            log.info("refDocNumber --> {}", refDocNumber);
-            List<StagingLineEntityV2> stagingLines = stagingLineV2Repository.findStagingLineList(refDocNumber);
-            log.info("List of StagingLine Values: {} ", stagingLines);
-            if(!stagingLines.isEmpty()) {
-                String response = oDataService.postODataRequest(stagingLines, refDocNumber, "1", "X");
-                System.out.println("RES ---> {}" + response);
-                if (response.equals("0")) {
-                    log.info("Sap Success RefDoc: {} ", refDocNumber);
-                    int grCount = grHeaderV2Repository.updateGRHeader_SAP(refDocNumber, "0");
-                    log.info("GrHeader Success Updated Rows: {}", grCount);
-                } else {
-                    log.info("Sap Failure RefDoc: {} ", refDocNumber);
-                    int grCount = grHeaderV2Repository.updateGRHeader_SAP(refDocNumber, "1");
-                    log.info("GrHeader Failure Updated Rows: {}", grCount);
+            for (Map.Entry<String, List<StagingLineEntityV2>> entry : groupedByRefDoc.entrySet()) {
+                String refDocNumber = entry.getKey();
+                log.info("refDocNumber --> {}", refDocNumber);
+                List<StagingLineEntityV2> stagingLines = stagingLineV2Repository.findStagingLineList(refDocNumber);
+                log.info("List of StagingLine Values: {} ", stagingLines);
+                if (!stagingLines.isEmpty()) {
+                    String response = oDataService.postODataRequest(stagingLines, refDocNumber, "1", "X");
+                    System.out.println("RES ---> {}" + response);
+                    if (response.equals("0")) {
+                        log.info("Sap Success RefDoc: {} ", refDocNumber);
+                        int grCount = grHeaderV2Repository.updateGRHeader_SAP(refDocNumber, "0");
+                        log.info("GrHeader Success Updated Rows: {}", grCount);
+                    } else {
+                        log.info("Sap Failure RefDoc: {} ", refDocNumber);
+                        int grCount = grHeaderV2Repository.updateGRHeader_SAP(refDocNumber, "1");
+                        log.info("GrHeader Failure Updated Rows: {}", grCount);
+                    }
                 }
             }
+        } finally {
+            DataBaseContextHolder.clear();
         }
     }
 
+
+    /**
+     *
+     * @param stagingLineEntityV2List stagingLineRequest
+     * @throws JsonProcessingException exception
+     */
+    public void sapPushingGrRequestInKafka(List<StagingLineEntityV2> stagingLineEntityV2List) throws JsonProcessingException {
+
+            // 2. Group by refDocNumber after all updates
+            Map<String, List<StagingLineEntityV2>> groupedByRefDoc = stagingLineEntityV2List.stream()
+                    .collect(Collectors.groupingBy(StagingLineEntityV2::getRefDocNumber));
+
+            for (Map.Entry<String, List<StagingLineEntityV2>> entry : groupedByRefDoc.entrySet()) {
+                String refDocNumber = entry.getKey();
+                log.info("refDocNumber --> {}", refDocNumber);
+                List<StagingLineEntityV2> stagingLines = stagingLineV2Repository.findStagingLineList(refDocNumber);
+                log.info("List of StagingLine Values: {} ", stagingLines);
+                if (!stagingLines.isEmpty()) {
+                    String response = oDataService.postODataRequest(stagingLines, refDocNumber, "1", "X");
+                    System.out.println("RES ---> {}" + response);
+                    if (response.equals("0")) {
+                        log.info("Sap Success RefDoc: {} ", refDocNumber);
+                        int grCount = grHeaderV2Repository.updateGRHeader_SAP(refDocNumber, "0");
+                        log.info("GrHeader Success Updated Rows: {}", grCount);
+                    } else {
+                        log.info("Sap Failure RefDoc: {} ", refDocNumber);
+                        int grCount = grHeaderV2Repository.updateGRHeader_SAP(refDocNumber, "1");
+                        log.info("GrHeader Failure Updated Rows: {}", grCount);
+                    }
+                }
+            }
+    }
 }

@@ -44,4 +44,8 @@ public class ProducerService {
     public void updateIBReceivedLinesCount(IBHeaderReceivedLinesEvent event) {
         kafkaTemplate.send("update-ibreceivedlines-count-topic-v1", event);
     }
+
+    public void sapGrPushingEvent(SapGrRequestEvent event) {
+        kafkaTemplate.send("sap-request-topic-v1", event);
+    }
 }

@@ -8,6 +8,7 @@ import com.tekclover.wms.api.inbound.transaction.repository.InventoryV2Repositor
 import com.tekclover.wms.api.inbound.transaction.repository.PutAwayLineV2Repository;
 import com.tekclover.wms.api.inbound.transaction.repository.StorageBinV2Repository;
 import com.tekclover.wms.api.inbound.transaction.service.BaseService;
+import com.tekclover.wms.api.inbound.transaction.service.PutAwayLineAsyncProcess;
 import com.tekclover.wms.api.inbound.transaction.service.PutAwayLineService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +37,9 @@ public class ConsumerService {
 
     @Autowired
     BaseService baseService;
+
+    @Autowired
+    PutAwayLineAsyncProcess putAwayLineAsyncProcess;
 
     // PutAwayLine Confirmation
     @KafkaListener(topics = "putawayline-topic-v6", groupId = "putawayline-group-v5", containerFactory = "putAwayListenerFactory")
@@ -165,6 +169,26 @@ public class ConsumerService {
                     event.getRefDocNumber(),
                     event.getPreInboundNo());
             log.info("InboundLines Updated Count : {} ", inboundCount);
+        } catch (Exception e) {
+            log.info("Inbound Header Received Lines Updated Exception in kafka " + e.getMessage());
+        } finally {
+            DataBaseContextHolder.clear();
+        }
+    }
+
+    @KafkaListener(topics = "sap-request-topic-v1", groupId = "sap-request-group-v1", containerFactory = "sapGrRequestStatusListenerFactory")
+    public void sapGrRequestStatus(SapGrRequestEvent event) {
+        try {
+            DataBaseContextHolder.setCurrentDb("WK");
+            String currentDB = baseService.getDataBase(event.getStagingLineEntityV2List().get(0).getPlantId(), event.getStagingLineEntityV2List().get(0).getWarehouseId());
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(currentDB);
+            log.info("Current DB " + currentDB);
+
+            log.info("Sap pushing process kafka started ");
+            putAwayLineAsyncProcess.sapPushingGrRequestInKafka(event.getStagingLineEntityV2List());
+            log.info("Sap pushing process kafka completed ");
+
         } catch (Exception e) {
             log.info("Inbound Header Received Lines Updated Exception in kafka " + e.getMessage());
         } finally {
