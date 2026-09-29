@@ -2805,54 +2805,58 @@ public class StagingLineService extends BaseService {
 //        }
 //    }
 
-    public List<StagingLineEntityV2> updateStagingLinev3(List<StagingLineEntityV2> stagingLineEntityV2List, String loginUserID){
-        try{
-            for(StagingLineEntityV2 sl : stagingLineEntityV2List) {
-                log.info("Staging Line Update Input Values <-------> " + sl);
-                statusDescription = getStatusDescription(101L, sl.getLanguageId());
-                int countOfRows = stagingLineV2Repository.updateStagingLine(sl.getLanguageId(), sl.getCompanyCode(), sl.getPlantId(), sl.getWarehouseId(), sl.getRefDocNumber(),
-                        sl.getPreInboundNo(), sl.getStagingNo(), sl.getCaseCode(), sl.getPalletCode(), sl.getLineNo(), statusDescription, sl.getPalletId(), loginUserID);
-                log.info("StagingLine Updated Rows: {}", countOfRows);
-            }
-
-            // 2. Group by refDocNumber after all updates
-            Map<String, List<StagingLineEntityV2>> groupedByRefDoc = stagingLineEntityV2List.stream()
-                    .collect(Collectors.groupingBy(StagingLineEntityV2::getRefDocNumber));
-
-            for (Map.Entry<String, List<StagingLineEntityV2>> entry : groupedByRefDoc.entrySet()) {
-
-                String refDocNumber = entry.getKey();
-                log.info("refDocNumber --> {}", refDocNumber);
-
-                List<StagingLineEntityV2> stagingLines = stagingLineV2Repository.findStagingLineList(refDocNumber);
-                log.info("List of StagingLine Values: {} ", stagingLines);
-
-                if (!stagingLines.isEmpty()) {
-                    try {
-                        String response = oDataService.postODataRequest(stagingLines, refDocNumber, "1", "X");
-                        System.out.println("RES ---> {}" + response);
-
-                        if (response.equals("0")) {
-                            log.info("Sap Success RefDoc: {} ", refDocNumber);
-                            int grCount = grHeaderV2Repository.updateGRHeader_SAP(refDocNumber, "0");
-                            log.info("GrHeader Success Updated Rows: {}", grCount);
-                        } else {
-                            log.info("Sap Failure RefDoc: {} ", refDocNumber);
-                            int grCount = grHeaderV2Repository.updateGRHeader_SAP(refDocNumber, "1");
-                            log.info("GrHeader Failure Updated Rows: {}", grCount);
-                        }
-                    } catch (JsonProcessingException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            }
-            return stagingLineEntityV2List;
-
-        } catch (Exception e) {
-            log.error("Exception while Updating StagingLine");
-            throw e;
-        }
-    }
+//    public List<StagingLineEntityV2> updateStagingLinev3(List<StagingLineEntityV2> stagingLineEntityV2List, String loginUserID){
+//        try{
+//
+//            List<String> barcodeIds = stagingLineEntityV2List.stream().map(StagingLineEntityV2::getBarcodeId).collect(Collectors.toList());
+//            log.info("StagingLine Barcode Update List ---> {} ", barcodeIds);
+//
+//            for(StagingLineEntityV2 sl : stagingLineEntityV2List) {
+//                log.info("Staging Line Update Input Values <-------> " + sl);
+//                statusDescription = getStatusDescription(101L, sl.getLanguageId());
+//                int countOfRows = stagingLineV2Repository.updateStagingLine(sl.getLanguageId(), sl.getCompanyCode(), sl.getPlantId(), sl.getWarehouseId(), sl.getRefDocNumber(),
+//                        sl.getPreInboundNo(), sl.getStagingNo(), sl.getCaseCode(), sl.getPalletCode(), sl.getLineNo(), statusDescription, sl.getPalletId(), loginUserID);
+//                log.info("StagingLine Updated Rows: {}", countOfRows);
+//            }
+//
+//            // 2. Group by refDocNumber after all updates
+//            Map<String, List<StagingLineEntityV2>> groupedByRefDoc = stagingLineEntityV2List.stream()
+//                    .collect(Collectors.groupingBy(StagingLineEntityV2::getRefDocNumber));
+//
+//            for (Map.Entry<String, List<StagingLineEntityV2>> entry : groupedByRefDoc.entrySet()) {
+//
+//                String refDocNumber = entry.getKey();
+//                log.info("refDocNumber --> {}", refDocNumber);
+//
+//                List<StagingLineEntityV2> stagingLines = stagingLineV2Repository.findStagingLineList(refDocNumber);
+//                log.info("List of StagingLine Values: {} ", stagingLines);
+//
+//                if (!stagingLines.isEmpty()) {
+//                    try {
+//                        String response = oDataService.postODataRequest(stagingLines, refDocNumber, "1", "X");
+//                        System.out.println("RES ---> {}" + response);
+//
+//                        if (response.equals("0")) {
+//                            log.info("Sap Success RefDoc: {} ", refDocNumber);
+//                            int grCount = grHeaderV2Repository.updateGRHeader_SAP(refDocNumber, "0");
+//                            log.info("GrHeader Success Updated Rows: {}", grCount);
+//                        } else {
+//                            log.info("Sap Failure RefDoc: {} ", refDocNumber);
+//                            int grCount = grHeaderV2Repository.updateGRHeader_SAP(refDocNumber, "1");
+//                            log.info("GrHeader Failure Updated Rows: {}", grCount);
+//                        }
+//                    } catch (JsonProcessingException e) {
+//                        throw new RuntimeException(e);
+//                    }
+//                }
+//            }
+//            return stagingLineEntityV2List;
+//
+//        } catch (Exception e) {
+//            log.error("Exception while Updating StagingLine");
+//            throw e;
+//        }
+//    }
 
     public String postSap(List<SAPData> sapData) throws JsonProcessingException {
         String response = null;
@@ -2942,13 +2946,22 @@ public class StagingLineService extends BaseService {
 
     public List<StagingLineEntityV2> updateStagingLinev4(List<StagingLineEntityV2> stagingLineEntityV2List, String loginUserID) throws JsonProcessingException {
         try{
-            for(StagingLineEntityV2 sl : stagingLineEntityV2List) {
-                log.info("Staging Line Update Input Values <-------> " + sl);
-                statusDescription = getStatusDescription(101L, sl.getLanguageId());
-                int countOfRows = stagingLineV2Repository.updateStagingLine(sl.getLanguageId(), sl.getCompanyCode(), sl.getPlantId(), sl.getWarehouseId(), sl.getRefDocNumber(),
-                        sl.getPreInboundNo(), sl.getStagingNo(), sl.getCaseCode(), sl.getPalletCode(), sl.getLineNo(), statusDescription, sl.getPalletId(), loginUserID);
-                log.info("StagingLine Updated Rows: {}", countOfRows);
-            }
+
+            List<String> barcodeIds = stagingLineEntityV2List.stream().map(StagingLineEntityV2::getBarcodeId).collect(Collectors.toList());
+            log.info("StagingLine Update Barcode List : {}", barcodeIds);
+
+            StagingLineEntityV2 staging = stagingLineEntityV2List.get(0);
+            statusDescription = getStatusDescription(101L, staging.getLanguageId());
+            int stagingRows = stagingLineV2Repository.updateStagingLine(staging.getLanguageId(), staging.getCompanyCode(), staging.getPlantId(), staging.getWarehouseId(), statusDescription, staging.getPalletId(), barcodeIds, loginUserID);
+            log.info("StagingLine Updated Affected Row's : {} ", stagingRows);
+
+//            for(StagingLineEntityV2 sl : stagingLineEntityV2List) {
+//                log.info("Staging Line Update Input Values <-------> " + sl);
+//                statusDescription = getStatusDescription(101L, sl.getLanguageId());
+//                int countOfRows = stagingLineV2Repository.updateStagingLine(sl.getLanguageId(), sl.getCompanyCode(), sl.getPlantId(), sl.getWarehouseId(), sl.getRefDocNumber(),
+//                        sl.getPreInboundNo(), sl.getStagingNo(), sl.getCaseCode(), sl.getPalletCode(), sl.getLineNo(), statusDescription, sl.getPalletId(), loginUserID);
+//                log.info("StagingLine Updated Rows: {}", countOfRows);
+//            }
 
             if (stagingLineEntityV2List.get(0).getPlantId().equalsIgnoreCase("1700") && stagingLineEntityV2List.get(0).getWarehouseId().equalsIgnoreCase("1000")) {
                 log.info("SAP PUSHING KAFKA TOPIC PUBLISHED PROCESS STARTED -------------->");

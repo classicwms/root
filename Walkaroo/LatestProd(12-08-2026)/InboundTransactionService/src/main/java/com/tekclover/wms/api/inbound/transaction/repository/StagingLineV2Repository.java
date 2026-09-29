@@ -764,17 +764,25 @@ public interface StagingLineV2Repository extends JpaRepository<StagingLineEntity
                           @Param("palId") String palId,
                           @Param("loginUserId") String loginUserID);
 
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query(value = "update tblstagingline set STATUS_ID = 101, STATUS_TEXT = :statusText, PALLET_ID = :palId, st_utd_by = :loginUserId, ST_CNF_ON = getDate() \n" +
+            "WHERE lang_id = :languageId AND c_id = :companyId AND plant_id = :plantId AND WH_ID = :warehouseId AND is_deleted = 0 AND STATUS_ID = 14 AND PARTNER_ITEM_BARCODE in (:barcodeIds) ", nativeQuery = true)
+    int updateStagingLine(@Param("languageId") String languageId,
+                          @Param("companyId") String companyId,
+                          @Param("plantId") String plantId,
+                          @Param("warehouseId") String warehouseId,
+                          @Param("statusText") String statusText,
+                          @Param("palId") String palId,
+                          @Param("barcodeIds") List<String> barcodeId,
+                          @Param("loginUserId") String loginUserID);
+
     @Query(value = "select * from tblstagingline where \n" +
             "(select count(*) from tblstagingline where REF_DOC_NO = :refDocNo and STATUS_ID in (101,19) and is_deleted = 0) = \n" +
             "(select count(*) from tblstagingline where REF_DOC_NO = :refDocNo and is_deleted = 0) AND \n" +
             "REF_DOC_NO = :refDocNo and is_deleted = 0 ", nativeQuery = true)
     List<StagingLineEntityV2> findStagingLineList(@Param("refDocNo") String refDocNo);
 
-    @Modifying(flushAutomatically = true, clearAutomatically = true)
-    @Query(value = "update tblstagingline set SAP_FALG = :sapFlag " +
-            "WHERE REF_DOC_NO = :refDocNo AND is_deleted = 0", nativeQuery = true)
-    int updateStagingLine(@Param("refDocNo") String refDocNo,
-                          @Param("sapFlag") String sapFlag);
+
 
     StagingLineEntityV2 findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndBarcodeIdAndDeletionIndicator(String languageId, String companyCode, String plantId,
                                                                                                                String warehouseId, String barcodeId, Long deletionIndicator);

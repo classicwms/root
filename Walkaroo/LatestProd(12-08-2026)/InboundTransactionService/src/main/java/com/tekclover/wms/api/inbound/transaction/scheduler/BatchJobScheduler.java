@@ -87,7 +87,7 @@ public class BatchJobScheduler {
 //        }
 //    }
 
-    @Scheduled(fixedDelay = 20000)
+    @Scheduled(fixedDelay = 10000)
     public void scheduleInPutAway() throws Exception {
 
         long schedulerStart = System.currentTimeMillis();
