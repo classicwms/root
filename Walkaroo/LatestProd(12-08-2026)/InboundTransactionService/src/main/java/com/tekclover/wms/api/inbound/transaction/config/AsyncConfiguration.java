@@ -36,4 +36,16 @@ public class AsyncConfiguration {
         executor.initialize();
         return executor;
     }
+
+    @Bean(name = "asyncExecutorInSap")
+    public Executor asyncExecutorForSapPushingStatus() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(8);
+        executor.setMaxPoolSize(12);
+        executor.setQueueCapacity(100);
+        executor.setTaskDecorator(new TenantAwareTaskDecorator());
+        executor.setThreadNamePrefix("AsyncExecutorInSap-");
+        executor.initialize();
+        return executor;
+    }
 }

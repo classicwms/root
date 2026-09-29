@@ -204,7 +204,7 @@ public class PutAwayLineAsyncProcess extends BaseService {
      * @param stagingLineEntityV2List stagingLine
      * @throws JsonProcessingException exception
      */
-    @Async("asyncExecutorPutAway")
+    @Async("asyncExecutorInSap")
     public void sapPushingStatus(List<StagingLineEntityV2> stagingLineEntityV2List) throws JsonProcessingException {
 
         String db = baseService.getDataBase(stagingLineEntityV2List.get(0).getPlantId(),stagingLineEntityV2List.get(0).getWarehouseId());
