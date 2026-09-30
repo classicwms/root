@@ -48,4 +48,8 @@ public class ProducerService {
     public void sapGrPushingEvent(SapGrRequestEvent event) {
         kafkaTemplate.send("sap-request-topic-v1", event);
     }
+
+    public void putAwayHeaderSaveEvent(SapGrRequestEvent event) {
+        kafkaTemplate.send("putaway-save-topic-v1", event);
+    }
 }

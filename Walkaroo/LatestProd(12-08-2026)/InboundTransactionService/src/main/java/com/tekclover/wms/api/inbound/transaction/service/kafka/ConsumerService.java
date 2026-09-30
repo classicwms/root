@@ -195,4 +195,23 @@ public class ConsumerService {
             DataBaseContextHolder.clear();
         }
     }
+
+    @KafkaListener(topics = "putaway-save-topic-v1", groupId = "putaway-save-group-v1", containerFactory = "putAwayHeaderSaveStatusListenerFactory")
+    public void putAwayHeaderSaveProcess(SapGrRequestEvent event) {
+        try {
+            DataBaseContextHolder.setCurrentDb("WK");
+            String currentDB = baseService.getDataBase(event.getStagingLineEntityV2List().get(0).getPlantId(), event.getStagingLineEntityV2List().get(0).getWarehouseId());
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(currentDB);
+            log.info("Current DB " + currentDB);
+
+            log.info("PutAwayHeader Creation Input in kafka --> " + event.getStagingLineEntityV2List());
+            putAwayLineAsyncProcess.createPutawayHeader(event.getStagingLineEntityV2List());
+
+        } catch (Exception e) {
+            log.info("Inbound Header Received Lines Updated Exception in kafka " + e.getMessage());
+        } finally {
+            DataBaseContextHolder.clear();
+        }
+    }
 }
