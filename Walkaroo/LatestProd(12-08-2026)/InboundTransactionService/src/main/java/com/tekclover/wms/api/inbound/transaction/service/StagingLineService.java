@@ -2950,18 +2950,18 @@ public class StagingLineService extends BaseService {
             List<String> barcodeIds = stagingLineEntityV2List.stream().map(StagingLineEntityV2::getBarcodeId).collect(Collectors.toList());
             log.info("StagingLine Update Barcode List : {}", barcodeIds);
 
-            StagingLineEntityV2 staging = stagingLineEntityV2List.get(0);
-            statusDescription = getStatusDescription(101L, staging.getLanguageId());
-            int stagingRows = stagingLineV2Repository.updateStagingLine(staging.getLanguageId(), staging.getCompanyCode(), staging.getPlantId(), staging.getWarehouseId(), statusDescription, staging.getPalletId(), barcodeIds, loginUserID);
-            log.info("StagingLine Updated Affected Row's : {} ", stagingRows);
+//            StagingLineEntityV2 staging = stagingLineEntityV2List.get(0);
+//            statusDescription = getStatusDescription(101L, staging.getLanguageId());
+//            int stagingRows = stagingLineV2Repository.updateStagingLine(staging.getLanguageId(), staging.getCompanyCode(), staging.getPlantId(), staging.getWarehouseId(), statusDescription, staging.getPalletId(), barcodeIds, loginUserID);
+//            log.info("StagingLine Updated Affected Row's : {} ", stagingRows);
 
-//            for(StagingLineEntityV2 sl : stagingLineEntityV2List) {
-//                log.info("Staging Line Update Input Values <-------> " + sl);
-//                statusDescription = getStatusDescription(101L, sl.getLanguageId());
-//                int countOfRows = stagingLineV2Repository.updateStagingLine(sl.getLanguageId(), sl.getCompanyCode(), sl.getPlantId(), sl.getWarehouseId(), sl.getRefDocNumber(),
-//                        sl.getPreInboundNo(), sl.getStagingNo(), sl.getCaseCode(), sl.getPalletCode(), sl.getLineNo(), statusDescription, sl.getPalletId(), loginUserID);
-//                log.info("StagingLine Updated Rows: {}", countOfRows);
-//            }
+            for(StagingLineEntityV2 sl : stagingLineEntityV2List) {
+                log.info("Staging Line Update Input Values <-------> " + sl);
+                statusDescription = getStatusDescription(101L, sl.getLanguageId());
+                int countOfRows = stagingLineV2Repository.updateStagingLine(sl.getLanguageId(), sl.getCompanyCode(), sl.getPlantId(), sl.getWarehouseId(), sl.getRefDocNumber(),
+                        sl.getPreInboundNo(), sl.getStagingNo(), sl.getCaseCode(), sl.getPalletCode(), sl.getLineNo(), statusDescription, sl.getPalletId(), loginUserID);
+                log.info("StagingLine Updated Rows: {}", countOfRows);
+            }
 
             if (stagingLineEntityV2List.get(0).getPlantId().equalsIgnoreCase("1700") && stagingLineEntityV2List.get(0).getWarehouseId().equalsIgnoreCase("1000")) {
                 log.info("SAP PUSHING KAFKA TOPIC PUBLISHED PROCESS STARTED -------------->");
