@@ -261,7 +261,16 @@ public class OrderController {
     @PostMapping("/ib/reProcess/status")
     public ResponseEntity<?> patchIbOrder(@RequestBody IbObOrderUpdateRequest request) throws Exception {
 
-        WarehouseApiResponse result = orderService.inboundReProcessStatus(request);
-        return new ResponseEntity<>(result, HttpStatus.OK);
+        try {
+            String currentDB = baseService.getDataBase(request.getBranchCode(), request.getWarehouseID());
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(currentDB);
+            log.info("Current DB {}", currentDB);
+
+            WarehouseApiResponse result = orderService.inboundReProcessStatus(request);
+            return new ResponseEntity<>(result, HttpStatus.OK);
+        } finally {
+            DataBaseContextHolder.clear();
+        }
     }
 }
