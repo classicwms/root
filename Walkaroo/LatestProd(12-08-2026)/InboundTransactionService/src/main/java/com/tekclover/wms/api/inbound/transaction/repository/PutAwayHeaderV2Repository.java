@@ -313,6 +313,70 @@ public interface PutAwayHeaderV2Repository extends JpaRepository<PutAwayHeaderV2
                                               @Param("startCreatedOn") Date startCreatedOn,
                                               @Param("endCreatedOn") Date endCreatedOn);
 
+    @Query(value = " select * from tblputawayheader ph \n"
+            + "where \n"
+            + "(COALESCE(:companyCodeId, null) IS NULL OR (ph.c_id IN (:companyCodeId))) and \n"
+            + "(COALESCE(:languageId, null) IS NULL OR (ph.lang_id IN (:languageId))) and \n"
+            + "(COALESCE(:plantId, null) IS NULL OR (ph.plant_id IN (:plantId))) and \n"
+            + "(COALESCE(:warehouseId, null) IS NULL OR (ph.wh_id IN (:warehouseId))) and \n"
+            + "(COALESCE(:manufacturerName, null) IS NULL OR (ph.MFR_NAME IN (:manufacturerName))) and \n"
+            + "(COALESCE(:itemCode, null) IS NULL OR (ph.REF_FIELD_5 IN (:itemCode))) and \n"
+            + "(COALESCE(:refDocNumber, null) IS NULL OR (ph.REF_DOC_NO IN (:refDocNumber))) and \n"
+            + "(COALESCE(:preInboundNo, null) IS NULL OR (ph.PRE_IB_NO IN (:preInboundNo))) and \n"
+            + "(COALESCE(:packBarcodes, null) IS NULL OR (ph.PACK_BARCODE IN (:packBarcodes))) and \n"
+            + "(COALESCE(:putAwayNumber, null) IS NULL OR (ph.PA_NO IN (:putAwayNumber))) and \n"
+            + "(COALESCE(:proposedStorageBin, null) IS NULL OR (ph.PROP_ST_BIN IN (:proposedStorageBin))) and \n"
+            + "(COALESCE(:proposedHandlingEquipment, null) IS NULL OR (ph.PROP_HE_NO IN (:proposedHandlingEquipment))) and \n"
+            + "(COALESCE(:statusId, null) IS NULL OR (ph.STATUS_ID IN (:statusId))) and \n"
+            + "(COALESCE(:inboundOrderTypeId, null) IS NULL OR (ph.IB_ORD_TYP_ID IN (:inboundOrderTypeId))) and \n"
+            + "(COALESCE(:createdBy, null) IS NULL OR (ph.PA_CTD_BY IN (:createdBy))) and \n"
+            + "(COALESCE(:barcodeId, null) IS NULL OR (ph.BARCODE_ID IN (:barcodeId))) and \n"
+            + "(COALESCE(:manufacturerCode, null) IS NULL OR (ph.MFR_CODE IN (:manufacturerCode))) and \n"
+            + "(COALESCE(:origin, null) IS NULL OR (ph.ORIGIN IN (:origin))) and \n"
+            + "(COALESCE(:brand, null) IS NULL OR (ph.BRAND IN (:brand))) and \n"
+            + "(COALESCE(:approvalStatus, null) IS NULL OR (ph.APP_STATUS IN (:approvalStatus))) and \n"
+            + "(COALESCE(:materialNo, null) IS NULL OR (ph.MATERIAL_NO IN (:materialNo))) and\n"
+            + "(COALESCE(:priceSegment, null) IS NULL OR (ph.PRICE_SEGMENT IN (:priceSegment))) and\n"
+            + "(COALESCE(:articleNo, null) IS NULL OR (ph.ARTICLE_NO IN (:articleNo))) and\n"
+            + "(COALESCE(:gender, null) IS NULL OR (ph.GENDER IN (:gender))) and\n"
+            + "(COALESCE(:color, null) IS NULL OR (ph.COLOR IN (:color))) and\n"
+            + "(COALESCE(:size, null) IS NULL OR (ph.SIZE IN (:size))) and\n"
+            + "(COALESCE(:noPairs, null) IS NULL OR (ph.NO_PAIRS IN (:noPairs))) and \n"
+            + "(COALESCE(:palletId, null) IS NULL OR (ph.PAL_ID IN (:palletId))) and \n"
+
+            + "(COALESCE(CONVERT(VARCHAR(255), :startCreatedOn), null) IS NULL OR (ph.PA_CTD_ON between COALESCE(CONVERT(VARCHAR(255), :startCreatedOn), null) and COALESCE(CONVERT(VARCHAR(255), :endCreatedOn), null))) and\n"
+            + "ph.is_deleted=0", nativeQuery = true)
+    List<PutAwayHeaderV2> findPutAwayHeaderV2(@Param("companyCodeId") List<String> companyCodeId,
+                                              @Param("plantId") List<String> plantId,
+                                              @Param("languageId") List<String> languageId,
+                                              @Param("warehouseId") List<String> warehouseId,
+                                              @Param("itemCode") List<String> itemCode,
+                                              @Param("manufacturerName") List<String> manufacturerName,
+                                              @Param("refDocNumber") List<String> refDocNumber,
+                                              @Param("preInboundNo") List<String> preInboundNo,
+                                              @Param("packBarcodes") List<String> packBarcodes,
+                                              @Param("putAwayNumber") List<String> putAwayNumber,
+                                              @Param("proposedStorageBin") List<String> proposedStorageBin,
+                                              @Param("proposedHandlingEquipment") List<String> proposedHandlingEquipment,
+                                              @Param("createdBy") List<String> createdBy,
+                                              @Param("barcodeId") List<String> barcodeId,
+                                              @Param("manufacturerCode") List<String> manufacturerCode,
+                                              @Param("origin") List<String> origin,
+                                              @Param("brand") List<String> brand,
+                                              @Param("approvalStatus") List<String> approvalStatus,
+                                              @Param("statusId") List<Long> statusId,
+                                              @Param("inboundOrderTypeId") List<Long> inboundOrderTypeId,
+                                              @Param("materialNo") List<String> materialNo,
+                                              @Param("priceSegment") List<String> priceSegment,
+                                              @Param("articleNo") List<String> articleNo,
+                                              @Param("gender") List<String> gender,
+                                              @Param("color") List<String> color,
+                                              @Param("size") List<String> size,
+                                              @Param("noPairs") List<String> noPairs,
+                                              @Param("palletId") List<String> palletId,
+                                              @Param("startCreatedOn") Date startCreatedOn,
+                                              @Param("endCreatedOn") Date endCreatedOn);
+
     PutAwayHeaderV2 findTopByCompanyCodeIdAndPlantIdAndWarehouseIdAndLanguageIdAndReferenceField5AndStatusIdAndDeletionIndicatorOrderByCreatedOn(
             String companyCodeId, String plantId, String warehouseId, String languageId, String itemCode, Long statusId, Long deletionIndicator);
 

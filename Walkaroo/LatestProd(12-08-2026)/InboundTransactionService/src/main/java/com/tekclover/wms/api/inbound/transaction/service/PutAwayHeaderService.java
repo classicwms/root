@@ -1128,6 +1128,149 @@ public class PutAwayHeaderService extends BaseService {
     }
 
     /**
+     * @param searchPutAwayHeader
+     * @return
+     * @throws Exception
+     */
+    public List<PutAwayHeaderV2> findPutAway(SearchPutAwayHeaderV2 searchPutAwayHeader)
+            throws Exception {
+        if (searchPutAwayHeader.getStartCreatedOn() != null && searchPutAwayHeader.getEndCreatedOn() != null) {
+            Date[] dates = DateUtils.addTimeToDatesForSearch(searchPutAwayHeader.getStartCreatedOn(),
+                    searchPutAwayHeader.getEndCreatedOn());
+            searchPutAwayHeader.setStartCreatedOn(dates[0]);
+            searchPutAwayHeader.setEndCreatedOn(dates[1]);
+        }
+        log.info("searchPutAwayHeader V2: " + searchPutAwayHeader);
+
+        if(searchPutAwayHeader.getCompanyCodeId() == null || searchPutAwayHeader.getCompanyCodeId().isEmpty()){
+            searchPutAwayHeader.setCompanyCodeId(null);
+        }
+        if (searchPutAwayHeader.getPlantId() == null || searchPutAwayHeader.getPlantId().isEmpty()) {
+            searchPutAwayHeader.setPlantId(null);
+        }
+        if (searchPutAwayHeader.getLanguageId() == null || searchPutAwayHeader.getLanguageId().isEmpty()) {
+            searchPutAwayHeader.setLanguageId(null);
+        }
+        if (searchPutAwayHeader.getWarehouseId() == null || searchPutAwayHeader.getWarehouseId().isEmpty()) {
+            searchPutAwayHeader.setWarehouseId(null);
+        }
+        if (searchPutAwayHeader.getItemCode() == null || searchPutAwayHeader.getItemCode().isEmpty()) {
+            searchPutAwayHeader.setItemCode(null);
+        }
+        if (searchPutAwayHeader.getManufacturerName() == null || searchPutAwayHeader.getManufacturerName().isEmpty()) {
+            searchPutAwayHeader.setManufacturerName(null);
+        }
+        if (searchPutAwayHeader.getManufacturerCode() == null || searchPutAwayHeader.getManufacturerCode().isEmpty()) {
+            searchPutAwayHeader.setManufacturerCode(null);
+        }
+        if (searchPutAwayHeader.getRefDocNumber() == null || searchPutAwayHeader.getRefDocNumber().isEmpty()) {
+            searchPutAwayHeader.setRefDocNumber(null);
+        }
+        if (searchPutAwayHeader.getPreInboundNo() == null || searchPutAwayHeader.getPreInboundNo().isEmpty()) {
+            searchPutAwayHeader.setPreInboundNo(null);
+        }
+        if (searchPutAwayHeader.getPackBarcodes() == null || searchPutAwayHeader.getPackBarcodes().isEmpty()) {
+            searchPutAwayHeader.setPackBarcodes(null);
+        }
+        if (searchPutAwayHeader.getPutAwayNumber() == null || searchPutAwayHeader.getPutAwayNumber().isEmpty()) {
+            searchPutAwayHeader.setPutAwayNumber(null);
+        }
+        if (searchPutAwayHeader.getProposedHandlingEquipment() == null || searchPutAwayHeader.getProposedHandlingEquipment().isEmpty()) {
+            searchPutAwayHeader.setProposedHandlingEquipment(null);
+        }
+        if (searchPutAwayHeader.getProposedStorageBin() == null || searchPutAwayHeader.getProposedStorageBin().isEmpty()) {
+            searchPutAwayHeader.setProposedStorageBin(null);
+        }
+        if (searchPutAwayHeader.getCreatedBy() == null || searchPutAwayHeader.getCreatedBy().isEmpty()) {
+            searchPutAwayHeader.setCreatedBy(null);
+        }
+        if (searchPutAwayHeader.getBarcodeId() == null || searchPutAwayHeader.getBarcodeId().isEmpty()) {
+            searchPutAwayHeader.setBarcodeId(null);
+        }
+        if (searchPutAwayHeader.getOrigin() == null || searchPutAwayHeader.getOrigin().isEmpty()) {
+            searchPutAwayHeader.setOrigin(null);
+        }
+        if (searchPutAwayHeader.getBrand() == null || searchPutAwayHeader.getBrand().isEmpty()) {
+            searchPutAwayHeader.setBrand(null);
+        }
+        if (searchPutAwayHeader.getApprovalStatus() == null || searchPutAwayHeader.getApprovalStatus().isEmpty()) {
+            searchPutAwayHeader.setApprovalStatus(null);
+        }
+        if (searchPutAwayHeader.getStatusId() == null || searchPutAwayHeader.getStatusId().isEmpty()) {
+            searchPutAwayHeader.setStatusId(null);
+        }
+        if (searchPutAwayHeader.getStartCreatedOn() == null || searchPutAwayHeader.getEndCreatedOn() == null) {
+            searchPutAwayHeader.setStartCreatedOn(null);
+        }
+        if(searchPutAwayHeader.getMaterialNo() != null && searchPutAwayHeader.getMaterialNo().isEmpty()){
+            searchPutAwayHeader.setMaterialNo(null);
+        }
+        if(searchPutAwayHeader.getPriceSegment() != null && searchPutAwayHeader.getPriceSegment().isEmpty()){
+            searchPutAwayHeader.setPriceSegment(null);
+        }
+        if(searchPutAwayHeader.getArticleNo() != null && searchPutAwayHeader.getArticleNo().isEmpty()){
+            searchPutAwayHeader.setArticleNo(null);
+        }
+        if(searchPutAwayHeader.getGender() != null && searchPutAwayHeader.getGender().isEmpty()){
+            searchPutAwayHeader.setGender(null);
+        }
+        if(searchPutAwayHeader.getColor() != null && searchPutAwayHeader.getColor().isEmpty()){
+            searchPutAwayHeader.setColor(null);
+        }
+        if(searchPutAwayHeader.getSize() != null && searchPutAwayHeader.getSize().isEmpty()){
+            searchPutAwayHeader.setSize(null);
+        }
+        if(searchPutAwayHeader.getNoPairs() != null && searchPutAwayHeader.getNoPairs().isEmpty()) {
+            searchPutAwayHeader.setNoPairs(null);
+        }
+        if(searchPutAwayHeader.getBarcodeId() != null && searchPutAwayHeader.getBarcodeId().isEmpty()) {
+            searchPutAwayHeader.setBarcodeId(null);
+        }
+        if(searchPutAwayHeader.getPalletId() != null && searchPutAwayHeader.getPalletId().isEmpty()) {
+            searchPutAwayHeader.setPalletId(null);
+        }
+        if(searchPutAwayHeader.getBarcodeId() != null && !searchPutAwayHeader.getBarcodeId().isEmpty()) {
+            List<String> trimmedBarcodes = searchPutAwayHeader.getBarcodeId().stream().filter(n -> n != null && !n.isBlank()).map(String::trim).distinct().collect(Collectors.toList());
+            searchPutAwayHeader.setBarcodeId(trimmedBarcodes);
+        }
+        log.info("SQL Trimmed searchPutAwayHeader V2: " + searchPutAwayHeader);
+        List<PutAwayHeaderV2> results = putAwayHeaderV2Repository.findPutAwayHeaderV2(
+                searchPutAwayHeader.getCompanyCodeId(),
+                searchPutAwayHeader.getPlantId(),
+                searchPutAwayHeader.getLanguageId(),
+                searchPutAwayHeader.getWarehouseId(),
+                searchPutAwayHeader.getItemCode(),
+                searchPutAwayHeader.getManufacturerName(),
+                searchPutAwayHeader.getRefDocNumber(),
+                searchPutAwayHeader.getPreInboundNo(),
+                searchPutAwayHeader.getPackBarcodes(),
+                searchPutAwayHeader.getPutAwayNumber(),
+                searchPutAwayHeader.getProposedStorageBin(),
+                searchPutAwayHeader.getProposedHandlingEquipment(),
+                searchPutAwayHeader.getCreatedBy(),
+                searchPutAwayHeader.getBarcodeId(),
+                searchPutAwayHeader.getManufacturerCode(),
+                searchPutAwayHeader.getOrigin(),
+                searchPutAwayHeader.getBrand(),
+                searchPutAwayHeader.getApprovalStatus(),
+                searchPutAwayHeader.getStatusId(),
+                searchPutAwayHeader.getInboundOrderTypeId(),
+                searchPutAwayHeader.getMaterialNo(),
+                searchPutAwayHeader.getPriceSegment(),
+                searchPutAwayHeader.getArticleNo(),
+                searchPutAwayHeader.getGender(),
+                searchPutAwayHeader.getColor(),
+                searchPutAwayHeader.getSize(),
+                searchPutAwayHeader.getNoPairs(),
+                searchPutAwayHeader.getPalletId(),
+                searchPutAwayHeader.getStartCreatedOn(),
+                searchPutAwayHeader.getEndCreatedOn());
+        log.info("putAwayHeader results:" + results.size());
+        return results;
+    }
+
+
+    /**
      * SQL - Method - to set Inventory Qty
      * @param searchPutAwayHeader
      * @return
@@ -1269,6 +1412,8 @@ public class PutAwayHeaderService extends BaseService {
         log.info("putAwayHeader results:" + results.size());
         return results;
     }
+
+
 
     public List<PutAwayHeaderV2> getPutAwayHeaderforUpdateV2(String companyCode, String plantId, String languageId,
                                                              String warehouseId, String preInboundNo, String refDocNumber) {
