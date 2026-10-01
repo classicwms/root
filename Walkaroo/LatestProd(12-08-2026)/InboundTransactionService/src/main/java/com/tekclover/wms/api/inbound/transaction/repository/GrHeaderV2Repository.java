@@ -181,6 +181,21 @@ public interface GrHeaderV2Repository extends JpaRepository<GrHeaderV2, Long>, J
     int updateGrHeaderStatus(@Param("refDocNo") Set<String> refDocNo,
                              @Param("statusText") String statusText);
 
+    @Modifying
+    @Query(value = " UPDATE tblgrheader " +
+    "SET status_id = 19, status_text = :statusText " +
+    "WHERE ref_doc_no IN (:refDocNo) " +
+     "AND is_deleted = 0 " +
+      "AND NOT EXISTS ( "+
+      "    SELECT 1 FROM tblstagingline sl " +
+       "  WHERE sl.ref_doc_no = tblgrheader.ref_doc_no " +
+       "     AND sl.is_deleted = 0 " +
+       "     AND sl.status_id <> 19) ", nativeQuery = true)
+    int updateGrHeaderStatusInKafka(
+            @Param("refDocNo") Set<String> refDocNo,
+            @Param("statusText") String statusText
+    );
+
     @Query(value = "select ref_doc_no, gr_no from tblgrheader where ref_doc_no in (:refDocNo) and is_deleted = 0 ", nativeQuery = true)
     List<Object[]> findGrNo(@Param("refDocNo") Set<String> refDocNo);
 

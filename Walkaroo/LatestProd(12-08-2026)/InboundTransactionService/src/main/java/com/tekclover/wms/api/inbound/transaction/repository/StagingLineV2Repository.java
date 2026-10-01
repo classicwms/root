@@ -745,6 +745,12 @@ public interface StagingLineV2Repository extends JpaRepository<StagingLineEntity
     int updateStagingLIne(@Param("refDocNo") Set<String> refDocNo,
                           @Param("text") String text);
 
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query(value = "update tblstagingline set status_id = 19, status_text = :text where " +
+            "PARTNER_ITEM_BARCODE in (:barcodeIds)", nativeQuery = true)
+    int updateStagingLIneInKafka(@Param("barcodeIds") Set<String> refDocNo,
+                          @Param("text") String text);
+
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query(value = "update tblstagingline set STATUS_ID = 101, STATUS_TEXT = :statusText, PALLET_ID = :palId, st_utd_by = :loginUserId, ST_CNF_ON = getDate() \n" +
             "WHERE lang_id = :languageId AND c_id = :companyId AND plant_id = :plantId AND WH_ID = :warehouseId AND \n" +

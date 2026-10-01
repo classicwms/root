@@ -198,6 +198,38 @@ public class PutAwayLineAsyncProcess extends BaseService {
         }
     }
 
+    /**
+     *
+     * @param stagingLineEntityV2List stagingLineEntityV2List
+     */
+    public void createPutawayHeaderInKafka(List<StagingLineEntityV2> stagingLineEntityV2List) {
+
+        String idMasterAuthToken = getIDMasterAuthToken();
+        long NUM_RAN_CODE_PA_NO = 7;
+        /*
+         * PutAway Creation
+         */
+        Map<String, List<StagingLineEntityV2>> groupedByPalletId =
+                stagingLineEntityV2List.stream()
+                        .collect(Collectors.groupingBy(StagingLineEntityV2::getPalletId));
+
+        for (Map.Entry<String, List<StagingLineEntityV2>> entry : groupedByPalletId.entrySet()) {
+            String palletId = entry.getKey();
+            List<StagingLineEntityV2> grLines = entry.getValue();
+
+            // Getting PA_NUMBER per Pallet Id
+            String nextPANumber = getNextRangeNumber(NUM_RAN_CODE_PA_NO, grLines.get(0).getCompanyCode(),
+                    grLines.get(0).getPlantId(), grLines.get(0).getLanguageId(), grLines.get(0).getWarehouseId(),
+                    idMasterAuthToken);
+            try {
+                log.info("-----nextPANumber:{} | PalId: {} ---->", nextPANumber, palletId);
+                putAwayHeaderService.createPutAwayHeaderInScheduleInKafka(nextPANumber, grLines);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 
     /**
      *

@@ -206,7 +206,7 @@ public class ConsumerService {
             log.info("Current DB " + currentDB);
 
             log.info("PutAwayHeader Creation Input in kafka --> " + event.getStagingLineEntityV2List());
-            putAwayLineAsyncProcess.createPutawayHeader(event.getStagingLineEntityV2List());
+            putAwayLineAsyncProcess.createPutawayHeaderInKafka(event.getStagingLineEntityV2List());
 
         } catch (Exception e) {
             log.info("Inbound Header Received Lines Updated Exception in kafka " + e.getMessage());
