@@ -2242,19 +2242,21 @@ public class QualityLineService extends BaseService {
                 }
 
             }
-            log.info("Quality Line Saving Process in Kafka");
-            producerService.qualityLineSave(new QualityLineSaveEvent(createdQualityLineList));
+
+            if(!createdQualityLineList.isEmpty()) {
+                log.info("Quality Line Saving Process in Kafka");
+                producerService.qualityLineSave(new QualityLineSaveEvent(createdQualityLineList));
 
 //            outboundLineInterimRepository.saveAll(outboundLineInterimList);
-            log.info("OutboundLine DLV_QTY Update Process Started ");
-            updateDeliveryQty(createdQualityLineList);
-            log.info("OutboundLine DLV_QTY Update Process Completed");
+                log.info("OutboundLine DLV_QTY Update Process Started ");
+                updateDeliveryQty(createdQualityLineList);
+                log.info("OutboundLine DLV_QTY Update Process Completed");
 
-            producerService.deliveryConfirm(new DeliveryConfirmEvent(createdQualityLineList.get(0).getCompanyCodeId(), createdQualityLineList.get(0).getPlantId(),
-                    createdQualityLineList.get(0).getLanguageId(), createdQualityLineList.get(0).getWarehouseId(), createdQualityLineList.get(0).getPreOutboundNo(),
-                    createdQualityLineList.get(0).getRefDocNumber(), createdQualityLineList.get(0).getPartnerCode(), loginUserID));
+                producerService.deliveryConfirm(new DeliveryConfirmEvent(createdQualityLineList.get(0).getCompanyCodeId(), createdQualityLineList.get(0).getPlantId(),
+                        createdQualityLineList.get(0).getLanguageId(), createdQualityLineList.get(0).getWarehouseId(), createdQualityLineList.get(0).getPreOutboundNo(),
+                        createdQualityLineList.get(0).getRefDocNumber(), createdQualityLineList.get(0).getPartnerCode(), loginUserID));
 //            postDeliveryConfirm(createdQualityLineList, loginUserID);
-
+            }
             return createdQualityLineList;
         } catch (Exception e) {
             e.printStackTrace();
