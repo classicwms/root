@@ -196,7 +196,7 @@ public class ConsumerService {
         }
     }
 
-    @KafkaListener(topics = "putaway-save-topic-v1", groupId = "putaway-save-group-v1", containerFactory = "putAwayHeaderSaveStatusListenerFactory")
+//    @KafkaListener(topics = "putaway-save-topic-v1", groupId = "putaway-save-group-v1", containerFactory = "putAwayHeaderSaveStatusListenerFactory")
     public void putAwayHeaderSaveProcess(SapGrRequestEvent event) {
         try {
             DataBaseContextHolder.setCurrentDb("WK");
