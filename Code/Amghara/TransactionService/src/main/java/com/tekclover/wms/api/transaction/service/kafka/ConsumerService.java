@@ -131,10 +131,10 @@ public class ConsumerService {
     }
 
     // QualityLine Creation Process
-    @KafkaListener(topics = "qualityline-create-topic-v5", groupId = "qualityline-create-topic-v5", containerFactory = "qualityLineProcessListenerFactory")
-    public void consume(QualityLineCreateEvent event) throws Exception {
-        qualityLineService.createQualityLineV2(event.getQualityLineV2s(), event.getLoginUserID());
-    }
+//    @KafkaListener(topics = "qualityline-create-topic-v5", groupId = "qualityline-create-topic-v5", containerFactory = "qualityLineProcessListenerFactory")
+//    public void consume(QualityLineCreateEvent event) throws Exception {
+//        qualityLineService.createQualityLineV2(event.getQualityLineV2s(), event.getLoginUserID());
+//    }
 
     // AssignPicker
     @KafkaListener(topics = "assign-picker-topic-v1", groupId = "assign-picker-group-v1", containerFactory = "assignPickerListenerFactory")

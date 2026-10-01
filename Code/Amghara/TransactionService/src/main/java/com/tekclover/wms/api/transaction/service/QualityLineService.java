@@ -1366,12 +1366,12 @@ public class QualityLineService extends BaseService {
             } // End of for
             
             if (toBeCreatedQLList != null) {
-//                statusDescription = redisService.getStatusDescription(55L, toBeCreatedQLList.get(0).getLanguageId());
-//                List<String> getQualityInspectionNos =
-//                        toBeCreatedQLList.stream().map(QualityLineV2::getQualityInspectionNo).distinct().collect(Collectors.toList());
-//                log.info("-----------getQualityInspectionNos-------> : " + getQualityInspectionNos);
-//                int quality = qualityHeaderV2Repository.updateQualityHeader(statusDescription, getQualityInspectionNos);
-//                log.info("QualityHeader Status Updated Successfully: Affected Row's {}", quality);
+                statusDescription = redisService.getStatusDescription(55L, toBeCreatedQLList.get(0).getLanguageId());
+                List<String> getQualityInspectionNos =
+                        toBeCreatedQLList.stream().map(QualityLineV2::getQualityInspectionNo).distinct().collect(Collectors.toList());
+                log.info("-----------getQualityInspectionNos-------> : " + getQualityInspectionNos);
+                int quality = qualityHeaderV2Repository.updateQualityHeader(statusDescription, getQualityInspectionNos);
+                log.info("QualityHeader Status Updated Successfully: Affected Row's {}", quality);
 
 //                log.info("QualityHeader update Event published -------->");
 //                producerService.qualityHeaderUpdate(new QualityHeaderUpdateEvent(statusDescription, getQualityInspectionNos));
