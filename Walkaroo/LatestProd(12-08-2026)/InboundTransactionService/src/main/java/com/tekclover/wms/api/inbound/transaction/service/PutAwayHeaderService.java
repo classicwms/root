@@ -5143,6 +5143,7 @@ public class PutAwayHeaderService extends BaseService {
                 putAwayHeader.setUpdatedOn(new Date());
                 putAwayHeader.setConfirmedOn(new Date());
                 putAwayHeader.setPutAwayNumber(paNo);
+                putAwayHeader.setInboundOrderTypeId(1L);
                 log.info("putAwayHeader create---->: {}", putAwayHeader);
                 log.info("-------PalletId---> {}", putAwayHeader.getPalletId());
 
