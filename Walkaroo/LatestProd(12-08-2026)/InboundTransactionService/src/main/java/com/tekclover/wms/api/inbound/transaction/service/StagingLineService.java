@@ -2947,6 +2947,8 @@ public class StagingLineService extends BaseService {
     public List<StagingLineEntityV2> updateStagingLinev4(List<StagingLineEntityV2> stagingLineEntityV2List, String loginUserID) throws JsonProcessingException {
         try{
 
+            log.info("StagingLine Update Input Values :{} ", stagingLineEntityV2List);
+
             List<String> barcodeIds = stagingLineEntityV2List.stream().map(StagingLineEntityV2::getBarcodeId).collect(Collectors.toList());
             log.info("StagingLine Update Barcode List : {}", barcodeIds);
 

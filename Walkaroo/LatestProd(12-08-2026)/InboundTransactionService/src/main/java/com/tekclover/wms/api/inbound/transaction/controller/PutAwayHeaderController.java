@@ -271,21 +271,6 @@ public class PutAwayHeaderController extends BaseService {
         }
     }
 
-    @ApiOperation(response = PutAwayHeaderV2.class, value = "Search PutAwayHeader V2") // label for swagger
-    @PostMapping("/findPutAwayHeader/v2")
-    public List<PutAwayHeaderV2> findPutAwayHeaderV3(@RequestBody SearchPutAwayHeaderV2 searchPutAwayHeader)
-            throws Exception {
-        try {
-            String currentDB = baseService.getDataBase(searchPutAwayHeader.getPlantId().get(0),searchPutAwayHeader.getWarehouseId().get(0));
-            DataBaseContextHolder.clear();
-            DataBaseContextHolder.setCurrentDb(currentDB);
-            log.info("Current DB " + currentDB);
-            return putawayheaderService.findPutAway(searchPutAwayHeader);
-        } finally {
-            DataBaseContextHolder.clear();
-        }
-    }
-
     @ApiOperation(response = PutAwayHeaderV2.class, value = "Update PutAwayHeader V2") // label for swagger
     @PatchMapping("/v2/{putAwayNumber}")
     public ResponseEntity<?> patchPutAwayHeaderV2(@PathVariable String putAwayNumber, @RequestParam String warehouseId,
