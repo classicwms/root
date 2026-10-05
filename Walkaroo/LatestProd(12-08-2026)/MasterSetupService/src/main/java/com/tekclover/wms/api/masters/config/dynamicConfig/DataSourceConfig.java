@@ -41,6 +41,7 @@ public class DataSourceConfig {
         targetDataSources.put("MYS", mysDataSource());
         targetDataSources.put("KNP", knpDataSource());
         targetDataSources.put("CTC", ctcDataSource());
+        targetDataSources.put("BDG", bdgDataSource());
 
 
         DynamicDataSource ds = new DynamicDataSource();
@@ -171,6 +172,15 @@ public class DataSourceConfig {
                 "jdbc:sqlserver://10.20.0.19;databaseName=WMS_CTC",
                 "sa",
                 "TvHcGBR84nxvyJx6EPpoOsL5V"
+        );
+    }
+
+    private DataSource bdgDataSource() {
+        return buildDataSource(
+                "BDG",
+                "jdbc:sqlserver://10.20.0.34;databaseName=WMS_BDG",
+                "sa",
+                "JpMeGBR84nxvyJx6EPpoOsL8M"
         );
     }
 

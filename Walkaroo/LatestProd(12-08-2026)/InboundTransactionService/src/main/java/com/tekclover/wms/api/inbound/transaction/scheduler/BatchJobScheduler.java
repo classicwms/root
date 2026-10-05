@@ -55,6 +55,8 @@ public class BatchJobScheduler {
         scheduleAsyncService.processInboundOrderV12();
         //CTC
         scheduleAsyncService.processInboundOrderV13();
+        //BDG
+        scheduleAsyncService.processInboundOrderV14();
 
 
 //        CompletableFuture<WarehouseApiResponse> inboundFailedOrder = scheduleAsyncService.processInboundFailedOrder();
@@ -120,7 +122,9 @@ public class BatchJobScheduler {
         putAwayService.createPutAwayHeaderInSchedule("KNP");
         //CTC
         putAwayService.createPutAwayHeaderInSchedule("CTC");
-
+        //BDG
+        putAwayService.createPutAwayHeaderInSchedule("BDG");
+        
         log.info(
                 "========== PUTAWAY SCHEDULER SUBMISSION COMPLETED in {} ms ==========",
                 System.currentTimeMillis() - schedulerStart
