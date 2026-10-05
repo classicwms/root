@@ -98,12 +98,14 @@ public interface InventoryMovementRepository extends JpaRepository<InventoryMove
 			" where \n" +
 			" im.MVT_TYP_ID in :movementTypeId \n" +
 			" and im.SUB_MVT_TYP_ID in :subMovementTypeId \n" +
+			" and im.wh_id in :warehouseId \n" +
 			" and im.IM_CTD_ON between :fromDate and :toDate \n" +
 			" group by im.lang_id,im.c_id,im.plant_id,im.wh_id,im.itm_code,im.st_bin,im.stck_typ_id,im.sp_st_ind_id,im.pack_barcode,\n" +
 			" i.inv_uom ,i.ref_field_8,i.ref_field_9,i.ref_field_10,(COALESCE(i.inv_qty,0) + COALESCE(i.alloc_qty,0))", nativeQuery = true)
 	Stream<PerpetualLineEntityImpl> getRecordsForRunPerpetualCountStream (
 			@Param(value = "movementTypeId") List<Long> movementTypeId,
 			@Param(value = "subMovementTypeId") List<Long> subMovementTypeId,
+			@Param(value = "warehouseId") List<String> warehouseId,
 			@Param(value = "fromDate") Date fromDate,
 			@Param(value = "toDate") Date toDate);
 

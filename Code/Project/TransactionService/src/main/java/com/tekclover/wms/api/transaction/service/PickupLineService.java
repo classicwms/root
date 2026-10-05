@@ -1105,6 +1105,7 @@ public class PickupLineService extends BaseService {
 
 	public PickerDenialReport findPickerDenialReport(SearchPickupLine searchPickupLine) throws Exception {
 
+		log.info("PickerDenial Report Input : " + searchPickupLine);
 		if (searchPickupLine.getSFromPickConfirmedOn() != null && searchPickupLine.getSToPickConfirmedOn() != null) {
 			Date[] dates = DateUtils.addTimeToDatesForSearch(searchPickupLine.getSFromPickConfirmedOn(),
 					searchPickupLine.getSToPickConfirmedOn());
