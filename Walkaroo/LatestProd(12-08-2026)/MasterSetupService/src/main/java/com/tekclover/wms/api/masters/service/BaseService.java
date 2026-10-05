@@ -143,6 +143,8 @@ public class BaseService {
 			return "KNP";
 		} else if (plantId.equalsIgnoreCase("1291")) {
 			return "CTC";
+		} else if (plantId.equalsIgnoreCase("1256")) {
+			return "BDG";
 		} else {
 			return "WK";
 		}
