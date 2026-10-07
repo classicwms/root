@@ -4960,7 +4960,7 @@ public class PutAwayHeaderService extends BaseService {
 //        return savedPutAwayHeaders;
     }
 
-    @Transactional
+//    @Transactional
     public void createInventoryNonCBMV4(String companyCode, String plantId, String languageId, String warehouseId, StagingLineEntityV2 createdGRLine, String loginUserId) {
         try {
                 InventoryV2 inventory = new InventoryV2();

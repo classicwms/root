@@ -196,21 +196,30 @@ public class ConsumerService {
         }
     }
 
-//    @KafkaListener(topics = "putaway-save-topic-v1", groupId = "putaway-save-group-v1", containerFactory = "putAwayHeaderSaveStatusListenerFactory")
+    @KafkaListener(topics = "putaway-save-topic-v1", groupId = "putaway-save-group-v1", containerFactory = "putAwayHeaderSaveStatusListenerFactory")
     public void putAwayHeaderSaveProcess(SapGrRequestEvent event) {
+        long totalStart = System.currentTimeMillis();
         try {
             DataBaseContextHolder.setCurrentDb("WK");
+            long dbStart = System.currentTimeMillis();
             String currentDB = baseService.getDataBase(event.getStagingLineEntityV2List().get(0).getPlantId(), event.getStagingLineEntityV2List().get(0).getWarehouseId());
             DataBaseContextHolder.clear();
             DataBaseContextHolder.setCurrentDb(currentDB);
             log.info("Current DB " + currentDB);
+            long dbTime = System.currentTimeMillis() - dbStart;
+            log.info("DB ROUTING COMPLETED | DB={} | TIME={} ms", currentDB, dbTime);
 
             log.info("PutAwayHeader Creation Input in kafka --> " + event.getStagingLineEntityV2List());
+            long processStart = System.currentTimeMillis();
             putAwayLineAsyncProcess.createPutawayHeaderInKafka(event.getStagingLineEntityV2List());
+            long processTime = System.currentTimeMillis() - processStart;
 
+            log.info("CREATE PUTAWAY HEADER COMPLETED | DB={} | TIME={} ms", currentDB, processTime);
         } catch (Exception e) {
             log.info("Inbound Header Received Lines Updated Exception in kafka " + e.getMessage());
         } finally {
+            long totalTime = System.currentTimeMillis() - totalStart;
+            log.info("========== PUTAWAY KAFKA PROCESS END | TOTAL TIME={} ms ==========", totalTime);
             DataBaseContextHolder.clear();
         }
     }

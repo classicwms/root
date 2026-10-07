@@ -412,6 +412,7 @@ public class StagingLineController {
     @ApiOperation(response = StagingLineEntityV2.class, value = "Update StagingLine ") // label for swagger
     @PatchMapping("/update/v2")
     public ResponseEntity<?> stagingLine(@Valid @RequestBody List<StagingLineEntityV2> stagingLine, @RequestParam String loginUserID) throws Exception {
+        long totalStart = System.currentTimeMillis();
         try {
             String currentDB = baseService.getDataBase(stagingLine.get(0).getPlantId(),stagingLine.get(0).getWarehouseId());
             DataBaseContextHolder.clear();
@@ -419,8 +420,11 @@ public class StagingLineController {
             log.info("StagingLine Update /v2/------> Current DB " + currentDB);
             //List<StagingLineEntityV2> createdStagingLine = staginglineService.updateStagingLinev4(stagingLine, loginUserID);
             List<StagingLineEntityV2> createdStagingLine = staginglineService.updateStagingLinev4(stagingLine, loginUserID);
+
             return new ResponseEntity<>(createdStagingLine, HttpStatus.OK);
         } finally {
+            long totalTime = System.currentTimeMillis() - totalStart;
+            log.info("========== STAGING LINE UPDATE PROCESS END | TOTAL TIME={} ms ==========", totalTime);
             DataBaseContextHolder.clear();
         }
     }

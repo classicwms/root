@@ -113,7 +113,7 @@ public class BatchJobScheduler {
         //MUB
         putAwayService.createPutAwayHeaderInSchedule("MUB");
         // NGP1
-        putAwayService.createPutAwayHeaderInSchedule("NGP1");
+//        putAwayService.createPutAwayHeaderInSchedule("NGP1");
         // NGP2
         putAwayService.createPutAwayHeaderInSchedule("NGP2");
         //MYS
