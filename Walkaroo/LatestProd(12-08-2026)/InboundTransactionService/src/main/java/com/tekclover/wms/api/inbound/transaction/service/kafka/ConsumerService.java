@@ -197,7 +197,7 @@ public class ConsumerService {
         }
     }
 
-    @KafkaListener(topics = "putaway-save-topic-v1", groupId = "putaway-save-group-v1", containerFactory = "putAwayHeaderSaveStatusListenerFactory")
+//    @KafkaListener(topics = "putaway-save-topic-v1", groupId = "putaway-save-group-v1", containerFactory = "putAwayHeaderSaveStatusListenerFactory")
     public void putAwayHeaderSaveProcess(SapGrRequestEvent event) {
         long totalStart = System.currentTimeMillis();
         try {

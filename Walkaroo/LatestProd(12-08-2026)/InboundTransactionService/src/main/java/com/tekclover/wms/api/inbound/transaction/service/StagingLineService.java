@@ -2962,9 +2962,9 @@ public class StagingLineService extends BaseService {
                 producerService.sapGrPushingEvent(new SapGrRequestEvent(stagingLineEntityV2List));
                 log.info("SAP PUSHING KAFKA TOPIC PUBLISHED PROCESS COMPLETED -------------->");
 
-                log.info("PUTAWAYHEADER KAFKA TOPIC PUBLISHED PROCESS STARTED -------------->");
-                producerService.putAwayHeaderSaveEvent(new SapGrRequestEvent(stagingLineEntityV2List));
-                log.info("PUTAWAYHEADER KAFKA TOPIC PUBLISHED PROCESS STARTED -------------->");
+//                log.info("PUTAWAYHEADER KAFKA TOPIC PUBLISHED PROCESS STARTED -------------->");
+//                producerService.putAwayHeaderSaveEvent(new SapGrRequestEvent(stagingLineEntityV2List));
+//                log.info("PUTAWAYHEADER KAFKA TOPIC PUBLISHED PROCESS STARTED -------------->");
             } else {
                 log.info("SAP PUSHING PROCESS STARTED -------------->");
                 putAwayLineAsyncProcess.sapPushingStatus(stagingLineEntityV2List);
