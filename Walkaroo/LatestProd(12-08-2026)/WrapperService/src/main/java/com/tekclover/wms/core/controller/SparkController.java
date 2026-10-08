@@ -221,8 +221,8 @@ public class SparkController {
     //InHouseTransferHeader
     @ApiOperation(response = InhouseTransferHeader.class, value = "Spark InhouseTransferHeader details")
     @PostMapping("/inhousetransferheader")
-    public ResponseEntity<?> getAllInhouseTransferHeaders() {
-        InhouseTransferHeader[] inhouseTransferHeaders = sparkService.getAllInhouseTransferHeaders();
+    public ResponseEntity<?> getAllInhouseTransferHeaders(@RequestBody  SearchInhouseTransferHeader searchInhouseTransferHeader) {
+        InhouseTransferHeader[] inhouseTransferHeaders = sparkService.getAllInhouseTransferHeaders(searchInhouseTransferHeader);
         return new ResponseEntity<>(inhouseTransferHeaders, HttpStatus.OK);
     }
 

@@ -585,7 +585,7 @@ public class SparkService {
     }
 
     // Get All InhouseTransferHeaders
-    public InhouseTransferHeader[] getAllInhouseTransferHeaders() {
+    public InhouseTransferHeader[] getAllInhouseTransferHeaders(SearchInhouseTransferHeader searchInhouseTransferHeader) {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -593,7 +593,7 @@ public class SparkService {
 //        headers.add("Authorization", "Bearer " + authToken);
 
             UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "/inhousetransferheader");
-            HttpEntity<?> entity = new HttpEntity<>(headers);
+            HttpEntity<?> entity = new HttpEntity<>(searchInhouseTransferHeader,headers);
             ResponseEntity<InhouseTransferHeader[]> result =
                     getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, InhouseTransferHeader[].class);
             log.info("result: " + result.getStatusCode());

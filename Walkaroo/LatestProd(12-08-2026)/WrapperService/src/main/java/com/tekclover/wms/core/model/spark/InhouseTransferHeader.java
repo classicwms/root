@@ -33,4 +33,9 @@ public class InhouseTransferHeader {
     private Timestamp updatedOn;
 
     private String manufacturerName;
+
+    private String statusDescription;
+    private String companyDescription;
+    private String plantDescription;
+    private String warehouseDescription;
 }
