@@ -116,7 +116,7 @@ public class InhouseTransferHeaderController {
 			DataBaseContextHolder.setCurrentDb(currentDB);
 			log.info("Current DB " + currentDB);
 			InhouseTransferHeaderEntity createdInHouseTransferHeader =
-					inHouseTransferHeaderService.createInHouseTransferHeaderV2(newInHouseTransferHeader, loginUserID);
+					inHouseTransferHeaderService.createInHouseTransferHeaderInKafka(newInHouseTransferHeader, loginUserID);
 			return new ResponseEntity<>(createdInHouseTransferHeader, HttpStatus.OK);
 		} finally {
 			DataBaseContextHolder.clear();
@@ -149,7 +149,7 @@ public class InhouseTransferHeaderController {
 			DataBaseContextHolder.clear();
 			DataBaseContextHolder.setCurrentDb(currentDB);
 			log.info("Current DB " + currentDB);
-			InhouseTransferHeaderEntity transferHeader = inHouseTransferHeaderService.createInHouseTransferHeaderNewV2(newInHouseTransferHeader, loginUserID);
+			InhouseTransferHeaderEntity transferHeader = inHouseTransferHeaderService.postInhouseTransferInMobile(newInHouseTransferHeader, loginUserID);
 			return new ResponseEntity<>(transferHeader,HttpStatus.OK);
 		} finally {
 			DataBaseContextHolder.clear();

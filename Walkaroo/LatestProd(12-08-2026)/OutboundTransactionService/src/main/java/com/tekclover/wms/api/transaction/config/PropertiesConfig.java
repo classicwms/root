@@ -124,4 +124,8 @@ public class PropertiesConfig {
 
 	@Value("${odata.sap.password}")
 	private String odataPassword;
+
+	@Value("${spring.kafka.bootstrap-servers}")
+	private String bootstrapServers;
+
 }
