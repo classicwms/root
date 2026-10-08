@@ -162,7 +162,7 @@ public class KafkaConsumerConfig {
     public ConcurrentKafkaListenerContainerFactory<String, SapGrRequestEvent> putAwayHeaderEventConcurrentKafkaListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, SapGrRequestEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(putAwayHeaderSaveEventConsumerFactory());
-//        factory.setConcurrency(10);
+        factory.setConcurrency(10);
         return factory;
     }
 }
