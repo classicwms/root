@@ -198,7 +198,7 @@ public class ConsumerService {
     }
 
     @KafkaListener(topics = "putaway-save-topic-v1", groupId = "putaway-save-group-v1", containerFactory = "putAwayHeaderSaveStatusListenerFactory")
-    public void putAwayHeaderSaveProcess(SapGrRequestEvent event, Acknowledgment ack) {
+    public void putAwayHeaderSaveProcess(SapGrRequestEvent event) {
         long totalStart = System.currentTimeMillis();
         try {
             DataBaseContextHolder.setCurrentDb("WK");
@@ -219,7 +219,7 @@ public class ConsumerService {
         } catch (Exception e) {
             log.info("Inbound Header Received Lines Updated Exception in kafka " + e.getMessage());
         } finally {
-            ack.acknowledge();
+//            ack.acknowledge();
             long totalTime = System.currentTimeMillis() - totalStart;
             log.info("========== PUTAWAY KAFKA PROCESS END | TOTAL TIME={} ms ==========", totalTime);
             DataBaseContextHolder.clear();
