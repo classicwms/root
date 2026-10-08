@@ -63,20 +63,20 @@ public class IDMasterServiceController {
 	@RequestMapping(value = "/login", method = RequestMethod.GET, produces = "application/json")
 	public ResponseEntity<?> loginUser(@RequestParam String name, @RequestParam String password,
 									   @RequestParam String authToken, @RequestParam(required = false) String version) {
-		try {
+//		try {
 			UserManagement loggedUser = idmasterService.validateUserID(name, password, authToken, version);
 			log.info("LoginUser::: " + loggedUser);
 			log.info("version::: " + version);
 			return new ResponseEntity<>(loggedUser, HttpStatus.OK);
-		} catch (BadRequestException e) {
-			log.error("Invalid user");
-			String str = "Either UserId is invalid or Password does not match.";
-			CustomErrorResponse error = new CustomErrorResponse();
-			error.setTimestamp(LocalDateTime.now());
-			error.setError(str);
-			error.setStatus(HttpStatus.BAD_REQUEST.value());
-			return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
-		}
+//		} catch (BadRequestException e) {
+//			log.error("Invalid user");
+//			String str = "Either UserId is invalid or Password does not match.";
+//			CustomErrorResponse error = new CustomErrorResponse();
+//			error.setTimestamp(LocalDateTime.now());
+//			error.setError(str);
+//			error.setStatus(HttpStatus.BAD_REQUEST.value());
+//			return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+//		}
 	}
 
     /* --------------------------------LOGIN-response with role access and module------------------------------------------------------------------------------*/
