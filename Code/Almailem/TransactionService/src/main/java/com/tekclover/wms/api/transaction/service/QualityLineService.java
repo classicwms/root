@@ -2143,6 +2143,7 @@ public class QualityLineService extends BaseService {
             if (!qtyEqual) {
                 throw new BadRequestException("Quality Qty and Picking Confirm Qty Must be same");
             }
+            statusDescription = redisService.getStatusDescription(55L, newQualityLine.getLanguageId());
             qualityHeaderV2Repository.updateQualityHeader(
                     newQualityLine.getCompanyCodeId(), newQualityLine.getPlantId(),
                     newQualityLine.getLanguageId(), newQualityLine.getWarehouseId(),
