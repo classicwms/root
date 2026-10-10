@@ -68,11 +68,11 @@ public class KafkaConsumerConfig {
         return createConsumerFactory(DeliveryConfirmEvent.class, "delivery-confirm-topic-v1");
     }
 
-    @Bean
-    public ConsumerFactory<String, QualityLineCreateEvent> qualityLineProcessEventConsumerFactory() {
-        return createConsumerFactory(QualityLineCreateEvent.class, "qualityline-process-topic-v1");
-    }
 
+    @Bean
+    public ConsumerFactory<String, QualityLineProcessEvent> qualityLineProcessEventConsumerFactory() {
+        return createConsumerFactory(QualityLineProcessEvent.class, "qualityline-process-topic-v1");
+    }
 
     @Bean("pickupLineListenerFactory")
     public ConcurrentKafkaListenerContainerFactory<String, PickupLineEvent> pickupLineListenerFactory() {
@@ -129,6 +129,14 @@ public class KafkaConsumerConfig {
     public ConcurrentKafkaListenerContainerFactory<String, DeliveryConfirmEvent> deliveryConfirmEventConcurrentKafkaListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, DeliveryConfirmEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(deliveryConfirmEventConsumerFactory());
+        factory.setConcurrency(10);
+        return factory;
+    }
+
+    @Bean("qualitylineProcessListenerFactory")
+    public ConcurrentKafkaListenerContainerFactory<String, QualityLineProcessEvent> qualityLineEventConcurrentKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, QualityLineProcessEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(qualityLineProcessEventConsumerFactory());
         factory.setConcurrency(10);
         return factory;
     }

@@ -49,4 +49,8 @@ public class ProducerService {
     public void deliveryConfirm(DeliveryConfirmEvent event) {
         kafkaTemplate.send("delivery-confirm-topic-v1", event);
     }
+
+    public void processQualityLine(QualityLineProcessEvent event) {
+        kafkaTemplate.send("qualityline-process-topic-v1", event);
+    }
 }

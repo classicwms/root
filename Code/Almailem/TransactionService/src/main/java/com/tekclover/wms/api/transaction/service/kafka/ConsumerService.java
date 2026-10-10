@@ -101,4 +101,16 @@ public class ConsumerService {
                 event.getPreOutboundNo(), event.getRefDocNumber(), event.getPartnerCode(), event.getLoginUserID());
     }
 
+    @KafkaListener(topics = "qualityline-process-topic-v1", groupId = "qualityline-process-group-v1", containerFactory = "qualitylineProcessListenerFactory")
+    public void consume(QualityLineProcessEvent event) throws ParseException, InvocationTargetException, IllegalAccessException {
+        try {
+            log.info("Quality Line Process started in kafka consumer");
+            qualityLineService.createQualityLineInKafka(event.getNewQualityLines(), event.getLoginUserID());
+            log.info("Quality Line Process completed in kafka consumer");
+        } catch (Exception e) {
+            log.info("Exception throw in quality Line Creation kafka consumer {} ", e.getMessage());
+        }
+    }
+
+
 }
