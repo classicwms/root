@@ -219,7 +219,6 @@ public class ConsumerService {
         } catch (Exception e) {
             log.info("Inbound Header Received Lines Updated Exception in kafka " + e.getMessage());
         } finally {
-//            ack.acknowledge();
             long totalTime = System.currentTimeMillis() - totalStart;
             log.info("========== PUTAWAY KAFKA PROCESS END | TOTAL TIME={} ms ==========", totalTime);
             DataBaseContextHolder.clear();

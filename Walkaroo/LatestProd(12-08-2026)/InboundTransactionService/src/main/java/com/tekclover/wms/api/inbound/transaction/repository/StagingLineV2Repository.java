@@ -826,4 +826,8 @@ public interface StagingLineV2Repository extends JpaRepository<StagingLineEntity
             "REF_DOC_NO = :refDocNo", nativeQuery = true)
     int stagingUpdate(@Param("refDocNo") String refDocNo,
                       @Param("text") String text);
+
+    @Query(value = "select * from tblstagingline where status_id = 101 and \n" +
+            "pallet_id in (select top 1 pallet_id from tblstagingline where is_deleted = 0 and status_id = 101)", nativeQuery = true)
+    List<StagingLineEntityV2> findStagingLinePalletWise();
 }

@@ -11,6 +11,7 @@ import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 
 import java.util.HashMap;
@@ -20,8 +21,6 @@ import java.util.Map;
 @EnableKafka
 public class KafkaConsumerConfig {
 
-    @Autowired
-    PutAwayLineService putAwayLineService;
 
     private <T> ConsumerFactory<String, T> createConsumerFactory(Class<T> clazz, String groupId) {
         JsonDeserializer<T> deserializer = new JsonDeserializer<>(clazz, false);

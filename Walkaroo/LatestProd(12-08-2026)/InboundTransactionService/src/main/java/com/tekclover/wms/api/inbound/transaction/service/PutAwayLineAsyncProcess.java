@@ -305,4 +305,53 @@ public class PutAwayLineAsyncProcess extends BaseService {
                 }
             }
     }
+
+    @Async("asyncExecutorPutAway")
+    public void createPutAwayHeaderInNGP(String profile) {
+
+        if(!runningProfiles.add(profile)) {
+            log.warn("PutAway already running for DB={}, skipping", profile);
+            return;
+        }
+
+        long start = System.currentTimeMillis();
+        try {
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(profile);
+            log.info("PutAwayHeader Creation Process Started DB: {} ", profile);
+            List<StagingLineEntityV2> listOfStaging = stagingLineV2Repository.findStagingLinePalletWise();
+            log.info("List of StagingLine Values : {} ", listOfStaging);
+            if(!listOfStaging.isEmpty()) {
+                log.info("Pallet Id {} in PutAwayHeader :", listOfStaging.get(0).getPalletId());
+
+                createPutawayHeaderInNGP(listOfStaging);
+            }
+        } catch (Exception e) {
+            log.error("PutAway failed DB={}", profile, e);
+        } finally {
+            DataBaseContextHolder.clear();
+            runningProfiles.remove(profile);
+            log.info("PutAway completed DB={} in {} ms", profile, System.currentTimeMillis() - start);
+        }
+    }
+
+    /**
+     *
+     * @param staging stagingLineEntityV2List
+     */
+    public void createPutawayHeaderInNGP(List<StagingLineEntityV2> staging) {
+
+        String idMasterAuthToken = getIDMasterAuthToken();
+        long NUM_RAN_CODE_PA_NO = 7;
+
+        // Getting PA_NUMBER per Pallet Id
+        String nextPANumber = getNextRangeNumber(NUM_RAN_CODE_PA_NO, staging.get(0).getCompanyCode(),
+                staging.get(0).getPlantId(), staging.get(0).getLanguageId(), staging.get(0).getWarehouseId(),
+                idMasterAuthToken);
+        try {
+            putAwayHeaderService.createPutAwayHeaderInNGP(nextPANumber, staging);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
