@@ -117,11 +117,11 @@ public class BatchJobScheduler {
         // NGP2
         putAwayService.createPutAwayHeaderInSchedule("NGP2");
         //MYS
-        putAwayService.createPutAwayHeaderInSchedule("MYS");
+        putAwayService.createPutAwayHeaderInNGP("MYS");
         //KNP
-        putAwayService.createPutAwayHeaderInSchedule("KNP");
+        putAwayService.createPutAwayHeaderInNGP("KNP");
         //CTC
-        putAwayService.createPutAwayHeaderInSchedule("CTC");
+        putAwayService.createPutAwayHeaderInNGP("CTC");
         //BDG
         putAwayService.createPutAwayHeaderInSchedule("BDG");
         
