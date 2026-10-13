@@ -8025,7 +8025,7 @@ public class InboundTransactionService {
                 headers.add("Authorization", "Bearer " + oAuth.getAccess_token());
 
                 UriComponentsBuilder builder =
-                        UriComponentsBuilder.fromHttpUrl(getInboundTransactionServiceApiUrl() + "putawayheader/findPutAwayHeader/v2");
+                        UriComponentsBuilder.fromHttpUrl(getInboundTransactionServiceApiUrl() + "putawayheader/findPutAwayHeader/v3");
                 HttpEntity<?> entity = new HttpEntity<>(searchPutAwayHeader, headers);
                 ResponseEntity<PutAwayHeaderV2[]> result =
                         getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, PutAwayHeaderV2[].class);

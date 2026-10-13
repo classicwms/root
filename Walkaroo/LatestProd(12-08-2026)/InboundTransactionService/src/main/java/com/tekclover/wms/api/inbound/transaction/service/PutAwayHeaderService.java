@@ -1142,97 +1142,6 @@ public class PutAwayHeaderService extends BaseService {
         }
         log.info("searchPutAwayHeader V2: " + searchPutAwayHeader);
 
-        if(searchPutAwayHeader.getCompanyCodeId() == null || searchPutAwayHeader.getCompanyCodeId().isEmpty()){
-            searchPutAwayHeader.setCompanyCodeId(null);
-        }
-        if (searchPutAwayHeader.getPlantId() == null || searchPutAwayHeader.getPlantId().isEmpty()) {
-            searchPutAwayHeader.setPlantId(null);
-        }
-        if (searchPutAwayHeader.getLanguageId() == null || searchPutAwayHeader.getLanguageId().isEmpty()) {
-            searchPutAwayHeader.setLanguageId(null);
-        }
-        if (searchPutAwayHeader.getWarehouseId() == null || searchPutAwayHeader.getWarehouseId().isEmpty()) {
-            searchPutAwayHeader.setWarehouseId(null);
-        }
-        if (searchPutAwayHeader.getItemCode() == null || searchPutAwayHeader.getItemCode().isEmpty()) {
-            searchPutAwayHeader.setItemCode(null);
-        }
-        if (searchPutAwayHeader.getManufacturerName() == null || searchPutAwayHeader.getManufacturerName().isEmpty()) {
-            searchPutAwayHeader.setManufacturerName(null);
-        }
-        if (searchPutAwayHeader.getManufacturerCode() == null || searchPutAwayHeader.getManufacturerCode().isEmpty()) {
-            searchPutAwayHeader.setManufacturerCode(null);
-        }
-        if (searchPutAwayHeader.getRefDocNumber() == null || searchPutAwayHeader.getRefDocNumber().isEmpty()) {
-            searchPutAwayHeader.setRefDocNumber(null);
-        }
-        if (searchPutAwayHeader.getPreInboundNo() == null || searchPutAwayHeader.getPreInboundNo().isEmpty()) {
-            searchPutAwayHeader.setPreInboundNo(null);
-        }
-        if (searchPutAwayHeader.getPackBarcodes() == null || searchPutAwayHeader.getPackBarcodes().isEmpty()) {
-            searchPutAwayHeader.setPackBarcodes(null);
-        }
-        if (searchPutAwayHeader.getPutAwayNumber() == null || searchPutAwayHeader.getPutAwayNumber().isEmpty()) {
-            searchPutAwayHeader.setPutAwayNumber(null);
-        }
-        if (searchPutAwayHeader.getProposedHandlingEquipment() == null || searchPutAwayHeader.getProposedHandlingEquipment().isEmpty()) {
-            searchPutAwayHeader.setProposedHandlingEquipment(null);
-        }
-        if (searchPutAwayHeader.getProposedStorageBin() == null || searchPutAwayHeader.getProposedStorageBin().isEmpty()) {
-            searchPutAwayHeader.setProposedStorageBin(null);
-        }
-        if (searchPutAwayHeader.getCreatedBy() == null || searchPutAwayHeader.getCreatedBy().isEmpty()) {
-            searchPutAwayHeader.setCreatedBy(null);
-        }
-        if (searchPutAwayHeader.getBarcodeId() == null || searchPutAwayHeader.getBarcodeId().isEmpty()) {
-            searchPutAwayHeader.setBarcodeId(null);
-        }
-        if (searchPutAwayHeader.getOrigin() == null || searchPutAwayHeader.getOrigin().isEmpty()) {
-            searchPutAwayHeader.setOrigin(null);
-        }
-        if (searchPutAwayHeader.getBrand() == null || searchPutAwayHeader.getBrand().isEmpty()) {
-            searchPutAwayHeader.setBrand(null);
-        }
-        if (searchPutAwayHeader.getApprovalStatus() == null || searchPutAwayHeader.getApprovalStatus().isEmpty()) {
-            searchPutAwayHeader.setApprovalStatus(null);
-        }
-        if (searchPutAwayHeader.getStatusId() == null || searchPutAwayHeader.getStatusId().isEmpty()) {
-            searchPutAwayHeader.setStatusId(null);
-        }
-        if (searchPutAwayHeader.getStartCreatedOn() == null || searchPutAwayHeader.getEndCreatedOn() == null) {
-            searchPutAwayHeader.setStartCreatedOn(null);
-        }
-        if(searchPutAwayHeader.getMaterialNo() != null && searchPutAwayHeader.getMaterialNo().isEmpty()){
-            searchPutAwayHeader.setMaterialNo(null);
-        }
-        if(searchPutAwayHeader.getPriceSegment() != null && searchPutAwayHeader.getPriceSegment().isEmpty()){
-            searchPutAwayHeader.setPriceSegment(null);
-        }
-        if(searchPutAwayHeader.getArticleNo() != null && searchPutAwayHeader.getArticleNo().isEmpty()){
-            searchPutAwayHeader.setArticleNo(null);
-        }
-        if(searchPutAwayHeader.getGender() != null && searchPutAwayHeader.getGender().isEmpty()){
-            searchPutAwayHeader.setGender(null);
-        }
-        if(searchPutAwayHeader.getColor() != null && searchPutAwayHeader.getColor().isEmpty()){
-            searchPutAwayHeader.setColor(null);
-        }
-        if(searchPutAwayHeader.getSize() != null && searchPutAwayHeader.getSize().isEmpty()){
-            searchPutAwayHeader.setSize(null);
-        }
-        if(searchPutAwayHeader.getNoPairs() != null && searchPutAwayHeader.getNoPairs().isEmpty()) {
-            searchPutAwayHeader.setNoPairs(null);
-        }
-        if(searchPutAwayHeader.getBarcodeId() != null && searchPutAwayHeader.getBarcodeId().isEmpty()) {
-            searchPutAwayHeader.setBarcodeId(null);
-        }
-        if(searchPutAwayHeader.getPalletId() != null && searchPutAwayHeader.getPalletId().isEmpty()) {
-            searchPutAwayHeader.setPalletId(null);
-        }
-        if(searchPutAwayHeader.getBarcodeId() != null && !searchPutAwayHeader.getBarcodeId().isEmpty()) {
-            List<String> trimmedBarcodes = searchPutAwayHeader.getBarcodeId().stream().filter(n -> n != null && !n.isBlank()).map(String::trim).distinct().collect(Collectors.toList());
-            searchPutAwayHeader.setBarcodeId(trimmedBarcodes);
-        }
         log.info("SQL Trimmed searchPutAwayHeader V2: " + searchPutAwayHeader);
         List<PutAwayHeaderV2> results = putAwayHeaderV2Repository.findPutAwayHeaderV2(
                 searchPutAwayHeader.getCompanyCodeId(),
@@ -5331,6 +5240,7 @@ public class PutAwayHeaderService extends BaseService {
 //        return savedPutAwayHeaders;
     }
 
+
     /**
      *
      * @param paNo putAwayNo
@@ -5472,6 +5382,5 @@ public class PutAwayHeaderService extends BaseService {
         log.info("GrHeader Update Successfully ---> RefDocNo is {} And Affected Row {}", groupByRefDocNo, grHeader);
 //        return savedPutAwayHeaders;
     }
-
 
 }
