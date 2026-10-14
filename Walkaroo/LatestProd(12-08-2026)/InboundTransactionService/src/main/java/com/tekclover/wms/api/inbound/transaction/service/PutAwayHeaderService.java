@@ -5247,7 +5247,7 @@ public class PutAwayHeaderService extends BaseService {
      * @param entityV2List stagingLine
      * @throws Exception
      */
-    public void createPutAwayHeaderInNGP(String paNo, List<StagingLineEntityV2> entityV2List) throws Exception {
+    public void createPutAwayHeaderByPallet(String paNo, List<StagingLineEntityV2> entityV2List) throws Exception {
         log.info("Inbound Process PutAwayHeader Initiated ------> {}", new Date());
 
         Set<String> groupByBarcodeId = entityV2List.stream().map(StagingLineEntityV2 ::getBarcodeId).collect(Collectors.toSet());

@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -307,7 +306,7 @@ public class PutAwayLineAsyncProcess extends BaseService {
     }
 
     @Async("asyncExecutorPutAway")
-    public void createPutAwayHeaderInNGP(String profile) {
+    public void createPutAwayHeaderInPalletWise(String profile) {
 
         if(!runningProfiles.add(profile)) {
             log.warn("PutAway already running for DB={}, skipping", profile);
@@ -324,7 +323,7 @@ public class PutAwayLineAsyncProcess extends BaseService {
             if(!listOfStaging.isEmpty()) {
                 log.info("Pallet Id {} in PutAwayHeader :", listOfStaging.get(0).getPalletId());
 
-                createPutawayHeaderInNGP(listOfStaging);
+                createPutawayHeaderInPalletWise(listOfStaging);
             }
         } catch (Exception e) {
             log.error("PutAway failed DB={}", profile, e);
@@ -339,7 +338,7 @@ public class PutAwayLineAsyncProcess extends BaseService {
      *
      * @param staging stagingLineEntityV2List
      */
-    public void createPutawayHeaderInNGP(List<StagingLineEntityV2> staging) {
+    public void createPutawayHeaderInPalletWise(List<StagingLineEntityV2> staging) {
 
         String idMasterAuthToken = getIDMasterAuthToken();
         long NUM_RAN_CODE_PA_NO = 7;
@@ -349,7 +348,7 @@ public class PutAwayLineAsyncProcess extends BaseService {
                 staging.get(0).getPlantId(), staging.get(0).getLanguageId(), staging.get(0).getWarehouseId(),
                 idMasterAuthToken);
         try {
-            putAwayHeaderService.createPutAwayHeaderInNGP(nextPANumber, staging);
+            putAwayHeaderService.createPutAwayHeaderByPallet(nextPANumber, staging);
         } catch (Exception e) {
             e.printStackTrace();
         }

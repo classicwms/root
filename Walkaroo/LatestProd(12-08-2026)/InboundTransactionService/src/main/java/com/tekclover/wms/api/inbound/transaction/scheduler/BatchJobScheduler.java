@@ -1,17 +1,10 @@
 package com.tekclover.wms.api.inbound.transaction.scheduler;
 
-import com.tekclover.wms.api.inbound.transaction.config.dynamicConfig.DataBaseContextHolder;
-import com.tekclover.wms.api.inbound.transaction.model.warehouse.inbound.WarehouseApiResponse;
 import com.tekclover.wms.api.inbound.transaction.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-
-import java.lang.reflect.InvocationTargetException;
-import java.text.ParseException;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
 @Component
@@ -97,33 +90,33 @@ public class BatchJobScheduler {
         log.info("========== PUTAWAY SCHEDULER START ==========");
 
         // MDU
-        putAwayService.createPutAwayHeaderInSchedule("MDU");
+        putAwayService.createPutAwayHeaderInPalletWise("MDU");
         // CMP
-        putAwayService.createPutAwayHeaderInSchedule("CMP");
+        putAwayService.createPutAwayHeaderInPalletWise("CMP");
         // CHN
-        putAwayService.createPutAwayHeaderInSchedule("CHN");
+        putAwayService.createPutAwayHeaderInPalletWise("CHN");
         //VGA
-        putAwayService.createPutAwayHeaderInSchedule("VGA");
+        putAwayService.createPutAwayHeaderInPalletWise("VGA");
         //CCL
-        putAwayService.createPutAwayHeaderInSchedule("CCL");
+        putAwayService.createPutAwayHeaderInPalletWise("CCL");
         //HYD
-        putAwayService.createPutAwayHeaderInSchedule("HYD");
+        putAwayService.createPutAwayHeaderInPalletWise("HYD");
         //AHM
-        putAwayService.createPutAwayHeaderInSchedule("AHM");
+        putAwayService.createPutAwayHeaderInPalletWise("AHM");
         //MUB
-        putAwayService.createPutAwayHeaderInSchedule("MUB");
+        putAwayService.createPutAwayHeaderInPalletWise("MUB");
         // NGP1
-        putAwayService.createPutAwayHeaderInNGP("NGP1");
+        putAwayService.createPutAwayHeaderInPalletWise("NGP1");
         // NGP2
-        putAwayService.createPutAwayHeaderInSchedule("NGP2");
+        putAwayService.createPutAwayHeaderInPalletWise("NGP2");
         //MYS
-        putAwayService.createPutAwayHeaderInNGP("MYS");
+        putAwayService.createPutAwayHeaderInPalletWise("MYS");
         //KNP
-        putAwayService.createPutAwayHeaderInNGP("KNP");
+        putAwayService.createPutAwayHeaderInPalletWise("KNP");
         //CTC
-        putAwayService.createPutAwayHeaderInNGP("CTC");
+        putAwayService.createPutAwayHeaderInPalletWise("CTC");
         //BDG
-        putAwayService.createPutAwayHeaderInSchedule("BDG");
+        putAwayService.createPutAwayHeaderInPalletWise("BDG");
         
         log.info(
                 "========== PUTAWAY SCHEDULER SUBMISSION COMPLETED in {} ms ==========",
