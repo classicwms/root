@@ -2,6 +2,7 @@ package com.tekclover.wms.api.transaction.config.kafka;
 
 import com.tekclover.wms.api.transaction.config.PropertiesConfig;
 import com.tekclover.wms.api.transaction.model.kafka.*;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.CooperativeStickyAssignor;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -11,13 +12,20 @@ import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.core.KafkaOperations;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.listener.ContainerProperties;
+import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
+import org.springframework.kafka.listener.SeekToCurrentErrorHandler;
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
+import org.springframework.util.backoff.ExponentialBackOff;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
+@Slf4j
 @Configuration
 @EnableKafka
 public class KafkaConsumerConfig {
@@ -90,6 +98,46 @@ public class KafkaConsumerConfig {
                 baseConsumerProps(groupId),
                 new ErrorHandlingDeserializer<>(new StringDeserializer()),
                 new ErrorHandlingDeserializer<>(json));
+    }
+
+    /**
+     * @param concurrency number of consumer threads; keep it <= the topic's partition count
+     */
+    private <T> ConcurrentKafkaListenerContainerFactory<String, T> createListenerFactory(
+            ConsumerFactory<String, T> consumerFactory, int concurrency) {
+
+        ConcurrentKafkaListenerContainerFactory<String, T> factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(consumerFactory);
+        factory.setConcurrency(concurrency);
+
+        // Automatic acknowledgment: listener returns normally -> offsets committed;
+        // listener throws -> error handler retries, then sends to DLT
+        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.BATCH);
+        factory.setErrorHandler(kafkaErrorHandler());
+        return factory;
+    }
+
+    // ======================================================================
+    // Error handling: limited retries with delay, then dead-letter topic
+    // ======================================================================
+
+    @Bean
+    public SeekToCurrentErrorHandler kafkaErrorHandler() {
+        // byte[] template for messages that failed deserialization, JSON template for the rest
+        Map<Class<?>, KafkaOperations<?, ?>> templates = new LinkedHashMap<>();
+        templates.put(byte[].class, bytesKafkaTemplate);
+        templates.put(Object.class, kafkaTemplate);
+
+        // Failed records go to "<original-topic>.DLT"
+        DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(templates);
+
+        // 3 retries with growing delay: 2s, 4s, 8s, then send to DLT
+        ExponentialBackOff backOff = new ExponentialBackOff(2000L, 2.0);
+        backOff.setMaxInterval(10000L);
+        backOff.setMaxElapsedTime(14000L);   // 2s + 4s + 8s = 14s, so it stops after 3 retries
+
+        return new SeekToCurrentErrorHandler(recoverer, backOff);
     }
 
     @Bean
