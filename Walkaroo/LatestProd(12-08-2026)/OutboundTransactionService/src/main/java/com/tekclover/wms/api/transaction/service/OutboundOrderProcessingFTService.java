@@ -2127,8 +2127,8 @@ public class OutboundOrderProcessingFTService extends BaseService {
                                  String refDocNo, Long outboundOrderTypeId) throws Exception {
         try {
 
-            List<OrderManagementLineV2> orderManagementLineV2List = orderManagementLineV2Repository.findAllByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndOutboundOrderTypeIdAndDeletionIndicator(
-                    companyCodeId, plantId, languageId, warehouseId, refDocNo, outboundOrderTypeId, 0L);
+//            List<OrderManagementLineV2> orderManagementLineV2List = orderManagementLineV2Repository.findAllByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndOutboundOrderTypeIdAndDeletionIndicator(
+//                    companyCodeId, plantId, languageId, warehouseId, refDocNo, outboundOrderTypeId, 0L);
 
             log.info("Rollback---> 1. Inventory restore ----> " + refDocNo + ", " + outboundOrderTypeId);
             //if order management line present do un allocation
