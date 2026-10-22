@@ -172,52 +172,52 @@ public class TransactionService extends BaseService {
 
                     String refDocNumber = inbound.getRefDocumentNo();
                     Long inboundOrderTypeId = inbound.getInboundOrderTypeId();
-                    boolean isDuplicateOrder = inboundOrderProcessingService.isPreInboundOrderExist(refDocNumber, inboundOrderTypeId);
-                    log.info("Duplicate_IB_Order : " + refDocNumber + " |--->" + isDuplicateOrder);
-                    if(!isDuplicateOrder) {
-                        try {
-                            log.info("InboundOrder ID : " + refDocNumber);
-                            InboundHeaderV2 inboundHeader = null;
-                            if (inbound.getInboundOrderTypeId().equals(5L)) {
-                                inboundHeader = directStockReceiptService.processInboundReceivedV2(refDocNumber, inbound);
-                            } else if (inbound.getInboundOrderTypeId().equals(10L)) {
-                                log.info("PGI Reversal process started...");
-                                orderReversalService.pgiOrderReversal(inbound);
-                                log.info("PGI Reversal process Completed...");
-                                return warehouseApiResponse;
-                            } else if (inbound.getIsSapOrder()) { // Is from order SAP?
-                                inboundHeader = inboundOrderProcessingService.processSAPInboundReceivedV3(refDocNumber, inbound);
-                            } else {
-                                inboundHeader = inboundOrderProcessingService.processInboundReceivedV3(refDocNumber, inbound);
-                            }
-                            if (inboundHeader != null) {
-                                // Updating the Processed Status
-                                updateProcessedInboundOrderV2(refDocNumber, inboundOrderTypeId, 10L);
-                                warehouseApiResponse = successResponse(warehouseApiResponse);
-                            } else {
-                                updateProcessedInboundOrderV2(refDocNumber, inboundOrderTypeId, 100L);
-                                sendMail(inbound.getCompanyCode(), inbound.getBranchCode(), inbound.getLanguageId(), inbound.getWarehouseID(),
-                                        refDocNumber, getInboundOrderTypeTable(inboundOrderTypeId), "Failed");
-                                throw new RuntimeException("Exception while Inbound Processing! " + refDocNumber);
-                            }
-                        } catch (Exception e) {
-                            log.error("Error on inbound Order processing : " + refDocNumber);
-                            e.printStackTrace();
-                            boolean deadlock = deadLockException(e.toString());
-                            if (deadlock) {
-                                updateProcessedInboundOrderV2(refDocNumber, inboundOrderTypeId, 900L);
-                            } else {
-                                updateProcessedInboundOrderV2(refDocNumber, inboundOrderTypeId, 100L);
-                            }
+//                    boolean isDuplicateOrder = inboundOrderProcessingService.isPreInboundOrderExist(refDocNumber, inboundOrderTypeId);
+//                    log.info("Duplicate_IB_Order : " + refDocNumber + " |--->" + isDuplicateOrder);
+//                    if(!isDuplicateOrder) {
+                    try {
+                        log.info("InboundOrder ID : " + refDocNumber);
+                        InboundHeaderV2 inboundHeader = null;
+                        if (inbound.getInboundOrderTypeId().equals(5L)) {
+                            inboundHeader = directStockReceiptService.processInboundReceivedV2(refDocNumber, inbound);
+                        } else if (inbound.getInboundOrderTypeId().equals(10L)) {
+                            log.info("PGI Reversal process started...");
+                            orderReversalService.pgiOrderReversal(inbound);
+                            log.info("PGI Reversal process Completed...");
+                            return warehouseApiResponse;
+                        } else if (inbound.getIsSapOrder()) { // Is from order SAP?
+                            inboundHeader = inboundOrderProcessingService.processSAPInboundReceivedV3(refDocNumber, inbound);
+                        } else {
+                            inboundHeader = inboundOrderProcessingService.processInboundReceivedV3(refDocNumber, inbound);
+                        }
+                        if (inboundHeader != null) {
+                            // Updating the Processed Status
+                            updateProcessedInboundOrderV2(refDocNumber, inboundOrderTypeId, 10L);
+                            warehouseApiResponse = successResponse(warehouseApiResponse);
+                        } else {
+                            updateProcessedInboundOrderV2(refDocNumber, inboundOrderTypeId, 100L);
+                            sendMail(inbound.getCompanyCode(), inbound.getBranchCode(), inbound.getLanguageId(), inbound.getWarehouseID(),
+                                    refDocNumber, getInboundOrderTypeTable(inboundOrderTypeId), "Failed");
+                            throw new RuntimeException("Exception while Inbound Processing! " + refDocNumber);
+                        }
+                    } catch (Exception e) {
+                        log.error("Error on inbound Order processing : " + refDocNumber);
+                        e.printStackTrace();
+                        boolean deadlock = deadLockException(e.toString());
+                        if (deadlock) {
+                            updateProcessedInboundOrderV2(refDocNumber, inboundOrderTypeId, 900L);
+                        } else {
+                            updateProcessedInboundOrderV2(refDocNumber, inboundOrderTypeId, 100L);
+                        }
 //                            inboundList.remove(inbound);
 //                            sendMail(inbound.getCompanyCode(), inbound.getBranchCode(), inbound.getLanguageId(), inbound.getWarehouseID(),
 //                                    refDocNumber, getInboundOrderTypeTable(inboundOrderTypeId), e.toString());
-                            log.error("Exception while Inbound Processing! " + refDocNumber);
-                            throw e;
-                        }
-                    } else {
-                        inboundList.remove(inbound);
+                        log.error("Exception while Inbound Processing! " + refDocNumber);
+//                        throw e;
                     }
+//                    } else {
+//                        inboundList.remove(inbound);
+//                    }
                 }
             }
             return warehouseApiResponse;

@@ -178,8 +178,8 @@ public class OrderProcessingService extends BaseService {
             // Updating the Processed Status
             log.info("Inbound Rollback Initiated...!" + refDocNumber);
             preInboundHeaderService.initiateInboundRollBack(companyCodeId, plantId, languageId, warehouseId, refDocNumber, inboundOrderTypeId);
-            orderService.updateProcessedIbOrderV2(refDocNumber, inboundOrderTypeId);
-            log.info("Inbound Rollback Finished...!" + refDocNumber);
+//            orderService.updateProcessedIbOrderV2(refDocNumber, inboundOrderTypeId);
+//            log.info("Inbound Rollback Finished...!" + refDocNumber);
             throw e;
         }
     }
