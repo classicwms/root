@@ -54,9 +54,9 @@ public class DataSourceConfig {
     private DataSource wkDataSource() {
         return buildDataSource(
                 "WK",
-                "jdbc:sqlserver://10.10.6.30;databaseName=WMS_WK",
+                "jdbc:sqlserver://10.10.6.49;databaseName=WMS_WK",
                 "sa",
-                "SuHcHQR72nxvyJx6EPpoOsK4V"
+                "PeNw7BcPqLH3C6p57x6lYx"
         );
     }
     private DataSource mduDataSource() {
@@ -160,9 +160,9 @@ public class DataSourceConfig {
     private DataSource knpDataSource() {
         return buildDataSource(
                 "KNP",
-                "jdbc:sqlserver://10.10.6.30;databaseName=WMS_KNP",
+                "jdbc:sqlserver://10.10.6.49;databaseName=WMS_KNP",
                 "sa",
-                "SuHcHQR72nxvyJx6EPpoOsK4V"
+                "PeNw7BcPqLH3C6p57x6lYx"
         );
     }
 

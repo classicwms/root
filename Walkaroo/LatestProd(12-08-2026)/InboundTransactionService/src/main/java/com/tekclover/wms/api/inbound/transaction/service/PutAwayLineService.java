@@ -3639,11 +3639,17 @@ public class PutAwayLineService extends BaseService {
 
         while (attempt < maxAttempts) {
             try {
-                for(PutAwayLineV2 putAwayLine : putAwayLineV2s) {
-                    int putaway = putAwayHeaderV2Repository.updatePutAwayHeader(
-                            companyCode, plantId, languageId, warehouseId, putAwayLine.getBarcodeId(), 20L, putAwayLine.getConfirmedStorageBin());
-                    log.info("Successfully updated StatusId=20 for Barcode {}, And Affected Row's :{}", putAwayLine.getBarcodeId(), putaway);
-                }
+
+                List<String> barcodeIds = putAwayLineV2s.stream().map(PutAwayLineV2 :: getBarcodeId).collect(Collectors.toList());
+                log.info("BarcodeIds List size : {} and values : {}", barcodeIds.size(), barcodeIds);
+                int updatedRows = putAwayHeaderV2Repository.updatePutAwayHeaderListOfBarcodeIds(companyCode, plantId, languageId, warehouseId, barcodeIds,
+                        20L, putAwayLineV2s.get(0).getConfirmedStorageBin());
+                log.info("Successfully updated StatusId=20 for Barcode {}, And Affected Row's :{}", barcodeIds, updatedRows);
+//                for(PutAwayLineV2 putAwayLine : putAwayLineV2s) {
+//                    int putaway = putAwayHeaderV2Repository.updatePutAwayHeader(
+//                            companyCode, plantId, languageId, warehouseId, putAwayLine.getBarcodeId(), 20L, putAwayLine.getConfirmedStorageBin());
+//                    log.info("Successfully updated StatusId=20 for Barcode {}, And Affected Row's :{}", putAwayLine.getBarcodeId(), putaway);
+//                }
                 return;
             } catch (CannotAcquireLockException |
                      LockAcquisitionException | UnexpectedRollbackException ex) {
