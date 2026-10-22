@@ -342,7 +342,7 @@ public interface PreOutboundHeaderV2Repository extends JpaRepository<PreOutbound
     @Query(value = "UPDATE tblpreoutboundheader SET STATUS_ID = :statusId, REF_FIELD_10 = :statusDescription, STATUS_TEXT = :statusDescription \n" +
             "WHERE LANG_ID = :languageId AND C_ID = :companyCodeId AND \n" +
             "PLANT_ID = :plantId AND WH_ID = :warehouseId AND REF_DOC_NO = :refDocNumber ", nativeQuery = true)
-    void updatePreOutboundHeaderStatusV3(@Param("companyCodeId") String companyCodeId,
+    int updatePreOutboundHeaderStatusV3(@Param("companyCodeId") String companyCodeId,
                                          @Param("plantId") String plantId,
                                          @Param("languageId") String languageId,
                                          @Param("warehouseId") String warehouseId,
@@ -431,4 +431,27 @@ public interface PreOutboundHeaderV2Repository extends JpaRepository<PreOutbound
 
     void deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
             String companyCodeId, String plantId, String warehouseId, String refDocNumber, Long deletionIndicator);
+
+    @Modifying(clearAutomatically = true)
+    @Transactional
+    @Query(value = "UPDATE tblpreoutboundheader SET STATUS_ID = :statusId, REF_FIELD_10 = :statusDescription, STATUS_TEXT = :statusDescription \n" +
+            "WHERE LANG_ID = :languageId AND C_ID = :companyCodeId AND \n" +
+            "PLANT_ID = :plantId AND WH_ID = :warehouseId AND REF_DOC_NO in (:refDocNumber) ", nativeQuery = true)
+    int updatePreOutboundHeaderStatusListOfOrders(@Param("companyCodeId") String companyCodeId,
+                                                  @Param("plantId") String plantId,
+                                                  @Param("languageId") String languageId,
+                                                  @Param("warehouseId") String warehouseId,
+                                                  @Param("refDocNumber") List<String> refDocNumber,
+                                                  @Param("statusId") Long statusId,
+                                                  @Param("statusDescription") String statusDescription);
+
+    @Modifying
+    @Query(value = "Update tblpreoutboundheader set PICK_LIST_NUMBER = :puNo where c_id = :companyId and " +
+            "plant_id = :plantId and lang_id = :languageId and wh_id = :warehouseId and ref_doc_no in (:refDocNo) and is_deleted = 0", nativeQuery = true)
+    int updatePreOutboundHeader(@Param("companyId") String companyId,
+                                @Param("plantId") String plantId,
+                                @Param("languageId") String languageId,
+                                @Param("warehouseId") String warehouseId,
+                                @Param("refDocNo") List<String> refDocNo,
+                                @Param("puNo") String puNo);
 }

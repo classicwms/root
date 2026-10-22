@@ -155,4 +155,9 @@ public interface OutboundOrderV2Repository extends JpaRepository<OutboundOrderV2
                                     @Param("branchCode") String branchCode, @Param("warehouseID") String warehouseID,
                                     @Param("languageId") String languageId, @Param("orderId") List<String> orderId);
 
+    @Modifying
+    @Query(value = "update tbloborder2 set order_text = :text, pickup_header = 1 where " +
+            " ref_document_no in (:refDocNo) ", nativeQuery = true)
+    int updateOBHeaderTextBasedOnOrders(@Param("refDocNo") List<String> refDocNo,
+                                        @Param("text") String text);
 }

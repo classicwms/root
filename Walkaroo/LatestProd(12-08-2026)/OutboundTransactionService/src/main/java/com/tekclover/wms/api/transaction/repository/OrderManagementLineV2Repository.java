@@ -356,4 +356,13 @@ public interface OrderManagementLineV2Repository extends JpaRepository<OrderMana
                                                   @Param("statusId") Long statusId,
                                                   @Param("statusDescription") String statusDescription);
 
+
+    @Query(value = "select * from tblordermangementline where c_id = :companyCodeId \n" +
+            " AND plant_id = :plantId AND wh_id = :warehouseId AND ref_doc_no in (:refDocNumber) AND STATUS_ID <> 47 \n" +
+            " AND is_deleted = 0", nativeQuery = true)
+    List<OrderManagementLineV2> getOrderManagementLine(@Param("companyCodeId") String companyCodeId,
+                                                       @Param("plantId") String plantId,
+                                                       @Param("warehouseId") String warehouseId,
+                                                       @Param("refDocNumber") List<String> refDocNumber);
+
 }
