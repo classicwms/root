@@ -32,6 +32,8 @@ public class FindStagingLineV2 {
     //--New--
     private Date startCreatedOn;
     private Date endCreatedOn;
+    private Date startConfirmedOn;
+    private Date endConfirmedOn;
     private List<String> palletId;
     private List<String> barcodeId;
     private List<String> vehicleNumber;
