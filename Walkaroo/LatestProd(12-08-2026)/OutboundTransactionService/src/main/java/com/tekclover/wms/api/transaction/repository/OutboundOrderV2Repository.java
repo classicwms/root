@@ -33,7 +33,7 @@ public interface OutboundOrderV2Repository extends JpaRepository<OutboundOrderV2
     List<OutboundOrderV2> findByProcessedStatusIdOrderByOrderReceivedOn(Long processStatusId);
 
     @Query(value = "select \n"
-            + "top 2 * \n"
+            + "top 1 * \n"
             + "from tbloborder2 \n"
             + "where \n"
             + "processed_status_id in (0,900) order by order_received_on \n", nativeQuery = true)
