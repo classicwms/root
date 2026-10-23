@@ -2115,6 +2115,14 @@ public class InboundHeaderService extends BaseService {
 						InventoryV2 createdInventoryV2 = inventoryV2Repository.save(inventory2);
 						log.info("----existinginventory--createdInventoryV2--------> : " + createdInventoryV2);
 						isInventoryCreated = true;
+
+                        try {
+                            createInventoryMovementV2(putAwayLine);
+                            log.info("InventoryMovement created");
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+
 					} catch (Exception e) {
 						log.error(
 								"--ERROR--createInventoryNonCBMV2 ----level1--inventory--error----> :" + e.toString());
@@ -3174,7 +3182,7 @@ public class InboundHeaderService extends BaseService {
                 putAwayLineV2.getItemCode());
         log.info("BalanceOhQty: " + sumOfInvQty);
         if(sumOfInvQty != null) {
-        inventoryMovement.setBalanceOHQty(sumOfInvQty);
+            inventoryMovement.setBalanceOHQty(sumOfInvQty);
             Double openQty = sumOfInvQty - putAwayLineV2.getPutawayConfirmedQty();
             inventoryMovement.setReferenceField2(String.valueOf(openQty));          //Qty before inventory Movement occur
             log.info("OH Qty, OpenQty : " + sumOfInvQty + ", " + openQty);

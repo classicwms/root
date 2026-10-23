@@ -2441,6 +2441,26 @@ public class PickupLineService extends BaseService {
                         inventoryV2.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 3));
                         inventoryV2 = inventoryV2Repository.save(inventoryV2);
                         log.info("-----Inventory2 updated-------: " + inventoryV2);
+
+                                // Inserting record in InventoryMovement
+                                Long subMvtTypeId;
+                                String movementDocumentNo;
+                                String stBin;
+                                String movementQtyValue;
+                                InventoryMovement inventoryMovement;
+                                try {
+                                    subMvtTypeId = 1L;
+                                    movementDocumentNo = dbPickupLine.getRefDocNumber();
+                                    stBin = dbPickupLine.getPickedStorageBin();
+                                    movementQtyValue = "N";
+                                    inventoryMovement = createInventoryMovementV2(dbPickupLine, subMvtTypeId, movementDocumentNo, stBin,
+                                            movementQtyValue, loginUserID);
+                                    log.info("InventoryMovement created : " + inventoryMovement);
+                                } catch (Exception e) {
+                                    log.error("InventoryMovement create Error :" + e.toString());
+                                    e.printStackTrace();
+                                }
+
 							} catch (Exception e1) {
 								log.error("--ERROR--schedulePostPickupLineProcessV2 ----level1--inventory--error----> :"
 										+ e1.toString());
