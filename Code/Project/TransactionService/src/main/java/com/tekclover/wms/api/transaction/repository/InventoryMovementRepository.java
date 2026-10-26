@@ -6,10 +6,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import com.tekclover.wms.api.transaction.model.impl.StockMovementReportImpl;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.jpa.repository.QueryHints;
+import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -100,8 +97,10 @@ public interface InventoryMovementRepository extends JpaRepository<InventoryMove
 			" and im.SUB_MVT_TYP_ID in :subMovementTypeId \n" +
 			" and im.wh_id in :warehouseId \n" +
 			" and im.IM_CTD_ON between :fromDate and :toDate \n" +
-			" group by im.lang_id,im.c_id,im.plant_id,im.wh_id,im.itm_code,im.st_bin,im.stck_typ_id,im.sp_st_ind_id,im.pack_barcode,\n" +
-			" i.inv_uom ,i.ref_field_8,i.ref_field_9,i.ref_field_10,(COALESCE(i.inv_qty,0) + COALESCE(i.alloc_qty,0))", nativeQuery = true)
+			" and im.mvt_qty > 0 "
+//			" group by im.lang_id,im.c_id,im.plant_id,im.wh_id,im.itm_code,im.st_bin,im.stck_typ_id,im.sp_st_ind_id,im.pack_barcode,\n" +
+//			" i.inv_uom ,i.ref_field_8,i.ref_field_9,i.ref_field_10,(COALESCE(i.inv_qty,0) + COALESCE(i.alloc_qty,0))"
+			, nativeQuery = true)
 	Stream<PerpetualLineEntityImpl> getRecordsForRunPerpetualCountStream (
 			@Param(value = "movementTypeId") List<Long> movementTypeId,
 			@Param(value = "subMovementTypeId") List<Long> subMovementTypeId,
@@ -133,4 +132,19 @@ public interface InventoryMovementRepository extends JpaRepository<InventoryMove
 														   @Param("warehouseId") List<String> warehouseId,
 														   @Param("fromDate") Date fromDate,
 														   @Param("toDate") Date toDate);
+
+	@Modifying
+	@Query(value = "UPDATE tblinventorymovement SET IS_DELETED = 1 \n " +
+			"WHERE c_id = :companyCodeId AND plant_id = :plantId AND wh_id = :warehouseId AND lang_id = :languageId \n" +
+			"AND itm_code = :itemCode AND st_bin = :storageBin AND pack_barcode = :packBarcode \n " +
+			"AND ref_doc_no = :refDocNo AND mvt_typ_id = 3 AND sub_mvt_typ_id = 1 \n " +
+			"AND is_deleted = 0", nativeQuery = true)
+	int updateInventoryMovementForPickingReversal(@Param("companyCodeId") String companyCodeId,
+												  @Param("plantId") String plantId,
+												  @Param("warehouseId") String warehouseId,
+												  @Param("languageId") String languageId,
+												  @Param("itemCode") String itemCode,
+												  @Param("storageBin") String storageBin,
+												  @Param("packBarcode") String packBarcode,
+												  @Param("refDocNo") String refDocNumber);
 }
