@@ -1602,6 +1602,18 @@ public class OutboundLineService extends BaseService {
 								inventory.setAllocatedQuantity(ALLOC_QTY);
 								inventory = inventoryRepository.save(inventory);
 								log.info("inventory updated : " + inventory);
+
+								// This changes it to make inventoryMovement table records to be matching with pickupline report !!
+								// Since, in reversal pickupline is updated to is_deleted = 1 similar thing needs to be updated to inventoryMovement
+								// to make both records tally correctly - Aakash Vinakay (26-10-2026)
+								log.info("Picking inventory movement updation to is_deleted 1 since pickupline is been reversed");
+
+								int inventoryMovementDeletedCount = inventoryMovementRepository.updateInventoryMovementForPickingReversal(inventory.getCompanyCodeId(),
+										inventory.getPlantId(), inventory.getWarehouseId(), inventory.getLanguageId(), inventory.getItemCode(), inventory.getStorageBin(),
+										inventory.getPackBarcodes(), refDocNumber);
+
+								log.info("inventoryMovementDeletedCount ----> {}", inventoryMovementDeletedCount);
+
 							} catch (Exception e) {
 								String objectData = (orderManagementLine.getWarehouseId() + "|" + orderManagementLine.getProposedPackBarCode() + "|" +
 										orderManagementLine.getItemCode() + "|" + orderManagementLine.getProposedStorageBin());
