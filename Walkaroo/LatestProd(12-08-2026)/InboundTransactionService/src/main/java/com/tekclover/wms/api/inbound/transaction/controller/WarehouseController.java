@@ -604,13 +604,13 @@ public class WarehouseController {
                                                  @RequestParam String languageId, @RequestParam String warehouseId, @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException {
         try {
-            String currentDB = baseService.getDataBase(plantId,warehouseId);
-            DataBaseContextHolder.clear();
-            DataBaseContextHolder.setCurrentDb(currentDB);
-            log.info("Current DB " + currentDB);
-            List<FileUpdateUpload> createdInventory = warehouseService.updateInboundTables(updateUploads, companyCodeId, plantId, languageId, warehouseId, loginUserID);
-            return new ResponseEntity<>(createdInventory, HttpStatus.OK);
-        } finally {
+			String currentDB = baseService.getDataBase(plantId,warehouseId);
+			DataBaseContextHolder.clear();
+			DataBaseContextHolder.setCurrentDb(currentDB);
+			log.info("Current DB " + currentDB);
+			warehouseService.submitUpdate(updateUploads, companyCodeId, plantId, languageId, warehouseId, loginUserID);
+			return new ResponseEntity<>(updateUploads, HttpStatus.OK);
+		} finally {
             DataBaseContextHolder.clear();
         }
     }

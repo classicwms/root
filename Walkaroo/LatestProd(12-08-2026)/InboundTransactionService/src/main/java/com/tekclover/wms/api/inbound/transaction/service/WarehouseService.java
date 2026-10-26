@@ -13,6 +13,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
@@ -113,6 +115,7 @@ public class WarehouseService extends BaseService {
     @Autowired
     InventoryV2Repository inventoryV2Repository;
 
+    private final ExecutorService executor = Executors.newFixedThreadPool(2);
     /**
      *
      * @return
@@ -1945,94 +1948,121 @@ public class WarehouseService extends BaseService {
     }
 
 //    @Transactional
-    public List<FileUpdateUpload> updateInboundTables(List<FileUpdateUpload> inputs, String companyCodeId,
+    public void updateInboundTables(List<FileUpdateUpload> inputs, String companyCodeId,
                                                       String plantId, String languageId,
                                                       String warehouseId, String loginUserID) {
-        List<FileUpdateUpload> updatedList = new ArrayList<>();
 
-        for (FileUpdateUpload input : inputs) {
+        String currentDB = getDataBase(plantId, warehouseId);
+        DataBaseContextHolder.clear();
+        DataBaseContextHolder.setCurrentDb(currentDB);
+        log.info("Current DB " + currentDB);
 
-            String barcodeId = input.getBarcodeId().trim();
-            log.info("Barcode: {}", barcodeId);
+        try {
+            List<FileUpdateUpload> updatedList = new ArrayList<>();
 
-            List<PreInboundLineEntityV2> preEntities = preInboundLineV2Repository.getPreInbLine(languageId, companyCodeId, plantId, warehouseId, barcodeId, 0L);
+            for (FileUpdateUpload input : inputs) {
 
-            log.info("PreInbound Records Found: {}", preEntities.size());
+                String barcodeId = input.getBarcodeId().trim();
+                log.info("Barcode: {}", barcodeId);
 
-            for (PreInboundLineEntityV2 preEntity : preEntities) {
+                List<PreInboundLineEntityV2> preEntities = preInboundLineV2Repository.getPreInbLine(languageId, companyCodeId, plantId, warehouseId, barcodeId, 0L);
 
-                log.info("PreInbound Record Found: {}", preEntity);
-                preInboundLineV2Repository.delete(preEntity);
+                log.info("PreInbound Records Found: {}", preEntities.size());
 
-                PreInboundLineEntityV2 newEntity = new PreInboundLineEntityV2();
-                BeanUtils.copyProperties(preEntity, newEntity, CommonUtils.getNullPropertyNames(preEntity));
-                newEntity.setMaterialNo(input.getMaterialNo());
-                newEntity.setPriceSegment(input.getPriceSegment());
-                newEntity.setItemCode(input.getItemCode());
-                newEntity.setBarcodeId(barcodeId);
-                newEntity.setUpdatedBy(loginUserID);
-                newEntity.setUpdatedOn(new Date());
+                for (PreInboundLineEntityV2 preEntity : preEntities) {
 
-                preInboundLineV2Repository.save(newEntity);
-                log.info("PreInbound Updated for Barcode ------> {}", barcodeId);
+                    log.info("PreInbound Record Found: {}", preEntity);
+                    preInboundLineV2Repository.delete(preEntity);
+
+                    PreInboundLineEntityV2 newEntity = new PreInboundLineEntityV2();
+                    BeanUtils.copyProperties(preEntity, newEntity, CommonUtils.getNullPropertyNames(preEntity));
+                    newEntity.setMaterialNo(input.getMaterialNo());
+                    newEntity.setPriceSegment(input.getPriceSegment());
+                    newEntity.setItemCode(input.getItemCode());
+                    newEntity.setBarcodeId(barcodeId);
+                    newEntity.setUpdatedBy(loginUserID);
+                    newEntity.setUpdatedOn(new Date());
+
+                    preInboundLineV2Repository.save(newEntity);
+                    log.info("PreInbound Updated for Barcode ------> {}", barcodeId);
+                }
+
+                List<InboundLineV2> inboundEntities = inboundLineV2Repository.getInboundLine(
+                        languageId, companyCodeId, plantId, warehouseId, barcodeId, 0L);
+
+                log.info("Inbound Records Found: {}", inboundEntities.size());
+                for (InboundLineV2 inboundEntity : inboundEntities) {
+
+                    log.info("Inbound Record Found: {}", inboundEntity);
+                    inboundLineV2Repository.delete(inboundEntity);
+
+                    InboundLineV2 newEntity = new InboundLineV2();
+                    BeanUtils.copyProperties(inboundEntity, newEntity, CommonUtils.getNullPropertyNames(inboundEntity));
+                    newEntity.setMaterialNo(input.getMaterialNo());
+                    newEntity.setPriceSegment(input.getPriceSegment());
+                    newEntity.setItemCode(input.getItemCode());
+                    newEntity.setBarcodeId(barcodeId);
+                    newEntity.setUpdatedBy(loginUserID);
+                    newEntity.setUpdatedOn(new Date());
+
+                    inboundLineV2Repository.save(newEntity);
+                    log.info("Inbound Updated for Barcode ------> {}", barcodeId);
+                }
+
+
+                List<StagingLineEntityV2> stagingEntities = stagingLineV2Repository.getStagingLine(languageId, companyCodeId, plantId, warehouseId, barcodeId, 0L);
+
+                log.info("Staging Records Found: {}", stagingEntities.size());
+                for (StagingLineEntityV2 stagingEntity : stagingEntities) {
+
+                    log.info("Staging Record Found: {}", stagingEntity);
+                    stagingLineV2Repository.delete(stagingEntity);
+
+                    StagingLineEntityV2 newEntity = new StagingLineEntityV2();
+                    BeanUtils.copyProperties(stagingEntity, newEntity, CommonUtils.getNullPropertyNames(stagingEntity));
+                    newEntity.setMaterialNo(input.getMaterialNo());
+                    newEntity.setPriceSegment(input.getPriceSegment());
+                    newEntity.setItemCode(input.getItemCode());
+                    newEntity.setBarcodeId(barcodeId);
+                    newEntity.setUpdatedBy(loginUserID);
+                    newEntity.setUpdatedOn(new Date());
+
+                    stagingLineV2Repository.save(newEntity);
+
+                    log.info("Staging Updated for Barcode ------> {}", barcodeId);
+                }
+
+
+                int putawayUpdated = putAwayHeaderV2Repository.updatePutawayHeader(input.getMaterialNo(), input.getPriceSegment(), input.getItemCode(), languageId, companyCodeId, plantId, warehouseId, barcodeId);
+
+                int inventoryUpdated = inventoryV2Repository.updateInventory(input.getMaterialNo(), input.getPriceSegment(), input.getItemCode(), languageId, companyCodeId, plantId, warehouseId, barcodeId);
+
+                log.info("Putaway Updated Count ------> {}", putawayUpdated);
+                log.info("Inventory Updated Count ----> {}", inventoryUpdated);
+                log.info("Updated Barcode Successfully ----------------> {}", barcodeId);
+//                updatedList.add(input);
             }
-
-            List<InboundLineV2> inboundEntities = inboundLineV2Repository.getInboundLine(
-                    languageId, companyCodeId, plantId, warehouseId, barcodeId, 0L);
-
-            log.info("Inbound Records Found: {}", inboundEntities.size());
-            for (InboundLineV2 inboundEntity : inboundEntities) {
-
-                log.info("Inbound Record Found: {}", inboundEntity);
-                inboundLineV2Repository.delete(inboundEntity);
-
-                InboundLineV2 newEntity = new InboundLineV2();
-                BeanUtils.copyProperties(inboundEntity, newEntity, CommonUtils.getNullPropertyNames(inboundEntity));
-                newEntity.setMaterialNo(input.getMaterialNo());
-                newEntity.setPriceSegment(input.getPriceSegment());
-                newEntity.setItemCode(input.getItemCode());
-                newEntity.setBarcodeId(barcodeId);
-                newEntity.setUpdatedBy(loginUserID);
-                newEntity.setUpdatedOn(new Date());
-
-                inboundLineV2Repository.save(newEntity);
-                log.info("Inbound Updated for Barcode ------> {}", barcodeId);
-            }
-
-
-            List<StagingLineEntityV2> stagingEntities = stagingLineV2Repository.getStagingLine(languageId, companyCodeId, plantId, warehouseId, barcodeId, 0L);
-
-            log.info("Staging Records Found: {}", stagingEntities.size());
-            for (StagingLineEntityV2 stagingEntity : stagingEntities) {
-
-                log.info("Staging Record Found: {}", stagingEntity);
-                stagingLineV2Repository.delete(stagingEntity);
-
-                StagingLineEntityV2 newEntity = new StagingLineEntityV2();
-                BeanUtils.copyProperties(stagingEntity, newEntity, CommonUtils.getNullPropertyNames(stagingEntity));
-                newEntity.setMaterialNo(input.getMaterialNo());
-                newEntity.setPriceSegment(input.getPriceSegment());
-                newEntity.setItemCode(input.getItemCode());
-                newEntity.setBarcodeId(barcodeId);
-                newEntity.setUpdatedBy(loginUserID);
-                newEntity.setUpdatedOn(new Date());
-
-                stagingLineV2Repository.save(newEntity);
-
-                log.info("Staging Updated for Barcode ------> {}", barcodeId);
-            }
-
-
-            int putawayUpdated = putAwayHeaderV2Repository.updatePutawayHeader(input.getMaterialNo(), input.getPriceSegment(), input.getItemCode(), languageId, companyCodeId, plantId, warehouseId, barcodeId);
-
-            int inventoryUpdated = inventoryV2Repository.updateInventory(input.getMaterialNo(), input.getPriceSegment(), input.getItemCode(), languageId, companyCodeId, plantId, warehouseId, barcodeId);
-
-            log.info("Putaway Updated Count ------> {}", putawayUpdated);
-            log.info("Inventory Updated Count ----> {}", inventoryUpdated);
-            log.info("Updated Barcode Successfully ----------------> {}", barcodeId);
-            updatedList.add(input);
+//            return updatedList;
+        } finally {
+            DataBaseContextHolder.clear();
         }
-        return updatedList;
+    }
+
+
+    // Update PriceSegment process
+    public void submitUpdate(List<FileUpdateUpload> inputs, String companyCodeId,
+                             String plantId, String languageId,
+                             String warehouseId, String loginUserID) {
+
+        executor.submit(() -> {
+            try {
+                updateInboundTables(inputs, companyCodeId, plantId, languageId, warehouseId, loginUserID);
+            } catch (Exception e) {
+                log.error(
+                        "Background inbound update failed", e);
+            }
+        });
+
     }
 
 }
