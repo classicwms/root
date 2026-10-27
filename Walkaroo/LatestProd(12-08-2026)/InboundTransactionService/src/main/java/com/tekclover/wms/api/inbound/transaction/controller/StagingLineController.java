@@ -2,7 +2,9 @@ package com.tekclover.wms.api.inbound.transaction.controller;
 
 import com.tekclover.wms.api.inbound.transaction.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.inbound.transaction.model.dto.GroupedStagingLineResponse;
+import com.tekclover.wms.api.inbound.transaction.model.dto.PostSAP;
 import com.tekclover.wms.api.inbound.transaction.model.dto.SAPData;
+import com.tekclover.wms.api.inbound.transaction.model.dto.SAPResponse;
 import com.tekclover.wms.api.inbound.transaction.model.inbound.gr.v2.GrHeaderV2;
 import com.tekclover.wms.api.inbound.transaction.model.inbound.staging.*;
 import com.tekclover.wms.api.inbound.transaction.model.inbound.staging.v2.SearchStagingLineV2;
@@ -509,6 +511,24 @@ public class StagingLineController {
             List<StagingLineEntityV2> createdStagingLine = staginglineService.createPutAwayHeader(stagingLine);
             return new ResponseEntity<>(createdStagingLine, HttpStatus.OK);
         } finally {
+            DataBaseContextHolder.clear();
+        }
+    }
+
+    @ApiOperation(response = SAPResponse.class, value = "GR post to SAP") // label for swagger
+    @PostMapping("/gr/post/sap")
+    public ResponseEntity<?> stagingLinePostToSAP(@Valid @RequestBody List<PostSAP> stagingLine, @RequestParam String loginUserID) throws Exception {
+        long totalStart = System.currentTimeMillis();
+        try {
+            String currentDB = baseService.getDataBase(stagingLine.get(0).getPlantId(), stagingLine.get(0).getWarehouseId());
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(currentDB);
+            log.info("GR POST TO SAP ------> Current DB {}", currentDB);
+            List<SAPResponse> sapResponses = staginglineService.sapPushingGrRequestInKafka(stagingLine, loginUserID);
+            return new ResponseEntity<>(sapResponses, HttpStatus.OK);
+        } finally {
+            long totalTime = System.currentTimeMillis() - totalStart;
+            log.info("========== GR to SAP Post END | TOTAL TIME={} ms ==========", totalTime);
             DataBaseContextHolder.clear();
         }
     }

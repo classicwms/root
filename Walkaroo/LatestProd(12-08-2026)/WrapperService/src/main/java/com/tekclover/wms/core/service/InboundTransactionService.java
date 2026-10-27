@@ -12003,5 +12003,28 @@ public class InboundTransactionService {
         log.info("result : " + result.getStatusCode());
         return result.getBody();
     }
+
+
+    public SAPResponse[] stagingLinePostToSAP(List<PostSAP> stagingLineEntityV2s,
+                                              String loginUserID, String authToken) {
+        try {
+            AuthToken oAuth = authTokenService.getInboundTransactionServiceAuthToken();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS RestTemplate");
+            headers.add("Authorization", "Bearer " + oAuth.getAccess_token());
+
+            UriComponentsBuilder builder =
+                    UriComponentsBuilder.fromHttpUrl(getInboundTransactionServiceApiUrl() + "stagingline/gr/post/sap")
+                            .queryParam("loginUserID", loginUserID);
+            HttpEntity<?> entity = new HttpEntity<>(stagingLineEntityV2s, headers);
+            ResponseEntity<SAPResponse[]> result =
+                    getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, SAPResponse[].class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            throw e;
+        }
+    }
 }
 

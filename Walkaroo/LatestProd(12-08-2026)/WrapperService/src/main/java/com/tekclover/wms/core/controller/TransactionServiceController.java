@@ -4709,4 +4709,12 @@ public class TransactionServiceController {
         WarehouseApiResponse obOrder = outboundTransactionService.outboundReProcessStatus(request, authToken);
         return new ResponseEntity<>(obOrder, HttpStatus.OK);
     }
+
+    @ApiOperation(response = SAPResponse.class, value = "GR Post to SAP") // label for swagger
+    @PostMapping("/gr/post/sap")
+    public ResponseEntity<?> stagingLinePostToSAP(@Valid @RequestBody List<PostSAP> stagingLine,
+                                                  @RequestParam String loginUserID, @RequestParam String authToken) {
+        SAPResponse[] sapResponse = inboundTransactionService.stagingLinePostToSAP(stagingLine, loginUserID, authToken);
+        return new ResponseEntity<>(sapResponse, HttpStatus.OK);
+    }
 }

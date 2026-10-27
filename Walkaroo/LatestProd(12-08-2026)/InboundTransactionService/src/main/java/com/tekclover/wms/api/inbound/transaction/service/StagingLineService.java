@@ -2990,6 +2990,41 @@ public class StagingLineService extends BaseService {
     }
 
 
+    public List<SAPResponse> sapPushingGrRequestInKafka(List<PostSAP> inputs, String loginUserID) throws JsonProcessingException {
+
+        log.info("Started posting GR to SAP.");
+        List<SAPResponse> sapResponses = new ArrayList<>();
+        for (PostSAP postSAP : inputs) {
+            log.info("Order No : {} and Requested by : {}",postSAP.getRefDocNumber(), loginUserID);
+            List<StagingLineEntityV2> stagingLines = stagingLineV2Repository.findStagingLineList(postSAP.getRefDocNumber());
+            SAPResponse sapResponse = new SAPResponse();
+            sapResponse.setRefDocNumber(postSAP.getRefDocNumber());
+            sapResponse.setWarehouseId(postSAP.getWarehouseId());
+            if (stagingLines != null && !stagingLines.isEmpty()) {
+                log.info("List of StagingLine Values: {} ", stagingLines);
+                //Pushing to SAP
+                String response = oDataService.postODataRequest(stagingLines, postSAP.getRefDocNumber(), "1", "X");
+                System.out.println("RES ---> {}" + response);
+                if (response.equals("0")) {
+                    log.info("Sap Success RefDoc: {} ", postSAP.getRefDocNumber());
+                    sapResponse.setResponse("Success");
+                    int grCount = grHeaderV2Repository.updateGRHeader_SAP(postSAP.getRefDocNumber(), "0");
+                    log.info("GrHeader Success Updated Rows: {}", grCount);
+                } else {
+                    log.info("Sap Failure RefDoc: {} ", postSAP.getRefDocNumber());
+                    sapResponse.setResponse("Failed");
+                    int grCount = grHeaderV2Repository.updateGRHeader_SAP(postSAP.getRefDocNumber(), "1");
+                    log.info("GrHeader Failure Updated Rows: {}", grCount);
+                }
+            }else {
+                log.info("There is no staging line found for given order no : {}",postSAP.getRefDocNumber());
+                sapResponse.setResponse("No staging line found");
+            }
+            sapResponses.add(sapResponse);
+        }
+        return sapResponses;
+    }
+
 
 
     }
