@@ -855,12 +855,12 @@ public class WarehouseController extends  BaseService {
 			DataBaseContextHolder.clear();
 			DataBaseContextHolder.setCurrentDb(currentDB);
 			log.info("order/fullfillment/v3 ----------> CurrentDB --> " + currentDB);
-			List<OutboundHeaderV2> outboundHeaderV2 = null;
-			if(currentDB.equalsIgnoreCase("CHN")) {
-				 outboundHeaderV2 = orderFulfillmentService.sapOutboundOrderFullfillment(obIntegrationHeaderV2List);
-			} else {
-				 outboundHeaderV2 = obOrderProcessingFTService.sapOutboundOrderFullfillment(obIntegrationHeaderV2List);
-			}
+			List<OutboundHeaderV2> outboundHeaderV2 = orderFulfillmentService.sapOutboundOrderFullfillment(obIntegrationHeaderV2List);
+//			if(currentDB.equalsIgnoreCase("CHN")) {
+//				 outboundHeaderV2 = orderFulfillmentService.sapOutboundOrderFullfillment(obIntegrationHeaderV2List);
+//			} else {
+//				 outboundHeaderV2 = obOrderProcessingFTService.sapOutboundOrderFullfillment(obIntegrationHeaderV2List);
+//			}
 			return new ResponseEntity<>(outboundHeaderV2, HttpStatus.OK);
 		} finally {
 			DataBaseContextHolder.clear();
