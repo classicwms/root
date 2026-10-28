@@ -2720,29 +2720,29 @@ public class InboundHeaderService extends BaseService {
                     refDocNumber, 24L, statusDescription, loginUserID, new Date());
             log.info("preinboundCount ---> {}", preinboundCount);
 
-            int inboundHeaderCount = inboundHeaderV2Repository.updateInboundHeaderStatus(companyCode, plantId, languageId, warehouseId, preInboundNo,
-                    refDocNumber, 24L, statusDescription, loginUserID, new Date());
-            log.info("inboundHeaderCount ----> {}", inboundHeaderCount);
+//            int inboundHeaderCount = inboundHeaderV2Repository.updateInboundHeaderStatus(companyCode, plantId, languageId, warehouseId, preInboundNo,
+//                    refDocNumber, 24L, statusDescription, loginUserID, new Date());
+//            log.info("inboundHeaderCount ----> {}", inboundHeaderCount);
 
             int grHeaderCount = inboundHeaderV2Repository.updateGrHeaderStatus(companyCode, plantId, languageId, warehouseId, preInboundNo,
                     refDocNumber, 24L, statusDescription, loginUserID, new Date());
             log.info("grHeaderCount -----> {}", grHeaderCount);
 
-            int stagingHeaderCount = inboundHeaderV2Repository.updateStagingHeaderStatus(companyCode, plantId, languageId, warehouseId, preInboundNo,
-                    refDocNumber, 24L, statusDescription, loginUserID, new Date());
-            log.info("stagingHeaderCount ----> {}", stagingHeaderCount);
+//            int stagingHeaderCount = inboundHeaderV2Repository.updateStagingHeaderStatus(companyCode, plantId, languageId, warehouseId, preInboundNo,
+//                    refDocNumber, 24L, statusDescription, loginUserID, new Date());
+//            log.info("stagingHeaderCount ----> {}", stagingHeaderCount);
 
-            int putawayCount = inboundHeaderV2Repository.updatePutAwayHeaderStatus(companyCode, plantId, languageId, warehouseId, preInboundNo,
-                    refDocNumber, 24L, statusDescription, loginUserID, new Date());
-            log.info("putawayCount ----> {}", putawayCount);
+//            int putawayCount = inboundHeaderV2Repository.updatePutAwayHeaderStatus(companyCode, plantId, languageId, warehouseId, preInboundNo,
+//                    refDocNumber, 24L, statusDescription, loginUserID, new Date());
+//            log.info("putawayCount ----> {}", putawayCount);
 
-            int putawayLineCount = inboundHeaderV2Repository.updatePutAwayLineStatus(companyCode, plantId, languageId, warehouseId, preInboundNo,
-                    refDocNumber, 24L, statusDescription, loginUserID, new Date());
-            log.info("putawayLineCount ----> {}", putawayLineCount);
+//            int putawayLineCount = inboundHeaderV2Repository.updatePutAwayLineStatus(companyCode, plantId, languageId, warehouseId, preInboundNo,
+//                    refDocNumber, 24L, statusDescription, loginUserID, new Date());
+//            log.info("putawayLineCount ----> {}", putawayLineCount);
 
-            int preInboundLineCount = inboundHeaderV2Repository.updatePreInboundLineStatus(companyCode, plantId, languageId, warehouseId, preInboundNo,
-                    refDocNumber, 24L, statusDescription, loginUserID, new Date());
-            log.info("preInboundLineCount ----> {}", preInboundLineCount);
+//            int preInboundLineCount = inboundHeaderV2Repository.updatePreInboundLineStatus(companyCode, plantId, languageId, warehouseId, preInboundNo,
+//                    refDocNumber, 24L, statusDescription, loginUserID, new Date());
+//            log.info("preInboundLineCount ----> {}", preInboundLineCount);
 
 //            int grLineCount = inboundHeaderV2Repository.updateGrLineStatus(companyCode, plantId, languageId, warehouseId, preInboundNo,
 //                    refDocNumber, 24L, statusDescription, loginUserID, new Date());
@@ -2752,9 +2752,9 @@ public class InboundHeaderService extends BaseService {
                     refDocNumber, 24L, statusDescription, loginUserID, new Date());
             log.info("stagingLineCount ----> {}", stagingLineCount);
 
-            int inboundLineCount = inboundHeaderV2Repository.updateInboundLineStatus(companyCode, plantId, languageId, warehouseId, preInboundNo,
-                    refDocNumber, 24L, statusDescription, loginUserID, new Date());
-            log.info("inboundLineCount -----> {}", inboundLineCount);
+//            int inboundLineCount = inboundHeaderV2Repository.updateInboundLineStatus(companyCode, plantId, languageId, warehouseId, preInboundNo,
+//                    refDocNumber, 24L, statusDescription, loginUserID, new Date());
+//            log.info("inboundLineCount -----> {}", inboundLineCount);
 
             log.info("Inbound Confirm Successfully---> " + refDocNumber);
         } catch (Exception e) {
