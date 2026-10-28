@@ -108,9 +108,9 @@ public class DataSourceConfig {
     private DataSource chnDataSource() {
         return buildDataSource(
                 "CHN",
-                "jdbc:sqlserver://10.20.0.34;databaseName=WMS_CHN",
+                "jdbc:sqlserver://10.10.6.49;databaseName=WMS_CHN",
                 "sa",
-                "JpMeGBR84nxvyJx6EPpoOsL8M"
+                "PeNw7BcPqLH3C6p57x6lYx"
         );
     }
 
