@@ -356,6 +356,18 @@ public interface OrderManagementLineV2Repository extends JpaRepository<OrderMana
                                                   @Param("statusId") Long statusId,
                                                   @Param("statusDescription") String statusDescription);
 
+    @Modifying(clearAutomatically = true)
+    @Query(value = "UPDATE tblordermangementline SET STATUS_ID = :statusId, REF_FIELD_10 = :statusDescription, STATUS_TEXT = :statusDescription \n" +
+            "WHERE LANG_ID = :languageId AND C_ID = :companyCodeId AND \n" +
+            "PLANT_ID = :plantId AND WH_ID = :warehouseId AND partner_item_barcode = :barcodeId ", nativeQuery = true)
+    public int updateOrderManagementLineStatus(@Param("companyCodeId") String companyCodeId,
+                                                 @Param("plantId") String plantId,
+                                                 @Param("languageId") String languageId,
+                                                 @Param("warehouseId") String warehouseId,
+                                                 @Param("barcodeId") String barcodeId,
+                                                 @Param("statusId") Long statusId,
+                                                 @Param("statusDescription") String statusDescription);
+
 
     @Query(value = "select * from tblordermangementline where c_id = :companyCodeId \n" +
             " AND plant_id = :plantId AND wh_id = :warehouseId AND ref_doc_no in (:refDocNumber) AND STATUS_ID <> 47 \n" +

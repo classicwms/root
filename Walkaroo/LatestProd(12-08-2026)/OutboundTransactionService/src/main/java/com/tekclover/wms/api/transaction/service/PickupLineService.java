@@ -13,6 +13,7 @@ import java.util.stream.Stream;
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 
+import com.tekclover.wms.api.transaction.config.dynamicConfig.DataBaseContextHolder;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
@@ -5933,7 +5934,7 @@ public class PickupLineService extends BaseService {
                         e.printStackTrace();
                     }
                 }
-                return inventory;
+                    return inventory;
             } catch (Exception e) {
                 e.printStackTrace();
                 log.error("Inventory Update :" + e.toString());

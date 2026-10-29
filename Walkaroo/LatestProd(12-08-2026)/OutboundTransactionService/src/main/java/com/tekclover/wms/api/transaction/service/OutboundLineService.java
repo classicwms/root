@@ -12,8 +12,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.persistence.EntityNotFoundException;
+import javax.sql.DataSource;
 
 import com.microsoft.sqlserver.jdbc.SQLServerException;
+import com.tekclover.wms.api.transaction.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.transaction.model.deliveryconfirmation.DeliveryConfirmation;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.IInventoryImpl;
 import com.tekclover.wms.api.transaction.repository.*;
@@ -5950,10 +5952,14 @@ public class OutboundLineService extends BaseService {
                         int preOutboundHeaderStatus = preOutboundHeaderV2Repository.updatePreOutboundHeaderStatusV2(companyCodeId, plantId, languageId, warehouseId, outHeader.getRefDocNumber(), STATUS_ID, statusDescription);
                         log.info("PreOutbound Order Status Updated Successfully -------------------->  Affected Row's ---> " + preOutboundHeaderStatus);
 
-                        int orderManagementLine = orderManagementLineV2Repository.updateOrderManagementLineStatusV3(companyCodeId, plantId, languageId, warehouseId, outHeader.getRefDocNumber(),
-                                STATUS_ID, statusDescription);
-                        log.info("OrderManagementLine Order Status Updated Sucessfully ----------------->  Affected Row's ---> " + orderManagementLine);
-
+                        if(DataBaseContextHolder.getCurrentDb().equalsIgnoreCase("CHN")) {
+                            int orderManagementLine = orderManagementLineV2Repository.updateOrderManagementLineStatus(companyCodeId, plantId, languageId, warehouseId, barcodeId, STATUS_ID, statusDescription);
+                            log.info("OrderManagementLine Order Status Updated Sucessfully ----------------->  Affected Row's ---> " + orderManagementLine);
+                        } else {
+                            int orderManagementLine = orderManagementLineV2Repository.updateOrderManagementLineStatusV3(companyCodeId, plantId, languageId, warehouseId, outHeader.getRefDocNumber(),
+                                    STATUS_ID, statusDescription);
+                            log.info("OrderManagementLine Order Status Updated Sucessfully ----------------->  Affected Row's ---> " + orderManagementLine);
+                        }
                     } catch (Exception e) {
                         log.info("Exception In DeliveryConfirm Status Id Update -->"+ e.getMessage());
                         outboundLineV2Repository.deliveryConfirmationProc(companyCodeId, plantId, languageId, warehouseId,
@@ -5978,6 +5984,11 @@ public class OutboundLineService extends BaseService {
                     pickupLineService.updateInventoryInDeliveryConfirmation(outboundHeader.getCompanyCodeId(), outboundHeader.getPlantId(), outboundHeader.getLanguageId(), outboundHeader.getWarehouseId(),
                             outboundHeader.getSkuCode(), "WK", outboundHeader.getHuSerialNo(), outboundHeader.getPickedQty(), outboundHeader.getLoginUserId());
                     deliveryConfirmationRepository.updateProcessStatusIdDLV(outboundHeader.getDeliveryId(), 100L, new Date());
+                    if(DataBaseContextHolder.getCurrentDb().equalsIgnoreCase("CHN")) {
+                        int orderManagementLine = orderManagementLineV2Repository.updateOrderManagementLineStatus(outboundHeader.getCompanyCodeId(), outboundHeader.getPlantId(), outboundHeader.getLanguageId(),
+                                outboundHeader.getWarehouseId(), outboundHeader.getHuSerialNo() , 59L, statusDescription);
+                        log.info("OrderManagementLine Order Status Updated Sucessfully ----------------->  Affected Row's ---> " + orderManagementLine);
+                    }
                 }
             }
         } catch (Exception e) {
