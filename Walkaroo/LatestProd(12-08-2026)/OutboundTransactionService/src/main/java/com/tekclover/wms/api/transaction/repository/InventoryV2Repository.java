@@ -5815,7 +5815,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
 //                                           @Param("itemCode") List<String> itemCode,
 //                                           @Param("storageBin") List<String> storageBin);
 
-    @Query(value = "select * from tblinventory where ref_field_4 > 0 and " +
+    @Query(value = "select * from tblinventory where ref_field_4 > 0 and bin_cl_id in (1,10) and " +
             "inv_id in (select max(inv_id) from tblinventory where is_deleted = 0 group by barcode_id, itm_code) and " +
             "barcode_id = :barcodeId and c_id = :companyCodeId and lang_id = :languageId and " +
             "plant_id = :plantId and wh_id = :warehouseId  ", nativeQuery = true)
