@@ -109,6 +109,8 @@ public class DashboardReportService {
             "NGP1",
             "NGP2",
             "MYS",
-            "KNP"
+            "KNP",
+            "BDG",
+            "CTC"
     );
 }
