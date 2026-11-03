@@ -2,6 +2,7 @@ package com.tekclover.wms.api.inbound.transaction.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.tekclover.wms.api.inbound.transaction.config.dynamicConfig.DataBaseContextHolder;
+import com.tekclover.wms.api.inbound.transaction.model.SAPPostResult;
 import com.tekclover.wms.api.inbound.transaction.model.inbound.putaway.v2.PutAwayLineV2;
 import com.tekclover.wms.api.inbound.transaction.model.inbound.staging.v2.StagingLineEntityV2;
 import com.tekclover.wms.api.inbound.transaction.repository.GrHeaderV2Repository;
@@ -254,15 +255,25 @@ public class PutAwayLineAsyncProcess extends BaseService {
                 List<StagingLineEntityV2> stagingLines = stagingLineV2Repository.findStagingLineList(refDocNumber);
                 log.info("List of StagingLine Values: {} ", stagingLines);
                 if (!stagingLines.isEmpty()) {
-                    String response = oDataService.postODataRequest(stagingLines, refDocNumber, "1", "X");
+                    SAPPostResult response = oDataService.postODataRequestNew(stagingLines, refDocNumber, "1", "X");
+//                    System.out.println("RES ---> {}" + response);
+//                    if (response.equals("0")) {
+//                        log.info("Sap Success RefDoc: {} ", refDocNumber);
+//                        int grCount = grHeaderV2Repository.updateGRHeader_SAP(refDocNumber, "0");
+//                        log.info("GrHeader Success Updated Rows: {}", grCount);
+//                    } else {
+//                        log.info("Sap Failure RefDoc: {} ", refDocNumber);
+//                        int grCount = grHeaderV2Repository.updateGRHeader_SAP(refDocNumber, "1");
+//                        log.info("GrHeader Failure Updated Rows: {}", grCount);
+//                    }
                     System.out.println("RES ---> {}" + response);
-                    if (response.equals("0")) {
+                    if (response.isSuccess()) {
                         log.info("Sap Success RefDoc: {} ", refDocNumber);
                         int grCount = grHeaderV2Repository.updateGRHeader_SAP(refDocNumber, "0");
                         log.info("GrHeader Success Updated Rows: {}", grCount);
                     } else {
                         log.info("Sap Failure RefDoc: {} ", refDocNumber);
-                        int grCount = grHeaderV2Repository.updateGRHeader_SAP(refDocNumber, "1");
+                        int grCount = grHeaderV2Repository.updateSapFailedMsg(refDocNumber, "1", response.getExceptionMessage());
                         log.info("GrHeader Failure Updated Rows: {}", grCount);
                     }
                 }
@@ -280,30 +291,40 @@ public class PutAwayLineAsyncProcess extends BaseService {
      */
     public void sapPushingGrRequestInKafka(List<StagingLineEntityV2> stagingLineEntityV2List) throws JsonProcessingException {
 
-            // 2. Group by refDocNumber after all updates
-            Map<String, List<StagingLineEntityV2>> groupedByRefDoc = stagingLineEntityV2List.stream()
-                    .collect(Collectors.groupingBy(StagingLineEntityV2::getRefDocNumber));
+        // 2. Group by refDocNumber after all updates
+        Map<String, List<StagingLineEntityV2>> groupedByRefDoc = stagingLineEntityV2List.stream()
+                .collect(Collectors.groupingBy(StagingLineEntityV2::getRefDocNumber));
 
-            for (Map.Entry<String, List<StagingLineEntityV2>> entry : groupedByRefDoc.entrySet()) {
-                String refDocNumber = entry.getKey();
-                log.info("refDocNumber --> {}", refDocNumber);
-                List<StagingLineEntityV2> stagingLines = stagingLineV2Repository.findStagingLineList(refDocNumber);
-                log.info("List of StagingLine Values: {} ", stagingLines);
-                if (!stagingLines.isEmpty()) {
-                    String response = oDataService.postODataRequest(stagingLines, refDocNumber, "1", "X");
-                    System.out.println("RES ---> {}" + response);
-                    if (response.equals("0")) {
-                        log.info("Sap Success RefDoc: {} ", refDocNumber);
-                        int grCount = grHeaderV2Repository.updateGRHeader_SAP(refDocNumber, "0");
-                        log.info("GrHeader Success Updated Rows: {}", grCount);
-                    } else {
-                        log.info("Sap Failure RefDoc: {} ", refDocNumber);
-                        int grCount = grHeaderV2Repository.updateGRHeader_SAP(refDocNumber, "1");
-                        log.info("GrHeader Failure Updated Rows: {}", grCount);
-                    }
+        for (Map.Entry<String, List<StagingLineEntityV2>> entry : groupedByRefDoc.entrySet()) {
+            String refDocNumber = entry.getKey();
+            log.info("refDocNumber --> {}", refDocNumber);
+            List<StagingLineEntityV2> stagingLines = stagingLineV2Repository.findStagingLineList(refDocNumber);
+            log.info("List of StagingLine Values: {} ", stagingLines);
+            if (!stagingLines.isEmpty()) {
+                SAPPostResult response = oDataService.postODataRequestNew(stagingLines, refDocNumber, "1", "X");
+//                    System.out.println("RES ---> {}" + response);
+//                    if (response.equals("0")) {
+//                        log.info("Sap Success RefDoc: {} ", refDocNumber);
+//                        int grCount = grHeaderV2Repository.updateGRHeader_SAP(refDocNumber, "0");
+//                        log.info("GrHeader Success Updated Rows: {}", grCount);
+//                    } else {
+//                        log.info("Sap Failure RefDoc: {} ", refDocNumber);
+//                        int grCount = grHeaderV2Repository.updateGRHeader_SAP(refDocNumber, "1");
+//                        log.info("GrHeader Failure Updated Rows: {}", grCount);
+//                    }
+                if (response.isSuccess()) {
+                    log.info("Sap Success RefDoc: {} ", refDocNumber);
+                    int grCount = grHeaderV2Repository.updateGRHeader_SAP(refDocNumber, "0");
+                    log.info("GrHeader Success Updated Rows: {}", grCount);
+                } else {
+                    log.info("Sap Failure RefDoc: {} ", refDocNumber);
+                    int grCount = grHeaderV2Repository.updateSapFailedMsg(refDocNumber, "1", response.getExceptionMessage());
+                    log.info("GrHeader Failure Updated Rows: {}", grCount);
                 }
             }
+        }
     }
+
 
     @Async("asyncExecutorPutAway")
     public void createPutAwayHeaderInPalletWise(String profile) {

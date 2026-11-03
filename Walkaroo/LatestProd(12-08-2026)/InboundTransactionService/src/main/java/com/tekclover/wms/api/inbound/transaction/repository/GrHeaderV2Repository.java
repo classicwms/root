@@ -209,4 +209,12 @@ public interface GrHeaderV2Repository extends JpaRepository<GrHeaderV2, Long>, J
     @Query(value = "delete tblgrheader where REF_DOC_NO = :refDocNumber AND PRE_IB_NO = :preInboundNo", nativeQuery = true)
     void deleteByRefDocNo(@Param("refDocNumber") String refDocNumber,
                               @Param("preInboundNo") String preInboundNo);
+
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query(value = "UPDATE tblgrheader \r\n"
+            + "SET SAP_FLAG = :sapFlag, REF_FIELD_10 = :message \r\n"
+            + "WHERE ref_doc_no = :refDocNumber AND is_deleted = 0", nativeQuery = true)
+    int updateSapFailedMsg(@Param("refDocNumber") String refDocNumber,
+                           @Param("sapFlag") String sapFlag,
+                           @Param("message") String message);
 }

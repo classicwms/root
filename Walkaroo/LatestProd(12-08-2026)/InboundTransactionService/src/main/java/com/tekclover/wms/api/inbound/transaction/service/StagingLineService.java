@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.tekclover.wms.api.inbound.transaction.model.SAPPostResult;
 import com.tekclover.wms.api.inbound.transaction.model.dto.*;
 import com.tekclover.wms.api.inbound.transaction.model.inbound.inventory.v2.InventoryV2;
 import com.tekclover.wms.api.inbound.transaction.model.kafka.event.SapGrRequestEvent;
@@ -2996,16 +2997,16 @@ public class StagingLineService extends BaseService {
         List<SAPResponse> sapResponses = new ArrayList<>();
         for (PostSAP postSAP : inputs) {
             log.info("Order No : {} and Requested by : {}",postSAP.getRefDocNumber(), loginUserID);
-            List<StagingLineEntityV2> stagingLines = stagingLineV2Repository.findStagingLineList(postSAP.getRefDocNumber());
+            List<StagingLineEntityV2> stagingLines = stagingLineV2Repository.findStagingLine(postSAP.getRefDocNumber());
             SAPResponse sapResponse = new SAPResponse();
             sapResponse.setRefDocNumber(postSAP.getRefDocNumber());
             sapResponse.setWarehouseId(postSAP.getWarehouseId());
             if (stagingLines != null && !stagingLines.isEmpty()) {
                 log.info("List of StagingLine Values: {} ", stagingLines);
                 //Pushing to SAP
-                String response = oDataService.postODataRequest(stagingLines, postSAP.getRefDocNumber(), "1", "X");
+                SAPPostResult response = oDataService.postODataRequestNew(stagingLines, postSAP.getRefDocNumber(), "1", "X");
                 System.out.println("RES ---> {}" + response);
-                if (response.equals("0")) {
+                if (response.isSuccess()) {
                     log.info("Sap Success RefDoc: {} ", postSAP.getRefDocNumber());
                     sapResponse.setResponse("Success");
                     int grCount = grHeaderV2Repository.updateGRHeader_SAP(postSAP.getRefDocNumber(), "0");
@@ -3013,7 +3014,8 @@ public class StagingLineService extends BaseService {
                 } else {
                     log.info("Sap Failure RefDoc: {} ", postSAP.getRefDocNumber());
                     sapResponse.setResponse("Failed");
-                    int grCount = grHeaderV2Repository.updateGRHeader_SAP(postSAP.getRefDocNumber(), "1");
+
+                    int grCount = grHeaderV2Repository.updateSapFailedMsg(postSAP.getRefDocNumber(), "1", response.getExceptionMessage());
                     log.info("GrHeader Failure Updated Rows: {}", grCount);
                 }
             }else {

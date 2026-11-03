@@ -4,17 +4,22 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tekclover.wms.api.inbound.transaction.config.PropertiesConfig;
+import com.tekclover.wms.api.inbound.transaction.model.SAPPostResult;
 import com.tekclover.wms.api.inbound.transaction.model.dto.SAPData;
 import com.tekclover.wms.api.inbound.transaction.model.inbound.staging.v2.StagingLineEntityV2;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static org.apache.commons.lang3.exception.ExceptionUtils.getStackTrace;
 
 @Service
 public class ODataService {
@@ -156,57 +161,57 @@ public class ODataService {
 //    }
 
 
-    public String postODataRequest(List<StagingLineEntityV2> entities, String vbeln, String lgmng, String flag) throws JsonProcessingException {
-        Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("VBELN", vbeln);
-
-        List<Map<String, Object>> zwmsGrPostSet = entities.stream().map(entity -> {
-            Map<String, Object> item = new HashMap<>();
-            item.put("MESSAGE", "");
-            item.put("VBELN", vbeln);
-            item.put("LGMNG", lgmng);
-            item.put("FLAG", flag);
-            item.put("EXIDV", entity.getBarcodeId());
-            return item;
-        }).collect(Collectors.toList());
-
-        requestBody.put("ZWMS_GR_POSTSet", zwmsGrPostSet);
-
-        // Encode credentials for Basic Authentication
-        String auth = USERNAME + ":" + PASSWORD; // use exact base64 string from Postman if needed
-        System.out.println("USERNAME - " + USERNAME + " PASSWORD - " + PASSWORD);
-//        String auth = "";
-        String encodedAuth = Base64.getEncoder().encodeToString(auth.getBytes());
-        String authHeader = "Basic " + encodedAuth;
-
-        System.out.println("AuthHeader --> " + authHeader);
-
-        // Set headers
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setAccept(List.of(MediaType.APPLICATION_JSON));
-        headers.add("x-requested-with", "X");
-        headers.add("Authorization", authHeader);
-
-        HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
-
-        System.out.println("REQUEST --> " + new ObjectMapper().writeValueAsString(requestBody));
-
-        ResponseEntity<String> response = restTemplate.exchange(
-                ODATA_URL,
-                HttpMethod.POST,
-                requestEntity,
-                String.class
-        );
-
-        System.out.println("RESPONSE --> " + response);
-
-        if (response.getStatusCode() == HttpStatus.CREATED || response.getStatusCode() == HttpStatus.OK) {
-            return "0";
-        } else {
-            return "1";
-        }
-    }
+//    public String postODataRequest(List<StagingLineEntityV2> entities, String vbeln, String lgmng, String flag) throws JsonProcessingException {
+//        Map<String, Object> requestBody = new HashMap<>();
+//        requestBody.put("VBELN", vbeln);
+//
+//        List<Map<String, Object>> zwmsGrPostSet = entities.stream().map(entity -> {
+//            Map<String, Object> item = new HashMap<>();
+//            item.put("MESSAGE", "");
+//            item.put("VBELN", vbeln);
+//            item.put("LGMNG", lgmng);
+//            item.put("FLAG", flag);
+//            item.put("EXIDV", entity.getBarcodeId());
+//            return item;
+//        }).collect(Collectors.toList());
+//
+//        requestBody.put("ZWMS_GR_POSTSet", zwmsGrPostSet);
+//
+//        // Encode credentials for Basic Authentication
+//        String auth = USERNAME + ":" + PASSWORD; // use exact base64 string from Postman if needed
+//        System.out.println("USERNAME - " + USERNAME + " PASSWORD - " + PASSWORD);
+////        String auth = "";
+//        String encodedAuth = Base64.getEncoder().encodeToString(auth.getBytes());
+//        String authHeader = "Basic " + encodedAuth;
+//
+//        System.out.println("AuthHeader --> " + authHeader);
+//
+//        // Set headers
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.setContentType(MediaType.APPLICATION_JSON);
+//        headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+//        headers.add("x-requested-with", "X");
+//        headers.add("Authorization", authHeader);
+//
+//        HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
+//
+//        System.out.println("REQUEST --> " + new ObjectMapper().writeValueAsString(requestBody));
+//
+//        ResponseEntity<String> response = restTemplate.exchange(
+//                ODATA_URL,
+//                HttpMethod.POST,
+//                requestEntity,
+//                String.class
+//        );
+//
+//        System.out.println("RESPONSE --> " + response);
+//
+//        if (response.getStatusCode() == HttpStatus.CREATED || response.getStatusCode() == HttpStatus.OK) {
+//            return "0";
+//        } else {
+//            return "1";
+//        }
+//    }
 
 
     public String postODataRequest1(List<SAPData> entities, String vbeln, String lgmng, String flag) throws JsonProcessingException {
@@ -257,5 +262,94 @@ public class ODataService {
         } else {
             return "1";
         }
+    }
+
+
+    public SAPPostResult postODataRequestNew(List<StagingLineEntityV2> entities, String vbeln, String lgmng, String flag) throws JsonProcessingException {
+
+        SAPPostResult result = new SAPPostResult();
+
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("VBELN", vbeln);
+
+        List<Map<String, Object>> zwmsGrPostSet =
+                entities.stream().map(entity -> {
+
+                    Map<String, Object> item = new HashMap<>();
+                    item.put("MESSAGE", "");
+                    item.put("VBELN", vbeln);
+                    item.put("LGMNG", lgmng);
+                    item.put("FLAG", flag);
+                    item.put("EXIDV", entity.getBarcodeId());
+
+                    return item;
+
+                }).collect(Collectors.toList());
+
+        requestBody.put("ZWMS_GR_POSTSet", zwmsGrPostSet);
+
+        String auth = USERNAME + ":" + PASSWORD;
+        String encodedAuth = Base64.getEncoder().encodeToString(auth.getBytes());
+        String authHeader = "Basic " + encodedAuth;
+        System.out.println("AuthHeader --> " + authHeader);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        headers.add("x-requested-with", "X");
+        headers.add("Authorization", "Basic " + encodedAuth);
+
+        HttpEntity<Map<String, Object>> requestEntity =
+                new HttpEntity<>(requestBody, headers);
+
+        try {
+            ResponseEntity<String> response = restTemplate.exchange(
+                    ODATA_URL,
+                    HttpMethod.POST,
+                    requestEntity,
+                    String.class
+            );
+            result.setHttpStatus(response.getStatusCodeValue());
+            if (response.getStatusCode() == HttpStatus.CREATED || response.getStatusCode() == HttpStatus.OK) {
+                result.setSuccess(true);
+                result.setResponse(response.getBody());
+            } else {
+                result.setSuccess(false);
+                result.setResponse(response.getBody());
+                result.setExceptionType("HTTP_ERROR");
+                result.setExceptionMessage(response.getBody());
+            }
+
+        } catch (HttpStatusCodeException e) {
+
+            // SAP returned HTTP 400 / 401 / 403 / 500 etc.
+
+            result.setSuccess(false);
+            result.setHttpStatus(e.getRawStatusCode());
+            result.setResponse(e.getResponseBodyAsString());
+            result.setExceptionType(e.getClass().getName());
+            result.setExceptionMessage(e.getMessage());
+
+//            result.setExceptionDetails(getStackTrace(e));
+
+        } catch (ResourceAccessException e) {
+
+            // Connection timeout / read timeout / connection refused
+
+            result.setSuccess(false);
+            result.setExceptionType(e.getClass().getName());
+            result.setExceptionMessage(e.getMessage());
+
+//            Throwable rootCause = getRootCause(e);
+//            result.setExceptionDetails("Root Cause: " + rootCause.getClass().getName() + " : " + rootCause.getMessage() + "\n" + getStackTrace(e));
+
+        } catch (Exception e) {
+            result.setSuccess(false);
+            result.setExceptionType(e.getClass().getName());
+            result.setExceptionMessage(e.getMessage());
+//            result.setExceptionDetails(getStackTrace(e));
+        }
+
+        return result;
     }
 }
