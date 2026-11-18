@@ -21,6 +21,7 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import com.tekclover.wms.api.transaction.config.dynamicConfig.DataBaseContextHolder;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -45,7 +46,8 @@ public class OrderFulfillmentService extends BaseService {
     OutboundHeaderV2Repository outboundHeaderV2Repository;
     @Autowired
     OutboundOrderV2Repository outboundOrderV2Repository;
-
+    @Autowired
+    OrderManagementLineBatchService orderManagementLineBatchService;
 
     /**
      * @param preOutboundHeaderV2List preOutboundHeaderList
@@ -214,10 +216,20 @@ public class OrderFulfillmentService extends BaseService {
             unAllocationProcess(preOutboundLineV2, ORD_QTY);
         }
 
-        if(!orderManagementLineV2List.isEmpty()) {
-            orderManagementLineV2Repository.saveAll(orderManagementLineV2List);
-            log.info("OrderManagementLine Values Saved Successfully -------->");
+        if(DataBaseContextHolder.getCurrentDb().equalsIgnoreCase("NGP1")) {
+            log.info("OrderManagementLine Save Process Started and Value of Size : {} ", orderManagementLineV2List.size());
+            if (!orderManagementLineV2List.isEmpty()) {
+                orderManagementLineBatchService.saveAndFlushInChunks(orderManagementLineV2List);
+                log.info("OrderManagementLine Save Process Completed and Value of Size : {} ", orderManagementLineV2List.size());
+            }
+        } else {
+            if (!orderManagementLineV2List.isEmpty()) {
+                orderManagementLineV2Repository.saveAll(orderManagementLineV2List);
+                log.info("OrderManagementLine Values Saved Successfully -------->");
+            }
         }
+
+
     }
 
 

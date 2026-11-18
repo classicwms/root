@@ -3608,14 +3608,14 @@ public class PutAwayLineService extends BaseService {
         log.info(" Collected CompanyCode={}, PlantId={}, LangId={}, WarehouseId={}, BarcodeCount={}",
                 companyCode, plantId, languageId, warehouseId, putAwayLineV2s.size());
 
-        putAwayLineAsyncProcess.createPutAwayLine(putAwayLineV2s, loginUserID);
-        log.info("Return Response Successfully In PutAwayConfirm --------------------------->");
-
         try {
             updatePutAwayHeader(companyCode, plantId, languageId, warehouseId, putAwayLineV2s);
         } catch (Exception e) {
             log.error("Error updating PutAwayHeader status for barcodes: {}", putAwayLineV2s, e);
         }
+
+        putAwayLineAsyncProcess.createPutAwayLine(putAwayLineV2s, loginUserID);
+        log.info("Return Response Successfully In PutAwayConfirm --------------------------->");
 
         return putAwayLineV2s;
     }
