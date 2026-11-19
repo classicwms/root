@@ -703,6 +703,17 @@ public interface PickupHeaderV2Repository extends JpaRepository<PickupHeaderV2, 
                              @Param("pickupNumber") String pickupNumber,
                              @Param("refField2") String refField2,
                              @Param("updatedBy") String updatedBy);
+
+    @Modifying()
+    @Query(value = "Update tblpickupheader set ref_field_2 = :refField2, PICK_UTD_BY = :updatedBy, PICK_UTD_ON = getDate() " +
+            "Where c_id = :companyCodeId and plant_id = :plantId and wh_id = :warehouseId and \n" +
+            "PU_NO in (:pickupNumber) and is_deleted = 0", nativeQuery = true)
+    int updatedPickupHeader(@Param("companyCodeId") String companyCodeId,
+                             @Param("plantId") String plantId,
+                             @Param("warehouseId") String warehouseId,
+                             @Param("pickupNumber") List<String> pickupNumber,
+                             @Param("refField2") String refField2,
+                             @Param("updatedBy") String updatedBy);
     boolean existsByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndStatusIdInAndDeletionIndicator(
             String companyCodeId, String plantId, String warehouseId, String refDocNumber, List<Long> statusId, Long deletionIndicator);
 

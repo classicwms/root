@@ -1821,11 +1821,22 @@ public class PickupHeaderService {
     public List<PickupHeaderV2> updatePickupHeaderForPrinted(List<PickupHeaderV2> pickupHeaderV2List, String loginUserID) {
 
         log.info("PickupHeader Update Size is {} ", pickupHeaderV2List.size());
-        pickupHeaderV2List.forEach(pickup -> {
-            log.info("PickupHeader Update Started for PickupNumber {} , RefDocNumber {} ", pickup.getPickupNumber(), pickup.getRefDocNumber());
-            pickupHeaderV2Repository.updatedPickupHeader(pickup.getCompanyCodeId(), pickup.getPlantId(), pickup.getWarehouseId(), pickup.getRefDocNumber(),
-                    pickup.getPreOutboundNo(), pickup.getPickupNumber(), pickup.getReferenceField2(), loginUserID);
-        });
+        List<String> pickupNumbers = pickupHeaderV2List.stream()
+                .map(PickupHeaderV2::getPickupNumber)
+                .distinct()
+                .collect(Collectors.toList());
+        String companyCode = pickupHeaderV2List.get(0).getCompanyCodeId();
+        String plantId = pickupHeaderV2List.get(0).getPlantId();
+        String warehouseId = pickupHeaderV2List.get(0).getWarehouseId();
+
+        log.info("Distinct Pickup Numbers Size is {} and Value {}", pickupNumbers.size(), pickupNumbers);
+        int affected = pickupHeaderV2Repository.updatedPickupHeader(companyCode, plantId, warehouseId, pickupNumbers, "Printed" , loginUserID);
+        log.info("Pickupheader Update Affected Row's {} ", affected);
+//        pickupHeaderV2List.forEach(pickup -> {
+//            log.info("PickupHeader Update Started for PickupNumber {} , RefDocNumber {} ", pickup.getPickupNumber(), pickup.getRefDocNumber());
+//            pickupHeaderV2Repository.updatedPickupHeader(pickup.getCompanyCodeId(), pickup.getPlantId(), pickup.getWarehouseId(), pickup.getRefDocNumber(),
+//                    pickup.getPreOutboundNo(), pickup.getPickupNumber(), pickup.getReferenceField2(), loginUserID);
+//        });
         return pickupHeaderV2List;
     }
 }
