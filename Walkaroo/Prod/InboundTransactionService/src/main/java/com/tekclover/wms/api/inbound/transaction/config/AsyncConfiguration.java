@@ -18,7 +18,7 @@ public class AsyncConfiguration {
 //        executor.setQueueCapacity(110);
         executor.setCorePoolSize(12);
         executor.setMaxPoolSize(17);
-        executor.setQueueCapacity(150);
+        executor.setQueueCapacity(180);
         executor.setTaskDecorator(new TenantAwareTaskDecorator());
         executor.setThreadNamePrefix("AsyncExecutor-");
         executor.initialize();
@@ -30,7 +30,7 @@ public class AsyncConfiguration {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(8);
         executor.setMaxPoolSize(12);
-        executor.setQueueCapacity(100);
+        executor.setQueueCapacity(120);
         executor.setTaskDecorator(new TenantAwareTaskDecorator());
         executor.setThreadNamePrefix("AsyncExecutorPutAway-");
         executor.initialize();
@@ -42,7 +42,7 @@ public class AsyncConfiguration {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(8);
         executor.setMaxPoolSize(12);
-        executor.setQueueCapacity(100);
+        executor.setQueueCapacity(120);
         executor.setTaskDecorator(new TenantAwareTaskDecorator());
         executor.setThreadNamePrefix("AsyncExecutorInSap-");
         executor.initialize();
