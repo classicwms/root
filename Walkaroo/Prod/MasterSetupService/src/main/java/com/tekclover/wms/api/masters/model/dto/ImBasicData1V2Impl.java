@@ -1,0 +1,76 @@
+package com.tekclover.wms.api.masters.model.dto;
+
+import java.util.Date;
+
+public interface ImBasicData1V2Impl {
+
+     String getManufacturerName();
+     String getManufacturerFullName();
+     String getManufacturerCode();
+     String getBrand();
+     String getSupplierPartNumber();
+     String getRemarks();
+     String getIsNew();
+     String getIsUpdate();
+     String getIsCompleted();
+     String getCompanyDescription();
+     String getPlantDescription();
+     String getWarehouseDescription();
+     Long getMiddlewareId();
+     String getMiddlewareTable();
+     String getUomId();
+     String getLanguageId();
+     String getCompanyCodeId();
+     String getPlantId();
+     String getWarehouseId();
+     String getItemCode();
+     String getManufacturerPartNo();
+     String getDescription();
+     String getModel();
+     String getSpecifications1();
+     String getSpecifications2();
+     String getEanUpcNo();
+     String getHsnCode();
+     Long getItemType();
+     Long getItemGroup();
+     Long getSubItemGroup();
+     String getStorageSectionId();
+     Double getTotalStock();
+     Double getMinimumStock();
+     Double getMaximumStock();
+     Double getReorderLevel();
+     Boolean getCapacityCheck();
+     Double getReplenishmentQty();
+     Double getSafetyStock();
+     String getCapacityUnit();
+     String getCapacityUom();
+     String getQuantity();
+     Double getWeight();
+     Long getStatusId();
+     Boolean getShelfLifeIndicator();
+     String getReferenceField1();
+     String getReferenceField2();
+     String getReferenceField3();
+     String getReferenceField4();
+     String getReferenceField5();
+     String getReferenceField6();
+     String getReferenceField7();
+     String getReferenceField8();
+     String getReferenceField9();
+     String getReferenceField10();
+     Long getDeletionIndicator();
+     String getCreatedBy();
+     Date getCreatedOn();
+     String getUpdatedBy();
+     Date getUpdatedOn();
+     Double getLength();
+     Double getWidth();
+     Double getHeight();
+     String getDimensionUom();
+     Double getVolume();
+     Double getBatchQuantity();
+     Double getMoq();
+
+     String getItemTypeDescription();
+     String getItemGroupDescription();
+}

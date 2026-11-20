@@ -1,0 +1,14 @@
+package com.tekclover.wms.api.inbound.transaction.model.pickup.v2;
+
+
+import lombok.Data;
+
+import java.util.List;
+
+@Data
+public class PickUpHeaderReport {
+
+
+    private List<PickerReport> pickerReportList;
+
+}
