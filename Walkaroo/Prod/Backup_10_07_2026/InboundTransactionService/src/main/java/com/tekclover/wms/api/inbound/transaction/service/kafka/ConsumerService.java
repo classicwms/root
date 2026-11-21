@@ -97,7 +97,7 @@ public class ConsumerService {
     }
 
     // StorageBin Update
-    @KafkaListener(topics = "storageBin-update-topic-v1", groupId = "storageBin-update-group-v1", containerFactory = "storageBinUpdateListenerFactory")
+    @KafkaListener(topics = "storageBin-update-topic-v2", groupId = "storageBin-update-group-v1", containerFactory = "storageBinUpdateListenerFactory")
     public void updateStorageBin(StorageBinUpdateEvent event) {
         try {
             DataBaseContextHolder.setCurrentDb("WK");

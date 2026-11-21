@@ -28,7 +28,7 @@ public class ProducerService {
 
     // StorageBin update
     public void updateStorageBin(StorageBinUpdateEvent event) {
-        kafkaTemplate.send("storageBin-update-topic-v1", event);
+        kafkaTemplate.send("storageBin-update-topic-v2", event);
     }
 
     // UpdateInboundLine
