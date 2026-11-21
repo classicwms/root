@@ -21,6 +21,7 @@ public class ProducerService {
     }
 
 
+
     // Inventory Creation
     public void createInventory(InventoryEvent event) {
         kafkaTemplate.send("inventory-created-topic-v1", event);
