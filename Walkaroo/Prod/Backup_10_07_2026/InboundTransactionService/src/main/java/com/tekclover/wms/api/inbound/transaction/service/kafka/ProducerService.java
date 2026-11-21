@@ -38,11 +38,11 @@ public class ProducerService {
 
     // InboundConfirmValidation
     public void updateInboundConfirmValidation(InboundConfirmValidationEvent event) {
-        kafkaTemplate.send("inboundconfirmvalidation-topic-v1", event);
+        kafkaTemplate.send("inboundconfirmvalidation-topic-v2", event);
     }
 
     public void updateIBReceivedLinesCount(IBHeaderReceivedLinesEvent event) {
-        kafkaTemplate.send("update-ibreceivedlines-count-topic-v1", event);
+        kafkaTemplate.send("update-ibreceivedlines-count-topic-v2", event);
     }
 
     public void sapGrPushingEvent(SapGrRequestEvent event) {

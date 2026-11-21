@@ -135,7 +135,7 @@ public class ConsumerService {
   */
 
     // Update  InboundConfirmValidation
-    @KafkaListener(topics = "inboundconfirmvalidation-topic-v1", groupId = "inboundconfirmvalidation-group-v1", containerFactory = "updateInboundConfirmValidationListenerFactory")
+    @KafkaListener(topics = "inboundconfirmvalidation-topic-v2", groupId = "inboundconfirmvalidation-group-v1", containerFactory = "updateInboundConfirmValidationListenerFactory")
     public void updateInboundConfirmValidation(InboundConfirmValidationEvent event) throws Exception {
         try {
             DataBaseContextHolder.setCurrentDb("WK");
@@ -154,7 +154,7 @@ public class ConsumerService {
         }
     }
 
-    @KafkaListener(topics = "update-ibreceivedlines-count-topic-v1", groupId = "update-ibreceivedlines-count-group-v1", containerFactory = "updateIBReceivedLinesCountListenerFactory")
+    @KafkaListener(topics = "update-ibreceivedlines-count-topic-v2", groupId = "update-ibreceivedlines-count-group-v1", containerFactory = "updateIBReceivedLinesCountListenerFactory")
     public void updateIBReceivedLinesCount(IBHeaderReceivedLinesEvent event) {
         try {
             DataBaseContextHolder.setCurrentDb("WK");
