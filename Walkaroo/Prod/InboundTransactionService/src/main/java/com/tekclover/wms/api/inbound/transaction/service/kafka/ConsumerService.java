@@ -43,7 +43,7 @@ public class ConsumerService {
     PutAwayLineAsyncProcess putAwayLineAsyncProcess;
 
     // PutAwayLine Confirmation
-    @KafkaListener(topics = "putawayline-topic-v6", groupId = "putawayline-group-v5", containerFactory = "putAwayListenerFactory")
+    @KafkaListener(topics = "putawayline-topic-v7", groupId = "putawayline-group-v5", containerFactory = "putAwayListenerFactory")
     public void consume(PutAwayLineProcessEvent event) {
         try {
             DataBaseContextHolder.setCurrentDb("WK");
