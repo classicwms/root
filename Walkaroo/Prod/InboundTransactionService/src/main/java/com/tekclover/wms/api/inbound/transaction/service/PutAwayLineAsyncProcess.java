@@ -355,6 +355,29 @@ public class PutAwayLineAsyncProcess extends BaseService {
         }
     }
 
+    // Nagpur
+    public void createPutAwayHeaderInNGP1(String profile) {
+        long start = System.currentTimeMillis();
+        try {
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(profile);
+            log.info("PutAwayHeader Creation Process Started DB: {} ", profile);
+            List<StagingLineEntityV2> listOfStaging = stagingLineV2Repository.findStagingLinePalletWise();
+            log.info("List of StagingLine Values : {} ", listOfStaging);
+            if (!listOfStaging.isEmpty()) {
+                log.info("Pallet Id {} in PutAwayHeader :", listOfStaging.get(0).getPalletId());
+
+                createPutawayHeaderInPalletWise(listOfStaging);
+            }
+        } catch (Exception e) {
+            log.error("PutAway failed DB={}", profile, e);
+        } finally {
+            DataBaseContextHolder.clear();
+            runningProfiles.remove(profile);
+            log.info("PutAway completed DB={} in {} ms", profile, System.currentTimeMillis() - start);
+        }
+    }
+
     /**
      *
      * @param staging stagingLineEntityV2List
