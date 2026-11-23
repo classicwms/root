@@ -1,6 +1,7 @@
 package com.tekclover.wms.api.transaction.service;
 
 import java.lang.reflect.InvocationTargetException;
+import java.sql.SQLException;
 import java.sql.SQLNonTransientException;
 import java.sql.SQLTimeoutException;
 import java.sql.SQLTransientException;
@@ -1856,8 +1857,7 @@ public class GrLineService extends BaseService {
                              DeadlockLoserDataAccessException |
                              PessimisticLockException |
                              LockTimeoutException |
-                             QueryTimeoutException  |
-                             SQLTimeoutException e) {
+                             QueryTimeoutException  e) {
                         log.error("DATABASE LOCK EXCEPTION --> RefDoc: {}, Line: {}, Item: {}",
                                 refDocNumber, lineV2.getLineNo(), lineV2.getItemCode(), e);
 
@@ -1874,12 +1874,21 @@ public class GrLineService extends BaseService {
                         log.error("PUTAWAY HEADER CREATION FAILED --> RefDoc: {}, PreInboundNo: {}, LineNo: {}, ItemCode: {}",
                                 refDocNumber, lineV2.getPreInboundNo(), lineV2.getLineNo(), lineV2.getItemCode(), e);
 
-						// putaway header create failed - changing flag to 100
-						grLineV2Repository.updateGrLineStatusV2(lineV2.getCompanyCode(),
-								lineV2.getPlantId(), lineV2.getLanguageId(),
-								lineV2.getWarehouseId(), lineV2.getPreInboundNo(),
-								lineV2.getCreatedOn(), lineV2.getLineNo(), lineV2.getItemCode(),
-								100L);
+                        boolean databaseTimeout = isDatabaseTimeout(e);
+
+                        Long failureStatus = databaseTimeout ? 0L : 100L;
+
+                        int updatedRows = grLineV2Repository.updateGrLineStatusV2(
+                                companyCode, plantId, languageId, warehouseId,
+                                lineV2.getPreInboundNo(), lineV2.getCreatedOn(),
+                                lineV2.getLineNo(), lineV2.getItemCode(), failureStatus);
+
+//						// putaway header create failed - changing flag to 100
+//						grLineV2Repository.updateGrLineStatusV2(lineV2.getCompanyCode(),
+//								lineV2.getPlantId(), lineV2.getLanguageId(),
+//								lineV2.getWarehouseId(), lineV2.getPreInboundNo(),
+//								lineV2.getCreatedOn(), lineV2.getLineNo(), lineV2.getItemCode(),
+//								100L);
 
                         log.warn("FAILED STATUS UPDATE --> updatedRows: {}, RefDoc: {}, LineNo: {}, ItemCode: {}, NewStatus: 0",
                                 lineV2, refDocNumber, lineV2.getLineNo(), lineV2.getItemCode());
@@ -1889,6 +1898,23 @@ public class GrLineService extends BaseService {
 					}
 			}
 	}
+
+    private boolean isDatabaseTimeout(Throwable e) {
+
+        while (e != null) {
+            if (e instanceof SQLException) {
+                SQLException sqlException = (SQLException) e;
+                String sqlState = sqlException.getSQLState();
+                if ("08S01".equals(sqlState)
+                        || "HYT00".equals(sqlState)
+                        || "HYT01".equals(sqlState)) {
+                    return true;
+                }
+            }
+            e = e.getCause();
+        }
+        return false;
+    }
 
     /**
      * 
