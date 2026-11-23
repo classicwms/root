@@ -1,10 +1,7 @@
 package com.tekclover.wms.api.transaction.service;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -391,6 +388,15 @@ public class OrderManagementLineService extends BaseService {
 		List<OrderManagementLine> orderManagementLineList = getListOrderManagementLine(warehouseId, preOutboundNo,
 				refDocNumber, partnerCode, lineNumber, itemCode);
 		log.info("Processing Order management Line : " + orderManagementLineList);
+
+		boolean isPickupCreated = orderManagementLineList.stream().anyMatch(line -> line.getPickupNumber() != null
+				&&  !line.getPickupNumber().trim().isEmpty());
+
+
+		if (isPickupCreated) {
+			throw new BadRequestException("Pickup already created for this order");
+		}
+
 		/*
 		 * Update Inventory table -------------------------- Pass the
 		 * WH_ID/ITM_CODE/PACK_BARCODE(PROP_PACK_BARCODE)/ST_BIN(PROP_ST_BIN) values in
