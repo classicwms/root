@@ -1878,7 +1878,7 @@ public class GrLineService extends BaseService {
 
                         Long failureStatus = databaseTimeout ? 0L : 100L;
 
-                        int updatedRows = grLineV2Repository.updateGrLineStatusV2(
+                        grLineV2Repository.updateGrLineStatusV2(
                                 companyCode, plantId, languageId, warehouseId,
                                 lineV2.getPreInboundNo(), lineV2.getCreatedOn(),
                                 lineV2.getLineNo(), lineV2.getItemCode(), failureStatus);
