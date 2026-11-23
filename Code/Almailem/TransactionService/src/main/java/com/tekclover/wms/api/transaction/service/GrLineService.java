@@ -2,6 +2,7 @@ package com.tekclover.wms.api.transaction.service;
 
 import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLNonTransientException;
+import java.sql.SQLTimeoutException;
 import java.sql.SQLTransientException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1855,7 +1856,8 @@ public class GrLineService extends BaseService {
                              DeadlockLoserDataAccessException |
                              PessimisticLockException |
                              LockTimeoutException |
-                             QueryTimeoutException e) {
+                             QueryTimeoutException  |
+                             SQLTimeoutException e) {
                         log.error("DATABASE LOCK EXCEPTION --> RefDoc: {}, Line: {}, Item: {}",
                                 refDocNumber, lineV2.getLineNo(), lineV2.getItemCode(), e);
 
