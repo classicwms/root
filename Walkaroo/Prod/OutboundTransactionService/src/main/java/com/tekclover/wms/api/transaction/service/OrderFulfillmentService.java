@@ -393,7 +393,7 @@ public class OrderFulfillmentService extends BaseService {
                     List<PickupHeaderV2> savedPickupHeaders = savePickupHeadersTx(pickupHeaderV2List);
                     log.info("PickupHeader Saved List of size : {} ", savedPickupHeaders.size());
                 }
-                List<String> refDocNoList = savedPickupHeaders.stream().map(PickupHeaderV2 :: getRefDocNumber).collect(Collectors.toList());
+                List<String> refDocNoList = pickupHeaderV2List.stream().map(PickupHeaderV2 :: getRefDocNumber).collect(Collectors.toList());
                 int preoutboundHeader = preOutboundHeaderV2Repository.updatePreOutboundHeader(companyCodeId, plantId, languageId, warehouseId, refDocNoList, PU_NO);
                 log.info("PreOutboundHeader Status Update Count {} ", preoutboundHeader);
 
