@@ -106,7 +106,7 @@ public class BatchJobScheduler {
         //MUB
         putAwayService.createPutAwayHeaderInPalletWise("MUB");
         // NGP1
-        putAwayService.createPutAwayHeaderInPalletWise("NGP1");
+//        putAwayService.createPutAwayHeaderInPalletWise("NGP1");
         // NGP2
         putAwayService.createPutAwayHeaderInPalletWise("NGP2");
         //MYS
@@ -122,6 +122,18 @@ public class BatchJobScheduler {
                 "========== PUTAWAY SCHEDULER SUBMISSION COMPLETED in {} ms ==========",
                 System.currentTimeMillis() - schedulerStart
         );
+    }
+
+    @Scheduled(fixedDelay = 10000)
+    public void scheduleInPutAway() throws Exception {
+
+        long schedulerStart = System.currentTimeMillis();
+        log.info("========== PUTAWAY SCHEDULER START IN NGP1 ==========" + schedulerStart);
+        // MDU
+        putAwayService.createPutAwayHeaderInNGP1("NGP1");
+        log.info(
+                "========== PUTAWAY SCHEDULER SUBMISSION COMPLETED in NGP1 {} ms ==========",
+                System.currentTimeMillis() - schedulerStart);
     }
 
 }
