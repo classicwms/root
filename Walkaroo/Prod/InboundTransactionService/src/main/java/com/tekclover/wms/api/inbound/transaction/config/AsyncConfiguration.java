@@ -28,7 +28,7 @@ public class AsyncConfiguration {
     @Bean(name = "asyncExecutorPutAway")
     public Executor asyncExecutorForGrLine() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(8);
+        executor.setCorePoolSize(12);
         executor.setMaxPoolSize(12);
         executor.setQueueCapacity(120);
         executor.setTaskDecorator(new TenantAwareTaskDecorator());

@@ -124,7 +124,7 @@ public class BatchJobScheduler {
         );
     }
 
-    @Scheduled(fixedDelay = 10000)
+    @Scheduled(fixedDelay = 5000)
     public void scheduleInPutAwayNGP() throws Exception {
 
         long schedulerStart = System.currentTimeMillis();

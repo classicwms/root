@@ -356,6 +356,7 @@ public class PutAwayLineAsyncProcess extends BaseService {
     }
 
     // Nagpur
+
     public void createPutAwayHeaderInNGP1(String profile) {
         long start = System.currentTimeMillis();
         try {
@@ -367,7 +368,9 @@ public class PutAwayLineAsyncProcess extends BaseService {
             if (!listOfStaging.isEmpty()) {
                 log.info("Pallet Id {} in PutAwayHeader :", listOfStaging.get(0).getPalletId());
 
-                createPutawayHeaderInPalletWise(listOfStaging);
+                int staging = stagingLineV2Repository.stagingUpdateByPallet(listOfStaging.get(0).getPalletId(), "PutAway InProcess");
+                log.info("StagingLine Update In PutAway Process Affected Row's: {}",staging);
+                createPutawayHeaderInPalletWiseInNGP(listOfStaging);
             }
         } catch (Exception e) {
             log.error("PutAway failed DB={}", profile, e);
@@ -383,6 +386,23 @@ public class PutAwayLineAsyncProcess extends BaseService {
      * @param staging stagingLineEntityV2List
      */
     public void createPutawayHeaderInPalletWise(List<StagingLineEntityV2> staging) {
+
+        String idMasterAuthToken = getIDMasterAuthToken();
+        long NUM_RAN_CODE_PA_NO = 7;
+
+        // Getting PA_NUMBER per Pallet Id
+        String nextPANumber = getNextRangeNumber(NUM_RAN_CODE_PA_NO, staging.get(0).getCompanyCode(),
+                staging.get(0).getPlantId(), staging.get(0).getLanguageId(), staging.get(0).getWarehouseId(),
+                idMasterAuthToken);
+        try {
+            putAwayHeaderService.createPutAwayHeaderByPallet(nextPANumber, staging);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Async("asyncExecutorPutAway")
+    public void createPutawayHeaderInPalletWiseInNGP(List<StagingLineEntityV2> staging) {
 
         String idMasterAuthToken = getIDMasterAuthToken();
         long NUM_RAN_CODE_PA_NO = 7;
