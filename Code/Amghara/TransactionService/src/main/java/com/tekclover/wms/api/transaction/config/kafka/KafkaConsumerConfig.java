@@ -40,7 +40,7 @@ public class KafkaConsumerConfig {
     }
     @Bean
     public ConsumerFactory<String, PickupLineCreateEvent> pickupLineCreateConsumerFactory() {
-        return createConsumerFactory(PickupLineCreateEvent.class, "pickupline-save-topic-v1");
+        return createConsumerFactory(PickupLineCreateEvent.class, "pickupline-save-topic-v2");
     }
     @Bean
     public ConsumerFactory<String, UpdatePickupHeaderEvent> updatePickupHeaderEventConsumerFactory() {

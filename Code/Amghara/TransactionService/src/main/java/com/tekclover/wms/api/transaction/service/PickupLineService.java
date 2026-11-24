@@ -1722,7 +1722,7 @@ public class PickupLineService extends BaseService {
             log.info("Publishing PickupLine Creation Event to Kafka -------------------> ");
             List<List<AddPickupLine>> batches = Lists.partition(createdPickupLineList, 300);
             for (List<AddPickupLine> batch : batches) {
-                producerService.publishPickupLine("pickupline-topic-v1", new PickupLineEvent(batch, loginUserID));
+                producerService.publishPickupLine("pickupline-topic-v2", new PickupLineEvent(batch, loginUserID));
             }
 
         return newPickupLines;

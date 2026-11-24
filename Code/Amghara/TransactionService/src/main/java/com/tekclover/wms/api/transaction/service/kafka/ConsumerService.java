@@ -52,13 +52,13 @@ public class ConsumerService {
     OrderManagementLineV2Repository orderManagementLineV2Repository;
 
     // PickupLine Creation Process
-    @KafkaListener(topics = "pickupline-topic-v1", groupId = "pickupline-group-v1", containerFactory = "pickupLineListenerFactory")
+    @KafkaListener(topics = "pickupline-topic-v2", groupId = "pickupline-group-v1", containerFactory = "pickupLineListenerFactory")
     public void consume(PickupLineEvent event) throws Exception {
         pickupLineService.createPickupLineNonCBMV2(event.getPickupLines(), event.getLoginUserID());
     }
 
     // PickupLine Save
-    @KafkaListener(topics = "pickupline-save-topic-v1", groupId = "pickupline-save-group-v1", containerFactory = "pickupLineSaveListenerFactory")
+    @KafkaListener(topics = "pickupline-save-topic-v2", groupId = "pickupline-save-group-v1", containerFactory = "pickupLineSaveListenerFactory")
     public void consume(PickupLineCreateEvent event) {
         List<PickupLineV2> pickupLineV2List = event.getPickupLineV2List();
         log.info("Saving {} records", pickupLineV2List.size());

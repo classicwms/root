@@ -17,12 +17,12 @@ public class ProducerService {
 
 //    //
 //    public void pickupLineProcess(PickupLineEvent event) {
-//        kafkaTemplate.send("pickupline-topic-v1", event);
+//        kafkaTemplate.send("pickupline-topic-v2", event);
 //    }
 
     // PutAwayLine Save
     public void savePickupLine(PickupLineCreateEvent event) {
-        kafkaTemplate.send("pickupline-save-topic-v1", event);
+        kafkaTemplate.send("pickupline-save-topic-v2", event);
     }
 
     // Update PickupHeader
