@@ -125,7 +125,7 @@ public class BatchJobScheduler {
     }
 
     @Scheduled(fixedDelay = 10000)
-    public void scheduleInPutAway() throws Exception {
+    public void scheduleInPutAwayNGP() throws Exception {
 
         long schedulerStart = System.currentTimeMillis();
         log.info("========== PUTAWAY SCHEDULER START IN NGP1 ==========" + schedulerStart);
