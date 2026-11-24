@@ -839,7 +839,7 @@ public interface StagingLineV2Repository extends JpaRepository<StagingLineEntity
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value = "update tblstagingline set status_id = 18, status_text = :text where " +
-            "pallet_id = :palletId", nativeQuery = true)
+            "pallet_id = :palletId and status_id = 101", nativeQuery = true)
     int stagingUpdateByPallet(@Param("palletId") String palletId,
                       @Param("text") String text);
 }
