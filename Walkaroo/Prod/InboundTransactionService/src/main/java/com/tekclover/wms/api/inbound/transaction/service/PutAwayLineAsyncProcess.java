@@ -357,6 +357,7 @@ public class PutAwayLineAsyncProcess extends BaseService {
 
     // Nagpur
 
+    @Async("asyncExecutorPutAway")
     public void createPutAwayHeaderInNGP1(String profile) {
         long start = System.currentTimeMillis();
         try {
@@ -401,7 +402,7 @@ public class PutAwayLineAsyncProcess extends BaseService {
         }
     }
 
-    @Async("asyncExecutorPutAway")
+
     public void createPutawayHeaderInPalletWiseInNGP(List<StagingLineEntityV2> staging) {
 
         String idMasterAuthToken = getIDMasterAuthToken();
