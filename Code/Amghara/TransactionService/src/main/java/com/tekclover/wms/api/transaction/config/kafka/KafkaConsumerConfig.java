@@ -57,7 +57,7 @@ public class KafkaConsumerConfig {
     }
     @Bean
     public ConsumerFactory<String, DeliveryConfirmEvent> deliveryConfirmEventConsumerFactory() {
-        return createConsumerFactory(DeliveryConfirmEvent.class, "delivery-confirm-topic-v2");
+        return createConsumerFactory(DeliveryConfirmEvent.class, "delivery-confirm-topic-v3");
     }
 
     @Bean

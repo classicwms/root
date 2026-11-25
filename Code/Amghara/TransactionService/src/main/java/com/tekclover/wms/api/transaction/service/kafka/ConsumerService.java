@@ -105,12 +105,16 @@ public class ConsumerService {
 //        qualityLineService.updateDeliveryQty(event.getQualityLineV2List());
 //    }
     // Delivery Confirm
-    @KafkaListener(topics = "delivery-confirm-topic-v2", groupId = "delivery-confirm-group-v1", containerFactory = "deliveryConfirmInterimListenerFactory")
+    @KafkaListener(topics = "delivery-confirm-topic-v3", groupId = "delivery-confirm-group-v2", containerFactory = "deliveryConfirmInterimListenerFactory")
     public void consume(DeliveryConfirmEvent event) throws ParseException, InvocationTargetException, IllegalAccessException {
 //        qualityLineService.postDeliveryConfirm(event.getQualityLineV2List(), event.getLoginUserID());
-        log.info("Delivery Confirm Process Started from Kafka: {} ", event);
-        outboundLineService.deliveryConfirmationV2Kafka(event.getCompanyCodeId(), event.getPlantId(), event.getLanguageId(), event.getWarehouseId(),
-                event.getPreOutboundNo(), event.getRefDocNumber(), event.getPartnerCode(), event.getLoginUserID(), event.getLineNumbers());
+        try {
+            log.info("Delivery Confirm Process Started from Kafka: {} ", event);
+            outboundLineService.deliveryConfirmationV2Kafka(event.getCompanyCodeId(), event.getPlantId(), event.getLanguageId(), event.getWarehouseId(),
+                    event.getPreOutboundNo(), event.getRefDocNumber(), event.getPartnerCode(), event.getLoginUserID(), event.getLineNumbers());
+        } catch (Exception e) {
+            log.info("Delivery Confirm Process Completed");
+        }
     }
 
 

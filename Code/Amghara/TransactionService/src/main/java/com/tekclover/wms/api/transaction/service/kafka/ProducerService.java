@@ -51,7 +51,7 @@ public class ProducerService {
 //    }
     // Delivery Confirm
     public void deliveryConfirm(DeliveryConfirmEvent event) {
-        kafkaTemplate.send("delivery-confirm-topic-v2", event);
+        kafkaTemplate.send("delivery-confirm-topic-v3", event);
     }
 
 
