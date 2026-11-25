@@ -357,7 +357,7 @@ public class PutAwayLineAsyncProcess extends BaseService {
 
     // Nagpur
 
-    @Async("asyncExecutorPutAway")
+    @Async("asyncExecutorPutAwayInNGP")
     public void createPutAwayHeaderInNGP1(String profile) {
         long start = System.currentTimeMillis();
         try {

@@ -18,7 +18,7 @@ public class AsyncConfiguration {
 //        executor.setQueueCapacity(110);
         executor.setCorePoolSize(12);
         executor.setMaxPoolSize(17);
-        executor.setQueueCapacity(180);
+        executor.setQueueCapacity(200);
         executor.setTaskDecorator(new TenantAwareTaskDecorator());
         executor.setThreadNamePrefix("AsyncExecutor-");
         executor.initialize();
@@ -28,11 +28,23 @@ public class AsyncConfiguration {
     @Bean(name = "asyncExecutorPutAway")
     public Executor asyncExecutorForGrLine() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(12);
-        executor.setMaxPoolSize(12);
-        executor.setQueueCapacity(120);
+        executor.setCorePoolSize(14);
+        executor.setMaxPoolSize(14);
+        executor.setQueueCapacity(150);
         executor.setTaskDecorator(new TenantAwareTaskDecorator());
         executor.setThreadNamePrefix("AsyncExecutorPutAway-");
+        executor.initialize();
+        return executor;
+    }
+
+    @Bean(name = "asyncExecutorPutAwayInNGP")
+    public Executor asyncExecutorForPutAway() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(3);
+        executor.setMaxPoolSize(2);
+        executor.setQueueCapacity(10);
+        executor.setTaskDecorator(new TenantAwareTaskDecorator());
+        executor.setThreadNamePrefix("AsyncExecutorPutAwayInNGP-");
         executor.initialize();
         return executor;
     }
