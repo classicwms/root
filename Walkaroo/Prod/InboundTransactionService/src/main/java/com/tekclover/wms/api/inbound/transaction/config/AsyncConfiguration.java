@@ -40,7 +40,7 @@ public class AsyncConfiguration {
     @Bean(name = "asyncExecutorPutAwayInNGP")
     public Executor AsyncExecutorPutAwayInNGP() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(3);
+        executor.setCorePoolSize(2);
         executor.setMaxPoolSize(2);
         executor.setQueueCapacity(10);
         executor.setTaskDecorator(new TenantAwareTaskDecorator());
