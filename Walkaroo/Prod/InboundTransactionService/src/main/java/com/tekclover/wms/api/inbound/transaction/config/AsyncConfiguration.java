@@ -38,7 +38,7 @@ public class AsyncConfiguration {
     }
 
     @Bean(name = "asyncExecutorPutAwayInNGP")
-    public Executor asyncExecutorForPutAway() {
+    public Executor AsyncExecutorPutAwayInNGP() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(3);
         executor.setMaxPoolSize(2);
