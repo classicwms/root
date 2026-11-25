@@ -52,7 +52,7 @@ public class ConsumerService {
     OrderManagementLineV2Repository orderManagementLineV2Repository;
 
     // PickupLine Creation Process
-    @KafkaListener(topics = "pickupline-topic-v2", groupId = "pickupline-group-v1", containerFactory = "pickupLineListenerFactory")
+    @KafkaListener(topics = "pickupline-topic-v3", groupId = "pickupline-group-v2", containerFactory = "pickupLineListenerFactory")
     public void consume(PickupLineEvent event) throws Exception {
         pickupLineService.createPickupLineNonCBMV2(event.getPickupLines(), event.getLoginUserID());
     }
