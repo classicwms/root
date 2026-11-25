@@ -60,9 +60,13 @@ public class ConsumerService {
     // PickupLine Save
     @KafkaListener(topics = "pickupline-save-topic-v2", groupId = "pickupline-save-group-v1", containerFactory = "pickupLineSaveListenerFactory")
     public void consume(PickupLineCreateEvent event) {
-        List<PickupLineV2> pickupLineV2List = event.getPickupLineV2List();
-        log.info("Saving {} records", pickupLineV2List.size());
-        pickupLineV2Repository.saveAll(pickupLineV2List);
+        try {
+            List<PickupLineV2> pickupLineV2List = event.getPickupLineV2List();
+            log.info("Saving {} records", pickupLineV2List.size());
+            pickupLineV2Repository.saveAll(pickupLineV2List);
+        } catch (Exception e) {
+            log.info("Pickup Line Save Exception :{}", e.getMessage());
+        }
     }
 
     // Inventory Creation
