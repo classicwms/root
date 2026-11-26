@@ -30,7 +30,7 @@ public class AsyncConfiguration {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(14);
         executor.setMaxPoolSize(14);
-        executor.setQueueCapacity(150);
+        executor.setQueueCapacity(100);
         executor.setTaskDecorator(new TenantAwareTaskDecorator());
         executor.setThreadNamePrefix("AsyncExecutorPutAway-");
         executor.initialize();

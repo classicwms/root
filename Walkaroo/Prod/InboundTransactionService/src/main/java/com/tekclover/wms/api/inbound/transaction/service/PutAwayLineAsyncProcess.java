@@ -357,30 +357,30 @@ public class PutAwayLineAsyncProcess extends BaseService {
 
     // Nagpur
 
-    @Async("asyncExecutorPutAwayInNGP")
-    public void createPutAwayHeaderInNGP1(String profile) {
-        long start = System.currentTimeMillis();
-        try {
-            DataBaseContextHolder.clear();
-            DataBaseContextHolder.setCurrentDb(profile);
-            log.info("PutAwayHeader Creation Process Started DB: {} ", profile);
-            List<StagingLineEntityV2> listOfStaging = stagingLineV2Repository.findStagingLinePalletWise();
-            log.info("List of StagingLine Values : {} ", listOfStaging);
-            if (!listOfStaging.isEmpty()) {
-                log.info("Pallet Id {} in PutAwayHeader :", listOfStaging.get(0).getPalletId());
-
-                int staging = stagingLineV2Repository.stagingUpdateByPallet(listOfStaging.get(0).getPalletId(), "PutAway InProcess");
-                log.info("StagingLine Update In PutAway Process Affected Row's: {}",staging);
-                createPutawayHeaderInPalletWiseInNGP(listOfStaging);
-            }
-        } catch (Exception e) {
-            log.error("PutAway failed DB={}", profile, e);
-        } finally {
-            DataBaseContextHolder.clear();
-            runningProfiles.remove(profile);
-            log.info("PutAway completed DB={} in {} ms", profile, System.currentTimeMillis() - start);
-        }
-    }
+//    @Async("asyncExecutorPutAwayInNGP")
+//    public void createPutAwayHeaderInNGP1(String profile) {
+//        long start = System.currentTimeMillis();
+//        try {
+//            DataBaseContextHolder.clear();
+//            DataBaseContextHolder.setCurrentDb(profile);
+//            log.info("PutAwayHeader Creation Process Started DB: {} ", profile);
+//            List<StagingLineEntityV2> listOfStaging = stagingLineV2Repository.findStagingLinePalletWise();
+//            log.info("List of StagingLine Values : {} ", listOfStaging);
+//            if (!listOfStaging.isEmpty()) {
+//                log.info("Pallet Id {} in PutAwayHeader :", listOfStaging.get(0).getPalletId());
+//
+//                int staging = stagingLineV2Repository.stagingUpdateByPallet(listOfStaging.get(0).getPalletId(), "PutAway InProcess");
+//                log.info("StagingLine Update In PutAway Process Affected Row's: {}",staging);
+//                createPutawayHeaderInPalletWiseInNGP(listOfStaging);
+//            }
+//        } catch (Exception e) {
+//            log.error("PutAway failed DB={}", profile, e);
+//        } finally {
+//            DataBaseContextHolder.clear();
+//            runningProfiles.remove(profile);
+//            log.info("PutAway completed DB={} in {} ms", profile, System.currentTimeMillis() - start);
+//        }
+//    }
 
     /**
      *
