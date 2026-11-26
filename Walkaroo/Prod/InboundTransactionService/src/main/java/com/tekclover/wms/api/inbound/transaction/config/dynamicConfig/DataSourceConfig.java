@@ -151,9 +151,9 @@ public class DataSourceConfig {
     private DataSource ngp1DataSource() {
         return buildDataSource(
                 "NGP1",
-                "jdbc:sqlserver://10.10.10.61;databaseName=WMS_NGP1",
+                "jdbc:sqlserver://10.10.8.10;databaseName=WMS_NGP1",
                 "sa",
-                "4V7lOXaxgAi3i6mgJL7qBUSPM"
+                "6U8KGDw2JoioVlEyx4926cP"
         );
     }
 
