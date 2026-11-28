@@ -36,7 +36,7 @@ public class KafkaConsumerConfig {
 
     @Bean
     public ConsumerFactory<String, PickupLineEvent> pickupLineConsumerFactory() {
-        return createConsumerFactory(PickupLineEvent.class, "pickupline-group-v1");
+        return createConsumerFactory(PickupLineEvent.class, "pickupline-group-v2");
     }
     @Bean
     public ConsumerFactory<String, PickupLineCreateEvent> pickupLineCreateConsumerFactory() {
